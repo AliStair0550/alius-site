@@ -4,6 +4,7 @@ const projects = [
     type: "Brandidentitet - Hjemmeside",
     desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
     image: "https://markusbrandt.dk/assets/hero.avif",
+    overlay: { title: "Markus Brandt", subtitle: "Artist & Sangskriver" },
     link: "https://markusbrandt.dk",
     layout: "image-left" as const,
   },
@@ -46,11 +47,26 @@ const projects = [
 function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("image" in p && p.image) {
     return (
-      <img
-        src={p.image}
-        alt={p.name}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
-      />
+      <>
+        <img
+          src={p.image}
+          alt={p.name}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
+        />
+        {"overlay" in p && p.overlay && (
+          <>
+            <div className="absolute inset-0 bg-ink/40 z-10" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+              <div className="font-[300] text-[1.8rem] text-parchment tracking-[0.04em]">
+                {p.overlay.title}
+              </div>
+              <div className="font-[200] text-[0.75rem] text-parchment/70 tracking-[0.15em] uppercase mt-1">
+                {p.overlay.subtitle}
+              </div>
+            </div>
+          </>
+        )}
+      </>
     );
   }
   if ("bgImage" in p && p.bgImage) {
