@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #1A1A1A;
+  --color-stone: #4A4A4A;
+  --color-moss: #2D5F4A;
+  --color-sand: #F5F3EF;
+  --color-clay: #D4D0C8;
+  --color-fog: #E8E5DF;
+  --color-slate: #6B7B75;
+  --color-parchment: #FAF8F4;
+  --font-sans: 'Jost', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-parchment);
+  color: var(--color-stone);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-moss);
+  color: var(--color-parchment);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeCircle {
+  to { opacity: 0.15; }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.2; transform: scaleY(0.5); }
+  50% { opacity: 0.8; transform: scaleY(1); }
+}
+
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-circle {
+  opacity: 0;
+  animation: fadeCircle 2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+.animate-scroll-pulse {
+  animation: scrollPulse 2.4s ease-in-out infinite;
+}
+
+.delay-200 { animation-delay: 0.2s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-900 { animation-delay: 0.9s; }
+.delay-1200 { animation-delay: 1.2s; }
+
+.portfolio-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.portfolio-track::-webkit-scrollbar { display: none; }
