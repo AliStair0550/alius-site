@@ -4,7 +4,10 @@ export default function Hero() {
   return (
     <section className="min-h-screen flex flex-col justify-center items-start px-6 md:px-8 pt-32 pb-20 max-w-[1100px] mx-auto relative">
       {/* Decorative circle */}
-      <div className="absolute right-[8%] top-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full bg-moss animate-fade-circle hidden md:block" />
+      <div
+        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full animate-fade-circle hidden md:block"
+        style={{ background: "radial-gradient(circle at 38% 32%, rgba(255,255,255,0.12) 0%, transparent 55%), #2D5F4A" }}
+      />
 
       <div className="animate-fade-up delay-200 mb-10">
         <AliusLogo width={220} />
