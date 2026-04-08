@@ -195,8 +195,7 @@ export default function Portfolio() {
           Strategi & eksekvering.
         </h2>
         <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7] max-w-[420px]">
-          Udvalgte projekter hvor vi har bygget fundament, formet strategi og
-          implementeret forandring.
+          Udvalgte projekter, hvor vi har bygget og eksekveret.
         </p>
       </div>
 
