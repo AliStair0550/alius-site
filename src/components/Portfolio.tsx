@@ -192,7 +192,7 @@ export default function Portfolio() {
     <section id="portfolio" className="bg-clay py-16 md:py-20 overflow-hidden">
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-10">
         <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
-          Strategi og eksekvering.
+          Strategi & eksekvering.
         </h2>
         <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7] max-w-[420px]">
           Udvalgte projekter hvor vi har bygget fundament, formet strategi og
