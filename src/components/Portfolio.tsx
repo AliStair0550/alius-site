@@ -31,7 +31,7 @@ const projects = [
     type: "Brandidentitet - Hjemmeside",
     desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
     image: "https://markusbrandt.dk/assets/hero.avif",
-    overlay: { title: "Markus Brandt", subtitle: "Artist & Sangskriver" },
+    overlay: { title: "Markus Brandt" },
     link: "https://markusbrandt.dk",
     layout: "image-right" as const,
   },
@@ -58,11 +58,8 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <>
             <div className="absolute inset-0 bg-ink/40 z-10" />
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <div className="font-[300] text-[1.8rem] text-parchment tracking-[0.04em]">
+              <div className="font-[400] text-[1.8rem] text-parchment tracking-[0.04em]">
                 {p.overlay.title}
-              </div>
-              <div className="font-[200] text-[0.75rem] text-parchment/70 tracking-[0.15em] uppercase mt-1">
-                {p.overlay.subtitle}
               </div>
             </div>
           </>
