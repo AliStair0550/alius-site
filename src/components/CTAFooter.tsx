@@ -25,19 +25,19 @@ export function CTA() {
 export function Footer() {
   return (
     <footer className="px-6 md:px-8 py-8 max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 border-t border-fog">
-      <div className="font-[200] text-[0.7rem] text-clay tracking-[0.05em]">
-        &copy; 2026 Alius - Den anden vej til vækst
+      <div className="font-[200] text-[0.7rem] text-stone tracking-[0.05em]">
+        &copy; 2026 Alius - Strategi, eksekveret.
       </div>
       <div className="flex gap-6">
         <a
           href="#"
-          className="font-[200] text-[0.7rem] text-clay tracking-[0.05em] hover:text-moss transition-colors"
+          className="font-[200] text-[0.7rem] text-stone tracking-[0.05em] hover:text-moss transition-colors"
         >
           LinkedIn
         </a>
         <a
           href="mailto:hej@alius.dk"
-          className="font-[200] text-[0.7rem] text-clay tracking-[0.05em] hover:text-moss transition-colors"
+          className="font-[200] text-[0.7rem] text-stone tracking-[0.05em] hover:text-moss transition-colors"
         >
           hej@alius.dk
         </a>
