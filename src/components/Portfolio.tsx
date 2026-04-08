@@ -37,7 +37,7 @@ const projects = [
     name: "folka",
     type: "Platform - SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
-    bg: "#283038",
+    image: "/biking.avif",
     link: "https://folka.dk",
   },
 ];
