@@ -1,99 +1,104 @@
-const services = [
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+const columns = [
   {
-    num: "01",
-    name: "Fundament",
-    tagline: "Vi skaber retning for din virksomhed.",
-    price: "Fra 15.000 kr. - 2-4 uger",
-    desc: "Alt det grundlæggende der skal være på plads før du kan vokse. Vi bygger dit fundament fra bunden.",
+    label: "BRAND",
+    heading: "Identitet, udtryk og oplevelse",
+    desc: "Vi bygger hvordan verden møder din virksomhed - fra logo og hjemmeside til den måde du taler på.",
     items: [
-      "Positioneringsanalyse og konkurrentscan",
-      "Brandidentitet - logo, farver, typografi",
-      "Hjemmeside - design og udvikling",
-      "Tone of voice og indholdsrammer",
-      "Handlingsplan med prioriterede tiltag",
+      { title: "Visuel identitet og brandguide", sub: "Logo, farver, typografi, regler" },
+      { title: "Hjemmeside - design og udvikling", sub: "Ikke bare flot. Konverterer." },
+      { title: "Tone of voice og content", sub: "Skarpt sprog der lyder som dig" },
+      { title: "Social media og digital synlighed", sub: "Synlig hvor dine kunder er" },
     ],
   },
   {
-    num: "02",
-    name: "Form",
-    tagline: "Vi former din vækststrategi.",
-    price: "Fra 45.000 kr. - 4-8 uger",
-    desc: "For virksomheden der har fundamentet men mangler retning for vækst. Vi går i dybden med strategi.",
+    label: "STRATEGI",
+    heading: "Retning, vækst og beslutninger",
+    desc: "Vi analyserer dit marked, skærper din position og bygger den plan der tager dig fra hvor du er til hvor du skal hen.",
     items: [
-      "Prisstrategi og prisoptimering",
-      "Vækststrategi - Ansoff, blue ocean, markedsanalyse",
-      "Forretningsudvikling og skaleringsplan",
-      "Kunderejse og konverteringsoptimering",
-      "Procesoptimering og automatisering",
+      { title: "Positionering og konkurrentanalyse", sub: "Find dit vindue i markedet" },
+      { title: "Vækststrategi og skaleringsplan", sub: "Systematisk vej fra A til B" },
+      { title: "Prisstrategi og forretningsmodel", sub: "Prissæt rigtigt, ikke efter mavefølelse" },
+      { title: "Go-to-market og kunderejse", sub: "Fra første kontakt til loyal kunde" },
     ],
   },
   {
-    num: "03",
-    name: "Forandring",
-    tagline: "Vi implementerer transformation.",
-    price: "Fra 90.000 kr. - 2-4 måneder",
-    desc: "For virksomheden der ved hvad der skal ske men har brug for en partner der eksekverer. Hands-on projektledelse.",
+    label: "TEKNOLOGI",
+    heading: "Systemer, automatisering og AI",
+    desc: "Vi bygger de tekniske løsninger der driver din forretning - så du bruger tid på kunder, ikke på systemer.",
     items: [
-      "Projektledelse af hele forandringsprocessen",
-      "Implementering af nye systemer og processer",
-      "Organisationsudvikling og change management",
-      "Tech stack-opsætning - CRM, automatisering, integrationer",
-      "Løbende sparring og justering over 3 måneder",
+      { title: "AI-agenter og chatbots", sub: "Svar kunder 24/7, book møder automatisk" },
+      { title: "Medlemsplatforme og kundeportaler", sub: "Digitalt fællesskab med betaling" },
+      { title: "Automatisering og workflows", sub: "Fjern gentagne opgaver permanent" },
+      { title: "CRM og systemintegration", sub: "Ét overblik, ikke ti systemer" },
     ],
   },
 ];
 
 export default function Services() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section id="ydelser" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
       <div className="text-[0.6rem] tracking-[0.22em] uppercase text-clay font-[300] mb-8">
         Ydelser
       </div>
-      <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-4 leading-[1.3]">
-        Tre pakker. En filosofi.
+      <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-2 leading-[1.3]">
+        Tre discipliner. Én løsning.
       </h2>
-      <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] max-w-[560px]">
-        Hvert forløb starter med at forstå din virksomhed. Derefter bygger vi
-        - sammen. Faste priser, klare leverancer, ingen overraskelser.
+      <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12">
+        Ikke hver for sig. Sammen.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-clay border border-clay mt-10">
-        {services.map((s) => (
+      <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
+        {columns.map((col, i) => (
           <div
-            key={s.num}
-            className="bg-parchment p-8 flex flex-col gap-3 hover:bg-sand transition-colors"
+            key={col.label}
+            className={`py-8 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0 border-b md:border-b-0 md:border-r border-clay last:border-b-0 last:md:border-r-0 transition-all duration-700 ${
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+            style={{ transitionDelay: `${i * 0.2}s` }}
           >
-            <div className="font-[100] text-[2.5rem] text-fog leading-none">
-              {s.num}
+            <div className="text-[0.65rem] tracking-[0.12em] uppercase text-moss font-[400] mb-4">
+              {col.label}
             </div>
-            <div className="font-[400] text-[1.15rem] text-ink tracking-[0.04em]">
-              {s.name}
-            </div>
-            <div className="font-[300] text-[0.8rem] text-moss italic">
-              {s.tagline}
-            </div>
-            <div className="font-[200] text-[0.75rem] text-slate tracking-[0.04em] mt-1">
-              {s.price}
-            </div>
-            <div className="font-[200] text-[0.85rem] text-stone leading-[1.8]">
-              {s.desc}
-            </div>
-            <ul className="mt-2 flex flex-col gap-1">
-              {s.items.map((item, i) => (
-                <li
-                  key={i}
-                  className="font-[200] text-[0.8rem] text-stone leading-[1.7] pl-4 relative before:content-[''] before:absolute before:left-0 before:top-[0.55em] before:w-1 before:h-1 before:rounded-full before:bg-moss"
-                >
-                  {item}
-                </li>
+            <h3 className="font-[300] text-[1.15rem] text-ink mb-3 leading-[1.4]">
+              {col.heading}
+            </h3>
+            <p className="font-[200] text-[0.85rem] text-stone leading-[1.8] mb-6">
+              {col.desc}
+            </p>
+
+            <div className="flex flex-col gap-4">
+              {col.items.map((item) => (
+                <div key={item.title} className="flex gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-moss shrink-0 mt-1.5" />
+                  <div>
+                    <div className="font-[300] text-[0.85rem] text-ink leading-[1.5]">
+                      {item.title}
+                    </div>
+                    <div className="font-[200] text-[0.75rem] text-slate leading-[1.5]">
+                      {item.sub}
+                    </div>
+                  </div>
+                </div>
               ))}
-            </ul>
-            <a
-              href="#"
-              className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-auto pt-3 hover:opacity-70 transition-opacity"
-            >
-              Læs mere &rarr;
-            </a>
+            </div>
           </div>
         ))}
       </div>
