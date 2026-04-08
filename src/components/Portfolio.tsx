@@ -10,7 +10,7 @@ const projects = [
     image: "https://markusbrandt.dk/assets/hero.avif",
     link: "https://markusbrandt.dk",
     accent: "#6B2230",
-    width: "min-w-[480px]",
+    width: "min-w-[560px]",
   },
   {
     name: "Cafe Christian IX",
@@ -20,7 +20,7 @@ const projects = [
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
     accent: "#C5A55A",
-    width: "min-w-[480px]",
+    width: "min-w-[380px]",
   },
   {
     name: "Smashii",
@@ -30,7 +30,7 @@ const projects = [
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
     accent: "#3D2060",
-    width: "min-w-[380px]",
+    width: "min-w-[560px]",
   },
   {
     name: "SSTUDIO",
@@ -39,7 +39,7 @@ const projects = [
     image: "/stylister.avif",
     link: "https://sstudio.dk",
     accent: "#2D5F4A",
-    width: "min-w-[540px]",
+    width: "min-w-[380px]",
   },
   {
     name: "folka",
@@ -48,7 +48,7 @@ const projects = [
     image: "/biking.avif",
     link: "https://folka.dk",
     accent: "#2A4858",
-    width: "min-w-[480px]",
+    width: "min-w-[560px]",
   },
 ];
 
