@@ -159,18 +159,18 @@ export default function Portfolio() {
               {p.layout === "full" ? (
                 <div className="relative aspect-[16/10] overflow-hidden rounded-sm">
                   <ProjectImage p={p} />
-                  <div className="absolute inset-0 bg-ink/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-                      <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
+                      <div className="text-[0.6rem] tracking-[0.18em] uppercase text-clay font-[300]">
                         {p.type}
                       </div>
                     </div>
                     <div className="font-[400] text-[1.3rem] text-parchment mb-2">
                       {p.name}
                     </div>
-                    <div className="font-[200] text-[0.85rem] text-slate leading-[1.7] max-w-[480px] mb-4">
+                    <div className="font-[200] text-[0.85rem] text-fog leading-[1.7] max-w-[480px] mb-4">
                       {p.desc}
                     </div>
                     <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss">
