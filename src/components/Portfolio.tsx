@@ -107,7 +107,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="w-[400px]"
+            className="w-[300px]"
           />
         )}
       </div>
@@ -121,14 +121,14 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
     <div className="flex flex-col justify-center">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
+        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-clay font-[300]">
           {p.type}
         </div>
       </div>
       <div className="font-[400] text-[1.3rem] text-parchment mb-2 group-hover:text-moss transition-colors">
         {p.name}
       </div>
-      <div className="font-[200] text-[0.85rem] text-slate leading-[1.7] mb-4">
+      <div className="font-[200] text-[0.85rem] text-fog leading-[1.7] mb-4">
         {p.desc}
       </div>
       <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss hover:opacity-70 transition-opacity">
