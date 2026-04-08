@@ -1,21 +1,12 @@
 const projects = [
   {
-    name: "Markus Brandt",
-    type: "Brandidentitet - Hjemmeside",
-    desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
-    image: "https://markusbrandt.dk/assets/hero.avif",
-    overlay: { title: "Markus Brandt", subtitle: "Artist & Sangskriver" },
-    link: "https://markusbrandt.dk",
+    name: "SSTUDIO",
+    type: "Branding - Rebrand",
+    desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
+    image: "/stylister.avif",
+    cornerLogo: "/sstudio-logo.svg",
+    link: "https://sstudio.dk",
     layout: "image-left" as const,
-  },
-  {
-    name: "Cafe Christian IX",
-    type: "Hjemmeside - Design",
-    desc: "Restaurant-hjemmeside med online menu, bordreservation og mobil-optimering.",
-    bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
-    logo: "https://www.cafe-cix.dk/assets/logo-white.png",
-    link: "https://cafe-cix.dk",
-    layout: "image-right" as const,
   },
   {
     name: "Smashii",
@@ -24,14 +15,24 @@ const projects = [
     bg: "#3D2060",
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
+    layout: "image-right" as const,
+  },
+  {
+    name: "Cafe Christian IX",
+    type: "Hjemmeside - Design",
+    desc: "Restaurant-hjemmeside med online menu, bordreservation og mobil-optimering.",
+    bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
+    logo: "https://www.cafe-cix.dk/assets/logo-white.png",
+    link: "https://cafe-cix.dk",
     layout: "image-left" as const,
   },
   {
-    name: "SSTUDIO",
-    type: "Branding - Rebrand",
-    desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
-    image: "/stylister.avif",
-    link: "https://sstudio.dk",
+    name: "Markus Brandt",
+    type: "Brandidentitet - Hjemmeside",
+    desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
+    image: "https://markusbrandt.dk/assets/hero.avif",
+    overlay: { title: "Markus Brandt", subtitle: "Artist & Sangskriver" },
+    link: "https://markusbrandt.dk",
     layout: "image-right" as const,
   },
   {
@@ -66,6 +67,13 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
             </div>
           </>
         )}
+        {"cornerLogo" in p && p.cornerLogo && (
+          <img
+            src={p.cornerLogo}
+            alt={`${p.name} logo`}
+            className="absolute bottom-4 right-4 w-[100px] z-10 opacity-80"
+          />
+        )}
       </>
     );
   }
@@ -99,7 +107,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="w-[340px]"
+            className="w-[400px]"
           />
         )}
       </div>
