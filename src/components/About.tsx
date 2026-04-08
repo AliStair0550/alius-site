@@ -1,6 +1,6 @@
 const values = [
-  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Hver beslutning skal gøre tingene enklere." },
-  { label: "Håndværk", desc: "Vi bygger færre ting, men bygger dem rigtigt. Kvalitet over kvantitet." },
+  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Aldrig tilføjer." },
+  { label: "Håndværk", desc: "Vi bygger færre ting, men bygger dem rigtigt." },
   { label: "Handling", desc: "En plan uden eksekvering er bare papir. Vi stopper når løsningen virker." },
   { label: "Ærlighed", desc: "Vi siger hvad vi mener. Også når det er ubehageligt. Du fortjener sandheden." },
 ];
@@ -25,7 +25,7 @@ export default function About() {
             Brand, strategi og teknologi. Bygget som ét.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Jeg hedder Alix. Jeg bygger virksomheder - ikke præsentationer. Med
+            Jeg hedder Alix. Jeg bygger løsninger - ikke præsentationer. Med
             baggrund i forretningsudvikling, branding og teknisk eksekvering
             hjælper jeg virksomheder med at vokse gennem løsninger hvor strategi,
             brand og teknologi er bygget sammen.
