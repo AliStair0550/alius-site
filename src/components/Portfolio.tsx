@@ -50,18 +50,18 @@ export default function Portfolio() {
   };
 
   return (
-    <section id="portfolio" className="bg-stone py-24 md:py-32 overflow-hidden">
+    <section id="portfolio" className="bg-clay py-24 md:py-32 overflow-hidden">
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between md:items-end mb-14 gap-6">
         <div>
-          <div className="text-[0.6rem] tracking-[0.22em] uppercase text-clay font-[300] mb-8">
+          <div className="text-[0.6rem] tracking-[0.22em] uppercase text-slate font-[300] mb-8">
             Portfolio
           </div>
-          <h2 className="font-[300] text-[2.2rem] text-parchment tracking-[0.03em] leading-[1.3]">
+          <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
             Strategi og eksekvering.
             <br />
             Fra samme hånd.
           </h2>
-          <p className="font-[200] text-[0.9rem] text-fog mt-4 leading-[1.7] max-w-[420px]">
+          <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7] max-w-[420px]">
             Udvalgte projekter hvor vi har bygget fundament, formet strategi og
             implementeret forandring.
           </p>
@@ -69,13 +69,13 @@ export default function Portfolio() {
         <div className="flex gap-3">
           <button
             onClick={() => scroll(-1)}
-            className="w-[44px] h-[44px] border border-clay/50 text-parchment flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
+            className="w-[44px] h-[44px] border border-stone/30 text-ink flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
           >
             &larr;
           </button>
           <button
             onClick={() => scroll(1)}
-            className="w-[44px] h-[44px] border border-clay/50 text-parchment flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
+            className="w-[44px] h-[44px] border border-stone/30 text-ink flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
           >
             &rarr;
           </button>
@@ -140,17 +140,17 @@ export default function Portfolio() {
               </div>
             </div>
 
-            <div className="pt-5 pb-2">
+            <div className="bg-parchment border border-fog p-5">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-                <div className="text-[0.6rem] tracking-[0.18em] uppercase text-clay font-[300]">
+                <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
                   {p.type}
                 </div>
               </div>
-              <div className="font-[300] text-[1.15rem] text-parchment mb-1.5">
+              <div className="font-[300] text-[1.15rem] text-ink mb-1.5">
                 {p.name}
               </div>
-              <div className="font-[200] text-[0.82rem] text-fog/70 leading-[1.6]">
+              <div className="font-[200] text-[0.82rem] text-stone leading-[1.6]">
                 {p.desc}
               </div>
             </div>
@@ -161,7 +161,7 @@ export default function Portfolio() {
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-12">
         <a
           href="#"
-          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-clay border-b border-clay pb-0.5 hover:text-moss hover:border-moss transition-colors"
+          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone border-b border-stone pb-0.5 hover:text-moss hover:border-moss transition-colors"
         >
           Se alle projekter og mit CV &rarr;
         </a>
