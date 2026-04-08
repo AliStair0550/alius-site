@@ -18,9 +18,6 @@ export default function Home() {
         <p className="font-[300] text-[1.3rem] md:text-[1.6rem] text-ink leading-[1.6] max-w-[600px] mb-5">
           De bedste løsninger opstår når brand, strategi og teknologi er bygget sammen.
         </p>
-        <span className="font-[200] text-[0.75rem] text-slate tracking-[0.1em] uppercase">
-          Ikke hver for sig. Sammen.
-        </span>
       </section>
 
       <div className="h-px bg-clay max-w-[1100px] mx-auto" />
