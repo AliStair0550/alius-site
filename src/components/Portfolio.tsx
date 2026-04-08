@@ -108,7 +108,7 @@ export default function Portfolio() {
                     <img
                       src={p.logo}
                       alt={`${p.name} logo`}
-                      className="w-[260px]"
+                      className="w-[340px]"
                     />
                   )}
                 </div>
