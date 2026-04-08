@@ -19,7 +19,7 @@ function BouncingCircle() {
     const isMobile = window.innerWidth < 768;
     const boxW = isMobile ? 200 : 400;
     const boxH = isMobile ? 200 : 400;
-    const size = isMobile ? 80 : 120;
+    const size = isMobile ? 60 : 90;
 
     const speed = 0.7;
     const angle = Math.random() * Math.PI * 2;
