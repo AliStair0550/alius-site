@@ -80,7 +80,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
         <img
           src={p.bgImage}
           alt={p.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-ink/50" />
         {"logo" in p && p.logo && (
