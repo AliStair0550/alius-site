@@ -9,6 +9,7 @@ const projects = [
     desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
     image: "https://markusbrandt.dk/assets/hero.avif",
     link: "https://markusbrandt.dk",
+    accent: "#6B2230",
   },
   {
     name: "Cafe Christian IX",
@@ -17,6 +18,7 @@ const projects = [
     bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
+    accent: "#C5A55A",
   },
   {
     name: "Smashii",
@@ -25,6 +27,7 @@ const projects = [
     bg: "#3D2060",
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
+    accent: "#3D2060",
   },
   {
     name: "SSTUDIO",
@@ -32,6 +35,7 @@ const projects = [
     desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
     image: "/stylister.avif",
     link: "https://sstudio.dk",
+    accent: "#2D5F4A",
   },
   {
     name: "folka",
@@ -39,6 +43,7 @@ const projects = [
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
     image: "/biking.avif",
     link: "https://folka.dk",
+    accent: "#2A4858",
   },
 ];
 
@@ -97,9 +102,12 @@ function renderCard(p: (typeof projects)[number], i: number) {
         </div>
       </div>
 
-      <div className="bg-parchment border border-fog p-5">
+      <div
+        className="bg-parchment border border-fog border-l-2 p-5"
+        style={{ borderLeftColor: p.accent }}
+      >
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-moss" />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: p.accent }} />
           <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
             {p.type}
           </div>
