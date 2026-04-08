@@ -11,15 +11,11 @@ export default function Hero() {
       </div>
 
       <h1 className="animate-fade-up delay-500 font-[300] text-[2.2rem] md:text-[2.8rem] text-ink leading-[1.35] tracking-[0.01em] max-w-[600px] mb-5">
-        Strategi der bliver bygget.
-        <br />
-        Ikke bare praesenteret.
+        Strategi, eksekveret.
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8">
-        Vi hjaelper smaa og mellemstore virksomheder med at skabe fundament for
-        vaekst - gennem positionering, branding og teknisk eksekvering. Fra en
-        partner.
+        Vi hjælper små og mellemstore virksomheder med at skabe et stærkt fundament for vækst gennem positionering, branding og teknisk eksekvering.
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap">
