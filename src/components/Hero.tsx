@@ -64,7 +64,10 @@ function BouncingCircle() {
     <div className="absolute right-[4%] top-1/2 -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0 border border-fog">
       <div
         ref={circleRef}
-        className="rounded-full opacity-15 will-change-transform bg-moss"
+        className="rounded-full will-change-transform"
+        style={{
+          background: "radial-gradient(circle at 38% 32%, rgba(255,255,255,0.12) 0%, transparent 55%), #2D5F4A",
+        }}
       />
     </div>
   );
