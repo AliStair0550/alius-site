@@ -1,3 +1,7 @@
+"use client";
+
+import { useRef } from "react";
+
 const projects = [
   {
     name: "Markus Brandt",
@@ -10,21 +14,22 @@ const projects = [
     name: "Cafe Christian IX",
     type: "Hjemmeside - Design",
     desc: "Restaurant-hjemmeside med online menu, bordreservation og mobil-optimering.",
-    image: "https://www.cafe-cix.dk/assets/Billede15.jpg",
+    bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
+    logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
   },
   {
     name: "Smashii",
     type: "Branding - Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
-    image: "https://smashii.dk/assets/logonew.png",
+    bg: "#6B2FA0",
+    logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
   },
   {
     name: "SSTUDIO",
     type: "Branding - Rebrand",
     desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
-    image: null,
     bg: "#2a3028",
     link: "https://sstudio.dk",
   },
@@ -32,71 +37,124 @@ const projects = [
     name: "folka",
     type: "Platform - SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
-    image: null,
     bg: "#283038",
     link: "https://folka.dk",
   },
 ];
 
 export default function Portfolio() {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: number) => {
+    trackRef.current?.scrollBy({ left: dir * 440, behavior: "smooth" });
+  };
+
   return (
-    <section id="portfolio" className="bg-ink py-20 md:py-28">
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-12">
-        <div className="text-[0.6rem] tracking-[0.22em] uppercase text-slate font-[300] mb-8">
-          Portfolio
+    <section id="portfolio" className="bg-ink py-20 md:py-28 overflow-hidden">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between md:items-end mb-10 gap-6">
+        <div>
+          <div className="text-[0.6rem] tracking-[0.22em] uppercase text-slate font-[300] mb-8">
+            Portfolio
+          </div>
+          <h2 className="font-[300] text-[2rem] text-parchment tracking-[0.03em] leading-[1.3]">
+            Strategi og eksekvering.
+            <br />
+            Fra samme hånd.
+          </h2>
+          <p className="font-[200] text-[0.9rem] text-slate mt-3 leading-[1.7] max-w-[400px]">
+            Udvalgte projekter hvor vi har bygget fundament, formet strategi og
+            implementeret forandring.
+          </p>
         </div>
-        <h2 className="font-[300] text-[2rem] text-parchment tracking-[0.03em] leading-[1.3]">
-          Strategi og eksekvering.
-          <br />
-          Fra samme hånd.
-        </h2>
-        <p className="font-[200] text-[0.9rem] text-slate mt-3 leading-[1.7] max-w-[400px]">
-          Udvalgte projekter hvor vi har bygget fundament, formet strategi og
-          implementeret forandring.
-        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => scroll(-1)}
+            className="w-[42px] h-[42px] border border-slate text-parchment flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
+          >
+            &larr;
+          </button>
+          <button
+            onClick={() => scroll(1)}
+            className="w-[42px] h-[42px] border border-slate text-parchment flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
+          >
+            &rarr;
+          </button>
+        </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col gap-5">
+      <div
+        ref={trackRef}
+        className="portfolio-track flex gap-5 px-6 md:px-8 overflow-x-auto scroll-smooth"
+      >
         {projects.map((p, i) => (
           <a
             key={i}
             href={p.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="block relative aspect-[16/9] overflow-hidden group cursor-pointer"
+            className="min-w-[400px] shrink-0 bg-[#222] border border-[#333] hover:border-moss transition-colors cursor-pointer group block"
           >
-            {p.image ? (
-              <img
-                src={p.image}
-                alt={p.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              />
-            ) : (
-              <div
-                className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.03]"
-                style={{ background: p.bg }}
-              />
-            )}
+            <div className="w-full aspect-[16/10] relative overflow-hidden">
+              {"image" in p && p.image ? (
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              ) : "bgImage" in p && p.bgImage ? (
+                <>
+                  <img
+                    src={p.bgImage}
+                    alt={p.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                  <div className="absolute inset-0 bg-ink/50" />
+                  {"logo" in p && p.logo && (
+                    <img
+                      src={p.logo}
+                      alt={`${p.name} logo`}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] z-10"
+                    />
+                  )}
+                </>
+              ) : "bg" in p && p.bg ? (
+                <div
+                  className="absolute inset-0 flex items-center justify-center transition-transform duration-500 group-hover:scale-[1.03]"
+                  style={{ background: p.bg }}
+                >
+                  {"logo" in p && p.logo && (
+                    <img
+                      src={p.logo}
+                      alt={`${p.name} logo`}
+                      className="w-[120px]"
+                    />
+                  )}
+                </div>
+              ) : null}
 
-            <div className="absolute inset-0 bg-ink/40 group-hover:bg-moss/80 transition-colors duration-300 flex flex-col justify-end p-6 md:p-10">
-              <div className="text-[0.6rem] tracking-[0.18em] uppercase text-parchment/70 font-[300] mb-2">
+              <div className="absolute inset-0 bg-moss/85 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                <span className="text-[0.72rem] tracking-[0.12em] uppercase text-parchment font-[300]">
+                  Se projekt &rarr;
+                </span>
+              </div>
+            </div>
+
+            <div className="p-5">
+              <div className="text-[0.6rem] tracking-[0.15em] uppercase text-slate font-[300] mb-1">
                 {p.type}
               </div>
-              <div className="font-[300] text-[1.4rem] md:text-[1.8rem] text-parchment mb-1">
+              <div className="font-[400] text-[1rem] text-parchment mb-1">
                 {p.name}
               </div>
-              <div className="font-[200] text-[0.82rem] text-parchment/80 leading-[1.6] max-w-[480px]">
+              <div className="font-[200] text-[0.8rem] text-slate leading-[1.6]">
                 {p.desc}
               </div>
-              <span className="mt-4 font-[300] text-[0.72rem] tracking-[0.12em] uppercase text-parchment opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Se projekt &rarr;
-              </span>
             </div>
           </a>
         ))}
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-10">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-8">
         <a
           href="#"
           className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-slate border-b border-slate pb-0.5 hover:text-moss hover:border-moss transition-colors"
