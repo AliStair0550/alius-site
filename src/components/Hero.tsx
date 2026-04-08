@@ -15,7 +15,7 @@ export default function Hero() {
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8">
-        Vi hjælper små og mellemstore virksomheder med at skabe et stærkt fundament for vækst gennem positionering, branding og teknisk eksekvering.
+        Vi hjælper virksomheder med at skabe et stærkt fundament for vækst gennem positionering, branding og teknisk eksekvering.
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap">
