@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect, useCallback } from "react";
 
 const projects = [
   {
@@ -42,16 +42,107 @@ const projects = [
   },
 ];
 
+function renderCard(p: (typeof projects)[number], i: number) {
+  return (
+    <a
+      key={i}
+      href={p.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="min-w-[480px] shrink-0 cursor-pointer group block"
+    >
+      <div className="w-full aspect-[16/10] relative overflow-hidden rounded-sm">
+        {"image" in p && p.image ? (
+          <img
+            src={p.image}
+            alt={p.name}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+          />
+        ) : "bgImage" in p && p.bgImage ? (
+          <>
+            <img
+              src={p.bgImage}
+              alt={p.name}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+            />
+            <div className="absolute inset-0 bg-ink/50" />
+            {"logo" in p && p.logo && (
+              <img
+                src={p.logo}
+                alt={`${p.name} logo`}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
+                style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
+              />
+            )}
+          </>
+        ) : "bg" in p && p.bg ? (
+          <div
+            className="absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-[1.05]"
+            style={{ background: p.bg }}
+          >
+            {"logo" in p && p.logo && (
+              <img
+                src={p.logo}
+                alt={`${p.name} logo`}
+                className="w-[340px]"
+              />
+            )}
+          </div>
+        ) : null}
+
+        <div className="absolute inset-0 bg-moss/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+          <span className="text-[0.78rem] tracking-[0.12em] uppercase text-parchment font-[300]">
+            Se projekt &rarr;
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-parchment border border-fog p-5">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-moss" />
+          <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
+            {p.type}
+          </div>
+        </div>
+        <div className="font-[300] text-[1.15rem] text-ink mb-1.5">
+          {p.name}
+        </div>
+        <div className="font-[200] text-[0.82rem] text-stone leading-[1.6]">
+          {p.desc}
+        </div>
+      </div>
+    </a>
+  );
+}
+
 export default function Portfolio() {
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (dir: number) => {
-    trackRef.current?.scrollBy({ left: dir * 520, behavior: "smooth" });
-  };
+  const handleLoop = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const cardWidth = 480 + 24;
+    const setWidth = cardWidth * projects.length;
+
+    if (track.scrollLeft <= 0) {
+      track.scrollLeft += setWidth;
+    } else if (track.scrollLeft >= setWidth * 2) {
+      track.scrollLeft -= setWidth;
+    }
+  }, []);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const cardWidth = 480 + 24;
+    track.scrollLeft = cardWidth * projects.length;
+    track.addEventListener("scroll", handleLoop);
+    return () => track.removeEventListener("scroll", handleLoop);
+  }, [handleLoop]);
 
   return (
-    <section id="portfolio" className="bg-clay py-24 md:py-32 overflow-hidden">
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-14">
+    <section id="portfolio" className="bg-clay py-16 md:py-20 overflow-hidden">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-10">
         <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
           Strategi og eksekvering.
           <br />
@@ -65,81 +156,14 @@ export default function Portfolio() {
 
       <div
         ref={trackRef}
-        className="portfolio-track flex gap-6 px-6 md:px-8 overflow-x-auto scroll-smooth"
+        className="portfolio-track flex gap-6 px-6 md:px-8 overflow-x-auto"
       >
-        {projects.map((p, i) => (
-          <a
-            key={i}
-            href={p.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="min-w-[480px] shrink-0 cursor-pointer group block"
-          >
-            <div className="w-full aspect-[16/10] relative overflow-hidden rounded-sm">
-              {"image" in p && p.image ? (
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                />
-              ) : "bgImage" in p && p.bgImage ? (
-                <>
-                  <img
-                    src={p.bgImage}
-                    alt={p.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                  />
-                  <div className="absolute inset-0 bg-ink/50" />
-                  {"logo" in p && p.logo && (
-                    <img
-                      src={p.logo}
-                      alt={`${p.name} logo`}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
-                      style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
-                    />
-                  )}
-                </>
-              ) : "bg" in p && p.bg ? (
-                <div
-                  className="absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-[1.05]"
-                  style={{ background: p.bg }}
-                >
-                  {"logo" in p && p.logo && (
-                    <img
-                      src={p.logo}
-                      alt={`${p.name} logo`}
-                      className="w-[340px]"
-                    />
-                  )}
-                </div>
-              ) : null}
-
-              <div className="absolute inset-0 bg-moss/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                <span className="text-[0.78rem] tracking-[0.12em] uppercase text-parchment font-[300]">
-                  Se projekt &rarr;
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-parchment border border-fog p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-                <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
-                  {p.type}
-                </div>
-              </div>
-              <div className="font-[300] text-[1.15rem] text-ink mb-1.5">
-                {p.name}
-              </div>
-              <div className="font-[200] text-[0.82rem] text-stone leading-[1.6]">
-                {p.desc}
-              </div>
-            </div>
-          </a>
-        ))}
+        {projects.map((p, i) => renderCard(p, i))}
+        {projects.map((p, i) => renderCard(p, i + projects.length))}
+        {projects.map((p, i) => renderCard(p, i + projects.length * 2))}
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-12">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-10">
         <a
           href="#"
           className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone border-b border-stone pb-0.5 hover:text-moss hover:border-moss transition-colors"
