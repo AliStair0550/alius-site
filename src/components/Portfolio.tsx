@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 
 const projects = [
   {
@@ -10,6 +10,7 @@ const projects = [
     image: "https://markusbrandt.dk/assets/hero.avif",
     link: "https://markusbrandt.dk",
     accent: "#6B2230",
+    width: "min-w-[480px]",
   },
   {
     name: "Cafe Christian IX",
@@ -19,6 +20,7 @@ const projects = [
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
     accent: "#C5A55A",
+    width: "min-w-[480px]",
   },
   {
     name: "Smashii",
@@ -28,6 +30,7 @@ const projects = [
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
     accent: "#3D2060",
+    width: "min-w-[380px]",
   },
   {
     name: "SSTUDIO",
@@ -36,6 +39,7 @@ const projects = [
     image: "/stylister.avif",
     link: "https://sstudio.dk",
     accent: "#2D5F4A",
+    width: "min-w-[540px]",
   },
   {
     name: "folka",
@@ -44,60 +48,99 @@ const projects = [
     image: "/biking.avif",
     link: "https://folka.dk",
     accent: "#2A4858",
+    width: "min-w-[480px]",
   },
 ];
 
-function renderCard(p: (typeof projects)[number], i: number) {
+function CardImage({ p }: { p: (typeof projects)[number] }) {
+  if ("image" in p && p.image) {
+    return (
+      <img
+        src={p.image}
+        alt={p.name}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+      />
+    );
+  }
+  if ("bgImage" in p && p.bgImage) {
+    return (
+      <>
+        <img
+          src={p.bgImage}
+          alt={p.name}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+        />
+        <div className="absolute inset-0 bg-ink/50" />
+        {"logo" in p && p.logo && (
+          <img
+            src={p.logo}
+            alt={`${p.name} logo`}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
+            style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
+          />
+        )}
+      </>
+    );
+  }
+  if ("bg" in p && p.bg) {
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-[1.05]"
+        style={{ background: p.bg }}
+      >
+        {"logo" in p && p.logo && (
+          <img
+            src={p.logo}
+            alt={`${p.name} logo`}
+            className="w-[340px]"
+          />
+        )}
+      </div>
+    );
+  }
+  return null;
+}
+
+function RenderCard({ p, i }: { p: (typeof projects)[number]; i: number }) {
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [hovering, setHovering] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  const onMove = (e: React.MouseEvent) => {
+    const rect = imgRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <a
       key={i}
       href={p.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="min-w-[480px] shrink-0 cursor-pointer group block"
+      className={`${p.width} shrink-0 cursor-pointer group block`}
     >
-      <div className="w-full aspect-[16/10] relative overflow-hidden rounded-sm">
-        {"image" in p && p.image ? (
-          <img
-            src={p.image}
-            alt={p.name}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-          />
-        ) : "bgImage" in p && p.bgImage ? (
-          <>
-            <img
-              src={p.bgImage}
-              alt={p.name}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-            />
-            <div className="absolute inset-0 bg-ink/50" />
-            {"logo" in p && p.logo && (
-              <img
-                src={p.logo}
-                alt={`${p.name} logo`}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
-                style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
-              />
-            )}
-          </>
-        ) : "bg" in p && p.bg ? (
-          <div
-            className="absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-[1.05]"
-            style={{ background: p.bg }}
-          >
-            {"logo" in p && p.logo && (
-              <img
-                src={p.logo}
-                alt={`${p.name} logo`}
-                className="w-[340px]"
-              />
-            )}
-          </div>
-        ) : null}
+      <div
+        ref={imgRef}
+        className="w-full aspect-[16/10] relative overflow-hidden rounded-sm"
+        onMouseMove={onMove}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+      >
+        <CardImage p={p} />
 
-        <div className="absolute inset-0 bg-moss/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-          <span className="text-[0.78rem] tracking-[0.12em] uppercase text-parchment font-[300]">
-            Se projekt &rarr;
+        <div
+          className="absolute rounded-full bg-moss/90 z-20 pointer-events-none flex items-center justify-center transition-transform duration-300"
+          style={{
+            width: 120,
+            height: 120,
+            left: mouse.x - 60,
+            top: mouse.y - 60,
+            transform: hovering ? "scale(1)" : "scale(0)",
+          }}
+        >
+          <span className="text-[0.65rem] tracking-[0.1em] uppercase text-parchment font-[300]">
+            Se projekt
           </span>
         </div>
       </div>
@@ -161,9 +204,9 @@ export default function Portfolio() {
         ref={trackRef}
         className="portfolio-track flex gap-6 px-6 md:px-8 overflow-x-auto"
       >
-        {projects.map((p, i) => renderCard(p, i))}
-        {projects.map((p, i) => renderCard(p, i + projects.length))}
-        {projects.map((p, i) => renderCard(p, i + projects.length * 2))}
+        {projects.map((p, i) => <RenderCard p={p} i={i} key={i} />)}
+        {projects.map((p, i) => <RenderCard p={p} i={i + projects.length} key={i + projects.length} />)}
+        {projects.map((p, i) => <RenderCard p={p} i={i + projects.length * 2} key={i + projects.length * 2} />)}
       </div>
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-10">
