@@ -145,7 +145,7 @@ function RenderCard({ p, i }: { p: (typeof projects)[number]; i: number }) {
         </div>
       </div>
 
-      <div className="bg-parchment border p-5" style={{ borderColor: p.accent }}>
+      <div className="bg-parchment border border-fog p-5">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-1.5 h-1.5 rounded-full bg-moss" />
           <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
