@@ -94,7 +94,7 @@ export default function Portfolio() {
                     <img
                       src={p.logo}
                       alt={`${p.name} logo`}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] z-10"
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
                       style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
                     />
                   )}
@@ -108,7 +108,7 @@ export default function Portfolio() {
                     <img
                       src={p.logo}
                       alt={`${p.name} logo`}
-                      className="w-[200px]"
+                      className="w-[260px]"
                     />
                   )}
                 </div>
