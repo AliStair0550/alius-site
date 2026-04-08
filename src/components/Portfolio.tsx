@@ -139,9 +139,6 @@ export default function Portfolio() {
   return (
     <section id="portfolio" className="bg-ink py-20 md:py-28">
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-16">
-        <div className="text-[0.6rem] tracking-[0.22em] uppercase text-slate font-[300] mb-8">
-          Portfolio
-        </div>
         <h2 className="font-[300] text-[2.2rem] text-parchment tracking-[0.03em] leading-[1.3]">
           Fra idé til virkelighed.
         </h2>
