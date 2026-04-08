@@ -114,7 +114,7 @@ export default function Portfolio() {
                       src={p.logo}
                       alt={`${p.name} logo`}
                       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] z-10"
-                      style={{ filter: "sepia(1) saturate(3) brightness(0.85) hue-rotate(15deg)" }}
+                      style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
                     />
                   )}
                 </>
