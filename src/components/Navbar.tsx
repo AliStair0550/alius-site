@@ -29,7 +29,7 @@ export default function Navbar() {
           : "border-b border-transparent bg-parchment/90"
       }`}
     >
-      <a href="#">
+      <a href="#" className={`transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         <AliusLogo width={80} />
       </a>
       <ul className="hidden md:flex gap-8">
