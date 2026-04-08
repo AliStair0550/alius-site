@@ -1,11 +1,8 @@
 const values = [
-  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Aldrig tilføjer." },
-  { label: "Håndværk", desc: "Færre ting, gjort rigtigt." },
-  { label: "Handling", desc: "Strategi uden eksekvering er ufuldstændig." },
-  {
-    label: "Ærlighed",
-    desc: "Vi siger hvad vi mener. Også når det er ubehageligt.",
-  },
+  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Hver beslutning skal gøre tingene enklere." },
+  { label: "Håndværk", desc: "Vi bygger færre ting, men bygger dem rigtigt. Kvalitet over kvantitet." },
+  { label: "Handling", desc: "En plan uden eksekvering er bare papir. Vi stopper når løsningen virker." },
+  { label: "Ærlighed", desc: "Vi siger hvad vi mener. Også når det er ubehageligt. Du fortjener sandheden." },
 ];
 
 export default function About() {
@@ -25,19 +22,18 @@ export default function About() {
 
         <div>
           <h3 className="font-[300] text-[1.4rem] text-ink mb-5">
-            Strategi og eksekvering.
-            <br />
-            Fra samme hånd.
+            Brand, strategi og teknologi. Bygget som ét.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Jeg hedder Alix. Jeg bygger virksomheder - ikke PowerPoints. Med
-            baggrund i forretningsudvikling og teknisk eksekvering hjælper jeg
-            SMV&apos;er med at gå fra uklar retning til konkret fundament.
+            Jeg hedder Alix. Jeg bygger virksomheder - ikke præsentationer. Med
+            baggrund i forretningsudvikling, branding og teknisk eksekvering
+            hjælper jeg virksomheder med at vokse gennem løsninger hvor strategi,
+            brand og teknologi er bygget sammen.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            Alius blev grundlagt med en overbevisning: rådgivning uden
-            implementering er ufuldstændigt arbejde. Derfor leverer vi begge
-            dele.
+            Alius blev grundlagt med en overbevisning: de bedste løsninger opstår
+            når brand, strategi og teknologi ikke adskilles - men kombineres fra
+            start. Derfor mestrer vi alle tre.
           </p>
 
           <div className="flex flex-col gap-3">
