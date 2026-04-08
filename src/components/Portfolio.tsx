@@ -11,7 +11,7 @@ const projects = [
     name: "Cafe Christian IX",
     type: "Hjemmeside - Design",
     desc: "Restaurant-hjemmeside med online menu, bordreservation og mobil-optimering.",
-    bgImage: "https://www.cafe-cix.dk/assets/Billede15.jpg",
+    bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
     layout: "image-right" as const,
@@ -20,7 +20,7 @@ const projects = [
     name: "Smashii",
     type: "Branding - Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
-    bg: "#6B2FA0",
+    bg: "#3D2060",
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
     layout: "image-left" as const,
@@ -29,7 +29,7 @@ const projects = [
     name: "SSTUDIO",
     type: "Branding - Rebrand",
     desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
-    bg: "#2a3028",
+    image: "/stylister.avif",
     link: "https://sstudio.dk",
     layout: "image-right" as const,
   },
@@ -37,7 +37,7 @@ const projects = [
     name: "folka",
     type: "Platform - SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
-    bg: "#1a2028",
+    image: "/biking.avif",
     link: "https://folka.dk",
     layout: "full" as const,
   },
@@ -61,12 +61,13 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           alt={p.name}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
         />
-        <div className="absolute inset-0 bg-ink/40" />
+        <div className="absolute inset-0 bg-ink/50" />
         {"logo" in p && p.logo && (
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140px] z-10"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
+            style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
           />
         )}
       </>
@@ -82,7 +83,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="w-[160px]"
+            className="w-[340px]"
           />
         )}
       </div>
