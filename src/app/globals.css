@@ -33,7 +33,7 @@ body {
 }
 
 @keyframes fadeCircle {
-  to { opacity: 0.15; }
+  to { opacity: 1; }
 }
 
 @keyframes scrollPulse {
