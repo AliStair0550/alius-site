@@ -3,17 +3,18 @@
 import { useRef, useEffect } from "react";
 import AliusLogo from "./AliusLogo";
 
-function BouncingCircle() {
-  const circleRef = useRef<HTMLDivElement>(null);
-  const state = useRef({
-    x: 0,
-    y: 0,
-    dx: 0,
-    dy: 0,
-    boxW: 400,
-    boxH: 400,
-    size: 120,
-  });
+function BouncingCircles() {
+  const circleRefs = [
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+  ];
+
+  const states = useRef([
+    { x: 0, y: 0, dx: 0, dy: 0 },
+    { x: 0, y: 0, dx: 0, dy: 0 },
+    { x: 0, y: 0, dx: 0, dy: 0 },
+  ]);
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
@@ -21,38 +22,40 @@ function BouncingCircle() {
     const boxH = isMobile ? 200 : 400;
     const size = isMobile ? 60 : 90;
 
-    const speed = 0.7;
-    const angle = Math.random() * Math.PI * 2;
+    const speeds = [0.35, 0.45, 0.3];
 
-    state.current = {
-      x: Math.random() * (boxW - size),
-      y: Math.random() * (boxH - size),
-      dx: Math.cos(angle) * speed,
-      dy: Math.sin(angle) * speed,
-      boxW,
-      boxH,
-      size,
-    };
+    states.current = speeds.map((speed) => {
+      const angle = Math.random() * Math.PI * 2;
+      return {
+        x: Math.random() * (boxW - size),
+        y: Math.random() * (boxH - size),
+        dx: Math.cos(angle) * speed,
+        dy: Math.sin(angle) * speed,
+      };
+    });
 
-    if (circleRef.current) {
-      circleRef.current.style.width = `${size}px`;
-      circleRef.current.style.height = `${size}px`;
-    }
+    circleRefs.forEach((ref) => {
+      if (ref.current) {
+        ref.current.style.width = `${size}px`;
+        ref.current.style.height = `${size}px`;
+      }
+    });
 
     let raf: number;
     const tick = () => {
-      const s = state.current;
-      s.x += s.dx;
-      s.y += s.dy;
+      states.current.forEach((s, i) => {
+        s.x += s.dx;
+        s.y += s.dy;
 
-      if (s.x <= 0) { s.x = 0; s.dx = Math.abs(s.dx); }
-      if (s.x >= s.boxW - s.size) { s.x = s.boxW - s.size; s.dx = -Math.abs(s.dx); }
-      if (s.y <= 0) { s.y = 0; s.dy = Math.abs(s.dy); }
-      if (s.y >= s.boxH - s.size) { s.y = s.boxH - s.size; s.dy = -Math.abs(s.dy); }
+        if (s.x <= 0) { s.x = 0; s.dx = Math.abs(s.dx); }
+        if (s.x >= boxW - size) { s.x = boxW - size; s.dx = -Math.abs(s.dx); }
+        if (s.y <= 0) { s.y = 0; s.dy = Math.abs(s.dy); }
+        if (s.y >= boxH - size) { s.y = boxH - size; s.dy = -Math.abs(s.dy); }
 
-      if (circleRef.current) {
-        circleRef.current.style.transform = `translate(${s.x}px, ${s.y}px)`;
-      }
+        if (circleRefs[i].current) {
+          circleRefs[i].current!.style.transform = `translate(${s.x}px, ${s.y}px)`;
+        }
+      });
       raf = requestAnimationFrame(tick);
     };
 
@@ -61,14 +64,18 @@ function BouncingCircle() {
   }, []);
 
   return (
-    <div className="absolute right-[10%] top-[55%] -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0 border border-clay">
-      <div
-        ref={circleRef}
-        className="rounded-full will-change-transform"
-        style={{
-          background: "radial-gradient(circle at 38% 32%, rgba(255,255,255,0.12) 0%, transparent 55%), #2D5F4A",
-        }}
-      />
+    <div className="absolute right-[10%] top-[55%] -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0">
+      {circleRefs.map((ref, i) => (
+        <div
+          key={i}
+          ref={ref}
+          className="absolute rounded-full will-change-transform"
+          style={{
+            background: "#2D5F4A",
+            opacity: 0.12,
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -76,7 +83,7 @@ function BouncingCircle() {
 export default function Hero() {
   return (
     <section className="min-h-screen flex flex-col justify-center items-start px-6 md:px-8 pt-32 pb-20 max-w-[1100px] mx-auto relative">
-      <BouncingCircle />
+      <BouncingCircles />
 
       <div className="animate-fade-up delay-200 mb-10 relative z-10">
         <AliusLogo width={220} />
