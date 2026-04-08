@@ -122,7 +122,7 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
           {p.type}
         </div>
       </div>
-      <div className="font-[400] text-[1.3rem] text-parchment mb-2 group-hover:text-moss transition-colors">
+      <div className="font-[400] text-[1.3rem] text-parchment mb-2">
         {p.name}
       </div>
       <div className="font-[200] text-[0.85rem] text-fog leading-[1.7] mb-4">
@@ -170,7 +170,7 @@ export default function Portfolio() {
                         {p.type}
                       </div>
                     </div>
-                    <div className="font-[400] text-[1.3rem] text-parchment mb-2 group-hover:text-moss transition-colors">
+                    <div className="font-[400] text-[1.3rem] text-parchment mb-2">
                       {p.name}
                     </div>
                     <div className="font-[200] text-[0.85rem] text-slate leading-[1.7] max-w-[480px] mb-4">
