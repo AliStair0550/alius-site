@@ -118,14 +118,14 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
     <div className="flex flex-col justify-center">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-clay font-[300]">
+        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
           {p.type}
         </div>
       </div>
-      <div className="font-[400] text-[1.3rem] text-parchment mb-2">
+      <div className="font-[400] text-[1.3rem] text-ink mb-2">
         {p.name}
       </div>
-      <div className="font-[200] text-[0.85rem] text-fog leading-[1.7] mb-4">
+      <div className="font-[200] text-[0.85rem] text-stone leading-[1.7] mb-4">
         {p.desc}
       </div>
       <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss hover:opacity-70 transition-opacity">
@@ -137,12 +137,12 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
 
 export default function Portfolio() {
   return (
-    <section id="portfolio" className="bg-ink py-20 md:py-28">
+    <section id="portfolio" className="bg-clay py-20 md:py-28">
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-16">
-        <h2 className="font-[300] text-[2.2rem] text-parchment tracking-[0.03em] leading-[1.3]">
+        <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
           Fra idé til virkelighed.
         </h2>
-        <p className="font-[200] text-[0.9rem] text-slate mt-4 leading-[1.7]">
+        <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7]">
           Udvalgte projekter.
         </p>
       </div>
@@ -196,7 +196,7 @@ export default function Portfolio() {
             </a>
 
             {i < projects.length - 1 && (
-              <div className="h-px bg-clay/30 my-16 md:my-20" />
+              <div className="h-px bg-stone/20 my-16 md:my-20" />
             )}
           </div>
         ))}
@@ -205,7 +205,7 @@ export default function Portfolio() {
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-16">
         <a
           href="#"
-          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-slate border-b border-slate pb-0.5 hover:text-moss hover:border-moss transition-colors"
+          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone border-b border-stone pb-0.5 hover:text-moss hover:border-moss transition-colors"
         >
           Se alle projekter og mit CV &rarr;
         </a>
