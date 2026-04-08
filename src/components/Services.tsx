@@ -102,6 +102,18 @@ export default function Services() {
           </div>
         ))}
       </div>
+
+      <div className="flex flex-col items-center mt-12">
+        <p className="font-[300] text-[1.1rem] text-ink text-center">
+          Hvert forløb er skræddersyet. Vi starter med en samtale.
+        </p>
+        <a
+          href="#kontakt"
+          className="mt-6 font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
+        >
+          Book en samtale
+        </a>
+      </div>
     </section>
   );
 }
