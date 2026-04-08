@@ -61,7 +61,7 @@ function BouncingCircle() {
   }, []);
 
   return (
-    <div className="absolute right-[10%] top-[55%] -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0 border border-fog">
+    <div className="absolute right-[10%] top-[55%] -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0 border border-clay">
       <div
         ref={circleRef}
         className="rounded-full will-change-transform"
