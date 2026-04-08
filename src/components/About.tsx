@@ -1,10 +1,10 @@
 const values = [
-  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Aldrig tilfojer." },
-  { label: "Haandvaerk", desc: "Faerre ting, gjort rigtigt." },
-  { label: "Handling", desc: "Strategi uden eksekvering er ufuldstaendig." },
+  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Aldrig tilføjer." },
+  { label: "Håndværk", desc: "Færre ting, gjort rigtigt." },
+  { label: "Handling", desc: "Strategi uden eksekvering er ufuldstændig." },
   {
-    label: "Aerlighed",
-    desc: "Vi siger hvad vi mener. Ogsaa naar det er ubehageligt.",
+    label: "Ærlighed",
+    desc: "Vi siger hvad vi mener. Også når det er ubehageligt.",
   },
 ];
 
@@ -27,16 +27,16 @@ export default function About() {
           <h3 className="font-[300] text-[1.4rem] text-ink mb-5">
             Strategi og eksekvering.
             <br />
-            Fra samme haand.
+            Fra samme hånd.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
             Jeg hedder Alix. Jeg bygger virksomheder - ikke PowerPoints. Med
-            baggrund i forretningsudvikling og teknisk eksekvering hjaelper jeg
-            SMV&apos;er med at gaa fra uklar retning til konkret fundament.
+            baggrund i forretningsudvikling og teknisk eksekvering hjælper jeg
+            SMV&apos;er med at gå fra uklar retning til konkret fundament.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            Alius blev grundlagt med en overbevisning: raadgivning uden
-            implementering er ufuldstaendigt arbejde. Derfor leverer vi begge
+            Alius blev grundlagt med en overbevisning: rådgivning uden
+            implementering er ufuldstændigt arbejde. Derfor leverer vi begge
             dele.
           </p>
 

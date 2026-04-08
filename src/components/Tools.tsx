@@ -2,12 +2,12 @@ const tools = [
   {
     name: "DISC Profiltest",
     time: "5 min",
-    desc: "Forstaa din ledelsesstil og dit teams dynamik.",
+    desc: "Forstå din ledelsesstil og dit teams dynamik.",
   },
   {
     name: "Brandstyrke-scanner",
     time: "3 min",
-    desc: "10 spoergsmaal der scorer dit brands sundhed.",
+    desc: "10 spørgsmål der scorer dit brands sundhed.",
   },
   {
     name: "Positioneringskort",
@@ -23,16 +23,16 @@ const tools = [
 
 export default function Tools() {
   return (
-    <section id="vaerktoejer" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
+    <section id="værktøjer" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
       <div className="text-[0.6rem] tracking-[0.22em] uppercase text-clay font-[300] mb-8">
-        Vaerktoejer
+        Værktøjer
       </div>
       <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-4 leading-[1.3]">
-        Forstaa din virksomhed. Gratis.
+        Forstå din virksomhed. Gratis.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] max-w-[560px]">
-        Vores vaerktoejer giver dig indsigt inden du tager kontakt. Brug dem nu
-        - de er gratis og kraever ingen tilmelding.
+        Vores værktøjer giver dig indsigt inden du tager kontakt. Brug dem nu
+        - de er gratis og kræver ingen tilmelding.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">

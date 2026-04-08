@@ -4,7 +4,7 @@ const services = [
     name: "Fundament",
     tagline: "Vi skaber retning for din virksomhed.",
     price: "Fra 15.000 kr. - 2-4 uger",
-    desc: "Alt det grundlaeggende der skal vaere paa plads foer du kan vokse. Vi bygger dit fundament fra bunden.",
+    desc: "Alt det grundlæggende der skal være på plads før du kan vokse. Vi bygger dit fundament fra bunden.",
     items: [
       "Positioneringsanalyse og konkurrentscan",
       "Brandidentitet - logo, farver, typografi",
@@ -16,12 +16,12 @@ const services = [
   {
     num: "02",
     name: "Form",
-    tagline: "Vi former din vaekststrategi.",
+    tagline: "Vi former din vækststrategi.",
     price: "Fra 45.000 kr. - 4-8 uger",
-    desc: "For virksomheden der har fundamentet men mangler retning for vaekst. Vi gaar i dybden med strategi.",
+    desc: "For virksomheden der har fundamentet men mangler retning for vækst. Vi går i dybden med strategi.",
     items: [
       "Prisstrategi og prisoptimering",
-      "Vaekststrategi - Ansoff, blue ocean, markedsanalyse",
+      "Vækststrategi - Ansoff, blue ocean, markedsanalyse",
       "Forretningsudvikling og skaleringsplan",
       "Kunderejse og konverteringsoptimering",
       "Procesoptimering og automatisering",
@@ -31,14 +31,14 @@ const services = [
     num: "03",
     name: "Forandring",
     tagline: "Vi implementerer transformation.",
-    price: "Fra 90.000 kr. - 2-4 maaneder",
+    price: "Fra 90.000 kr. - 2-4 måneder",
     desc: "For virksomheden der ved hvad der skal ske men har brug for en partner der eksekverer. Hands-on projektledelse.",
     items: [
       "Projektledelse af hele forandringsprocessen",
       "Implementering af nye systemer og processer",
       "Organisationsudvikling og change management",
-      "Tech stack-opsaetning - CRM, automatisering, integrationer",
-      "Loebende sparring og justering over 3 maaneder",
+      "Tech stack-opsætning - CRM, automatisering, integrationer",
+      "Løbende sparring og justering over 3 måneder",
     ],
   },
 ];
@@ -53,7 +53,7 @@ export default function Services() {
         Tre pakker. En filosofi.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] max-w-[560px]">
-        Hvert forloeb starter med at forstaa din virksomhed. Derefter bygger vi
+        Hvert forløb starter med at forstå din virksomhed. Derefter bygger vi
         - sammen. Faste priser, klare leverancer, ingen overraskelser.
       </p>
 
@@ -92,7 +92,7 @@ export default function Services() {
               href="#"
               className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-auto pt-3 hover:opacity-70 transition-opacity"
             >
-              Laes mere &rarr;
+              Læs mere &rarr;
             </a>
           </div>
         ))}

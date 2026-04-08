@@ -9,7 +9,7 @@ export function CTA() {
         Lad os finde ud af om vi er det rigtige match.
       </h2>
       <p className="font-[200] text-[0.95rem] text-slate mb-8 max-w-[400px] leading-[1.8]">
-        Book 20 minutter. Ingen salgspitch, ingen forpligtelse. Bare en aerlig
+        Book 20 minutter. Ingen salgspitch, ingen forpligtelse. Bare en ærlig
         samtale om din virksomhed.
       </p>
       <a
@@ -26,7 +26,7 @@ export function Footer() {
   return (
     <footer className="px-6 md:px-8 py-8 max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 border-t border-fog">
       <div className="font-[200] text-[0.7rem] text-clay tracking-[0.05em]">
-        &copy; 2026 Alius - Den anden vej til vaekst
+        &copy; 2026 Alius - Den anden vej til vækst
       </div>
       <div className="flex gap-6">
         <a

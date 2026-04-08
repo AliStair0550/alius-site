@@ -6,7 +6,7 @@ import AliusLogo from "./AliusLogo";
 const links = [
   { href: "#ydelser", label: "Ydelser" },
   { href: "#portfolio", label: "Portfolio" },
-  { href: "#vaerktoejer", label: "Vaerktoejer" },
+  { href: "#værktøjer", label: "Værktøjer" },
   { href: "#om", label: "Om" },
   { href: "#kontakt", label: "Kontakt" },
 ];
@@ -37,7 +37,7 @@ export default function Navbar() {
           <li key={l.href}>
             <a
               href={l.href}
-              className="font-[100] text-[0.78rem] tracking-[0.1em] uppercase text-slate hover:text-ink transition-colors"
+              className="font-[300] text-[0.78rem] tracking-[0.1em] uppercase text-slate hover:text-ink transition-colors"
             >
               {l.label}
             </a>

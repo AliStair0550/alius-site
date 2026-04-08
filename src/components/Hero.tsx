@@ -26,10 +26,10 @@ export default function Hero() {
           Se ydelser
         </a>
         <a
-          href="#vaerktoejer"
+          href="#værktøjer"
           className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 border border-clay text-ink hover:border-moss hover:text-moss transition-all"
         >
-          Proev vores vaerktoejer
+          Prøv vores værktøjer
         </a>
       </div>
     </section>

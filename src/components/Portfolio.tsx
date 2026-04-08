@@ -14,14 +14,14 @@ const projects = [
     type: "Fundament",
     label: "Hjemmeside - Design",
     name: "Cafe Cix",
-    desc: "Restaurant-hjemmeside med online menu, SSL-opsaetning og mobil-optimering.",
+    desc: "Restaurant-hjemmeside med online menu, SSL-opsætning og mobil-optimering.",
     bg: "linear-gradient(135deg, #3a2828 0%, #2a1818 100%)",
   },
   {
     type: "Fundament",
     label: "Branding - Rebrand",
     name: "S Studio",
-    desc: "Komplet rebrand af skoenhedsstudio. Ny palette, dobbelt-S logo, Libre Baskerville + Montserrat.",
+    desc: "Komplet rebrand af skønhedsstudio. Ny palette, dobbelt-S logo, Libre Baskerville + Montserrat.",
     bg: "linear-gradient(135deg, #2a3028 0%, #1a201a 100%)",
   },
   {
@@ -33,9 +33,9 @@ const projects = [
   },
   {
     type: "Form",
-    label: "Strategi - Vaekst",
+    label: "Strategi - Vækst",
     name: "Kommende projekt",
-    desc: "Vaekststrategi og prisoptimering for dansk konsulentvirksomhed med 12 ansatte.",
+    desc: "Vækststrategi og prisoptimering for dansk konsulentvirksomhed med 12 ansatte.",
     bg: "linear-gradient(135deg, #303028 0%, #202018 100%)",
   },
 ];
@@ -57,7 +57,7 @@ export default function Portfolio() {
           <h2 className="font-[300] text-[2rem] text-parchment tracking-[0.03em] leading-[1.3]">
             Strategi og eksekvering.
             <br />
-            Fra samme haand.
+            Fra samme hånd.
           </h2>
           <p className="font-[200] text-[0.9rem] text-slate mt-3 leading-[1.7] max-w-[400px]">
             Udvalgte projekter hvor vi har bygget fundament, formet strategi og
