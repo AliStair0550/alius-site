@@ -51,35 +51,16 @@ export default function Portfolio() {
 
   return (
     <section id="portfolio" className="bg-clay py-24 md:py-32 overflow-hidden">
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between md:items-end mb-14 gap-6">
-        <div>
-          <div className="text-[0.6rem] tracking-[0.22em] uppercase text-slate font-[300] mb-8">
-            Portfolio
-          </div>
-          <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
-            Strategi og eksekvering.
-            <br />
-            Fra samme hånd.
-          </h2>
-          <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7] max-w-[420px]">
-            Udvalgte projekter hvor vi har bygget fundament, formet strategi og
-            implementeret forandring.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => scroll(-1)}
-            className="w-[44px] h-[44px] border border-stone/30 text-ink flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
-          >
-            &larr;
-          </button>
-          <button
-            onClick={() => scroll(1)}
-            className="w-[44px] h-[44px] border border-stone/30 text-ink flex items-center justify-center hover:border-moss hover:text-moss transition-colors cursor-pointer text-lg"
-          >
-            &rarr;
-          </button>
-        </div>
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-14">
+        <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
+          Strategi og eksekvering.
+          <br />
+          Fra samme hånd.
+        </h2>
+        <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7] max-w-[420px]">
+          Udvalgte projekter hvor vi har bygget fundament, formet strategi og
+          implementeret forandring.
+        </p>
       </div>
 
       <div
