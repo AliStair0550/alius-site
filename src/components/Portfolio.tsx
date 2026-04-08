@@ -1,81 +1,56 @@
-"use client";
-
-import { useRef, useEffect, useCallback, useState } from "react";
-
 const projects = [
   {
     name: "Markus Brandt",
     type: "Brandidentitet - Hjemmeside",
     desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
     image: "https://markusbrandt.dk/assets/hero.avif",
-    overlay: { title: "Markus Brandt", subtitle: "Artist & Sangskriver" },
     link: "https://markusbrandt.dk",
-    accent: "#6B2230",
-    width: "w-[460px]",
+    layout: "image-left" as const,
   },
   {
     name: "Cafe Christian IX",
     type: "Hjemmeside - Design",
     desc: "Restaurant-hjemmeside med online menu, bordreservation og mobil-optimering.",
-    bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
+    bgImage: "https://www.cafe-cix.dk/assets/Billede15.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
-    accent: "#C5A55A",
-    width: "w-[460px]",
+    layout: "image-right" as const,
   },
   {
     name: "Smashii",
     type: "Branding - Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
-    bg: "#3D2060",
+    bg: "#6B2FA0",
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
-    accent: "#3D2060",
-    width: "w-[460px]",
+    layout: "image-left" as const,
   },
   {
     name: "SSTUDIO",
     type: "Branding - Rebrand",
     desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
-    image: "/stylister.avif",
+    bg: "#2a3028",
     link: "https://sstudio.dk",
-    accent: "#2D5F4A",
-    width: "w-[460px]",
+    layout: "image-right" as const,
   },
   {
     name: "folka",
     type: "Platform - SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
-    image: "/biking.avif",
+    bg: "#1a2028",
     link: "https://folka.dk",
-    accent: "#2A4858",
-    width: "w-[460px]",
+    layout: "full" as const,
   },
 ];
 
-function CardImage({ p }: { p: (typeof projects)[number] }) {
+function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("image" in p && p.image) {
     return (
-      <>
-        <img
-          src={p.image}
-          alt={p.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-        />
-        {"overlay" in p && p.overlay && (
-          <>
-            <div className="absolute inset-0 bg-ink/40 z-10" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <div className="font-[300] text-[1.8rem] text-parchment tracking-[0.04em]">
-                {p.overlay.title}
-              </div>
-              <div className="font-[200] text-[0.75rem] text-parchment/70 tracking-[0.15em] uppercase mt-1">
-                {p.overlay.subtitle}
-              </div>
-            </div>
-          </>
-        )}
-      </>
+      <img
+        src={p.image}
+        alt={p.name}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
+      />
     );
   }
   if ("bgImage" in p && p.bgImage) {
@@ -84,15 +59,14 @@ function CardImage({ p }: { p: (typeof projects)[number] }) {
         <img
           src={p.bgImage}
           alt={p.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
         />
-        <div className="absolute inset-0 bg-ink/50" />
+        <div className="absolute inset-0 bg-ink/40" />
         {"logo" in p && p.logo && (
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
-            style={{ filter: "sepia(1) saturate(1.5) brightness(0.78) hue-rotate(5deg)" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140px] z-10"
           />
         )}
       </>
@@ -101,14 +75,14 @@ function CardImage({ p }: { p: (typeof projects)[number] }) {
   if ("bg" in p && p.bg) {
     return (
       <div
-        className="absolute inset-0 flex items-center justify-center transition-transform duration-700 group-hover:scale-[1.05]"
+        className="absolute inset-0 flex items-center justify-center transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
         style={{ background: p.bg }}
       >
         {"logo" in p && p.logo && (
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="w-[340px]"
+            className="w-[160px]"
           />
         )}
       </div>
@@ -117,117 +91,102 @@ function CardImage({ p }: { p: (typeof projects)[number] }) {
   return null;
 }
 
-function RenderCard({ p, i }: { p: (typeof projects)[number]; i: number }) {
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [hovering, setHovering] = useState(false);
-  const imgRef = useRef<HTMLDivElement>(null);
-
-  const onMove = (e: React.MouseEvent) => {
-    const rect = imgRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
+function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
   return (
-    <a
-      key={i}
-      href={p.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`${p.width} shrink-0 cursor-pointer group block`}
-    >
-      <div
-        ref={imgRef}
-        className="w-full aspect-[16/10] relative overflow-hidden rounded-sm"
-        onMouseMove={onMove}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
-      >
-        <CardImage p={p} />
-
-        <div
-          className="absolute rounded-full bg-moss/90 z-20 pointer-events-none flex items-center justify-center transition-transform duration-300"
-          style={{
-            width: 120,
-            height: 120,
-            left: mouse.x - 60,
-            top: mouse.y - 60,
-            transform: hovering ? "scale(1)" : "scale(0)",
-          }}
-        >
-          <span className="text-[0.65rem] tracking-[0.1em] uppercase text-parchment font-[300]">
-            Se projekt
-          </span>
+    <div className="flex flex-col justify-center">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-1.5 h-1.5 rounded-full bg-moss" />
+        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
+          {p.type}
         </div>
       </div>
-
-      <div className="bg-parchment border border-fog p-5">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-          <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
-            {p.type}
-          </div>
-        </div>
-        <div className="font-[300] text-[1.15rem] text-ink mb-1.5">
-          {p.name}
-        </div>
-        <div className="font-[200] text-[0.82rem] text-stone leading-[1.6]">
-          {p.desc}
-        </div>
+      <div className="font-[400] text-[1.3rem] text-parchment mb-2 group-hover:text-moss transition-colors">
+        {p.name}
       </div>
-    </a>
+      <div className="font-[200] text-[0.85rem] text-slate leading-[1.7] mb-4">
+        {p.desc}
+      </div>
+      <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss hover:opacity-70 transition-opacity">
+        Se projekt &rarr;
+      </span>
+    </div>
   );
 }
 
 export default function Portfolio() {
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  const handleLoop = useCallback(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cardWidth = 480 + 24;
-    const setWidth = cardWidth * projects.length;
-
-    if (track.scrollLeft <= 0) {
-      track.scrollLeft += setWidth;
-    } else if (track.scrollLeft >= setWidth * 2) {
-      track.scrollLeft -= setWidth;
-    }
-  }, []);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cardWidth = 480 + 24;
-    track.scrollLeft = cardWidth * projects.length;
-    track.addEventListener("scroll", handleLoop);
-    return () => track.removeEventListener("scroll", handleLoop);
-  }, [handleLoop]);
-
   return (
-    <section id="portfolio" className="bg-clay py-16 md:py-20 overflow-hidden">
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-10">
-        <h2 className="font-[300] text-[2.2rem] text-ink tracking-[0.03em] leading-[1.3]">
+    <section id="portfolio" className="bg-ink py-20 md:py-28">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-16">
+        <div className="text-[0.6rem] tracking-[0.22em] uppercase text-slate font-[300] mb-8">
+          Portfolio
+        </div>
+        <h2 className="font-[300] text-[2.2rem] text-parchment tracking-[0.03em] leading-[1.3]">
           Fra idé til virkelighed.
         </h2>
-        <p className="font-[200] text-[0.9rem] text-stone mt-4 leading-[1.7]">
+        <p className="font-[200] text-[0.9rem] text-slate mt-4 leading-[1.7]">
           Udvalgte projekter.
         </p>
       </div>
 
-      <div
-        ref={trackRef}
-        className="portfolio-track flex gap-6 px-6 md:px-8 overflow-x-auto"
-      >
-        {projects.map((p, i) => <RenderCard p={p} i={i} key={i} />)}
-        {projects.map((p, i) => <RenderCard p={p} i={i + projects.length} key={i + projects.length} />)}
-        {projects.map((p, i) => <RenderCard p={p} i={i + projects.length * 2} key={i + projects.length * 2} />)}
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8">
+        {projects.map((p, i) => (
+          <div key={i}>
+            <a
+              href={p.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block group"
+            >
+              {p.layout === "full" ? (
+                <div className="relative aspect-[16/10] overflow-hidden rounded-sm">
+                  <ProjectImage p={p} />
+                  <div className="absolute inset-0 bg-ink/30" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-moss" />
+                      <div className="text-[0.6rem] tracking-[0.18em] uppercase text-slate font-[300]">
+                        {p.type}
+                      </div>
+                    </div>
+                    <div className="font-[400] text-[1.3rem] text-parchment mb-2 group-hover:text-moss transition-colors">
+                      {p.name}
+                    </div>
+                    <div className="font-[200] text-[0.85rem] text-slate leading-[1.7] max-w-[480px] mb-4">
+                      {p.desc}
+                    </div>
+                    <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss">
+                      Se projekt &rarr;
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className={`grid grid-cols-1 md:grid-cols-[1fr_0.55fr] gap-8 md:gap-12 ${
+                  p.layout === "image-right" ? "md:grid-cols-[0.55fr_1fr]" : ""
+                }`}>
+                  {p.layout === "image-right" && (
+                    <ProjectInfo p={p} />
+                  )}
+                  <div className="aspect-[16/10] relative overflow-hidden rounded-sm">
+                    <ProjectImage p={p} />
+                  </div>
+                  {p.layout === "image-left" && (
+                    <ProjectInfo p={p} />
+                  )}
+                </div>
+              )}
+            </a>
+
+            {i < projects.length - 1 && (
+              <div className="h-px bg-clay/30 my-16 md:my-20" />
+            )}
+          </div>
+        ))}
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-10">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-16">
         <a
           href="#"
-          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone border-b border-stone pb-0.5 hover:text-moss hover:border-moss transition-colors"
+          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-slate border-b border-slate pb-0.5 hover:text-moss hover:border-moss transition-colors"
         >
           Se alle projekter og mit CV &rarr;
         </a>
