@@ -22,7 +22,7 @@ const projects = [
     name: "Smashii",
     type: "Branding - Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
-    bg: "#6B2FA0",
+    bg: "#3D2060",
     logo: "https://smashii.dk/assets/logonew.png",
     link: "https://smashii.dk",
   },
