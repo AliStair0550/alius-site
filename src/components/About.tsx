@@ -8,12 +8,15 @@ export default function About() {
   return (
     <section id="om" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
-        <div className="border border-clay overflow-hidden group bg-parchment" style={{ maxHeight: "500px" }}>
+        <div className="relative overflow-hidden group" style={{ maxHeight: "500px" }}>
           <img
             src="/ali.jpg"
             alt="Ali"
             className="w-full object-cover object-top transition-transform duration-[800ms] ease-out group-hover:scale-[1.03]"
+            style={{ mixBlendMode: "multiply" }}
           />
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-moss" />
+          <div className="absolute bottom-[3px] left-0 right-0 h-[40px] bg-gradient-to-t from-parchment to-transparent" />
         </div>
 
         <div>
