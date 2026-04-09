@@ -103,12 +103,12 @@ export default function Hero() {
         <AliusLogo width={220} />
       </div>
 
-      <h1 className="animate-fade-up delay-500 font-[300] text-[2.2rem] md:text-[2.8rem] text-ink leading-[1.35] tracking-[0.01em] max-w-[600px] mb-5 relative z-10">
+      <h1 className="animate-fade-up delay-500 font-[300] text-[1.8rem] md:text-[2.2rem] text-ink leading-[1.35] tracking-[0.01em] max-w-[600px] mb-5 relative z-10">
         Brand. Strategi. Teknologi. Bygget som ét.
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8 relative z-10">
-        Vi bygger stærke løsninger for virksomheder der vil vokse, skille sig ud og skabe kundeoplevelser, der huskes.
+        Vi bygger stærke løsninger for virksomheder, der vil vokse, skille sig ud og skabe kundeoplevelser, der huskes.
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap relative z-10">
