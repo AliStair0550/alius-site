@@ -128,7 +128,7 @@ export default function CVPage() {
               <div key={exp.company} className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 md:gap-8">
                 <div className="flex items-start gap-3">
                   {"logo" in exp && exp.logo && (
-                    <img src={exp.logo} alt={exp.company} className="w-[28px] h-[28px] object-contain shrink-0 mt-0.5" />
+                    <img src={exp.logo} alt={exp.company} className="w-[28px] h-[28px] object-cover rounded-[4px] shrink-0 mt-0.5" style={{ clipPath: "inset(8%)" }} />
                   )}
                   <div>
                     <div className="font-[400] text-[0.9rem] text-ink">{exp.company}</div>
