@@ -12,7 +12,7 @@ export default function About() {
         Om
       </div>
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
-        <div className="border border-clay overflow-hidden group bg-parchment" style={{ maxHeight: "440px" }}>
+        <div className="border border-clay overflow-hidden group bg-parchment" style={{ maxHeight: "500px" }}>
           <img
             src="/ali.jpg"
             alt="Ali"
