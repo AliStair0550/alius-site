@@ -3,7 +3,7 @@ import { Footer } from "@/components/CTAFooter";
 
 export const metadata: Metadata = {
   title: "Ali Al-Farhan - CV | ALIUS",
-  description: "Strategisk projektleder, forretningsudvikler og grundlægger af Alius.",
+  description: "Strategisk projektleder og forretningsudvikler.",
 };
 
 const experience = [
@@ -104,7 +104,7 @@ export default function CVPage() {
             Ali Al-Farhan
           </h1>
           <p className="font-[200] text-[1rem] text-slate leading-[1.7] mb-6">
-            Strategisk projektleder, forretningsudvikler og grundlægger af Alius.
+            Strategisk projektleder og forretningsudvikler.
           </p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <span className="font-[200] text-[0.8rem] text-stone">København</span>
