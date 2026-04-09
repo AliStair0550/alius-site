@@ -26,7 +26,7 @@ const columns = [
   {
     label: "TEKNOLOGI",
     heading: "Systemer, løsninger og innovation",
-    desc: "Vi bygger teknologi der styrker dit brand og din forretning. Automatisk, skalerbart og smart.",
+    desc: "Vi bygger teknologi, der styrker dit brand og din forretning. Automatisk, skalerbart og smart.",
     items: [
       { title: "Platforme og systemer", sub: "Skræddersyet til din forretning" },
       { title: "AI og automatisering", sub: "Lad teknologien arbejde for dig" },
