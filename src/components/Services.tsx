@@ -20,10 +20,9 @@ const columns = [
     desc: "Vi analyserer dit marked, styrker din position og bygger planen, der får dig i mål.",
     items: [
       { title: "Positionering og konkurrentanalyse", sub: "Find dit vindue i markedet" },
-      { title: "Vækststrategi og skaleringsplan", sub: "Systematisk vej fra A til B" },
+      { title: "Vækst og skalering", sub: "Systematisk vej fra A til B" },
       { title: "Prisstrategi og forretningsmodel", sub: "Prissæt med data, ikke mavefølelse" },
       { title: "Forretningsøkonomi", sub: "Forstå dine tal. Styrk dine marginer" },
-      { title: "Go-to-market og kunderejse", sub: "Fra lead til loyal kunde" },
     ],
   },
   {
@@ -31,10 +30,9 @@ const columns = [
     heading: "Systemer, løsninger og innovation",
     desc: "Vi bygger teknologi der styrker dit brand og din forretning. Automatisk, skalerbart og smart.",
     items: [
-      { title: "Hjemmesider og platforme", sub: "Skræddersyet til din forretning" },
-      { title: "AI-agenter og automatisering", sub: "Lad teknologien arbejde for dig" },
+      { title: "Platforme og systemer", sub: "Skræddersyet til din forretning" },
+      { title: "AI og automatisering", sub: "Lad teknologien arbejde for dig" },
       { title: "Loyalitetsløsninger", sub: "Digitale kundeklubber der skaber genkøb" },
-      { title: "Systemintegration", sub: "Ét sammenhængende setup, ikke ti løse systemer" },
       { title: "Kundeoplevelser", sub: "Teknologi dine kunder faktisk mærker" },
     ],
   },
