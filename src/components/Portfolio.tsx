@@ -4,7 +4,7 @@ const projects = [
   {
     name: "SSTUDIO",
     type: "Branding - Rebrand",
-    desc: "Komplet rebrand af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
+    desc: "Branding af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
     image: "/stylister.avif",
     cornerLogo: "/sstudio-logo.svg",
     link: "https://sstudio.dk",
@@ -22,7 +22,7 @@ const projects = [
   {
     name: "Cafe Christian IX",
     type: "Hjemmeside - Design",
-    desc: "Restaurant-hjemmeside med online menu, bordreservation og mobil-optimering.",
+    desc: "Restaurant-hjemmeside med online menu og mobil-optimering.",
     bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
@@ -227,15 +227,6 @@ export default function Portfolio() {
         ))}
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-14">
-        <a
-          href="#"
-          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-parchment pb-0.5 hover:opacity-70 transition-opacity"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.3)" }}
-        >
-          Se alle projekter og mit CV &rarr;
-        </a>
-      </div>
     </section>
   );
 }

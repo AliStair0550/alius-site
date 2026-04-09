@@ -47,6 +47,13 @@ export default function About() {
               </div>
             ))}
           </div>
+
+          <a
+            href="#"
+            className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone border-b border-stone pb-0.5 hover:text-moss hover:border-moss transition-colors mt-8 inline-block"
+          >
+            Se alle projekter og mit CV &rarr;
+          </a>
         </div>
       </div>
     </section>
