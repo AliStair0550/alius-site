@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 const experience = [
   {
     company: "Arbejdernes Landsbank",
+    logo: "/cv-AL.png",
     period: "2024 - 2026",
     roles: [
       {
@@ -19,6 +20,7 @@ const experience = [
   },
   {
     company: "Karnov Group",
+    logo: "/cv-karnov.png",
     period: "2020 - 2024",
     roles: [
       {
@@ -37,6 +39,7 @@ const experience = [
   },
   {
     company: "Molt Wengel advokatkontor",
+    logo: "/cv-moltwengel.png",
     period: "2019 - 2020",
     roles: [
       {
@@ -47,6 +50,7 @@ const experience = [
   },
   {
     company: "Sens Food",
+    logo: "/cv-Sensfood.png",
     period: "2017 - 2019",
     roles: [
       {
@@ -57,6 +61,7 @@ const experience = [
   },
   {
     company: "Udenrigsministeriet",
+    logo: "/cv-UM.png",
     period: "2016 - 2017",
     roles: [
       {
@@ -121,9 +126,14 @@ export default function CVPage() {
           <div className="flex flex-col gap-12">
             {experience.map((exp) => (
               <div key={exp.company} className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 md:gap-8">
-                <div>
-                  <div className="font-[400] text-[0.9rem] text-ink">{exp.company}</div>
-                  <div className="font-[200] text-[0.75rem] text-slate">{exp.period}</div>
+                <div className="flex items-start gap-3">
+                  {"logo" in exp && exp.logo && (
+                    <img src={exp.logo} alt={exp.company} className="w-[28px] h-[28px] object-contain shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <div className="font-[400] text-[0.9rem] text-ink">{exp.company}</div>
+                    <div className="font-[200] text-[0.75rem] text-slate">{exp.period}</div>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-6">
                   {exp.roles.map((role) => (
