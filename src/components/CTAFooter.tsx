@@ -26,11 +26,13 @@ export function Footer() {
   return (
     <footer className="px-6 md:px-8 py-8 max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 border-t border-fog">
       <div className="font-[200] text-[0.7rem] text-stone tracking-[0.05em]">
-        &copy; 2026 Alius - Strategi, eksekveret.
+        &copy; 2026 Alius - Brand, strategi og teknologi. Bygget som ét.
       </div>
       <div className="flex gap-6">
         <a
-          href="#"
+          href="https://www.linkedin.com/in/alialfarhan/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="font-[200] text-[0.7rem] text-stone tracking-[0.05em] hover:text-moss transition-colors"
         >
           LinkedIn
