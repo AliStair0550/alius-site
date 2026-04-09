@@ -12,16 +12,13 @@ export default function About() {
         Om
       </div>
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
-        <div className="flex flex-col max-h-[500px]">
-          <div className="flex-1 bg-ink flex items-end justify-center overflow-hidden">
-            <img
-              src="/ali.jpg"
-              alt="Ali"
-              className="w-full object-cover object-top"
-              style={{ maxHeight: "420px", objectPosition: "center top" }}
-            />
-          </div>
-          <div className="h-[80px] bg-fog" />
+        <div className="bg-fog max-h-[500px] overflow-hidden group relative">
+          <img
+            src="/ali.jpg"
+            alt="Ali"
+            className="w-full h-full object-cover object-top transition-transform duration-[800ms] ease-out group-hover:scale-[1.03] group-hover:translate-y-[-8px]"
+          />
+          <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-fog to-transparent" />
         </div>
 
         <div>
