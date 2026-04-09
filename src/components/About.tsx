@@ -16,7 +16,7 @@ export default function About() {
             style={{ mixBlendMode: "multiply" }}
           />
           <div className="absolute bottom-0 left-0 right-0 h-[30px] bg-gradient-to-t from-parchment/60 to-transparent" />
-          <div className="absolute bottom-0 left-[10%] right-[10%] h-[2px] bg-clay" />
+          <div className="absolute bottom-0 left-[5%] right-[5%] h-[2px] bg-clay" />
         </div>
 
         <div>
