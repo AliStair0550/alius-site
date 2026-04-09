@@ -110,7 +110,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.logo}
             alt={`${p.name} logo`}
-            className="w-[300px]"
+            className="w-[300px] max-w-full"
           />
         )}
       </div>

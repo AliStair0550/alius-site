@@ -13,7 +13,7 @@ export function CTA() {
         samtale om din virksomhed.
       </p>
       <a
-        href="#"
+        href="mailto:hej@alius.dk"
         className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-8 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
       >
         Book en samtale
