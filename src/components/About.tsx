@@ -12,12 +12,16 @@ export default function About() {
         Om
       </div>
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
-        {/* Photo placeholder */}
-        <div className="aspect-[3/4] bg-fog flex items-center justify-center relative max-h-[500px]">
-          <div className="w-20 h-20 rounded-full bg-moss opacity-25" />
-          <span className="absolute bottom-4 left-4 text-[0.55rem] tracking-[0.15em] uppercase text-slate font-[300]">
-            Foto placeholder
-          </span>
+        <div className="flex flex-col max-h-[500px]">
+          <div className="flex-1 bg-ink flex items-end justify-center overflow-hidden">
+            <img
+              src="/ali.jpg"
+              alt="Ali"
+              className="w-full object-cover object-top"
+              style={{ maxHeight: "420px", objectPosition: "center top" }}
+            />
+          </div>
+          <div className="h-[80px] bg-fog" />
         </div>
 
         <div>
