@@ -19,7 +19,7 @@ function BouncingCircles() {
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
     const boxW = isMobile ? 200 : 400;
-    const boxH = isMobile ? 200 : 400;
+    const boxH = isMobile ? 220 : 420;
     const size = isMobile ? 60 : 90;
 
     const speeds = [0.35, 0.45, 0.3];
@@ -63,18 +63,32 @@ function BouncingCircles() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const labels = ["BRAND", "STRATEGI", "TEKNOLOGI"];
+
   return (
     <div className="absolute right-[10%] top-[55%] -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0">
       {circleRefs.map((ref, i) => (
         <div
           key={i}
           ref={ref}
-          className="absolute rounded-full will-change-transform"
-          style={{
-            background: "#2D5F4A",
-            opacity: 0.12,
-          }}
-        />
+          className="absolute will-change-transform flex flex-col items-center"
+        >
+          <div
+            className="rounded-full"
+            style={{
+              background: "#2D5F4A",
+              opacity: 0.12,
+              width: "100%",
+              aspectRatio: "1",
+            }}
+          />
+          <span
+            className="font-[200] text-slate uppercase text-center mt-2"
+            style={{ fontSize: "10px", letterSpacing: "0.1em", opacity: 0.5 }}
+          >
+            {labels[i]}
+          </span>
+        </div>
       ))}
     </div>
   );
