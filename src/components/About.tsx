@@ -12,21 +12,12 @@ export default function About() {
         Om
       </div>
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
-        <div className="relative max-h-[500px]">
-          {/* Moss accent cirkel bag billedet */}
-          <div className="absolute -bottom-4 -right-4 w-[120px] h-[120px] rounded-full bg-moss opacity-15" />
-          <div className="absolute -top-3 -left-3 w-[60px] h-[60px] rounded-full bg-moss opacity-10" />
-
-          <div className="border border-clay overflow-hidden group relative bg-parchment">
-            <img
-              src="/ali.jpg"
-              alt="Ali"
-              className="w-full h-full object-cover object-top transition-transform duration-[800ms] ease-out group-hover:scale-[1.03]"
-            />
-          </div>
-
-          {/* Moss dot - brand signatur */}
-          <div className="absolute -bottom-2 -right-2 w-3 h-3 rounded-full bg-moss" />
+        <div className="border border-clay overflow-hidden group bg-parchment" style={{ maxHeight: "440px" }}>
+          <img
+            src="/ali.jpg"
+            alt="Ali"
+            className="w-full object-cover object-top transition-transform duration-[800ms] ease-out group-hover:scale-[1.03]"
+          />
         </div>
 
         <div>
