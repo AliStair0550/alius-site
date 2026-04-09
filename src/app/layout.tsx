@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ALIUS - Den anden vej til vaekst",
+  title: "ALIUS - Brand. Strategi. Teknologi.",
   description:
-    "Vi hjaelper smaa og mellemstore virksomheder med at skabe fundament for vaekst - gennem positionering, branding og teknisk eksekvering.",
+    "Vi bygger stærke løsninger for virksomheder der vil vokse, skille sig ud og skabe kundeoplevelser, der huskes.",
 };
 
 export default function RootLayout({
