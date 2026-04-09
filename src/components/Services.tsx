@@ -6,12 +6,12 @@ const columns = [
   {
     label: "BRAND",
     heading: "Identitet, udtryk og oplevelse",
-    desc: "Vi bygger hvordan verden møder din virksomhed - fra logo og hjemmeside til den måde du taler på.",
+    desc: "Vi bygger oplevelser der styrker dit brand og får dig til at skille dig ud.",
     items: [
-      { title: "Visuel identitet og brandguide", sub: "Logo, farver, typografi, regler" },
-      { title: "Hjemmeside - design og udvikling", sub: "Ikke bare flot. Konverterer." },
-      { title: "Tone of voice og content", sub: "Skarpt sprog der lyder som dig" },
-      { title: "Social media og digital synlighed", sub: "Synlig hvor dine kunder er" },
+      { title: "Hjemmeside", sub: "Designet til at konvertere" },
+      { title: "Visuel identitet", sub: "Logo, farver, typografi - ét samlet udtryk" },
+      { title: "Kommunikation", sub: "Sprog der lyder som dig" },
+      { title: "Digital synlighed", sub: "Synlig hvor dine kunder er" },
     ],
   },
   {
