@@ -28,13 +28,14 @@ const columns = [
   },
   {
     label: "TEKNOLOGI",
-    heading: "Systemer, automatisering og AI",
-    desc: "Vi bygger de tekniske løsninger der driver din forretning - så du bruger tid på kunder, ikke på systemer.",
+    heading: "Systemer, løsninger og innovation",
+    desc: "Vi bygger teknologi der styrker dit brand og eksekverer din strategi - automatisk, skalerbart og smart.",
     items: [
-      { title: "AI-agenter og chatbots", sub: "Svar kunder 24/7, book møder automatisk" },
-      { title: "Medlemsplatforme og kundeportaler", sub: "Digitalt fællesskab med betaling" },
-      { title: "Automatisering og workflows", sub: "Fjern gentagne opgaver permanent" },
-      { title: "CRM og systemintegration", sub: "Ét overblik, ikke ti systemer" },
+      { title: "Hjemmesider og platforme", sub: "Skræddersyet til din forretning" },
+      { title: "AI-agenter og automatisering", sub: "Lad teknologien arbejde for dig" },
+      { title: "Loyalitetsløsninger", sub: "Digitale kundeklubber der skaber genkøb" },
+      { title: "Systemintegration", sub: "Ét sammenhængende setup, ikke ti løse systemer" },
+      { title: "Kundeoplevelser", sub: "Teknologi dine kunder faktisk mærker" },
     ],
   },
 ];
