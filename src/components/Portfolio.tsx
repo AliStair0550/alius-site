@@ -41,7 +41,8 @@ const projects = [
     name: "folka",
     type: "Platform - SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
-    image: "/biking.avif",
+    image: "/folka.jpg",
+    tint: "moss",
     link: "https://folka.dk",
     layout: "full" as const,
   },
@@ -65,6 +66,9 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
               </div>
             </div>
           </>
+        )}
+        {"tint" in p && p.tint === "moss" && (
+          <div className="absolute inset-0 bg-moss/40 z-[5]" />
         )}
         {"cornerLogo" in p && p.cornerLogo && (
           <img
