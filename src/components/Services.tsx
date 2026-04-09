@@ -16,13 +16,14 @@ const columns = [
   },
   {
     label: "STRATEGI",
-    heading: "Retning, vækst og beslutninger",
+    heading: "Retning, vækst og forretning",
     desc: "Vi analyserer dit marked, skærper din position og bygger den plan der tager dig fra hvor du er til hvor du skal hen.",
     items: [
       { title: "Positionering og konkurrentanalyse", sub: "Find dit vindue i markedet" },
       { title: "Vækststrategi og skaleringsplan", sub: "Systematisk vej fra A til B" },
-      { title: "Prisstrategi og forretningsmodel", sub: "Prissæt rigtigt, ikke efter mavefølelse" },
-      { title: "Go-to-market og kunderejse", sub: "Fra første kontakt til loyal kunde" },
+      { title: "Prisstrategi og forretningsmodel", sub: "Prissæt med data, ikke mavefølelse" },
+      { title: "Forretningsøkonomi", sub: "Forstå dine tal. Styrk dine marginer" },
+      { title: "Go-to-market og kunderejse", sub: "Fra lead til loyal kunde" },
     ],
   },
   {
