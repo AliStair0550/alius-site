@@ -140,12 +140,6 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
 export default function Portfolio() {
   return (
     <section id="portfolio" className="bg-moss py-20 md:py-28 relative overflow-hidden">
-      {/* Decorative circle */}
-      <div
-        className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full pointer-events-none"
-        style={{ background: "rgba(255,255,255,0.06)" }}
-      />
-
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-10">
         <h2 className="font-[300] text-[2.2rem] text-parchment tracking-[0.03em] leading-[1.3]">
           Fra idé til virkelighed.
