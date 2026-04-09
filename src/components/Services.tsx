@@ -17,7 +17,7 @@ const columns = [
   {
     label: "STRATEGI",
     heading: "Retning, vækst og forretning",
-    desc: "Vi analyserer dit marked, skærper din position og bygger den plan der tager dig fra hvor du er til hvor du skal hen.",
+    desc: "Vi analyserer dit marked, styrker din position og bygger planen, der får dig i mål.",
     items: [
       { title: "Positionering og konkurrentanalyse", sub: "Find dit vindue i markedet" },
       { title: "Vækststrategi og skaleringsplan", sub: "Systematisk vej fra A til B" },
