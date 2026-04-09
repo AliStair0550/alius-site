@@ -62,7 +62,7 @@ export default function Services() {
         Tre discipliner. Én løsning.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12">
-        Ikke hver for sig. Sammen.
+        Bygget sammen, så det virker.
       </p>
 
       <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
