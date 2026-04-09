@@ -105,7 +105,7 @@ export default function Services() {
 
       <div className="flex flex-col items-center mt-12">
         <p className="font-[300] text-[1.1rem] text-ink text-center">
-          Klar til at bygge noget der virker? Lad os starte med en kop kaffe.
+          Klar til at bygge noget der virker? Lad os starte med en uformel snak.
         </p>
         <a
           href="#kontakt"
