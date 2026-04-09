@@ -12,11 +12,12 @@ export default function About() {
           <img
             src="/ali.jpg"
             alt="Ali"
-            className="w-full object-cover object-top transition-transform duration-[800ms] ease-out group-hover:scale-[1.03]"
+            className="w-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
             style={{ mixBlendMode: "multiply" }}
           />
-          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-moss" />
-          <div className="absolute bottom-[3px] left-0 right-0 h-[40px] bg-gradient-to-t from-parchment to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-[50px] bg-gradient-to-t from-parchment to-transparent" />
+          <div className="absolute bottom-0 left-[10%] right-[10%] h-px bg-clay" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-moss translate-y-1/2" />
         </div>
 
         <div>
