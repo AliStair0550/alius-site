@@ -107,7 +107,7 @@ export default function Services() {
 
       <div className="flex flex-col items-center mt-12">
         <p className="font-[300] text-[1.1rem] text-ink text-center">
-          Hvert forløb er skræddersyet. Vi starter med en samtale.
+          Klar til at bygge noget der virker? Lad os starte med en kop kaffe.
         </p>
         <a
           href="#kontakt"
