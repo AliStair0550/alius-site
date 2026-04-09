@@ -2,7 +2,6 @@ const values = [
   { label: "Klarhed", desc: "Vi fjerner kompleksitet. Aldrig tilføjer." },
   { label: "Håndværk", desc: "Vi bygger færre ting, men bygger dem rigtigt." },
   { label: "Handling", desc: "En plan uden eksekvering er bare papir. Vi stopper når løsningen virker." },
-  { label: "Ærlighed", desc: "Vi siger hvad vi mener. Også når det er ubehageligt. Du fortjener sandheden." },
 ];
 
 export default function About() {
