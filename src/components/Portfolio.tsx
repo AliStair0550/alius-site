@@ -117,18 +117,18 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
   return (
     <div className="flex flex-col justify-center">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-        <div className="text-[0.6rem] tracking-[0.18em] uppercase text-clay font-[300]">
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.4)" }} />
+        <div className="text-[0.6rem] tracking-[0.18em] uppercase font-[300]" style={{ color: "rgba(255,255,255,0.6)" }}>
           {p.type}
         </div>
       </div>
       <div className="font-[400] text-[1.3rem] text-parchment mb-2">
         {p.name}
       </div>
-      <div className="font-[200] text-[0.85rem] text-fog leading-[1.7] mb-4">
+      <div className="font-[200] text-[0.85rem] leading-[1.7] mb-4" style={{ color: "rgba(255,255,255,0.6)" }}>
         {p.desc}
       </div>
-      <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss hover:opacity-70 transition-opacity">
+      <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-parchment hover:opacity-70 transition-opacity">
         Se projekt &rarr;
       </span>
     </div>
@@ -137,24 +137,37 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
 
 export default function Portfolio() {
   return (
-    <section id="portfolio" className="bg-forest py-20 md:py-28">
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-16">
+    <section id="portfolio" className="bg-moss py-20 md:py-28 relative overflow-hidden">
+      {/* Decorative circle */}
+      <div
+        className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full pointer-events-none"
+        style={{ background: "rgba(255,255,255,0.06)" }}
+      />
+
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-10">
         <h2 className="font-[300] text-[2.2rem] text-parchment tracking-[0.03em] leading-[1.3]">
           Fra idé til virkelighed.
         </h2>
-        <p className="font-[200] text-[0.9rem] text-clay mt-4 leading-[1.7]">
+        <p className="font-[200] text-[0.9rem] mt-4 leading-[1.7]" style={{ color: "rgba(255,255,255,0.5)" }}>
           Udvalgte projekter.
         </p>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 mb-12">
+        <div className="h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+      </div>
+
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 relative z-10">
         {projects.map((p, i) => (
           <div key={i}>
             <a
               href={p.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="block group"
+              className="block group rounded-sm"
+              style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.08)" }}
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}
             >
               {p.layout === "full" ? (
                 <div className="relative aspect-[16/10] overflow-hidden rounded-sm">
@@ -162,24 +175,24 @@ export default function Portfolio() {
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-moss" />
-                      <div className="text-[0.6rem] tracking-[0.18em] uppercase text-clay font-[300]">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.4)" }} />
+                      <div className="text-[0.6rem] tracking-[0.18em] uppercase font-[300]" style={{ color: "rgba(255,255,255,0.6)" }}>
                         {p.type}
                       </div>
                     </div>
                     <div className="font-[400] text-[1.3rem] text-parchment mb-2">
                       {p.name}
                     </div>
-                    <div className="font-[200] text-[0.85rem] text-fog leading-[1.7] max-w-[480px] mb-4">
+                    <div className="font-[200] text-[0.85rem] leading-[1.7] max-w-[480px] mb-4" style={{ color: "rgba(255,255,255,0.6)" }}>
                       {p.desc}
                     </div>
-                    <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss">
+                    <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-parchment">
                       Se projekt &rarr;
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className={`grid grid-cols-1 md:grid-cols-[1fr_0.55fr] gap-8 md:gap-12 ${
+                <div className={`grid grid-cols-1 md:grid-cols-[1fr_0.55fr] gap-8 md:gap-12 p-4 md:p-6 ${
                   p.layout === "image-right" ? "md:grid-cols-[0.55fr_1fr]" : ""
                 }`}>
                   {p.layout === "image-right" && (
@@ -196,16 +209,17 @@ export default function Portfolio() {
             </a>
 
             {i < projects.length - 1 && (
-              <div className="h-px bg-clay/30 my-16 md:my-20" />
+              <div className="h-px my-10 md:my-14" style={{ background: "rgba(255,255,255,0.1)" }} />
             )}
           </div>
         ))}
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-16">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 pt-14">
         <a
           href="#"
-          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-clay border-b border-clay pb-0.5 hover:text-moss hover:border-moss transition-colors"
+          className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-parchment pb-0.5 hover:opacity-70 transition-opacity"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.3)" }}
         >
           Se alle projekter og mit CV &rarr;
         </a>
