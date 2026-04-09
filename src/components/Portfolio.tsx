@@ -3,7 +3,7 @@
 const projects = [
   {
     name: "SSTUDIO",
-    type: "Branding - Rebrand",
+    type: "Branding - Hjemmeside",
     desc: "Branding af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
     image: "/stylister.avif",
     cornerLogo: "/sstudio-logo.svg",
