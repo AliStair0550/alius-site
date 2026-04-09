@@ -49,7 +49,7 @@ export default function About() {
 
           <a
             href="/cv"
-            className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone border-b border-stone pb-0.5 hover:text-moss hover:border-moss transition-colors mt-8 inline-block"
+            className="font-[200] text-[0.75rem] tracking-[0.1em] uppercase text-stone hover:text-moss transition-colors mt-8 inline-block"
           >
             Se mit CV &rarr;
           </a>
