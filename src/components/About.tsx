@@ -7,9 +7,6 @@ const values = [
 export default function About() {
   return (
     <section id="om" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
-      <div className="text-[0.6rem] tracking-[0.22em] uppercase text-clay font-[300] mb-8">
-        Om
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
         <div className="border border-clay overflow-hidden group bg-parchment" style={{ maxHeight: "500px" }}>
           <img
