@@ -25,15 +25,15 @@ export default function About() {
             Brand, strategi og teknologi. Bygget som ét.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Jeg hedder Alix. Jeg bygger løsninger - ikke præsentationer. Med
-            baggrund i forretningsudvikling, branding og teknisk eksekvering
+            Jeg hedder Ali. Jeg bygger løsninger, ikke præsentationer. Med
+            baggrund i forretningsudvikling, branding og tech udvikling
             hjælper jeg virksomheder med at vokse gennem løsninger hvor strategi,
             brand og teknologi er bygget sammen.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            Alius blev grundlagt med en overbevisning: de bedste løsninger opstår
-            når brand, strategi og teknologi ikke adskilles - men kombineres fra
-            start. Derfor mestrer vi alle tre.
+            Alius blev grundlagt med en overbevisning: De bedste løsninger
+            opstår når brand, strategi og teknologi ikke adskilles, men
+            kombineres fra start.
           </p>
 
           <div className="flex flex-col gap-3">
