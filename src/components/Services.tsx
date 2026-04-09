@@ -8,9 +8,8 @@ const columns = [
     heading: "Identitet, udtryk og oplevelse",
     desc: "Vi bygger oplevelser der styrker dit brand og får dig til at skille dig ud.",
     items: [
-      { title: "Hjemmeside", sub: "Designet til at konvertere" },
-      { title: "Visuel identitet", sub: "Logo, farver, typografi - ét samlet udtryk" },
-      { title: "Kommunikation", sub: "Sprog der lyder som dig" },
+      { title: "Hjemmeside og visuel identitet", sub: "Dit ansigt udadtil" },
+      { title: "Kommunikation og content", sub: "Sprog der lyder som dig" },
       { title: "Digital synlighed", sub: "Synlig hvor dine kunder er" },
     ],
   },
@@ -21,8 +20,7 @@ const columns = [
     items: [
       { title: "Positionering og konkurrentanalyse", sub: "Find dit vindue i markedet" },
       { title: "Vækst og skalering", sub: "Systematisk vej fra A til B" },
-      { title: "Prisstrategi og forretningsmodel", sub: "Prissæt med data, ikke mavefølelse" },
-      { title: "Forretningsøkonomi", sub: "Forstå dine tal. Styrk dine marginer" },
+      { title: "Forretningsøkonomi og prisstrategi", sub: "Forstå dine tal. Styrk dine marginer" },
     ],
   },
   {
@@ -32,8 +30,7 @@ const columns = [
     items: [
       { title: "Platforme og systemer", sub: "Skræddersyet til din forretning" },
       { title: "AI og automatisering", sub: "Lad teknologien arbejde for dig" },
-      { title: "Loyalitetsløsninger", sub: "Digitale kundeklubber der skaber genkøb" },
-      { title: "Kundeoplevelser", sub: "Teknologi dine kunder faktisk mærker" },
+      { title: "Loyalitet og kundeoplevelser", sub: "Teknologi dine kunder faktisk mærker" },
     ],
   },
 ];
