@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 const experience = [
   {
     company: "Arbejdernes Landsbank",
-    period: "2024 - nuværende",
+    period: "2024 - 2026",
     roles: [
       {
         title: "Strategisk Projektleder",
-        desc: "Skaber fremdrift i bankens vigtigste udviklingsinitiativer. Sikrer at projekter planlægges og gennemføres effektivt på tværs af organisationen. Opbyggede bankens Cash Management område - både produkt- og rådgivningssiden.",
+        desc: "Skabte fremdrift i bankens vigtigste udviklingsinitiativer. Sikrede at projekter blev planlagt og gennemført effektivt på tværs af organisationen. Opbyggede bankens Cash Management område - både produkt- og rådgivningssiden.",
       },
     ],
   },
@@ -103,9 +103,6 @@ export default function CVPage() {
           </p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <span className="font-[200] text-[0.8rem] text-stone">København</span>
-            <a href="mailto:ali.stair.alfarhan@gmail.com" className="font-[200] text-[0.8rem] text-moss hover:opacity-70 transition-opacity">
-              ali.stair.alfarhan@gmail.com
-            </a>
             <a href="https://www.linkedin.com/in/alialfarhan/" target="_blank" rel="noopener noreferrer" className="font-[200] text-[0.8rem] text-moss hover:opacity-70 transition-opacity">
               LinkedIn
             </a>
