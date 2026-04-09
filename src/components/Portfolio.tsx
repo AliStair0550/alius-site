@@ -52,7 +52,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
         <img
           src={p.image}
           alt={p.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         {"overlay" in p && p.overlay && (
           <>
@@ -80,7 +80,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
         <img
           src={p.bgImage}
           alt={p.name}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-ink/50" />
         {"logo" in p && p.logo && (
@@ -97,7 +97,7 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("bg" in p && p.bg) {
     return (
       <div
-        className="absolute inset-0 flex items-center justify-center transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
+        className="absolute inset-0 flex items-center justify-center transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         style={{ background: p.bg }}
       >
         {"logo" in p && p.logo && (
