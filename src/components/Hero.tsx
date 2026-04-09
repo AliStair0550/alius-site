@@ -108,7 +108,7 @@ export default function Hero() {
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8 relative z-10">
-        Vi bygger brand, strategi og teknologi, der får virksomheder til at vokse. Bygget sammen. Så det virker.
+        Vi bygger stærke løsninger for virksomheder der vil vokse, skille sig ud og skabe kundeoplevelser der huskes.
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap relative z-10">
