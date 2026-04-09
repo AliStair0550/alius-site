@@ -6,7 +6,7 @@ const columns = [
   {
     label: "BRAND",
     heading: "Identitet, udtryk og oplevelse",
-    desc: "Vi bygger oplevelser der styrker dit brand og får dig til at skille dig ud.",
+    desc: "Vi bygger oplevelser, der styrker dit brand og får dig til at skille dig ud.",
     items: [
       { title: "Hjemmeside og visuel identitet", sub: "Dit ansigt udadtil" },
       { title: "Kommunikation og content", sub: "Sprog der lyder som dig" },
