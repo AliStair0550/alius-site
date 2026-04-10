@@ -35,20 +35,30 @@ export default function Tools() {
         - de er gratis og kræver ingen tilmelding.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
-        {tools.map((t) => (
-          <div
-            key={t.name}
-            className="p-6 border border-fog hover:border-moss transition-colors flex flex-col gap-2 cursor-pointer"
-          >
-            <div className="w-2 h-2 rounded-full bg-moss mb-1" />
-            <div className="font-[400] text-[0.9rem] text-ink">{t.name}</div>
-            <div className="font-[200] text-[0.7rem] text-slate">{t.time}</div>
-            <div className="font-[200] text-[0.8rem] text-stone leading-[1.7]">
-              {t.desc}
+      <div className="relative mt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 select-none">
+          {tools.map((t) => (
+            <div
+              key={t.name}
+              className="p-6 border border-fog flex flex-col gap-2"
+            >
+              <div className="w-2 h-2 rounded-full bg-moss mb-1" />
+              <div className="font-[400] text-[0.9rem] text-ink">{t.name}</div>
+              <div className="font-[200] text-[0.7rem] text-slate">{t.time}</div>
+              <div className="font-[200] text-[0.8rem] text-stone leading-[1.7]">
+                {t.desc}
+              </div>
             </div>
+          ))}
+        </div>
+
+        {/* Blur overlay */}
+        <div className="absolute inset-0 backdrop-blur-[6px] bg-parchment/40 flex flex-col items-center justify-center">
+          <div className="font-[300] text-[0.75rem] tracking-[0.15em] uppercase text-moss mb-2">
+            Kommer snart
           </div>
-        ))}
+          <div className="w-8 h-px bg-clay" />
+        </div>
       </div>
     </section>
   );
