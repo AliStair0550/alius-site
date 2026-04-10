@@ -219,7 +219,7 @@ export default function Portfolio() {
             </a>
 
             {i < projects.length - 1 && (
-              <div className="h-px my-10 md:my-14" style={{ background: "rgba(255,255,255,0.1)" }} />
+              <div className="my-10 md:my-14" />
             )}
           </div>
         ))}
