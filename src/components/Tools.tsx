@@ -28,7 +28,7 @@ export default function Tools() {
         Værktøjer
       </div>
       <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-4 leading-[1.3]">
-        Forstå din virksomhed. Gratis.
+        Værktøjer, der styrker din forretning.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] max-w-[560px]">
         Vores værktøjer giver dig indsigt inden du tager kontakt. Brug dem nu
