@@ -1,7 +1,7 @@
 const values = [
-  { label: "Klarhed", desc: "Vi fjerner kompleksitet. Aldrig tilføjer." },
+  { label: "Klarhed", desc: "Vi fjerner kompleksitet." },
   { label: "Håndværk", desc: "Vi bygger færre ting, men bygger dem rigtigt." },
-  { label: "Handling", desc: "En plan uden eksekvering er bare papir. Vi stopper, når løsningen virker." },
+  { label: "Handling", desc: "Vi stopper, når løsningen virker." },
 ];
 
 export default function About() {
@@ -24,15 +24,15 @@ export default function About() {
             Brand, strategi og teknologi. Bygget som ét.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Jeg hedder Ali. Jeg bygger løsninger, ikke præsentationer. Med
-            baggrund i forretningsudvikling, branding og tech udvikling
-            hjælper jeg virksomheder med at vokse gennem løsninger hvor strategi,
-            brand og teknologi er bygget sammen.
+            Jeg hedder Ali, og jeg bygger løsninger, der styrker forretninger.
+            Med erfaring inden for forretningsudvikling, strategi og tech
+            hjælper jeg virksomheder med at vækste gennem løsninger, hvor
+            strategi, brand og teknologi spiller sammen.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            Alius blev grundlagt med en overbevisning: De bedste løsninger
-            opstår når brand, strategi og teknologi ikke adskilles, men
-            kombineres fra start.
+            <strong className="font-[400] text-ink">Alius blev grundlagt med en overbevisning:</strong>{" "}
+            De bedste løsninger opstår når brand, strategi og teknologi ikke
+            adskilles, men kombineres fra start.
           </p>
 
           <div className="flex flex-col gap-3">

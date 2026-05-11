@@ -52,9 +52,6 @@ export default function Services() {
 
   return (
     <section id="ydelser" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
-      <div className="text-[0.6rem] tracking-[0.22em] uppercase text-clay font-[300] mb-8">
-        Ydelser
-      </div>
       <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-2 leading-[1.3]">
         Tre discipliner. Én løsning.
       </h2>
@@ -100,17 +97,6 @@ export default function Services() {
         ))}
       </div>
 
-      <div className="flex flex-col items-center mt-12">
-        <p className="font-[300] text-[1.1rem] text-ink text-center">
-          Klar til at bygge noget der virker? Lad os starte med en uformel snak.
-        </p>
-        <a
-          href="#kontakt"
-          className="mt-6 font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
-        >
-          Book en samtale
-        </a>
-      </div>
     </section>
   );
 }
