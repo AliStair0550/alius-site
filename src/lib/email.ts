@@ -1,13 +1,19 @@
 import { Resend } from "resend";
 
-// Centralized email configuration
-// Set RESEND_API_KEY, EMAIL_FROM, and EMAIL_TO in env.
+// Lazy init so env vars are always read at call time, not module load time.
+function getResend(): Resend | null {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+}
 
-const apiKey = process.env.RESEND_API_KEY;
-const resend = apiKey ? new Resend(apiKey) : null;
+function getFrom(): string {
+  return process.env.EMAIL_FROM ?? "noreply@alius.dk";
+}
 
-export const EMAIL_FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
-export const EMAIL_TO = process.env.EMAIL_TO ?? "hej@alius.dk";
+function getTo(): string {
+  return process.env.EMAIL_TO ?? "hej@alius.dk";
+}
 
 type SendOptions = {
   to?: string;
@@ -18,27 +24,34 @@ type SendOptions = {
 };
 
 export async function sendEmail({ to, subject, html, text, replyTo }: SendOptions) {
+  const resend = getResend();
+
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set, skipping email send");
-    console.log("[email] Would have sent:", { to: to ?? EMAIL_TO, subject });
+    console.error("[email] RESEND_API_KEY is not set — email not sent");
     return { ok: false, reason: "RESEND_API_KEY not configured" };
   }
 
+  const from = getFrom();
+  const recipient = to ?? getTo();
+
+  console.log(`[email] Sending "${subject}" to ${recipient} from ${from}`);
+
   try {
     const result = await resend.emails.send({
-      from: `Alius <${EMAIL_FROM}>`,
-      to: to ?? EMAIL_TO,
+      from: `Alius <${from}>`,
+      to: [recipient],
       subject,
       html,
       text,
-      replyTo,
+      ...(replyTo ? { replyTo } : {}),
     });
 
     if (result.error) {
-      console.error("[email] Resend error:", result.error);
+      console.error("[email] Resend API error:", JSON.stringify(result.error));
       return { ok: false, reason: result.error.message };
     }
 
+    console.log("[email] Sent ok, id:", result.data?.id);
     return { ok: true, id: result.data?.id };
   } catch (err) {
     console.error("[email] Exception:", err);
