@@ -24,7 +24,7 @@ export function TeamCompletion({ displayName, companyName, accessToken }: Props)
             Din individuelle profil
           </div>
           <p className="text-[15px] text-stone leading-[1.6] mb-6 max-w-[440px]">
-            Nysgerrig på hvad din profil fortæller? Du kan se den her — ingen login nødvendigt.
+            Nysgerrig på hvad din profil fortæller? Du kan se den her, ingen login nødvendigt.
           </p>
           <Link
             href={`/tankeprofil/min-profil/${accessToken}`}

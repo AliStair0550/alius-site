@@ -150,7 +150,7 @@ export function analyzeTeam(participants: Participant[]): TeamAnalysis {
   for (const q of dominantQuadrants) {
     const pct = Math.round(primaryPct[q] * 100);
     observations.push(
-      `${pct}% af holdet tænker primært ${ADJ[q]} — ${LABELS[q]}-profilen dominerer.`
+      `${pct}% af holdet tænker primært ${ADJ[q]}, ${LABELS[q]}-profilen dominerer.`
     );
   }
 
@@ -182,7 +182,7 @@ export function analyzeTeam(participants: Participant[]): TeamAnalysis {
 
   if (tensions.some((t) => t.severity === "high") && n >= 4) {
     observations.push(
-      "Holdet har en markant diagonal spænding. Det kan skabe kreativ friktion — eller fastlåste mønstre."
+      "Holdet har en markant diagonal spænding. Det kan skabe kreativ friktion eller fastlåste mønstre."
     );
   }
 
@@ -202,17 +202,17 @@ export function analyzeTeam(participants: Participant[]): TeamAnalysis {
     classification = "uniform";
     classificationLabel = "Ensartet";
     classificationDescription =
-      "Alle deltagere deler primær kvadrant. Holdet er stærkt og sammenhængende — men perspektivbredden er smal.";
+      "Alle deltagere deler primær kvadrant. Holdet er stærkt og sammenhængende, men perspektivbredden er smal.";
   } else if (topPct >= 0.6) {
     classification = "dominant";
     classificationLabel = "Dominerende";
     classificationDescription =
-      "Over halvdelen deler primær kvadrant. Det giver styrke og fælles forståelse — men reducerer bredden af naturlige perspektiver.";
+      "Over halvdelen deler primær kvadrant. Det giver styrke og fælles forståelse, men reducerer bredden af naturlige perspektiver.";
   } else if (tensions.some((t) => t.severity === "high")) {
     classification = "polarized";
     classificationLabel = "Polariseret";
     classificationDescription =
-      "Holdet er splittet langs en diagonal akse. Det kan skabe komplementære styrker — eller fastlåste konflikter.";
+      "Holdet er splittet langs en diagonal akse. Det kan skabe komplementære styrker eller fastlåste konflikter.";
   } else if (qRep === 4 && Math.max(...QUADS.map((q) => primaryPct[q])) < 0.45) {
     classification = "balanced";
     classificationLabel = "Balanceret";

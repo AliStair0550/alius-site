@@ -205,12 +205,12 @@ export function approvalEmailHtml(data: ApprovalEmailData): string {
                   Hej ${escapeHtml(data.name)}.
                 </h1>
                 <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 32px 0;">
-                  Jeres hold-link til ${escapeHtml(data.company)} er klar. Send linket nedenfor til alle deltagere — de behøver ikke oprette en konto.
+                  Jeres hold-link til ${escapeHtml(data.company)} er klar. Send linket nedenfor til alle deltagere, de behøver ikke oprette en konto.
                 </p>
 
                 <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
                   <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
-                    Deltager-link — send til holdet
+                    Deltager-link, send til holdet
                   </div>
                   <a href="${data.joinUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.joinUrl}</a>
                 </div>
@@ -230,7 +230,7 @@ export function approvalEmailHtml(data: ApprovalEmailData): string {
                 </div>
 
                 <div style="margin-top: 32px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
-                  Gem dette link — det er dit adgangspunkt til holdrapporten.<br>
+                  Gem dette link. Det er dit adgangspunkt til holdrapporten.<br>
                   Spørgsmål? Skriv til hej@alius.dk
                 </div>
               </td>
@@ -261,10 +261,10 @@ ${data.joinUrl}
 Dit admin-link (hold til dig selv):
 ${data.adminUrl}
 
-Gem disse links — de er jeres adgang til holdrapporten.
+Gem disse links, de er jeres adgang til holdrapporten.
 Spørgsmål? Skriv til hej@alius.dk
 
-— Alius Personlighedsprofil`;
+Alius Personlighedsprofil`;
 }
 
 // ============================================================

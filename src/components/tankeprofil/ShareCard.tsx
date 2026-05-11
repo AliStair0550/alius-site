@@ -265,7 +265,7 @@ export function ShareSection({ totals, pct, primary, secondary }: ShareCardProps
   const copyShareText = () => {
     const primaryArch = ARCHETYPES[primary];
     const secondaryArch = ARCHETYPES[secondary];
-    const text = `Jeg er en ${primaryArch.name} med ${secondaryArch.name} som medløber.\n\n"${primaryArch.quote}"\n\nFind din egen tankeprofil på alius.dk/tankeprofil`;
+    const text = `Jeg er en ${primaryArch.name} med ${secondaryArch.name} som medløber.\n\n"${primaryArch.quote}"\n\nFind din egen personlighedsprofil på alius.dk/tankeprofil`;
     navigator.clipboard.writeText(text).then(() => {
       const btn = document.getElementById("copy-btn-text");
       if (btn) {
@@ -286,7 +286,7 @@ export function ShareSection({ totals, pct, primary, secondary }: ShareCardProps
         Et signaturkort til LinkedIn.
       </h3>
       <p className="text-stone mb-8 text-[15px]">
-        Hver tankeprofil har sit eget visuelle aftryk. Dit er nedenfor.
+        Hver personlighedsprofil har sit eget visuelle aftryk. Dit er nedenfor.
       </p>
 
       <div className="max-w-[520px] mx-auto mb-8 relative">

@@ -132,7 +132,7 @@ export default function AdminPanel({
                     Session oprettet
                   </div>
                   <CopyRow
-                    label="Deltager-link — send til holdet"
+                    label="Deltager-link, send til holdet"
                     url={`${origin}/tankeprofil/join/${state.session.joinToken}`}
                   />
                   <div>

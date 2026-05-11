@@ -61,7 +61,7 @@ export default function HoldPage() {
               {
                 n: "02",
                 title: "Fælles rapport",
-                desc: "Vi samler profilerne og viser holdets samlede mønster — styrker, blinde felter og kvadrantfordeling.",
+                desc: "Vi samler profilerne og viser holdets samlede mønster: styrker, blinde felter og kvadrantfordeling.",
               },
               {
                 n: "03",

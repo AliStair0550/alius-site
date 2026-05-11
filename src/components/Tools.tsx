@@ -33,8 +33,7 @@ export default function Tools() {
         Værktøjer, der styrker din forretning.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] max-w-[560px]">
-        Vores værktøjer giver dig indsigt inden du tager kontakt. Brug dem nu
-        — de er gratis og kræver ingen tilmelding.
+        Vores værktøjer giver dig indsigt inden du tager kontakt. De er gratis og kræver ingen tilmelding.
       </p>
 
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

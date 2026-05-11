@@ -36,7 +36,7 @@ export function TeamReportView({
       {/* Open session banner */}
       {sessionOpen && (
         <div className="mb-12 px-6 py-4 border border-moss/30 bg-moss/5 text-[13px] text-moss leading-[1.5]">
-          Session er stadig åben — rapporten opdateres automatisk som deltagere tilmelder sig.{" "}
+          Session er stadig åben. Rapporten opdateres automatisk som deltagere tilmelder sig.{" "}
           <span className="opacity-60">
             {totalSubmitted} af {totalExpected} udfyldt.
           </span>
@@ -146,7 +146,7 @@ export function TeamReportView({
           <ul className="space-y-5 max-w-[600px]">
             {a.observations.map((obs, i) => (
               <li key={i} className="flex gap-4 items-start">
-                <span className="text-moss mt-1 flex-shrink-0">—</span>
+                <span className="text-moss mt-1 flex-shrink-0">-</span>
                 <span className="text-[16px] leading-[1.6] text-stone">{obs}</span>
               </li>
             ))}
@@ -166,7 +166,7 @@ export function TeamReportView({
           </h2>
           <p className="text-[17px] leading-[1.65] text-stone mb-10 max-w-[600px]">
             Spændinger opstår når holdet rummer modsatrettede tænkemåder. Det kan
-            være en styrke — hvis I genkender og bruger det aktivt.
+            være en styrke, hvis I genkender og bruger det aktivt.
           </p>
           <div className="space-y-6 max-w-[600px]">
             {a.tensions.map((t, i) => (
@@ -301,7 +301,7 @@ export function TeamReportView({
           </h2>
           <p className="text-[16px] leading-[1.65] text-parchment/70 mb-10 max-w-[440px]">
             En rapport er et udgangspunkt, ikke en konklusion. Book en times samtale
-            med Alius — vi gennemgår mønstret og finder hvad I konkret kan gøre med det.
+            med Alius. Vi gennemgår mønstret og finder hvad I konkret kan gøre med det.
           </p>
           <a
             href="mailto:hej@alius.dk?subject=Book samtale om holdrapport"

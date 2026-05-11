@@ -48,7 +48,7 @@ export async function PATCH(
   // approve
   const session = await prisma.teamSession.create({
     data: {
-      name: `${existing.company} — Hold`,
+      name: `${existing.company}: Hold`,
       companyName: existing.company,
       ownerEmail: existing.email,
       ownerName: existing.name,

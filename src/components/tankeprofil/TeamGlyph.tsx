@@ -143,7 +143,7 @@ export function TeamGlyph({ participants, size = 400 }: TeamGlyphProps) {
             fill="rgba(26,26,26,0.15)"
             fontStyle="italic"
           >
-            —
+            -
           </text>
         );
       })}

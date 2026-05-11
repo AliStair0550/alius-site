@@ -76,7 +76,7 @@ export function TeamTestClient({
         setPhase({ type: "testing", accessToken: data.accessToken });
       }
     } catch {
-      setPhase({ type: "join-error", message: "Netværksfejl — tjek din forbindelse" });
+      setPhase({ type: "join-error", message: "Netværksfejl. Tjek din forbindelse." });
     }
   }
 

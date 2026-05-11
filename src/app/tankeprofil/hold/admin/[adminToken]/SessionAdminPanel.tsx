@@ -60,7 +60,7 @@ export default function SessionAdminPanel({ session }: { session: Session }) {
       {/* Kontaktperson */}
       <section>
         <SectionLabel>Kontaktperson</SectionLabel>
-        <p className="text-[16px] mb-1">{session.ownerName ?? "—"}</p>
+        <p className="text-[16px] mb-1">{session.ownerName ?? "-"}</p>
         <a href={`mailto:${session.ownerEmail}`} className="text-[14px] text-moss hover:underline">
           {session.ownerEmail}
         </a>
@@ -118,7 +118,7 @@ export default function SessionAdminPanel({ session }: { session: Session }) {
       {/* Links */}
       <section className="pt-8 border-t border-ink/10 space-y-6">
         <SectionLabel>Links</SectionLabel>
-        <CopyLink label="Deltager-link — send til holdet" url={joinUrl} />
+        <CopyLink label="Deltager-link, send til holdet" url={joinUrl} />
         <CopyLink label="Rapport-link" url={reportUrl} />
         <CopyLink label="Denne admin-side" url={adminUrl} />
       </section>
@@ -137,7 +137,7 @@ export default function SessionAdminPanel({ session }: { session: Session }) {
           {toggling ? "..." : status === "OPEN" ? "Luk session" : "Genåbn session"}
         </button>
         <a
-          href={`mailto:${session.ownerEmail}?subject=Alius Personlighedsprofil — ${
+          href={`mailto:${session.ownerEmail}?subject=Alius Personlighedsprofil: ${
             session.companyName ?? session.name
           }`}
           className="text-[13px] text-moss hover:underline"

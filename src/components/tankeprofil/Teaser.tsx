@@ -30,7 +30,7 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
       <div className="pt-10">
         <div className="flex items-center gap-4 text-[11px] tracking-[0.4em] uppercase text-moss mb-14 font-normal">
           <span className="h-px flex-1 max-w-[80px] bg-ink/10" />
-          Din tankeprofil
+          Din personlighedsprofil
           <span className="h-px flex-1 max-w-[200px] bg-ink/10" />
         </div>
 

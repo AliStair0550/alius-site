@@ -22,7 +22,7 @@ export function Report({ totals, pct, primary, secondary, weakest, onRestart }: 
     <section className="animate-[fadeIn_0.7s_ease-out]">
       <div className="text-left pt-10 pb-20 border-b border-ink/10">
         <div className="text-[11px] tracking-[0.4em] uppercase text-moss mb-6">
-          Din fulde tankeprofil
+          Din fulde personlighedsprofil
         </div>
         <h1 className="font-fraunces font-light italic text-[clamp(64px,9vw,128px)] leading-[0.95] tracking-[-0.03em] mb-6 text-ink">
           {primaryArch.name}
@@ -175,7 +175,7 @@ export function Report({ totals, pct, primary, secondary, weakest, onRestart }: 
           din profil til <em className="italic text-[#B8C9C1]">noget</em>?
         </h3>
         <p className="opacity-70 max-w-[480px] mx-auto mb-8 text-[15px]">
-          Hos Alius arbejder vi med tankeprofiler som fundament for stærkere teams, klarere kommunikation og strategi der passer til hvem I faktisk er. Lad os tage en samtale.
+          Hos Alius arbejder vi med personlighedsprofiler som fundament for stærkere teams, klarere kommunikation og strategi der passer til hvem I faktisk er. Lad os tage en samtale.
         </p>
         <a
           href="mailto:hej@alius.dk"
