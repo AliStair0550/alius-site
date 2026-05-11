@@ -1,4 +1,6 @@
-const tools = [
+import Link from "next/link";
+
+const comingSoon = [
   {
     name: "DISC Profiltest",
     time: "5 min",
@@ -32,33 +34,43 @@ export default function Tools() {
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] max-w-[560px]">
         Vores værktøjer giver dig indsigt inden du tager kontakt. Brug dem nu
-        - de er gratis og kræver ingen tilmelding.
+        — de er gratis og kræver ingen tilmelding.
       </p>
 
-      <div className="relative mt-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 select-none">
-          {tools.map((t) => (
-            <div
-              key={t.name}
-              className="p-6 border border-fog flex flex-col gap-2"
-            >
-              <div className="w-2 h-2 rounded-full bg-moss mb-1" />
-              <div className="font-[400] text-[0.9rem] text-ink">{t.name}</div>
-              <div className="font-[200] text-[0.7rem] text-slate">{t.time}</div>
-              <div className="font-[200] text-[0.8rem] text-stone leading-[1.7]">
-                {t.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Blur overlay */}
-        <div className="absolute inset-0 backdrop-blur-[6px] bg-parchment/40 flex flex-col items-center justify-center">
-          <div className="font-[300] text-[0.75rem] tracking-[0.15em] uppercase text-moss mb-2">
-            Kommer snart
+      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Active: Tankeprofil */}
+        <Link
+          href="/tankeprofil"
+          className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
+        >
+          <div className="w-2 h-2 rounded-full bg-moss mb-1" />
+          <div className="font-[400] text-[0.9rem] text-ink">Tankeprofil</div>
+          <div className="font-[200] text-[0.7rem] text-slate">Selvvurdering · 8 min</div>
+          <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
+            Lær din tænkning at kende. Fire måder at tænke på, tre situationer at vælge i, ét billede af hvor du naturligt henter din energi.
           </div>
-          <div className="w-8 h-px bg-clay" />
-        </div>
+          <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
+            Start testen &rarr;
+          </div>
+        </Link>
+
+        {/* Coming soon */}
+        {comingSoon.map((t) => (
+          <div
+            key={t.name}
+            className="p-6 border border-fog flex flex-col gap-2 select-none opacity-50"
+          >
+            <div className="w-2 h-2 rounded-full bg-clay mb-1" />
+            <div className="font-[400] text-[0.9rem] text-ink">{t.name}</div>
+            <div className="font-[200] text-[0.7rem] text-slate">{t.time}</div>
+            <div className="font-[200] text-[0.8rem] text-stone leading-[1.7]">
+              {t.desc}
+            </div>
+            <div className="font-[300] text-[0.65rem] tracking-[0.12em] uppercase text-clay mt-2">
+              Kommer snart
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

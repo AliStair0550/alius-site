@@ -4,6 +4,7 @@
   --color-ink: #1A1A1A;
   --color-stone: #4A4A4A;
   --color-moss: #2D5F4A;
+  --color-moss-light: #4A7D68;
   --color-sand: #F5F3EF;
   --color-clay: #D4D0C8;
   --color-fog: #E8E5DF;
@@ -11,6 +12,7 @@
   --color-parchment: #FAF8F4;
   --color-forest: #1A2E24;
   --font-sans: 'Jost', sans-serif;
+  --font-fraunces: 'Fraunces', serif;
 }
 
 html {
@@ -26,6 +28,21 @@ body {
 ::selection {
   background: var(--color-moss);
   color: var(--color-parchment);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ringIn {
+  from { transform: scale(1); opacity: 0; }
+  to { transform: scale(1.04); opacity: 0.3; }
 }
 
 @keyframes fadeUp {
