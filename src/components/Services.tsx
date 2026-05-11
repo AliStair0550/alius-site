@@ -53,10 +53,10 @@ export default function Services() {
   return (
     <section id="ydelser" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
       <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-2 leading-[1.3]">
-        Tre discipliner. Én løsning.
+        Løsninger, der hviler på tre discipliner.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12">
-        Hver løsning er skabt i fællesskab.
+        Løsninger er skabt i fællesskab.
       </p>
 
       <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
