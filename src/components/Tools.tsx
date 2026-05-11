@@ -47,7 +47,7 @@ export default function Tools() {
           <div className="font-[400] text-[0.9rem] text-ink">Tankeprofil</div>
           <div className="font-[200] text-[0.7rem] text-slate">Selvvurdering · 8 min</div>
           <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
-            Lær din tænkning at kende. Fire måder at tænke på, tre situationer at vælge i, ét billede af hvor du naturligt henter din energi.
+            Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du måske overser muligheder.
           </div>
           <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
             Start testen &rarr;

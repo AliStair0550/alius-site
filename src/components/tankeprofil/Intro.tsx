@@ -6,16 +6,16 @@ export function Intro({ onStart }: IntroProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
         <div>
           <div className="text-[11px] tracking-[0.3em] uppercase text-moss font-normal mb-8">
-            Selvvurdering
+            Personlighedsprofil
           </div>
           <h1 className="font-fraunces font-light text-[clamp(48px,6vw,88px)] leading-[0.95] tracking-[-0.02em] mb-10">
             Lær din<br />
-            <em className="italic text-moss">tænkning</em>
+            <em className="italic text-moss">præferencer</em>
             <br />
             at kende.
           </h1>
           <p className="text-[19px] font-light leading-[1.55] text-stone max-w-[480px]">
-            Fire måder at tænke på. Tre situationer at vælge i. Et billede af hvor du naturligt henter din energi, og hvor du måske overser muligheder.
+            Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du måske overser muligheder.
           </p>
           <button
             onClick={onStart}

@@ -34,17 +34,17 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
           <span className="h-px flex-1 max-w-[200px] bg-ink/10" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-end gap-8 md:gap-12 mb-6 pb-6 border-b border-ink/10">
-          <div className="overflow-hidden">
-            <div className="font-fraunces font-extralight italic text-[clamp(28px,4vw,48px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
-              Du er en
-            </div>
-            <h1 className="font-fraunces font-light italic text-[clamp(96px,16vw,220px)] leading-[0.85] tracking-[-0.04em] text-ink animate-[revealUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.2s_both]">
+        <div className="mb-6 pb-6 border-b border-ink/10">
+          <div className="font-fraunces font-extralight italic text-[clamp(28px,4vw,48px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
+            Du er en
+          </div>
+          <div className="flex items-end justify-between gap-6">
+            <h1 className="font-fraunces font-light italic text-[clamp(72px,13vw,180px)] leading-[0.85] tracking-[-0.04em] text-ink animate-[revealUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.2s_both]">
               {primaryArch.name}
             </h1>
-          </div>
-          <div className="w-[120px] md:w-[180px] flex-shrink-0">
-            <Glyph totals={totals} size={180} />
+            <div className="w-[100px] md:w-[150px] flex-shrink-0 mb-2">
+              <Glyph totals={totals} size={150} />
+            </div>
           </div>
         </div>
 

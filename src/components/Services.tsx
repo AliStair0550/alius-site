@@ -56,7 +56,7 @@ export default function Services() {
         Løsninger, der hviler på tre discipliner.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12">
-        Løsninger er skabt i fællesskab.
+        Alt skabes i fællesskab.
       </p>
 
       <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">

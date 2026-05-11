@@ -55,7 +55,7 @@ export default async function Image() {
             fontWeight: 400,
           }}
         >
-          SELVVURDERING
+          PERSONLIGHEDSPROFIL
         </div>
 
         {/* Hero text */}
@@ -90,7 +90,7 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            tænkning at kende.
+            præferencer at kende.
           </div>
         </div>
 
