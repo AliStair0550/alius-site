@@ -14,8 +14,8 @@ const projects = [
     name: "Smashii",
     type: "Branding - Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
-    bg: "#3D2060",
-    logo: "https://smashii.dk/assets/logonew.png",
+    bg: "#F5F2F0",
+    logo: "/logo_darkpurple.png",
     link: "https://smashii.dk",
     layout: "image-right" as const,
   },
@@ -45,6 +45,7 @@ const projects = [
     tint: "moss",
     link: "https://folka.dk",
     layout: "full" as const,
+    logoFont: true,
   },
 ];
 
@@ -190,7 +191,16 @@ export default function Portfolio() {
                         {p.type}
                       </div>
                     </div>
-                    <div className="font-[400] text-[1.3rem] text-parchment mb-2">
+                    <div
+                      className="text-parchment mb-2"
+                      style={"logoFont" in p && p.logoFont ? {
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontStyle: "italic",
+                        fontWeight: 500,
+                        fontSize: "2rem",
+                        letterSpacing: "-0.025em",
+                      } : { fontWeight: 400, fontSize: "1.3rem" }}
+                    >
                       {p.name}
                     </div>
                     <div className="font-[200] text-[0.85rem] leading-[1.7] max-w-[480px] mb-4" style={{ color: "rgba(255,255,255,0.6)" }}>

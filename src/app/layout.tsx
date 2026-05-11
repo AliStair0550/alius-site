@@ -42,7 +42,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500&family=Cormorant+Garamond:ital,wght@1,500&display=swap"
           rel="stylesheet"
         />
       </head>
