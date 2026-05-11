@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTankeprofil } from "./useTankeprofil";
 import { Intro } from "./Intro";
@@ -9,14 +10,68 @@ import { Report } from "./Report";
 
 export function TankeprofilClient() {
   const tp = useTankeprofil();
+  const [savedAccessToken, setSavedAccessToken] = useState<string | null>(null);
+  const [saveAttempted, setSaveAttempted] = useState(false);
 
-  const handleSubmitEmail = (email: string) => {
-    // TODO: Send to backend when ready. For now just log and continue.
-    if (typeof window !== "undefined") {
-      console.log("[Tankeprofil] Email captured:", email);
+  // Save profile silently the first time we reach the teaser stage.
+  // This way every completed test ends up in the database, even without email.
+  useEffect(() => {
+    if (tp.stage !== "teaser" || saveAttempted) return;
+    setSaveAttempted(true);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/profile/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            totals: tp.totals,
+            primary: tp.ranking.primary,
+            secondary: tp.ranking.secondary,
+            weakest: tp.ranking.weakest,
+            selections: tp.selections,
+            source: "individual",
+          }),
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          setSavedAccessToken(data.accessToken);
+        }
+      } catch (err) {
+        if (!cancelled) console.error("[Tankeprofil] Failed to save profile:", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tp.stage, saveAttempted, tp.totals, tp.ranking, tp.selections]);
+
+  // When user submits email at teaser, update the existing profile and proceed
+  const handleSubmitEmail = async (email: string) => {
+    if (savedAccessToken) {
+      try {
+        await fetch(`/api/profile/${savedAccessToken}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+      } catch (err) {
+        console.error("[Tankeprofil] Failed to save email:", err);
+      }
     }
     tp.goToReport();
   };
+
+  // Reset save state when test is restarted
+  useEffect(() => {
+    if (tp.stage === "intro") {
+      setSavedAccessToken(null);
+      setSaveAttempted(false);
+    }
+  }, [tp.stage]);
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">
@@ -95,6 +150,17 @@ export function TankeprofilClient() {
           >
             Læs hele teorien bag &rarr;
           </Link>
+          {savedAccessToken && (
+            <div className="mt-6 pt-6 border-t border-ink/10 text-[11px] text-stone opacity-50">
+              Din profil er gemt. Bogmærk dette link for at vende tilbage:{" "}
+              <Link
+                href={`/tankeprofil/min-profil/${savedAccessToken}`}
+                className="text-moss hover:underline break-all"
+              >
+                /tankeprofil/min-profil/{savedAccessToken.slice(0, 12)}...
+              </Link>
+            </div>
+          )}
         </footer>
       </div>
     </div>
