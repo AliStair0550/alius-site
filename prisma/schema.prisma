@@ -1,0 +1,167 @@
+// ============================================================
+// Alius database schema
+// Used by tankeprofil and future tools
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// PROFILE
+// A single person's tankeprofil result.
+// Can be anonymous initially, claimed via email later.
+// Same person can be in multiple teams without retaking the test.
+// ============================================================
+
+model Profile {
+  id          String   @id @default(cuid())
+
+  // Identity (optional at first, can be added later)
+  email       String?  @unique
+  displayName String?
+
+  // Result
+  totals      Json     // { A: 8, B: 12, C: 3, D: 1 }
+  primary     String   // "A" | "B" | "C" | "D"
+  secondary   String
+  weakest     String
+
+  // Raw selections, so we can recalculate if the formula changes
+  selections  Json     // Selections array from the test
+
+  // Returnable link without login
+  accessToken String   @unique @default(cuid())
+
+  // Tracking
+  source      String?  // "individual" | "team_invitation" | "workshop"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teamMemberships TeamMember[]
+
+  @@index([email])
+  @@index([accessToken])
+}
+
+// ============================================================
+// TEAM SESSION
+// A group of people taking the test together.
+// Three tokens give role-based access without user accounts.
+// ============================================================
+
+model TeamSession {
+  id           String   @id @default(cuid())
+
+  // Identification
+  name         String
+  companyName  String?
+  ownerEmail   String
+  ownerName    String?
+
+  // Status
+  status       TeamSessionStatus @default(OPEN)
+
+  // Access via long random tokens in URL
+  // join = invitees can submit but not see report or admin
+  // report = anyone can view report but not modify
+  // admin = owner can manage session
+  joinToken    String   @unique @default(cuid())
+  reportToken  String   @unique @default(cuid())
+  adminToken   String   @unique @default(cuid())
+
+  // Expected number of participants (from request)
+  expectedSize Int?
+
+  // Tracking
+  createdAt    DateTime  @default(now())
+  closedAt     DateTime?
+
+  // Relations
+  members      TeamMember[]
+  request      TeamRequest?
+
+  @@index([joinToken])
+  @@index([reportToken])
+  @@index([adminToken])
+  @@index([ownerEmail])
+}
+
+enum TeamSessionStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+// ============================================================
+// TEAM MEMBER
+// Join table between Profile and TeamSession.
+// Allows a profile to participate in multiple teams.
+// ============================================================
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  sessionId   String
+  profileId   String
+
+  // Display name shown in this session's report
+  // (might differ between sessions, e.g. "Mette" vs "Marketing-Mette")
+  displayName String
+
+  joinedAt    DateTime  @default(now())
+  submittedAt DateTime?
+
+  session     TeamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  profile     Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, profileId])
+  @@index([sessionId])
+  @@index([profileId])
+}
+
+// ============================================================
+// TEAM REQUEST
+// Lead magnet form submission.
+// Owner reviews and approves manually, creating a session.
+// ============================================================
+
+model TeamRequest {
+  id        String   @id @default(cuid())
+
+  // Form content
+  name      String
+  email     String
+  company   String
+  teamSize  String
+  context   String?
+
+  // Status
+  status    TeamRequestStatus @default(NEW)
+
+  // If approved, a session is created
+  sessionId String?      @unique
+  session   TeamSession? @relation(fields: [sessionId], references: [id])
+
+  // Internal notes for owner
+  notes     String?
+
+  // Tracking
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+
+  @@index([status])
+  @@index([email])
+}
+
+enum TeamRequestStatus {
+  NEW
+  APPROVED
+  DECLINED
+  COMPLETED
+}
