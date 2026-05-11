@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Lær dine præferencer at kende. Fire måder at tænke på, tre situationer at vælge imellem. En personlighedsprofil fra Alius.",
   openGraph: {
-    title: "Tankeprofil · Alius",
+    title: "Personlighedsprofil · Alius",
     description:
       "Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi.",
     type: "website",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tankeprofil · Alius",
+    title: "Personlighedsprofil · Alius",
     description:
       "Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi.",
   },

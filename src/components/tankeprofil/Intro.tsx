@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type IntroProps = { onStart: () => void };
 
 export function Intro({ onStart }: IntroProps) {
@@ -17,19 +19,27 @@ export function Intro({ onStart }: IntroProps) {
           <p className="text-[19px] font-light leading-[1.55] text-stone max-w-[480px]">
             Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du måske overser muligheder.
           </p>
-          <button
-            onClick={onStart}
-            className="mt-14 inline-flex items-center gap-4 bg-ink text-parchment px-9 py-[22px] text-[13px] font-normal tracking-[0.25em] uppercase cursor-pointer transition-all duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-moss hover:gap-6 group"
-          >
-            Begynd
-            <span className="transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1">
-              &rarr;
-            </span>
-          </button>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8 mt-14">
+            <button
+              onClick={onStart}
+              className="inline-flex items-center gap-4 bg-ink text-parchment px-9 py-[22px] text-[13px] font-normal tracking-[0.25em] uppercase cursor-pointer transition-all duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-moss hover:gap-6 group"
+            >
+              Begynd
+              <span className="transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1">
+                &rarr;
+              </span>
+            </button>
+            <Link
+              href="/tankeprofil/teori"
+              className="text-[12px] font-normal tracking-[0.25em] uppercase text-stone hover:text-moss transition-colors border-b border-ink/10 hover:border-moss pb-1 no-underline"
+            >
+              Læs teorien bag
+            </Link>
+          </div>
         </div>
         <div className="border-l-0 md:border-l border-t md:border-t-0 border-ink/10 pl-0 md:pl-12 pt-8 md:pt-0">
           {[
-            ["Varighed", "6 minutter"],
+            ["Varighed", "4 minutter"],
             ["Kort", "Tre"],
             ["Format", "Intuitivt valg"],
             ["Resultat", "Med det samme"],

@@ -32,7 +32,7 @@ export default async function Image() {
             fontWeight: 200,
           }}
         >
-          ALIUS · TANKEPROFIL
+          ALIUS · PERSONLIGHEDSPROFIL
         </div>
 
         <div
