@@ -19,8 +19,7 @@ export function TeamRequestForm() {
       company: formData.get("company"),
       teamSize: formData.get("teamSize"),
       context: formData.get("context"),
-      // Honeypot field - real users won't fill this since it's visually hidden
-      website: formData.get("website"),
+      _hp: formData.get("_hp"),
     };
 
     try {
@@ -64,22 +63,9 @@ export function TeamRequestForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Honeypot - hidden from real users via CSS but visible to most bots */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "-10000px",
-          top: "auto",
-          width: "1px",
-          height: "1px",
-          overflow: "hidden",
-        }}
-      >
-        <label>
-          Website (lad dette felt være tomt)
-          <input type="text" name="website" tabIndex={-1} autoComplete="off" />
-        </label>
+      {/* Honeypot - bots fill it, real browsers won't touch an obscure name */}
+      <div aria-hidden="true" style={{ display: "none" }}>
+        <input type="text" name="_hp" tabIndex={-1} autoComplete="off" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

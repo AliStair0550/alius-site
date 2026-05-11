@@ -35,6 +35,9 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    console.log("[team-request] Received body keys:", Object.keys(body));
+    console.log("[team-request] Honeypot value:", JSON.stringify(body._hp));
+
     // Validate required fields
     if (!isValidString(body.name, 100)) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -68,10 +71,9 @@ export async function POST(req: Request) {
     }
 
     // Honeypot field - if set, silently accept but do nothing.
-    // Form should never include this field; bots often fill all fields.
-    if (body.website && typeof body.website === "string" && body.website.length > 0) {
+    if (body._hp && typeof body._hp === "string" && body._hp.length > 0) {
       console.warn("[team-request] Honeypot triggered:", body.email);
-      return NextResponse.json({ ok: true }); // Pretend success
+      return NextResponse.json({ ok: true });
     }
 
     // Rate limit by email
@@ -132,12 +134,14 @@ export async function POST(req: Request) {
 
     if (!emailResult.ok) {
       console.error("[team-request] Email send failed:", emailResult.reason);
-      // Still return success - request is saved
+    } else {
+      console.log("[team-request] Email sent ok, id:", (emailResult as { id?: string }).id);
     }
 
     return NextResponse.json({
       ok: true,
       requestId: request.id,
+      emailSent: emailResult.ok,
     });
   } catch (error) {
     console.error("[/api/team-request] Error:", error);
