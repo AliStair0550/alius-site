@@ -97,6 +97,31 @@ export default async function KommunerHubPage() {
           )}
         </section>
 
+        {/* Featured: Danmark */}
+        <section className="mb-8">
+          <Link
+            href="/pulse/kommuner/danmark"
+            className="block p-8 md:p-10 bg-ink text-parchment no-underline group hover:bg-ink/90 transition-colors"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-[11px] tracking-[0.3em] uppercase text-moss-light mb-6 font-normal">
+                  Landsprofil
+                </div>
+                <h2 className="font-fraunces font-light italic text-[clamp(40px,7vw,80px)] leading-[0.9] tracking-[-0.03em] mb-6 text-parchment">
+                  Danmark
+                </h2>
+                <p className="text-parchment/60 text-[14px] leading-[1.6] max-w-[480px]">
+                  Danmarks samlede nøgletal: befolkning, disponibel indkomst og ledighed. Referencepunktet for alle 98 kommuneprofiler.
+                </p>
+              </div>
+              <span className="text-parchment/40 group-hover:text-parchment/80 transition-colors text-[13px] tracking-[0.2em] uppercase mt-1">
+                &rarr;
+              </span>
+            </div>
+          </Link>
+        </section>
+
         <section>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {kommuner.map((k) => {

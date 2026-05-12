@@ -5,6 +5,11 @@ import { prisma } from "@/lib/db";
 import { getKommuneBySlug, getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
 import { KommuneSparkline } from "@/components/pulse/KommuneSparkline";
+import { IncomeBars } from "@/components/pulse/IncomeBars";
+import {
+  findSimilarKommuner,
+  type KommuneMetrics,
+} from "@/lib/similar-kommuner";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -99,49 +104,74 @@ export default async function KommuneProfilPage({ params }: Props) {
     .slice(-24)
     .map((p) => ({ period: p.period, value: p.value! }));
 
-  // Income last 10 years for mini bar chart
+  // Income last 10 years for bar chart
   const incomeRecent = incomePoints.slice(-10);
+  const incomeBarPoints = incomeRecent.map((p) => ({
+    year: p.periodDate.getUTCFullYear(),
+    value: p.value!,
+  }));
 
-  // "Lignende kommuner" — 3 closest by unemployment rate
-  let lignende: Array<{ code: string; name: string; slug: string; rate: number }> = [];
-  if (latestUnemp && aus08Source) {
-    const allLatest = await prisma.dataPoint.findMany({
-      where: {
-        sourceId: aus08Source.id,
-        areaType: "KOMMUNE",
-        value: { not: null },
-      },
-      orderBy: { periodDate: "desc" },
-      distinct: ["areaCode"],
-      select: { areaCode: true, value: true },
-    });
+  // "Lignende kommuner" — euclidean distance across unemployment, income, population
+  const allKommuner = getAllKommuner();
+  let lignende: ReturnType<typeof findSimilarKommuner> = [];
 
-    const allKommuner = getAllKommuner();
-    const kommuneSet = new Set(allKommuner.map((k) => k.code));
+  if (latestUnemp && aus08Source && folk1amSource && indkp101Source) {
+    const [allUnemp, allPop, allIncome] = await Promise.all([
+      prisma.dataPoint.findMany({
+        where: {
+          sourceId: aus08Source.id,
+          areaType: "KOMMUNE",
+          value: { not: null },
+        },
+        orderBy: { periodDate: "desc" },
+        distinct: ["areaCode"],
+        select: { areaCode: true, value: true },
+      }),
+      prisma.dataPoint.findMany({
+        where: {
+          sourceId: folk1amSource.id,
+          areaType: "KOMMUNE",
+          value: { not: null },
+        },
+        orderBy: { periodDate: "desc" },
+        distinct: ["areaCode"],
+        select: { areaCode: true, value: true },
+      }),
+      prisma.dataPoint.findMany({
+        where: {
+          sourceId: indkp101Source.id,
+          areaType: "KOMMUNE",
+          value: { not: null },
+        },
+        orderBy: { periodDate: "desc" },
+        distinct: ["areaCode"],
+        select: { areaCode: true, value: true },
+      }),
+    ]);
 
-    lignende = allLatest
-      .filter(
-        (r) =>
-          r.areaCode !== kommune.code &&
-          r.areaCode !== null &&
-          kommuneSet.has(r.areaCode!) &&
-          r.value !== null
-      )
-      .map((r) => {
-        const k = allKommuner.find((k) => k.code === r.areaCode);
-        return {
-          code: r.areaCode!,
-          name: k?.name ?? r.areaCode!,
-          slug: k?.slug ?? r.areaCode!,
-          rate: r.value!,
-        };
-      })
-      .sort(
-        (a, b) =>
-          Math.abs(a.rate - latestUnemp.value!) -
-          Math.abs(b.rate - latestUnemp.value!)
-      )
-      .slice(0, 3);
+    const unempByCode = new Map(allUnemp.map((r) => [r.areaCode, r.value]));
+    const popByCode = new Map(allPop.map((r) => [r.areaCode, r.value]));
+    const incomeByCode = new Map(allIncome.map((r) => [r.areaCode, r.value]));
+
+    const allMetrics: KommuneMetrics[] = allKommuner.map((k) => ({
+      code: k.code,
+      name: k.name,
+      slug: k.slug,
+      unemployment: unempByCode.get(k.code) ?? null,
+      income: incomeByCode.get(k.code) ?? null,
+      population: popByCode.get(k.code) ?? null,
+    }));
+
+    const target: KommuneMetrics = {
+      code: kommune.code,
+      name: kommune.name,
+      slug: kommune.slug,
+      unemployment: latestUnemp.value,
+      income: latestIncome?.value ?? null,
+      population: latestPop?.value ?? null,
+    };
+
+    lignende = findSimilarKommuner(target, allMetrics, 3);
   }
 
   const hasAnyData =
@@ -265,7 +295,7 @@ export default async function KommuneProfilPage({ params }: Props) {
         )}
 
         {/* Income trend */}
-        {incomeRecent.length >= 3 && (
+        {incomeBarPoints.length >= 3 && (
           <section className="mb-20">
             <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-8">
               <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
@@ -281,7 +311,7 @@ export default async function KommuneProfilPage({ params }: Props) {
               </div>
             </div>
             <div className="bg-fog/40 p-6 md:p-8">
-              <IncomeBarChart points={incomeRecent.map((p) => ({ year: p.period, value: p.value! }))} />
+              <IncomeBars points={incomeBarPoints} />
             </div>
           </section>
         )}
@@ -338,12 +368,26 @@ export default async function KommuneProfilPage({ params }: Props) {
                       &rarr;
                     </span>
                   </div>
-                  <div className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-50 mb-0.5">
-                    Ledighed
-                  </div>
-                  <div className="font-fraunces font-light text-[20px] text-ink tabular-nums">
-                    {k.rate.toFixed(1)}%
-                  </div>
+                  {k.unemployment != null && (
+                    <div className="mb-1.5">
+                      <div className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-50 mb-0.5">
+                        Ledighed
+                      </div>
+                      <div className="font-fraunces font-light text-[20px] text-ink tabular-nums">
+                        {k.unemployment.toFixed(1)}%
+                      </div>
+                    </div>
+                  )}
+                  {k.income != null && (
+                    <div>
+                      <div className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-50 mb-0.5">
+                        Indkomst
+                      </div>
+                      <div className="font-fraunces font-light text-[16px] text-ink tabular-nums">
+                        {Math.round(k.income / 1000).toLocaleString("da-DK")} t.kr.
+                      </div>
+                    </div>
+                  )}
                 </Link>
               ))}
             </div>
@@ -423,35 +467,6 @@ function Stat({
           {deltaStr} {deltaLabel}
         </div>
       )}
-    </div>
-  );
-}
-
-function IncomeBarChart({
-  points,
-}: {
-  points: Array<{ year: string; value: number }>;
-}) {
-  const maxVal = Math.max(...points.map((p) => p.value));
-  const minVal = Math.min(...points.map((p) => p.value));
-  const range = maxVal - minVal || 1;
-
-  return (
-    <div className="flex items-end gap-1.5 h-32">
-      {points.map((p) => {
-        const heightPct = 20 + ((p.value - minVal) / range) * 80;
-        return (
-          <div key={p.year} className="flex-1 flex flex-col items-center gap-1.5">
-            <div
-              className="w-full bg-ink/20 transition-all"
-              style={{ height: `${heightPct}%` }}
-            />
-            <div className="text-[10px] text-stone opacity-50 rotate-0 whitespace-nowrap">
-              {p.year.slice(2)}
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 }
