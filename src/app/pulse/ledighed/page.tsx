@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
+import { getAllKommuner } from "@/lib/areas";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { PulseHero } from "@/components/pulse/Hero";
 import { NationalHistoryChart } from "@/components/pulse/NationalHistoryChart";
 import { KommuneRankings } from "@/components/pulse/KommuneRankings";
+import { KommunePicker } from "@/components/pulse/KommunePicker";
 
 export const metadata: Metadata = {
   title: "Ledighedspuls · Alius Pulse",
@@ -31,7 +33,6 @@ export default async function LedighedsPulsPage() {
     return <NoDataView />;
   }
 
-  // Latest national datapoint
   const latestNational = await prisma.dataPoint.findFirst({
     where: {
       sourceId: source.id,
@@ -41,7 +42,6 @@ export default async function LedighedsPulsPage() {
     orderBy: { periodDate: "desc" },
   });
 
-  // National history (5 years for chart)
   const fiveYearsAgo = new Date();
   fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
   const nationalHistory = await prisma.dataPoint.findMany({
@@ -52,14 +52,9 @@ export default async function LedighedsPulsPage() {
       periodDate: { gte: fiveYearsAgo },
     },
     orderBy: { periodDate: "asc" },
-    select: {
-      period: true,
-      periodDate: true,
-      value: true,
-    },
+    select: { period: true, periodDate: true, value: true },
   });
 
-  // Latest kommune snapshot — top 5 highest and lowest
   const latestPeriod = latestNational?.period;
   const allKommuner = latestPeriod
     ? await prisma.dataPoint.findMany({
@@ -70,11 +65,7 @@ export default async function LedighedsPulsPage() {
           value: { not: null },
         },
         orderBy: { value: "desc" },
-        select: {
-          areaCode: true,
-          areaName: true,
-          value: true,
-        },
+        select: { areaCode: true, areaName: true, value: true },
       })
     : [];
 
@@ -92,10 +83,9 @@ export default async function LedighedsPulsPage() {
       value: k.value!,
     }));
 
-  // Signals
   const allSignals = await prisma.signal.findMany({
     where: { sourceId: source.id },
-    orderBy: [{ magnitude: "desc" }],
+    orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
   });
 
   const importantSignals = allSignals.filter((s) => s.severity === "important");
@@ -148,9 +138,14 @@ export default async function LedighedsPulsPage() {
           }
         />
 
+        {/* Kommune picker — directly after hero so people can find themselves */}
+        <section className="mt-12 mb-20">
+          <KommunePicker kommuner={getAllKommuner()} />
+        </section>
+
         {/* National history chart */}
         {nationalHistory.length > 12 && (
-          <section className="mt-16 md:mt-20 mb-20">
+          <section className="mb-20">
             <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
               <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
                 Historik
@@ -198,6 +193,7 @@ export default async function LedighedsPulsPage() {
                   direction={toDirection(s.direction)}
                   severity={s.severity}
                   areaName={s.areaName}
+                  areaCode={s.areaCode}
                 />
               ))}
             </div>
@@ -220,7 +216,7 @@ export default async function LedighedsPulsPage() {
                   {latestNational
                     ? humanizePeriod(latestNational.period)
                     : "seneste måned"}
-                  .
+                  . Klik for at se kommunens udvikling.
                 </p>
               </div>
             </div>
@@ -232,7 +228,7 @@ export default async function LedighedsPulsPage() {
           </section>
         )}
 
-        {/* Source / transparency */}
+        {/* Source */}
         <section className="mt-20 pt-10 border-t border-ink/10 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-3">
@@ -281,28 +277,22 @@ export default async function LedighedsPulsPage() {
             For virksomheder
           </div>
           <h3 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] mb-6">
-            Vil I have data{" "}
-            <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
+            Vil I have data <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
           </h3>
           <p className="opacity-70 max-w-[560px] mb-10 text-[16px] leading-[1.6]">
-            Vi laver custom data-analyser for virksomheder der vil forstå deres
-            marked dybere. Kombinerer offentlige data med jeres egne tal, og
-            leverer rapporter, dashboards eller månedlige indsigter.
+            Vi laver custom data-analyser for virksomheder der vil forstå deres marked dybere. Kombinerer offentlige data med jeres egne tal, og leverer rapporter, dashboards eller månedlige indsigter.
           </p>
           <a
             href="mailto:hej@alius.dk?subject=Data-arbejde for [firmanavn]"
             className="inline-flex items-center gap-4 bg-parchment text-ink px-9 py-[22px] text-[13px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
           >
             Tag fat
-            <span className="transition-transform group-hover:translate-x-1">
-              &rarr;
-            </span>
+            <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
           </a>
         </section>
 
         <footer className="mt-24 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks
-          Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
         </footer>
       </div>
     </div>

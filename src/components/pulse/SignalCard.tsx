@@ -1,11 +1,15 @@
 "use client";
 
+import Link from "next/link";
+import { getKommuneByCode } from "@/lib/areas";
+
 type Props = {
   headline: string;
   body: string | null;
   direction: "UP" | "DOWN" | "STABLE" | null;
   severity: string;
   areaName: string | null;
+  areaCode: string | null;
 };
 
 export function PulseSignalCard({
@@ -14,17 +18,16 @@ export function PulseSignalCard({
   direction,
   severity,
   areaName,
+  areaCode,
 }: Props) {
   const isImportant = severity === "important";
+  // Only link if signal is about a specific kommune (not national)
+  const kommune = areaCode && areaCode !== "000"
+    ? getKommuneByCode(areaCode)
+    : null;
 
-  return (
-    <article
-      className={`p-6 md:p-8 transition-colors ${
-        isImportant
-          ? "bg-fog border-l-2 border-moss"
-          : "bg-fog/40 hover:bg-fog/70"
-      }`}
-    >
+  const cardContent = (
+    <>
       <header className="flex items-center gap-3 mb-3">
         <DirectionGlyph direction={direction} />
         <span
@@ -34,6 +37,14 @@ export function PulseSignalCard({
         >
           {areaName ?? "Hele landet"}
         </span>
+        {kommune && (
+          <span
+            className="ml-auto text-stone opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[14px]"
+            aria-hidden
+          >
+            &rarr;
+          </span>
+        )}
       </header>
 
       <h3 className="font-fraunces font-light italic text-[20px] md:text-[22px] leading-[1.25] text-ink mb-3 tracking-[-0.005em]">
@@ -43,8 +54,24 @@ export function PulseSignalCard({
       {body && (
         <p className="text-[14px] leading-[1.6] text-stone">{body}</p>
       )}
-    </article>
+    </>
   );
+
+  const baseClasses = `block p-6 md:p-8 transition-colors no-underline ${
+    isImportant
+      ? "bg-fog border-l-2 border-moss"
+      : "bg-fog/40 hover:bg-fog/70"
+  }`;
+
+  if (kommune) {
+    return (
+      <Link href={`/pulse/ledighed/${kommune.slug}`} className={`group ${baseClasses}`}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return <article className={baseClasses}>{cardContent}</article>;
 }
 
 function DirectionGlyph({

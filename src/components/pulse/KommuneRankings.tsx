@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { getKommuneByCode } from "@/lib/areas";
+
 type Kommune = {
   areaCode: string;
   areaName: string;
@@ -51,12 +54,11 @@ function RankingTable({
       </div>
       <ul className="border-t border-ink/10">
         {rows.map((k, i) => {
+          const slug = getKommuneByCode(k.areaCode)?.slug ?? null;
           const diff = nationalValue !== null ? k.value - nationalValue : null;
-          return (
-            <li
-              key={k.areaCode}
-              className="grid grid-cols-[28px_1fr_auto] gap-4 items-baseline py-3 border-b border-ink/10"
-            >
+
+          const rowContent = (
+            <>
               <span className="font-fraunces italic text-[14px] text-stone opacity-50">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -82,6 +84,34 @@ function RankingTable({
                 })}
                 %
               </span>
+              <span
+                className="text-stone opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
+                aria-hidden
+              >
+                &rarr;
+              </span>
+            </>
+          );
+
+          if (slug) {
+            return (
+              <li key={k.areaCode}>
+                <Link
+                  href={`/pulse/ledighed/${slug}`}
+                  className="group grid grid-cols-[28px_1fr_auto_20px] gap-4 items-baseline py-3 border-b border-ink/10 no-underline hover:bg-fog/30 -mx-2 px-2 transition-colors"
+                >
+                  {rowContent}
+                </Link>
+              </li>
+            );
+          }
+
+          return (
+            <li
+              key={k.areaCode}
+              className="grid grid-cols-[28px_1fr_auto_20px] gap-4 items-baseline py-3 border-b border-ink/10"
+            >
+              {rowContent}
             </li>
           );
         })}
