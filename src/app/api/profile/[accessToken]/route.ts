@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { sendEmail, profileEmailHtml, profileEmailText } from "@/lib/email";
+import { ARCHETYPES } from "@/components/tankeprofil/data";
+import type { QuadrantKey } from "@/components/tankeprofil/data";
 
 export async function GET(
   _req: Request,
@@ -115,6 +118,22 @@ export async function PATCH(
         weakest: true,
       },
     });
+
+    // Send profile link email when an email is first set
+    const emailBeingSaved = updates.email;
+    if (emailBeingSaved && !profile.email) {
+      const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
+      const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
+      const profileUrl = `${appUrl}/tankeprofil/min-profil/${accessToken}`;
+      const primaryName = ARCHETYPES[updated.primary as QuadrantKey]?.name ?? updated.primary;
+
+      sendEmail({
+        to: emailBeingSaved,
+        subject: `Din personlighedsprofil · Alius`,
+        html: profileEmailHtml({ displayName: updated.displayName, primaryName, profileUrl }),
+        text: profileEmailText({ displayName: updated.displayName, primaryName, profileUrl }),
+      }).catch((err) => console.error("[profile PATCH] email error:", err));
+    }
 
     return NextResponse.json({ ok: true, profile: updated });
   } catch (error) {

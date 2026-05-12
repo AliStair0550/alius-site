@@ -37,7 +37,7 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
         </div>
 
         <div className="mb-6 pb-6 border-b border-ink/10">
-          <div className="font-fraunces font-extralight italic text-[clamp(28px,4vw,48px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
+          <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-4">
             {clarityQualifier(clarity.label)}
           </div>
           <div className="flex items-end justify-between gap-6">

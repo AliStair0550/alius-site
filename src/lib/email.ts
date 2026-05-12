@@ -268,6 +268,101 @@ Alius Personlighedsprofil`;
 }
 
 // ============================================================
+
+type ProfileEmailData = {
+  displayName?: string | null;
+  primaryName: string;
+  profileUrl: string;
+};
+
+export function profileEmailHtml(data: ProfileEmailData): string {
+  const greeting = data.displayName
+    ? `Hej ${escapeHtml(data.displayName)}.`
+    : "Hej.";
+
+  return `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Din personlighedsprofil</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1A1A1A;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px;">
+
+            <tr>
+              <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #1A1A1A; font-weight: 500;">
+                  ALIUS &middot; PERSONLIGHEDSPROFIL
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px;">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #2D5F4A; font-weight: 500; margin-bottom: 16px;">
+                  Din profil
+                </div>
+                <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 48px; line-height: 1.0; margin: 0 0 24px 0; color: #1A1A1A; letter-spacing: -0.02em;">
+                  ${escapeHtml(data.primaryName)}
+                </h1>
+                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 32px 0;">
+                  ${greeting}<br><br>
+                  Her er linket til din personlighedsprofil. Du kan vende tilbage og se den til enhver tid.
+                </p>
+
+                <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
+                  <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
+                    Din profil-side
+                  </div>
+                  <a href="${data.profileUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.profileUrl}</a>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(26,26,26,0.1);">
+                  <a href="${data.profileUrl}"
+                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                    Se din profil &rarr;
+                  </a>
+                </div>
+
+                <div style="margin-top: 32px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
+                  Gem denne mail. Linket er dit adgangspunkt til profilen.<br>
+                  Spørgsmål? Skriv til hej@alius.dk
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 48px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6; letter-spacing: 0.03em;">
+                Sendt automatisk fra alius.dk/personlighedsprofil
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function profileEmailText(data: ProfileEmailData): string {
+  const greeting = data.displayName ? `Hej ${data.displayName},` : "Hej,";
+  return `${greeting}
+
+Her er linket til din personlighedsprofil (${data.primaryName}):
+${data.profileUrl}
+
+Gem dette link. Det er dit adgangspunkt til profilen.
+Spørgsmål? Skriv til hej@alius.dk
+
+Alius Personlighedsprofil`;
+}
+
+// ============================================================
 // Helpers
 
 function escapeHtml(s: string): string {

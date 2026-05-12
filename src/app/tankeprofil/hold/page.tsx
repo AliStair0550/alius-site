@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TeamRequestForm } from "@/components/tankeprofil/TeamRequestForm";
+import { TeamSessionForm } from "@/components/tankeprofil/TeamSessionForm";
 
 export const metadata: Metadata = {
   title: "Hold · Personlighedsprofil · Alius",
   description:
-    "Få en fælles personlighedsprofil for dit hold. Se hvordan I tænker sammen, og hvor I har blinde felter som gruppe.",
+    "Styrk samarbejdet og kommunikationen i dit hold med en fælles personlighedsprofil. Se hvor I tænker ens, og hvor I supplerer hinanden.",
 };
 
 export default function HoldPage() {
@@ -40,12 +40,13 @@ export default function HoldPage() {
             Fælles profil
           </div>
           <h1 className="font-fraunces font-light text-[clamp(48px,6vw,88px)] leading-[0.95] tracking-[-0.02em] mb-10 max-w-[800px]">
-            Se hvordan I tænker{" "}
-            <em className="italic text-moss">sammen</em>.
+            Forstå hinanden.{" "}
+            <em className="italic text-moss">Arbejd bedre sammen.</em>
           </h1>
           <p className="text-[19px] font-light leading-[1.55] text-stone max-w-[560px]">
-            Når alle på holdet tager testen, får I en fælles rapport der viser
-            hvor I er stærke som gruppe, og hvor I har kollektive blinde felter.
+            Alle på holdet tager testen og I får en fælles rapport der viser
+            hvem I er som gruppe, hvor I trækker i samme retning, og
+            hvad der mangler naturligt i rummet.
           </p>
         </section>
 
@@ -56,17 +57,17 @@ export default function HoldPage() {
               {
                 n: "01",
                 title: "Individuelle profiler",
-                desc: "Alle tager testen på fem minutter. Hver person får sin egen profil med det samme.",
+                desc: "Alle tager testen på fem minutter og får sin egen profil med det samme.",
               },
               {
                 n: "02",
                 title: "Fælles rapport",
-                desc: "Vi samler profilerne og viser holdets samlede mønster: styrker, blinde felter og kvadrantfordeling.",
+                desc: "Holdrapporten viser jeres samlede mønster: styrker, blinde felter, spændinger og hvem I er som gruppe.",
               },
               {
                 n: "03",
-                title: "En times gennemgang",
-                desc: "Vi sætter os ned med jer og gennemgår rapporten. Gratis.",
+                title: "Stærkere samarbejde",
+                desc: "Brug rapporten til at forstå hinanden bedre, fordele ansvar klogere og have de samtaler der ellers ikke sker.",
               },
             ].map(({ n, title, desc }) => (
               <div key={n}>
@@ -83,18 +84,17 @@ export default function HoldPage() {
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-12 md:gap-20">
             <div>
               <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-6">
-                Anmod om hold-rapport
+                Kom i gang
               </div>
               <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] mb-6 tracking-[-0.01em]">
-                Kom i gang.
+                Linket er klar med det samme.
               </h2>
               <p className="text-[16px] leading-[1.65] text-stone max-w-[400px]">
-                Udfyld formularen, så vender vi tilbage inden for 24 timer med
-                et deltagerlink du kan sende rundt.
+                Udfyld formularen og du får et deltagerlink du kan sende rundt til holdet. Ingen konto, ingen ventetid.
               </p>
             </div>
             <div>
-              <TeamRequestForm />
+              <TeamSessionForm />
             </div>
           </div>
         </section>

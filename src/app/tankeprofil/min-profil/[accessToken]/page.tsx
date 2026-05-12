@@ -91,7 +91,7 @@ export default async function MinProfilPage({ params }: Props) {
               </>
             )}
           </div>
-          <div className="font-fraunces font-extralight italic text-[clamp(22px,3vw,36px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
+          <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-4">
             {clarityQualifier(clarity.label)}
           </div>
           <h1 className="font-fraunces font-light italic text-[clamp(64px,9vw,128px)] leading-[0.95] tracking-[-0.03em] mb-6 text-ink">
