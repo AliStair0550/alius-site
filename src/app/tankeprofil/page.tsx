@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Personlighedsprofil · Alius",
     description:
-      "Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi.",
+      "En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du kan have blinde vinkler eller oversete muligheder.",
     type: "website",
     locale: "da_DK",
     siteName: "Alius",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Personlighedsprofil · Alius",
     description:
-      "Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi.",
+      "En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du kan have blinde vinkler eller oversete muligheder.",
   },
 };
 

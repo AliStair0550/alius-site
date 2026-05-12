@@ -17,7 +17,7 @@ export function Intro({ onStart }: IntroProps) {
             at kende.
           </h1>
           <p className="text-[19px] font-light leading-[1.55] text-stone max-w-[480px]">
-            Fire måder at tænke på. Tre situationer at vælge imellem. En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du måske overser muligheder.
+            En personlighedsprofil, der giver et klart billede af, hvor du naturligt finder energi, og hvor du kan have blinde vinkler eller oversete muligheder.
           </p>
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8 mt-14">
             <button

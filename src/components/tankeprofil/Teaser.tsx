@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ARCHETYPES, type QuadrantKey, type Totals } from "./data";
 import { Glyph } from "./Glyph";
 import { ShareSection } from "./ShareCard";
+import { calculateClarity, clarityQualifier, clarityDescription } from "./confidence";
 
 type TeaserProps = {
   totals: Totals;
@@ -19,6 +20,7 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
   const primaryArch = ARCHETYPES[primary];
   const secondaryArch = ARCHETYPES[secondary];
   const weakestArch = ARCHETYPES[weakest];
+  const clarity = calculateClarity(totals, primary);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +38,7 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
 
         <div className="mb-6 pb-6 border-b border-ink/10">
           <div className="font-fraunces font-extralight italic text-[clamp(28px,4vw,48px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
-            Du er en
+            {clarityQualifier(clarity.label)}
           </div>
           <div className="flex items-end justify-between gap-6">
             <h1 className="font-fraunces font-light italic text-[clamp(72px,13vw,180px)] leading-[0.85] tracking-[-0.04em] text-ink animate-[revealUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.2s_both]">
@@ -47,6 +49,10 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
             </div>
           </div>
         </div>
+
+        <p className="text-[15px] leading-[1.65] text-stone max-w-[520px] mt-4 mb-2 opacity-80">
+          {clarityDescription(clarity.label)}
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 mb-20 py-6">
           <div>

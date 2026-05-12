@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { ARCHETYPES, type QuadrantKey, type Totals } from "@/components/tankeprofil/data";
 import { ProfileView } from "@/components/tankeprofil/ProfileView";
+import { calculateClarity, clarityQualifier, clarityDescription } from "@/components/tankeprofil/confidence";
 
 export const metadata: Metadata = {
   title: "Min profil · Personlighedsprofil · Alius",
@@ -52,6 +53,7 @@ export default async function MinProfilPage({ params }: Props) {
   };
 
   const primaryArch = ARCHETYPES[primary];
+  const clarity = calculateClarity(totals, primary);
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">
@@ -89,16 +91,22 @@ export default async function MinProfilPage({ params }: Props) {
               </>
             )}
           </div>
+          <div className="font-fraunces font-extralight italic text-[clamp(22px,3vw,36px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
+            {clarityQualifier(clarity.label)}
+          </div>
           <h1 className="font-fraunces font-light italic text-[clamp(64px,9vw,128px)] leading-[0.95] tracking-[-0.03em] mb-6 text-ink">
             {primaryArch.name}
           </h1>
-          <p className="font-fraunces text-[22px] text-stone font-light">
+          <p className="font-fraunces text-[22px] text-stone font-light mb-3">
             Din personlighedsprofil som du tog den{" "}
             {new Date(profile.createdAt).toLocaleDateString("da-DK", {
               day: "numeric",
               month: "long",
               year: "numeric",
             })}
+          </p>
+          <p className="text-[15px] leading-[1.65] text-stone max-w-[520px] opacity-80">
+            {clarityDescription(clarity.label)}
           </p>
         </section>
 

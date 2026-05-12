@@ -1,59 +1,68 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { CARDS, emptySelections, getTotals, getRanking, type QuadrantKey, type Selections } from "./data";
+import { CARDS, type QuadrantKey, type Totals } from "./data";
+import { getQuartetsForCard } from "./quartets";
+import { calculateTotalsFromQuartets, normalizeTotals, type QuartetAnswer } from "./scoring";
 
 export type Stage = "intro" | "card" | "teaser" | "report";
-
-// Shuffle once per card per session, persists in memory
-type ShuffledCard = { word: string; quadrant: QuadrantKey }[];
 
 export function useTankeprofil() {
   const [stage, setStage] = useState<Stage>("intro");
   const [currentCard, setCurrentCard] = useState(0);
-  const [selections, setSelections] = useState<Selections>(emptySelections);
-  const [shuffled, setShuffled] = useState<Record<number, ShuffledCard>>({});
+  const [answers, setAnswers] = useState<QuartetAnswer[]>([]);
 
-  const totals = useMemo(() => getTotals(selections), [selections]);
-  const ranking = useMemo(() => getRanking(selections), [selections]);
+  const totals = useMemo((): Totals => {
+    return normalizeTotals(calculateTotalsFromQuartets(answers));
+  }, [answers]);
 
-  const getShuffled = useCallback(
-    (cardIndex: number): ShuffledCard => {
-      if (shuffled[cardIndex]) return shuffled[cardIndex];
-      const card = CARDS[cardIndex];
-      const all: ShuffledCard = [];
-      (Object.entries(card.words) as [QuadrantKey, string[]][]).forEach(([q, words]) => {
-        for (const w of words) all.push({ word: w, quadrant: q });
+  const ranking = useMemo(() => {
+    const sum = totals.A + totals.B + totals.C + totals.D;
+    const pct: Totals = {
+      A: sum > 0 ? totals.A / sum : 0,
+      B: sum > 0 ? totals.B / sum : 0,
+      C: sum > 0 ? totals.C / sum : 0,
+      D: sum > 0 ? totals.D / sum : 0,
+    };
+    const ranked = (Object.entries(totals) as [QuadrantKey, number][]).sort(
+      (a, b) => b[1] - a[1]
+    );
+    return {
+      totals,
+      pct,
+      ranked,
+      primary: ranked[0][0],
+      secondary: ranked[1][0],
+      weakest: ranked[3][0],
+    };
+  }, [totals]);
+
+  const setAnswer = useCallback(
+    (quartetId: string, best: QuadrantKey, worst: QuadrantKey) => {
+      setAnswers((prev) => {
+        const next = prev.filter((a) => a.quartetId !== quartetId);
+        return [...next, { quartetId, best, worst }];
       });
-      const sortedShuffle = all
-        .map((item) => ({ item, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ item }) => item);
-      setShuffled((prev) => ({ ...prev, [cardIndex]: sortedShuffle }));
-      return sortedShuffle;
     },
-    [shuffled]
+    []
   );
 
-  const toggleWord = useCallback(
-    (word: string, quadrant: QuadrantKey) => {
-      setSelections((prev) => {
-        const next = prev.map((s) => ({ A: [...s.A], B: [...s.B], C: [...s.C], D: [...s.D] }));
-        const cardSel = next[currentCard];
-        const idx = cardSel[quadrant].indexOf(word);
-        const total = cardSel.A.length + cardSel.B.length + cardSel.C.length + cardSel.D.length;
-        if (idx >= 0) cardSel[quadrant].splice(idx, 1);
-        else if (total < 8) cardSel[quadrant].push(word);
-        return next;
-      });
+  const getAnswer = useCallback(
+    (quartetId: string): QuartetAnswer | undefined => {
+      return answers.find((a) => a.quartetId === quartetId);
     },
+    [answers]
+  );
+
+  const currentCardQuartets = useMemo(
+    () => getQuartetsForCard(currentCard),
     [currentCard]
   );
 
-  const currentCardSelected = useMemo(() => {
-    const s = selections[currentCard];
-    return s.A.length + s.B.length + s.C.length + s.D.length;
-  }, [selections, currentCard]);
+  const currentCardAnsweredCount = useMemo(() => {
+    const ids = new Set(currentCardQuartets.map((q) => q.id));
+    return answers.filter((a) => ids.has(a.quartetId)).length;
+  }, [answers, currentCardQuartets]);
 
   const goToCard = useCallback((idx: number) => {
     setCurrentCard(idx);
@@ -85,8 +94,7 @@ export function useTankeprofil() {
 
   const restart = useCallback(() => {
     setCurrentCard(0);
-    setSelections(emptySelections());
-    setShuffled({});
+    setAnswers([]);
     setStage("intro");
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -95,12 +103,13 @@ export function useTankeprofil() {
     stage,
     setStage,
     currentCard,
-    selections,
+    answers,
     totals,
     ranking,
-    currentCardSelected,
-    getShuffled,
-    toggleWord,
+    currentCardQuartets,
+    currentCardAnsweredCount,
+    setAnswer,
+    getAnswer,
     goToCard,
     nextCard,
     prevCard,

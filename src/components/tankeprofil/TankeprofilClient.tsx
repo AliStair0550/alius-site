@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTankeprofil } from "./useTankeprofil";
 import { Intro } from "./Intro";
-import { CardStage } from "./CardStage";
+import { QuartetStage } from "./QuartetStage";
 import { Teaser } from "./Teaser";
 import { Report } from "./Report";
 
@@ -30,7 +30,7 @@ export function TankeprofilClient() {
             primary: tp.ranking.primary,
             secondary: tp.ranking.secondary,
             weakest: tp.ranking.weakest,
-            selections: tp.selections,
+            selections: tp.answers,
             source: "individual",
           }),
         });
@@ -47,7 +47,7 @@ export function TankeprofilClient() {
     return () => {
       cancelled = true;
     };
-  }, [tp.stage, saveAttempted, tp.totals, tp.ranking, tp.selections]);
+  }, [tp.stage, saveAttempted, tp.totals, tp.ranking, tp.answers]);
 
   // When user submits email at teaser, update the existing profile and proceed
   const handleSubmitEmail = async (email: string) => {
@@ -106,13 +106,13 @@ export function TankeprofilClient() {
         {tp.stage === "intro" && <Intro onStart={() => tp.goToCard(0)} />}
 
         {tp.stage === "card" && (
-          <CardStage
+          <QuartetStage
+            key={tp.currentCard}
             currentCard={tp.currentCard}
-            cardSelection={tp.selections[tp.currentCard]}
             totals={tp.totals}
-            shuffled={tp.getShuffled(tp.currentCard)}
-            currentCardSelected={tp.currentCardSelected}
-            onToggle={tp.toggleWord}
+            getAnswer={tp.getAnswer}
+            setAnswer={tp.setAnswer}
+            currentCardAnsweredCount={tp.currentCardAnsweredCount}
             onNext={tp.nextCard}
             onPrev={tp.prevCard}
           />

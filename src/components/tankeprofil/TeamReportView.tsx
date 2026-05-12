@@ -3,6 +3,7 @@ import { ARCHETYPES, type QuadrantKey } from "./data";
 import { Quadrant } from "./Quadrant";
 import { TeamGlyph } from "./TeamGlyph";
 import type { TeamAnalysis } from "@/lib/team-analysis";
+import { calculateClarity, clarityQualifier } from "./confidence";
 
 const TENSION_COLOR: Record<"low" | "medium" | "high", string> = {
   low: "text-stone opacity-70",
@@ -273,6 +274,9 @@ export function TeamReportView({
                   style={{ backgroundColor: ARCHETYPES[p.primary].color }}
                 />
                 <span className="text-[15px]">{p.name}</span>
+                <span className="text-[11px] text-stone opacity-40 font-mono">
+                  {clarityQualifier(calculateClarity(p.totals, p.primary).label)}
+                </span>
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-[12px] text-stone opacity-50 font-mono">

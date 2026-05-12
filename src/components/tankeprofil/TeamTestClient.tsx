@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTankeprofil } from "./useTankeprofil";
 import { Intro } from "./Intro";
-import { CardStage } from "./CardStage";
+import { QuartetStage } from "./QuartetStage";
 import { TeamCompletion } from "./TeamCompletion";
 
 type Phase =
@@ -44,7 +44,7 @@ export function TeamTestClient({
             primary: tp.ranking.primary,
             secondary: tp.ranking.secondary,
             weakest: tp.ranking.weakest,
-            selections: tp.selections,
+            selections: tp.answers,
           }),
         });
       } catch (err) {
@@ -57,7 +57,7 @@ export function TeamTestClient({
     return () => {
       cancelled = true;
     };
-  }, [tp.stage, submitAttempted, phase, joinToken, tp.totals, tp.ranking, tp.selections]);
+  }, [tp.stage, submitAttempted, phase, joinToken, tp.totals, tp.ranking, tp.answers]);
 
   async function handleJoin(name: string) {
     setDisplayName(name);
@@ -118,13 +118,13 @@ export function TeamTestClient({
         )}
 
         {phase.type === "testing" && tp.stage === "card" && (
-          <CardStage
+          <QuartetStage
+            key={tp.currentCard}
             currentCard={tp.currentCard}
-            cardSelection={tp.selections[tp.currentCard]}
             totals={tp.totals}
-            shuffled={tp.getShuffled(tp.currentCard)}
-            currentCardSelected={tp.currentCardSelected}
-            onToggle={tp.toggleWord}
+            getAnswer={tp.getAnswer}
+            setAnswer={tp.setAnswer}
+            currentCardAnsweredCount={tp.currentCardAnsweredCount}
             onNext={tp.nextCard}
             onPrev={tp.prevCard}
           />

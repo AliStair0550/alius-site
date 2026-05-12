@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ARCHETYPES, type QuadrantKey, type Totals } from "./data";
 import { Quadrant } from "./Quadrant";
+import { calculateClarity, clarityQualifier, clarityDescription } from "./confidence";
 
 type ReportProps = {
   totals: Totals;
@@ -17,6 +18,7 @@ export function Report({ totals, pct, primary, secondary, weakest, onRestart }: 
   const primaryArch = ARCHETYPES[primary];
   const secondaryArch = ARCHETYPES[secondary];
   const weakestArch = ARCHETYPES[weakest];
+  const clarity = calculateClarity(totals, primary);
 
   return (
     <section className="animate-[fadeIn_0.7s_ease-out]">
@@ -24,12 +26,18 @@ export function Report({ totals, pct, primary, secondary, weakest, onRestart }: 
         <div className="text-[11px] tracking-[0.4em] uppercase text-moss mb-6">
           Din fulde personlighedsprofil
         </div>
+        <div className="font-fraunces font-extralight italic text-[clamp(22px,3vw,36px)] text-stone opacity-50 mb-2 tracking-[-0.01em]">
+          {clarityQualifier(clarity.label)}
+        </div>
         <h1 className="font-fraunces font-light italic text-[clamp(64px,9vw,128px)] leading-[0.95] tracking-[-0.03em] mb-6 text-ink">
           {primaryArch.name}
         </h1>
-        <p className="font-fraunces text-[22px] text-stone font-light">
+        <p className="font-fraunces text-[22px] text-stone font-light mb-4">
           med <em className="italic">{secondaryArch.name}</em> som medløber, og{" "}
           <em className="italic">{weakestArch.name}</em> som blindt felt
+        </p>
+        <p className="text-[15px] leading-[1.65] text-stone max-w-[520px] opacity-80">
+          {clarityDescription(clarity.label)}
         </p>
       </div>
 
