@@ -52,7 +52,7 @@ export function PulseHero({ latestValue, latestPeriod, headlineSignal }: Props) 
               {headlineSignal.headline}
             </p>
             {headlineSignal.body && (
-              <p className="text-[15px] leading-[1.6] text-stone max-w-[520px]">
+              <p className="text-[15px] md:text-[16px] leading-[1.6] text-ink/75 max-w-[520px]">
                 {headlineSignal.body}
               </p>
             )}

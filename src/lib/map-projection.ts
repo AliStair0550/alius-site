@@ -3,6 +3,9 @@
 //
 // Converts longitude/latitude coordinates to SVG x/y coordinates
 // using a Mercator projection cropped to Denmark's bounding box.
+//
+// FIXED: Now properly handles GeoJSON coordinates that include a Z value
+// (some sources include elevation as -999.0 placeholder).
 // ============================================================
 
 // Denmark's approximate bounds
@@ -51,11 +54,13 @@ export function projectToSvg(lng: number, lat: number): [number, number] {
 
 /**
  * Convert a GeoJSON Polygon or MultiPolygon geometry to an SVG path string.
+ *
+ * FIXED: Properly extracts only the first two values (lng, lat) from each
+ * coordinate, ignoring any Z-coordinate that some GeoJSON sources include.
  */
 export function geometryToSvgPath(geometry: {
   type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  coordinates: any;
+  coordinates: unknown;
 }): string {
   if (geometry.type === "Polygon") {
     return polygonToPath(geometry.coordinates as number[][][]);
@@ -70,21 +75,34 @@ export function geometryToSvgPath(geometry: {
 function polygonToPath(polygon: number[][][]): string {
   return polygon
     .map((ring) => {
-      const points = ring.map(([lng, lat]) => projectToSvg(lng, lat));
+      // FIXED: Explicitly take first two values, ignore Z and any others
+      const points = ring.map((coord) => {
+        const lng = coord[0];
+        const lat = coord[1];
+        return projectToSvg(lng, lat);
+      });
+
+      if (points.length === 0) return "";
+
       const [firstX, firstY] = points[0];
       const pathParts = [`M ${firstX.toFixed(2)} ${firstY.toFixed(2)}`];
       for (let i = 1; i < points.length; i++) {
-        pathParts.push(`L ${points[i][0].toFixed(2)} ${points[i][1].toFixed(2)}`);
+        pathParts.push(
+          `L ${points[i][0].toFixed(2)} ${points[i][1].toFixed(2)}`
+        );
       }
       pathParts.push("Z");
       return pathParts.join(" ");
     })
+    .filter(Boolean)
     .join(" ");
 }
 
 /**
  * Color scale for unemployment data.
  * Maps a value to a moss-green hex color from light to dark.
+ *
+ * TUNED for higher contrast: starts lighter, ends darker, more compressed in middle.
  */
 export function getColorForValue(
   value: number | null,
@@ -95,11 +113,13 @@ export function getColorForValue(
 
   const t = Math.max(0, Math.min(1, (value - min) / (max - min)));
 
+  // Tuned stops for stronger visual differentiation
   const stops = [
-    { t: 0.0, color: [241, 237, 226] },
-    { t: 0.3, color: [200, 215, 200] },
-    { t: 0.6, color: [140, 175, 150] },
-    { t: 1.0, color: [45, 95, 74] },
+    { t: 0.0, color: [245, 241, 230] },   // very light cream
+    { t: 0.25, color: [205, 217, 200] },  // light moss
+    { t: 0.55, color: [140, 175, 150] },  // medium moss
+    { t: 0.8, color: [75, 125, 100] },    // medium-dark moss
+    { t: 1.0, color: [40, 80, 65] },      // very dark moss
   ];
 
   let lower = stops[0];
@@ -113,9 +133,15 @@ export function getColorForValue(
   }
 
   const localT = upper.t === lower.t ? 0 : (t - lower.t) / (upper.t - lower.t);
-  const r = Math.round(lower.color[0] + (upper.color[0] - lower.color[0]) * localT);
-  const g = Math.round(lower.color[1] + (upper.color[1] - lower.color[1]) * localT);
-  const b = Math.round(lower.color[2] + (upper.color[2] - lower.color[2]) * localT);
+  const r = Math.round(
+    lower.color[0] + (upper.color[0] - lower.color[0]) * localT
+  );
+  const g = Math.round(
+    lower.color[1] + (upper.color[1] - lower.color[1]) * localT
+  );
+  const b = Math.round(
+    lower.color[2] + (upper.color[2] - lower.color[2]) * localT
+  );
 
   return `rgb(${r},${g},${b})`;
 }
