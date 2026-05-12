@@ -1,17 +1,17 @@
 // ============================================================
-// Signal detectors for unemployment data
+// Signal detectors with dedup and dynamic thresholds
 //
-// Each detector is a pure function that takes datapoints and returns
-// zero or more signals. They look for specific patterns:
+// Two improvements over previous version:
 //
-// 1. detectNationalChange - latest month vs previous, national level
-// 2. detectTopMovers - kommuner with biggest change since last month
-// 3. detectRecords - all-time high/low values
-// 4. detectStreaks - consecutive months of same direction
-// 5. detectExtremes - kommuner with highest/lowest absolute values
-// 6. detectYearOverYear - comparison to same month last year
-// 7. detectVsNational - kommuner deviating most from national average
-// 8. detectTurningPoints - direction reversals after long trends
+// 1. Dedup pass: if multiple detectors fire for the same area in the
+//    same direction, keep only the highest-severity/magnitude one.
+//    This prevents Ishøj appearing as both "highest" and "2.2 pp above
+//    national average" — same story, two cards.
+//
+// 2. Dynamic minChange for top movers: only signal a change if it's
+//    at least half of the largest change in the same direction.
+//    Prevents tiny +0.1 pp signals from cluttering a feed dominated
+//    by larger movements.
 // ============================================================
 
 import {
@@ -33,7 +33,7 @@ import {
 export type { DataPoint } from "./types";
 
 // ============================================================
-// 1. National-level month-over-month change
+// 1. National-level change — ALWAYS the headline
 // ============================================================
 export function detectNationalChange(points: DataPoint[]): Signal[] {
   const national = filterByArea(points, "NATIONAL");
@@ -78,7 +78,7 @@ export function detectNationalChange(points: DataPoint[]): Signal[] {
 }
 
 // ============================================================
-// 2. Top movers among kommuner (biggest month-over-month change)
+// 2. Top movers — with dynamic threshold relative to biggest mover
 // ============================================================
 export function detectTopMovers(points: DataPoint[], maxSignals = 4): Signal[] {
   const kommuner = filterByArea(points, "KOMMUNE");
@@ -97,11 +97,7 @@ export function detectTopMovers(points: DataPoint[], maxSignals = 4): Signal[] {
   for (const [code, series] of grouped) {
     const latestPoint = series.find((p) => p.period === latest);
     const previousPoint = series.find((p) => p.period === previous);
-    if (
-      !latestPoint?.value ||
-      !previousPoint?.value ||
-      !latestPoint.areaName
-    ) {
+    if (!latestPoint?.value || !previousPoint?.value || !latestPoint.areaName) {
       continue;
     }
     changes.push({
@@ -112,54 +108,79 @@ export function detectTopMovers(points: DataPoint[], maxSignals = 4): Signal[] {
     });
   }
 
-  // Sort by absolute change descending
-  changes.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+  // Find biggest increase and biggest decrease (separately)
+  const increases = changes.filter((c) => c.change > 0).sort((a, b) => b.change - a.change);
+  const decreases = changes.filter((c) => c.change < 0).sort((a, b) => a.change - b.change);
+
+  const biggestIncrease = increases[0]?.change ?? 0;
+  const biggestDecrease = Math.abs(decreases[0]?.change ?? 0);
+
+  // Dynamic threshold: must be at least HALF the biggest mover in same direction,
+  // and at least 0.2 pp absolute. This filters tiny outliers that don't tell a story.
+  const MIN_ABSOLUTE_CHANGE = 0.2;
+  const DYNAMIC_THRESHOLD_RATIO = 0.5;
+
+  const upThreshold = Math.max(
+    MIN_ABSOLUTE_CHANGE,
+    biggestIncrease * DYNAMIC_THRESHOLD_RATIO
+  );
+  const downThreshold = Math.max(
+    MIN_ABSOLUTE_CHANGE,
+    biggestDecrease * DYNAMIC_THRESHOLD_RATIO
+  );
 
   const signals: Signal[] = [];
-  const seenAreas = new Set<string>();
-  let increases = 0;
-  let decreases = 0;
 
-  for (const c of changes) {
+  // Take top decreases up to half the slot budget
+  for (const c of decreases) {
     if (signals.length >= maxSignals) break;
-    if (seenAreas.has(c.areaCode)) continue;
-    // We want balanced view: at least one up and one down if both exist
-    if (c.change > 0 && increases >= maxSignals - 1) continue;
-    if (c.change < 0 && decreases >= maxSignals - 1) continue;
-    // Filter out tiny changes
-    if (Math.abs(c.change) < 0.1) break;
+    if (Math.abs(c.change) < downThreshold) break;
+    signals.push(buildMoverSignal(c, latest, previous, "down"));
+    if (signals.length >= Math.ceil(maxSignals / 2) && increases.length > 0) {
+      // Reserve space for increases too
+      break;
+    }
+  }
 
-    seenAreas.add(c.areaCode);
-    const direction: "up" | "down" = c.change > 0 ? "up" : "down";
-    const verb = direction === "up" ? "steg" : "faldt";
-    if (direction === "up") increases++;
-    else decreases++;
-
-    signals.push({
-      type: "top_mover",
-      direction,
-      severity: Math.abs(c.change) >= 0.5 ? "important" : "note",
-      headline: `Ledigheden ${verb} mest i ${c.areaName} (${formatPercentagePoints(c.change)})`,
-      body: `Fra ${humanizePeriod(previous)} til ${humanizePeriod(latest)} ${verb} ledigheden i ${c.areaName} fra ${formatPercent(c.latestValue - c.change)} til ${formatPercent(c.latestValue)}.`,
-      period: latest,
-      magnitude: Math.abs(c.change),
-      areaCode: c.areaCode,
-      areaName: c.areaName,
-      evidence: {
-        change: c.change,
-        latestValue: c.latestValue,
-        previousValue: c.latestValue - c.change,
-        fromPeriod: previous,
-        toPeriod: latest,
-      },
-    });
+  // Take top increases for remaining slots
+  for (const c of increases) {
+    if (signals.length >= maxSignals) break;
+    if (c.change < upThreshold) break;
+    signals.push(buildMoverSignal(c, latest, previous, "up"));
   }
 
   return signals;
 }
 
+function buildMoverSignal(
+  c: { areaCode: string; areaName: string; change: number; latestValue: number },
+  latest: string,
+  previous: string,
+  direction: "up" | "down"
+): Signal {
+  const verb = direction === "up" ? "steg" : "faldt";
+  return {
+    type: "top_mover",
+    direction,
+    severity: Math.abs(c.change) >= 0.5 ? "important" : "note",
+    headline: `Ledigheden ${verb} mest i ${c.areaName} (${formatPercentagePoints(c.change)})`,
+    body: `Fra ${humanizePeriod(previous)} til ${humanizePeriod(latest)} ${verb} ledigheden i ${c.areaName} fra ${formatPercent(c.latestValue - c.change)} til ${formatPercent(c.latestValue)}.`,
+    period: latest,
+    magnitude: Math.abs(c.change),
+    areaCode: c.areaCode,
+    areaName: c.areaName,
+    evidence: {
+      change: c.change,
+      latestValue: c.latestValue,
+      previousValue: c.latestValue - c.change,
+      fromPeriod: previous,
+      toPeriod: latest,
+    },
+  };
+}
+
 // ============================================================
-// 3. Records: kommuner at all-time high or low
+// 3. Records: kommuner at all-time high or low (5-year lookback)
 // ============================================================
 export function detectRecords(points: DataPoint[], maxSignals = 3): Signal[] {
   const kommuner = filterByArea(points, "KOMMUNE");
@@ -179,25 +200,21 @@ export function detectRecords(points: DataPoint[], maxSignals = 3): Signal[] {
     const latestPoint = series.find((p) => p.period === latest);
     if (!latestPoint?.value || !latestPoint.areaName) continue;
 
-    // Look at the last 60 months (5 years)
-    const recentSeries = series
-      .filter((p) => p.value !== null)
-      .slice(-60);
-
-    if (recentSeries.length < 24) continue; // need at least 2 years of data
+    const recentSeries = series.filter((p) => p.value !== null).slice(-60);
+    if (recentSeries.length < 24) continue;
 
     const allValues = recentSeries.map((p) => p.value!);
     const max = Math.max(...allValues);
     const min = Math.min(...allValues);
 
     if (latestPoint.value === max && max > 0) {
-      // How many months back was the last time we saw this value?
       const previousAtThisLevel = recentSeries
         .slice(0, -1)
         .filter((p) => p.value !== null && p.value >= max - 0.01);
-      const yearsBack = previousAtThisLevel.length === 0
-        ? Math.floor(recentSeries.length / 12)
-        : 0;
+      const yearsBack =
+        previousAtThisLevel.length === 0
+          ? Math.floor(recentSeries.length / 12)
+          : 0;
       if (yearsBack >= 2) {
         records.push({
           areaCode: code,
@@ -213,9 +230,10 @@ export function detectRecords(points: DataPoint[], maxSignals = 3): Signal[] {
       const previousAtThisLevel = recentSeries
         .slice(0, -1)
         .filter((p) => p.value !== null && p.value <= min + 0.01);
-      const yearsBack = previousAtThisLevel.length === 0
-        ? Math.floor(recentSeries.length / 12)
-        : 0;
+      const yearsBack =
+        previousAtThisLevel.length === 0
+          ? Math.floor(recentSeries.length / 12)
+          : 0;
       if (yearsBack >= 2) {
         records.push({
           areaCode: code,
@@ -228,7 +246,6 @@ export function detectRecords(points: DataPoint[], maxSignals = 3): Signal[] {
     }
   }
 
-  // Sort by years back descending — longest streaks are more newsworthy
   records.sort((a, b) => b.yearsBack - a.yearsBack);
 
   return records.slice(0, maxSignals).map((r) => ({
@@ -262,7 +279,6 @@ export function detectStreaks(points: DataPoint[], minLength = 4): Signal[] {
 
   if (national.length < minLength + 1) return [];
 
-  // Count back from latest to find current streak
   let streakLength = 0;
   let streakDirection: "up" | "down" | null = null;
   let streakStart: DataPoint | null = null;
@@ -332,6 +348,7 @@ export function detectExtremes(points: DataPoint[]): Signal[] {
   const sorted = [...latestPoints].sort((a, b) => b.value! - a.value!);
   const highest = sorted[0];
   const lowest = sorted[sorted.length - 1];
+  const nationalValue = getValue(filterByArea(points, "NATIONAL"), "000", latest);
 
   if (!highest.areaName || !lowest.areaName) return [];
 
@@ -341,7 +358,9 @@ export function detectExtremes(points: DataPoint[]): Signal[] {
       direction: "up",
       severity: "note",
       headline: `${highest.areaName} har landets højeste ledighed (${formatPercent(highest.value!)})`,
-      body: `Til sammenligning ligger landsgennemsnittet på ${formatPercent(getValue(filterByArea(points, "NATIONAL"), "000", latest) ?? 0)}.`,
+      body: nationalValue
+        ? `Til sammenligning ligger landsgennemsnittet på ${formatPercent(nationalValue)}.`
+        : null,
       period: latest,
       magnitude: highest.value,
       areaCode: highest.areaCode,
@@ -353,7 +372,9 @@ export function detectExtremes(points: DataPoint[]): Signal[] {
       direction: "down",
       severity: "note",
       headline: `${lowest.areaName} har landets laveste ledighed (${formatPercent(lowest.value!)})`,
-      body: `Til sammenligning ligger landsgennemsnittet på ${formatPercent(getValue(filterByArea(points, "NATIONAL"), "000", latest) ?? 0)}.`,
+      body: nationalValue
+        ? `Til sammenligning ligger landsgennemsnittet på ${formatPercent(nationalValue)}.`
+        : null,
       period: latest,
       magnitude: lowest.value,
       areaCode: lowest.areaCode,
@@ -380,7 +401,6 @@ export function detectYearOverYear(points: DataPoint[]): Signal[] {
   const latestValue = getValue(national, "000", latest);
   if (change === null || latestValue === null) return [];
 
-  // Only worth signaling if change is meaningful
   if (Math.abs(change) < 0.15) return [];
 
   const direction: "up" | "down" = change > 0 ? "up" : "down";
@@ -431,15 +451,12 @@ export function detectVsNational(points: DataPoint[]): Signal[] {
     deviation: p.value! - nationalValue,
   }));
 
-  // Find biggest positive and negative deviation
   deviations.sort((a, b) => Math.abs(b.deviation) - Math.abs(a.deviation));
 
-  // Skip if biggest deviation is small (less than 1pp)
   if (deviations.length === 0 || Math.abs(deviations[0].deviation) < 1) {
     return [];
   }
 
-  // Take the most extreme deviation in either direction
   const topPositive = deviations.find((d) => d.deviation > 0);
   const topNegative = deviations.find((d) => d.deviation < 0);
 
@@ -484,7 +501,7 @@ export function detectVsNational(points: DataPoint[]): Signal[] {
 }
 
 // ============================================================
-// 8. Turning points: direction reversal after a long trend
+// 8. Turning points
 // ============================================================
 export function detectTurningPoints(points: DataPoint[]): Signal[] {
   const national = filterByArea(points, "NATIONAL")
@@ -493,7 +510,6 @@ export function detectTurningPoints(points: DataPoint[]): Signal[] {
 
   if (national.length < 8) return [];
 
-  // Look at last 6 months: if previous 3 went one way and last 3 went the other, that's a turning point
   const recent = national.slice(-6);
   if (recent.length < 6) return [];
 
@@ -547,7 +563,7 @@ function trendDirection(values: number[]): "up" | "down" | "stable" | null {
 }
 
 // ============================================================
-// Main: run all detectors and produce a ranked list
+// Main orchestrator with dedup pass
 // ============================================================
 export function generateAllSignals(points: DataPoint[]): Signal[] {
   const allSignals: Signal[] = [
@@ -561,11 +577,38 @@ export function generateAllSignals(points: DataPoint[]): Signal[] {
     ...detectTurningPoints(points),
   ];
 
-  // Rank: important first, then by magnitude
-  return allSignals.sort((a, b) => {
+  // Sort by severity then magnitude
+  const sorted = allSignals.sort((a, b) => {
     const severityRank = { important: 2, note: 1, info: 0 };
     const sevDiff = severityRank[b.severity] - severityRank[a.severity];
     if (sevDiff !== 0) return sevDiff;
     return (b.magnitude ?? 0) - (a.magnitude ?? 0);
   });
+
+  // Dedup: keep only one signal per (areaCode, direction) combination.
+  // The first one in sorted order wins (highest severity + magnitude).
+  // Exception: the national signal "000" is never deduped since it's
+  // intentionally tied to multiple detectors (change, streak, YoY).
+  const seen = new Set<string>();
+  const deduped: Signal[] = [];
+
+  for (const s of sorted) {
+    // Never dedup national-level signals — they tell different stories
+    if (s.areaCode === "000") {
+      // But still dedup by signal type+direction to avoid duplicates
+      const key = `000:${s.type}:${s.direction ?? "none"}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(s);
+      continue;
+    }
+
+    // For kommune signals, dedup by (areaCode, direction)
+    const key = `${s.areaCode ?? "?"}:${s.direction ?? "none"}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(s);
+  }
+
+  return deduped;
 }

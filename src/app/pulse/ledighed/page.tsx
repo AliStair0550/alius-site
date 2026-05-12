@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { PulseHero } from "@/components/pulse/Hero";
+import { NationalHistoryChart } from "@/components/pulse/NationalHistoryChart";
+import { KommuneRankings } from "@/components/pulse/KommuneRankings";
 
 export const metadata: Metadata = {
   title: "Ledighedspuls · Alius Pulse",
@@ -29,6 +31,7 @@ export default async function LedighedsPulsPage() {
     return <NoDataView />;
   }
 
+  // Latest national datapoint
   const latestNational = await prisma.dataPoint.findFirst({
     where: {
       sourceId: source.id,
@@ -38,6 +41,58 @@ export default async function LedighedsPulsPage() {
     orderBy: { periodDate: "desc" },
   });
 
+  // National history (5 years for chart)
+  const fiveYearsAgo = new Date();
+  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+  const nationalHistory = await prisma.dataPoint.findMany({
+    where: {
+      sourceId: source.id,
+      areaCode: "000",
+      value: { not: null },
+      periodDate: { gte: fiveYearsAgo },
+    },
+    orderBy: { periodDate: "asc" },
+    select: {
+      period: true,
+      periodDate: true,
+      value: true,
+    },
+  });
+
+  // Latest kommune snapshot — top 5 highest and lowest
+  const latestPeriod = latestNational?.period;
+  const allKommuner = latestPeriod
+    ? await prisma.dataPoint.findMany({
+        where: {
+          sourceId: source.id,
+          areaType: "KOMMUNE",
+          period: latestPeriod,
+          value: { not: null },
+        },
+        orderBy: { value: "desc" },
+        select: {
+          areaCode: true,
+          areaName: true,
+          value: true,
+        },
+      })
+    : [];
+
+  const topHighest = allKommuner.slice(0, 5).map((k) => ({
+    areaCode: k.areaCode!,
+    areaName: k.areaName!,
+    value: k.value!,
+  }));
+  const topLowest = allKommuner
+    .slice(-5)
+    .reverse()
+    .map((k) => ({
+      areaCode: k.areaCode!,
+      areaName: k.areaName!,
+      value: k.value!,
+    }));
+
+  // Signals
   const allSignals = await prisma.signal.findMany({
     where: { sourceId: source.id },
     orderBy: [{ magnitude: "desc" }],
@@ -93,21 +148,47 @@ export default async function LedighedsPulsPage() {
           }
         />
 
-        <section className="mt-20 mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
-            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
-              Signaler
+        {/* National history chart */}
+        {nationalHistory.length > 12 && (
+          <section className="mt-16 md:mt-20 mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Historik
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-4">
+                  Hvor er vi i forhold til de sidste 5 år?
+                </h2>
+                <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
+                  Den sæsonkorrigerede ledighed på landsplan, måned for måned.
+                  Det sorte punkt markerer den aktuelle måling.
+                </p>
+              </div>
             </div>
-            <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em]">
-              Hvad sker der i tallene.
-            </h2>
-          </div>
+            <div className="bg-fog/40 p-4 md:p-8">
+              <NationalHistoryChart
+                points={nationalHistory.map((p) => ({
+                  period: p.period,
+                  periodDate: p.periodDate.toISOString(),
+                  value: p.value!,
+                }))}
+              />
+            </div>
+          </section>
+        )}
 
-          {otherSignals.length === 0 ? (
-            <p className="text-stone text-[15px] italic">
-              Ingen yderligere signaler i denne måned. Tilbage til hovedtal.
-            </p>
-          ) : (
+        {/* Signal feed */}
+        {otherSignals.length > 0 && (
+          <section className="mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Signaler
+              </div>
+              <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em]">
+                Hvad sker der i tallene.
+              </h2>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {otherSignals.map((s) => (
                 <PulseSignalCard
@@ -120,9 +201,38 @@ export default async function LedighedsPulsPage() {
                 />
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
+        {/* Kommune rankings */}
+        {topHighest.length > 0 && (
+          <section className="mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Kommuner
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-4">
+                  Top og bund.
+                </h2>
+                <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
+                  De fem kommuner med højest og lavest ledighed i{" "}
+                  {latestNational
+                    ? humanizePeriod(latestNational.period)
+                    : "seneste måned"}
+                  .
+                </p>
+              </div>
+            </div>
+            <KommuneRankings
+              highest={topHighest}
+              lowest={topLowest}
+              nationalValue={latestNational?.value ?? null}
+            />
+          </section>
+        )}
+
+        {/* Source / transparency */}
         <section className="mt-20 pt-10 border-t border-ink/10 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-3">
@@ -165,6 +275,7 @@ export default async function LedighedsPulsPage() {
           </div>
         </section>
 
+        {/* CTA */}
         <section className="mt-16 p-10 md:p-16 bg-ink text-parchment">
           <div className="text-[11px] tracking-[0.3em] uppercase text-moss-light mb-4">
             For virksomheder
