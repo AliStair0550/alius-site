@@ -270,8 +270,11 @@ export default async function DanmarkProfilePage() {
                 <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-4">
                   Disponibel indkomst
                 </h2>
-                <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
+                <p className="text-stone text-[15px] leading-[1.6] max-w-[640px] mb-2">
                   Gennemsnitlig disponibel indkomst per person i hele landet, seneste 10 år.
+                </p>
+                <p className="text-stone/60 text-[13px] leading-[1.6] max-w-[640px]">
+                  Disponibel indkomst er det beløb der er tilbage efter skat og overførsler. Det reelle rådighedsbeløb per person om året.
                 </p>
               </div>
             </div>

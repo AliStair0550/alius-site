@@ -281,15 +281,7 @@ export default async function KommuneProfilPage({ params }: Props) {
               </div>
             </div>
             <div className="bg-fog/40 p-6 md:p-8">
-              <div className="flex items-end justify-between mb-4">
-                <div className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50">
-                  {humanizePeriod(popSparkPoints[0].period)} til{" "}
-                  {humanizePeriod(popSparkPoints[popSparkPoints.length - 1].period)}
-                </div>
-              </div>
-              <KommuneSparkline
-                points={popSparkPoints}
-              />
+              <KommuneSparkline points={popSparkPoints} />
             </div>
           </section>
         )}
@@ -305,8 +297,11 @@ export default async function KommuneProfilPage({ params }: Props) {
                 <h2 className="font-fraunces font-light text-[28px] md:text-[36px] leading-[1.1] tracking-[-0.01em] mb-2">
                   Disponibel indkomst
                 </h2>
-                <p className="text-stone text-[14px] leading-[1.6] max-w-[500px]">
+                <p className="text-stone text-[14px] leading-[1.6] max-w-[500px] mb-2">
                   Gennemsnitlig disponibel indkomst per person, alle aldre og køn.
+                </p>
+                <p className="text-stone/60 text-[13px] leading-[1.6] max-w-[500px]">
+                  Disponibel indkomst er det beløb der er tilbage efter skat og overførsler. Det reelle rådighedsbeløb per person om året.
                 </p>
               </div>
             </div>
@@ -441,9 +436,16 @@ function Stat({
   deltaSign,
   deltaDecimals = 0,
 }: StatProps) {
+  const deltaFormatted =
+    delta !== null
+      ? delta.toLocaleString("da-DK", {
+          minimumFractionDigits: deltaDecimals,
+          maximumFractionDigits: deltaDecimals,
+        })
+      : null;
   const deltaStr =
     delta !== null
-      ? `${deltaSign && delta > 0 ? "+" : ""}${delta.toFixed(deltaDecimals)}${deltaUnit}`
+      ? `${deltaSign && delta > 0 ? "+" : ""}${deltaFormatted}${deltaUnit}`
       : null;
 
   const deltaPositive = delta !== null && delta > 0;
