@@ -80,9 +80,8 @@ export default async function SessionAdminPage({
       <div className="max-w-[800px] mx-auto px-5 py-12">
         <header className="mb-10 pb-8 border-b border-ink/10">
           <Link
-            href="#"
-            onClick={(e) => { e.preventDefault(); window.history.back(); }}
-            className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50 hover:opacity-100 transition-opacity mb-6 inline-block"
+            href="/tankeprofil/hold"
+            className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50 hover:opacity-100 transition-opacity mb-6 inline-block no-underline"
           >
             &larr; Tilbage
           </Link>

@@ -40,8 +40,8 @@ export default function HoldPage() {
             Fælles profil
           </div>
           <h1 className="font-fraunces font-light text-[clamp(48px,6vw,88px)] leading-[0.95] tracking-[-0.02em] mb-10 max-w-[800px]">
-            Forstå hinanden.{" "}
-            <em className="italic text-moss">Arbejd bedre sammen.</em>
+            Forstå hinanden.<br />
+            <em className="italic text-moss whitespace-nowrap">Arbejd bedre sammen.</em>
           </h1>
           <p className="text-[19px] font-light leading-[1.55] text-stone max-w-[560px]">
             Alle på holdet tager testen og I får en fælles rapport der viser
