@@ -6,7 +6,7 @@ import { humanizePeriod } from "@/lib/signals/types";
 export const metadata: Metadata = {
   title: "Pulse · Alius",
   description:
-    "Et opdateret billede af Danmark gennem data. Ledighed, konkurser og mere — fortolket og opdateret månedligt.",
+    "Et opdateret billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
 };
 
 export const dynamic = "force-dynamic";
@@ -93,7 +93,7 @@ export default async function PulseHubPage() {
           </h1>
 
           <p className="text-[18px] leading-[1.6] text-stone max-w-[640px]">
-            Hver måned henter vi de seneste tal fra Danmarks Statistik og forvandler dem til indsigt. Ingen abonnement, ingen login — bare data der opdaterer sig selv.
+            Hver måned henter vi de seneste tal fra Danmarks Statistik og forvandler dem til indsigt. Ingen abonnement, ingen login. Bare data der opdaterer sig selv.
           </p>
         </section>
 
@@ -148,7 +148,7 @@ export default async function PulseHubPage() {
                 Vi fortolker
               </h3>
               <p className="text-[14px] leading-[1.6] text-stone">
-                Tallene gennemgår vores signal-engine. Den finder mønstre — stigninger, rekorder, vendinger.
+                Tallene gennemgår vores signal-engine. Den finder mønstre: stigninger, rekorder, vendinger.
               </p>
             </div>
             <div>
@@ -156,7 +156,7 @@ export default async function PulseHubPage() {
                 Vi viser
               </h3>
               <p className="text-[14px] leading-[1.6] text-stone">
-                Det hele bliver til pæne grafer, kort og signaler — bygget til at læse hurtigt, men også gå dybt.
+                Det hele bliver til pæne grafer, kort og signaler, bygget til at læse hurtigt men også gå dybt.
               </p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default async function PulseHubPage() {
             <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
           </h3>
           <p className="opacity-70 max-w-[560px] mb-10 text-[16px] leading-[1.6]">
-            Pulse er et glimt af hvad vi laver til virksomheder hver dag — kombinerer offentlige data med jeres egne tal, og leverer rapporter, dashboards eller månedlige indsigter tilpasset jer.
+            Pulse er et glimt af hvad vi laver til virksomheder hver dag. Vi kombinerer offentlige data med jeres egne tal og leverer rapporter, dashboards eller månedlige indsigter tilpasset jer.
           </p>
           <a
             href="mailto:hej@alius.dk?subject=Data-arbejde for [firmanavn]"

@@ -201,7 +201,7 @@ export default async function KonkursPulsPage() {
             Note
           </div>
           <p className="text-[14px] leading-[1.6] text-stone max-w-[640px]">
-            Tallene viser konkurser i aktive virksomheder — altså virksomheder med omsætning eller medarbejdere. Det er det måltal, der bedst beskriver erhvervslivets sundhed, og det medierne typisk rapporterer.
+            Tallene viser konkurser i aktive virksomheder, altså virksomheder med omsætning eller medarbejdere. Det er det måltal, der bedst beskriver erhvervslivets sundhed, og det medierne typisk rapporterer.
           </p>
           <p className="text-[14px] leading-[1.6] text-stone max-w-[640px] mt-3">
             Vi viser tal på landsplan i denne første version. Geografisk fordeling og branchefordeling kommer i en senere udvidelse.

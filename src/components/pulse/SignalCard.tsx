@@ -85,7 +85,7 @@ function DirectionGlyph({
         className="text-[11px] text-stone opacity-40 font-light"
         aria-label="stabil"
       >
-        &#8212;
+        &#183;
       </span>
     );
   }

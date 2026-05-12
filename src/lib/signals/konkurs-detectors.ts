@@ -32,7 +32,7 @@ function formatCount(value: number): string {
 }
 
 function formatPercentChange(change: number, base: number): string {
-  if (base === 0) return "—";
+  if (base === 0) return "–";
   const pct = (change / base) * 100;
   const sign = pct > 0 ? "+" : "";
   return `${sign}${pct.toFixed(1).replace(".", ",")}%`;

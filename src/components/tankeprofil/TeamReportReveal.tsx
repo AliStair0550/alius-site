@@ -55,7 +55,7 @@ export function TeamReportReveal({
           deltagere.
         </h1>
         <p className="text-[17px] leading-[1.65] text-stone max-w-[480px] mb-12">
-          Ingen har udfyldt profilen endnu. Send dette link til holdet &mdash; rapporten bygger sig automatisk op som de færdiggør testen.
+          Ingen har udfyldt profilen endnu. Send dette link til holdet, så bygger rapporten sig automatisk op som de færdiggør testen.
         </p>
         {joinUrl && (
           <div className="border border-ink/15 p-8 max-w-[480px]">

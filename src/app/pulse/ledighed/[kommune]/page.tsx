@@ -191,7 +191,7 @@ export default async function KommunePage({ params }: Props) {
               value={
                 deviationFromNational !== null
                   ? formatPercentagePoints(deviationFromNational)
-                  : "—"
+                  : "–"
               }
               context={
                 latestNational
@@ -201,7 +201,7 @@ export default async function KommunePage({ params }: Props) {
             />
             <Stat
               label="Placering i landet"
-              value={rank >= 0 ? `Nr. ${rank + 1}` : "—"}
+              value={rank >= 0 ? `Nr. ${rank + 1}` : "–"}
               context={rank >= 0 ? `Af ${totalRanked} kommuner` : null}
             />
           </div>

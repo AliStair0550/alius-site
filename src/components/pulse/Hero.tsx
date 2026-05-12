@@ -71,7 +71,7 @@ function DirectionGlyph({
   if (!direction || direction === "STABLE") {
     return (
       <span className="text-[14px] text-stone opacity-50" aria-label="stabil">
-        &#8212;
+        &#183;
       </span>
     );
   }

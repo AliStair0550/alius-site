@@ -739,7 +739,7 @@ export function fullProfileEmailHtml(data: FullProfileEmailData): string {
                   Din modsatte kant.
                 </h2>
                 <p style="font-size: 15px; line-height: 1.65; color: #4A4A4A; margin: 0 0 12px 0;">
-                  <strong style="color: #1A1A1A; font-weight: normal;">${escapeHtml(data.weakestName)}</strong> er den kvadrant du henter mindst fra — ${escapeHtml(data.weakestShort)}. Det stærkeste du kan gøre er ikke at blive ${escapeHtml(data.weakestName.toLowerCase())}. Det er at omgive dig med nogen der er det, og lytte når de taler.
+                  <strong style="color: #1A1A1A; font-weight: normal;">${escapeHtml(data.weakestName)}</strong> er den kvadrant du henter mindst fra: ${escapeHtml(data.weakestShort)}. Det stærkeste du kan gøre er ikke at blive ${escapeHtml(data.weakestName.toLowerCase())}. Det er at omgive dig med nogen der er det, og lytte når de taler.
                 </p>
               </td>
             </tr>
@@ -755,7 +755,7 @@ export function fullProfileEmailHtml(data: FullProfileEmailData): string {
                   Se din profil &rarr;
                 </a>
                 <div style="margin-top: 28px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
-                  Gem denne mail &mdash; linket er dit adgangspunkt til profilen.<br>
+                  Gem denne mail. Linket er dit adgangspunkt til profilen.<br>
                   Spørgsmål? Skriv til hej@alius.dk
                 </div>
               </td>
@@ -864,7 +864,7 @@ export function teamCompletedEmailHtml(data: TeamCompletedEmailData): string {
                   nu udfyldt profilen. Holdrapporten er klar til at blive åbnet i fællesskab.
                 </p>
                 <p style="font-size: 14px; color: rgba(26,26,26,0.5); margin: 0 0 32px 0;">
-                  Åbn rapporten med holdet — den er bygget til at blive afsløret sektion for sektion.
+                  Åbn rapporten med holdet. Den er bygget til at blive afsløret sektion for sektion.
                 </p>
 
                 <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">

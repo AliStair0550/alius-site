@@ -24,7 +24,7 @@ const VAERKTOEJER = [
     name: "Pulse",
     tagline: "Danske data, fortolket.",
     description:
-      "Opdaterede tal om Danmark — ledighed kommune for kommune, konkurser måned for måned. Hver dataserie hentes direkte fra Danmarks Statistik og forvandles til signaler du kan handle på.",
+      "Opdaterede tal om Danmark: ledighed kommune for kommune, konkurser måned for måned. Hver dataserie hentes direkte fra Danmarks Statistik og forvandles til signaler du kan handle på.",
     audience: "For virksomheder der vil følge med markedet.",
     href: "/pulse",
     accentLabel: "Data",
@@ -72,7 +72,7 @@ export default function VaerktoejerPage() {
 
           <p className="text-[18px] leading-[1.6] text-stone max-w-[640px]">
             Vi udvikler værktøjer der gør komplekse spørgsmål håndterbare.
-            Alle er gratis, alle er bygget med samme æstetik som resten af Alius — og alle leder, hvis du vil, til en samtale med os.
+            Alle er gratis, alle er bygget med samme æstetik som resten af Alius, og alle leder, hvis du vil, til en samtale med os.
           </p>
         </section>
 
@@ -138,7 +138,7 @@ export default function VaerktoejerPage() {
             Skal vi bygge <em className="italic text-[#B8C9C1]">noget sammen?</em>
           </h3>
           <p className="opacity-70 max-w-[560px] mb-10 text-[16px] leading-[1.6]">
-            Vores værktøjer er glimt af hvad vi laver til virksomheder hver dag — strategi, brand og teknologi der hænger sammen.
+            Vores værktøjer er glimt af hvad vi laver til virksomheder hver dag. Strategi, brand og teknologi der hænger sammen.
           </p>
           <a
             href="mailto:hej@alius.dk"
