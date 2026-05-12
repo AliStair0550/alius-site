@@ -26,6 +26,7 @@ interface SessionRow {
   name: string;
   status: string;
   expectedSize: number | null;
+  joinToken: string;
   members: MemberRow[];
 }
 
@@ -44,6 +45,7 @@ export default async function RapportPage({
       name: true,
       status: true,
       expectedSize: true,
+      joinToken: true,
       members: {
         select: {
           id: true,
@@ -95,6 +97,7 @@ export default async function RapportPage({
   const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
   const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
   const reportUrl = `${appUrl}/tankeprofil/hold/rapport/${reportToken}`;
+  const joinUrl = `${appUrl}/tankeprofil/hold/${session.joinToken}`;
 
   return (
     <main className="min-h-screen bg-parchment text-ink font-sans font-light">
@@ -115,6 +118,7 @@ export default async function RapportPage({
           totalSubmitted={totalSubmitted}
           analysis={analysis}
           reportUrl={reportUrl}
+          joinUrl={joinUrl}
         />
       </div>
     </main>

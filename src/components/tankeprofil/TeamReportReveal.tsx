@@ -15,6 +15,7 @@ type Props = {
   totalSubmitted: number;
   analysis: TeamAnalysis;
   reportUrl: string;
+  joinUrl?: string;
 };
 
 const TENSION_LABEL: Record<"low" | "medium" | "high", string> = {
@@ -30,8 +31,52 @@ export function TeamReportReveal({
   totalSubmitted,
   analysis: a,
   reportUrl,
+  joinUrl,
 }: Props) {
   const [revealed, setRevealed] = useState(1);
+  const [copied, setCopied] = useState(false);
+
+  function copyLink(url: string) {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  if (a.participants.length === 0) {
+    return (
+      <div className="animate-[revealUp_0.6s_cubic-bezier(0.22,1,0.36,1)]">
+        <div className="text-[11px] tracking-[0.4em] uppercase text-moss mb-6">
+          Holdrapport · {companyName}
+        </div>
+        <h1 className="font-fraunces font-light italic text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-ink mb-8">
+          Afventer
+          <br />
+          deltagere.
+        </h1>
+        <p className="text-[17px] leading-[1.65] text-stone max-w-[480px] mb-12">
+          Ingen har udfyldt profilen endnu. Send dette link til holdet &mdash; rapporten bygger sig automatisk op som de færdiggør testen.
+        </p>
+        {joinUrl && (
+          <div className="border border-ink/15 p-8 max-w-[480px]">
+            <div className="text-[11px] tracking-[0.25em] uppercase text-stone opacity-50 mb-3">
+              Deltager-link
+            </div>
+            <div className="text-[13px] text-moss break-all mb-5">{joinUrl}</div>
+            <button
+              onClick={() => copyLink(joinUrl)}
+              className="inline-flex items-center gap-3 bg-ink text-parchment px-7 py-[16px] text-[12px] tracking-[0.25em] uppercase cursor-pointer transition-all duration-300 hover:bg-moss"
+            >
+              {copied ? "Kopieret ✓" : "Kopier link"}
+            </button>
+          </div>
+        )}
+        <div className="mt-16 text-[11px] tracking-[0.2em] uppercase text-stone opacity-40">
+          {totalSubmitted} af {totalExpected} udfyldt
+        </div>
+      </div>
+    );
+  }
 
   const primaryArch = ARCHETYPES[a.aggregatePrimary];
   const secondaryArch = ARCHETYPES[a.aggregateSecondary];
@@ -345,10 +390,10 @@ export function TeamReportReveal({
                 &larr; Tilbage til Alius
               </a>
               <button
-                onClick={() => navigator.clipboard.writeText(reportUrl)}
+                onClick={() => copyLink(reportUrl)}
                 className="text-[12px] tracking-[0.2em] uppercase text-parchment/50 hover:text-parchment transition-colors cursor-pointer"
               >
-                Kopier rapport-link
+                {copied ? "Kopieret ✓" : "Kopier rapport-link"}
               </button>
             </div>
           </div>

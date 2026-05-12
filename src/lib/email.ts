@@ -561,6 +561,360 @@ Alius Personlighedsprofil`;
 }
 
 // ============================================================
+
+type FullProfileEmailData = {
+  displayName?: string | null;
+  primaryName: string;
+  primaryDescription: string;
+  secondaryName: string;
+  weakestName: string;
+  weakestShort: string;
+  strengths: [string, string][];
+  blindspots: [string, string][];
+  pct: { A: number; B: number; C: number; D: number }; // 0–100
+  profileUrl: string;
+};
+
+const QUAD_COLORS: Record<string, string> = {
+  A: "#2D5F4A",
+  B: "#8B7355",
+  C: "#C8956D",
+  D: "#5B7C9D",
+};
+
+const QUAD_NAMES: Record<string, string> = {
+  A: "Analytiker",
+  B: "Bygmester",
+  C: "Forbinder",
+  D: "Visionær",
+};
+
+export function fullProfileEmailHtml(data: FullProfileEmailData): string {
+  const greeting = data.displayName ? `Hej ${escapeHtml(data.displayName)}.` : "Hej.";
+
+  const strengthItems = data.strengths
+    .map(
+      ([title, desc], i) => `
+        <tr>
+          <td style="padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.08);">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div style="font-family: Georgia, serif; font-weight: 300; font-size: 22px; color: #2D5F4A; min-width: 28px; line-height: 1;">${String(i + 1).padStart(2, "0")}</div>
+              <div>
+                <div style="font-size: 14px; color: #1A1A1A; margin-bottom: 4px; font-weight: 400;">${escapeHtml(title)}</div>
+                <div style="font-size: 13px; color: rgba(26,26,26,0.55); line-height: 1.5;">${escapeHtml(desc)}</div>
+              </div>
+            </div>
+          </td>
+        </tr>`
+    )
+    .join("");
+
+  const blindspotItems = data.blindspots
+    .map(
+      ([title, desc], i) => `
+        <tr>
+          <td style="padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.08);">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div style="font-family: Georgia, serif; font-weight: 300; font-size: 22px; color: #4A4A4A; min-width: 28px; line-height: 1;">${String(i + 1).padStart(2, "0")}</div>
+              <div>
+                <div style="font-size: 14px; color: #1A1A1A; margin-bottom: 4px; font-weight: 400;">${escapeHtml(title)}</div>
+                <div style="font-size: 13px; color: rgba(26,26,26,0.55); line-height: 1.5;">${escapeHtml(desc)}</div>
+              </div>
+            </div>
+          </td>
+        </tr>`
+    )
+    .join("");
+
+  const scoreRows = (["A", "B", "C", "D"] as const)
+    .map(
+      (q) => `
+        <tr>
+          <td style="padding: 8px 0;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="font-size: 12px; color: rgba(26,26,26,0.5); width: 72px; letter-spacing: 0.02em;">${QUAD_NAMES[q]}</div>
+              <table cellpadding="0" cellspacing="0" border="0" style="flex: 1; width: 100%;">
+                <tr>
+                  <td style="width: ${data.pct[q]}%; height: 3px; background-color: ${QUAD_COLORS[q]}; min-width: 2px;"></td>
+                  <td style="height: 3px; background-color: rgba(26,26,26,0.08);"></td>
+                </tr>
+              </table>
+              <div style="font-size: 13px; color: #1A1A1A; font-family: Georgia, serif; width: 32px; text-align: right;">${data.pct[q]}%</div>
+            </div>
+          </td>
+        </tr>`
+    )
+    .join("");
+
+  return `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Din personlighedsprofil · ${escapeHtml(data.primaryName)}</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1A1A1A;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px;">
+
+            <tr>
+              <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #1A1A1A; font-weight: 500;">
+                  ALIUS &middot; PERSONLIGHEDSPROFIL
+                </div>
+              </td>
+            </tr>
+
+            <!-- Hero -->
+            <tr>
+              <td style="padding-top: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #2D5F4A; font-weight: 500; margin-bottom: 16px;">
+                  Din profil
+                </div>
+                <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 64px; line-height: 0.95; margin: 0 0 20px 0; color: #1A1A1A; letter-spacing: -0.02em;">
+                  ${escapeHtml(data.primaryName)}
+                </h1>
+                <p style="font-size: 15px; color: rgba(26,26,26,0.55); margin: 0 0 8px 0;">
+                  med <em>${escapeHtml(data.secondaryName.toLowerCase())}</em> som medløber, og <em>${escapeHtml(data.weakestName.toLowerCase())}</em> som blindt felt
+                </p>
+                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 24px 0 0 0;">
+                  ${greeting}<br><br>${escapeHtml(data.primaryDescription)}
+                </p>
+              </td>
+            </tr>
+
+            <!-- Score fordeling -->
+            <tr>
+              <td style="padding-top: 36px; padding-bottom: 36px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(26,26,26,0.4); margin-bottom: 20px;">
+                  Score fordeling
+                </div>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                  ${scoreRows}
+                </table>
+              </td>
+            </tr>
+
+            <!-- Styrker -->
+            <tr>
+              <td style="padding-top: 36px; padding-bottom: 36px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(26,26,26,0.4); margin-bottom: 8px;">
+                  Styrker
+                </div>
+                <h2 style="font-family: Georgia, serif; font-weight: 300; font-size: 26px; line-height: 1.2; margin: 0 0 24px 0; color: #1A1A1A;">
+                  Hvad du gør bedst.
+                </h2>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top: 1px solid rgba(26,26,26,0.08);">
+                  ${strengthItems}
+                </table>
+              </td>
+            </tr>
+
+            <!-- Blinde felter -->
+            <tr>
+              <td style="padding-top: 36px; padding-bottom: 36px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(26,26,26,0.4); margin-bottom: 8px;">
+                  Blinde felter
+                </div>
+                <h2 style="font-family: Georgia, serif; font-weight: 300; font-size: 26px; line-height: 1.2; margin: 0 0 24px 0; color: #1A1A1A;">
+                  Hvor du sandsynligvis overser noget.
+                </h2>
+                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top: 1px solid rgba(26,26,26,0.08);">
+                  ${blindspotItems}
+                </table>
+              </td>
+            </tr>
+
+            <!-- Skygge -->
+            <tr>
+              <td style="padding-top: 36px; padding-bottom: 36px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(26,26,26,0.4); margin-bottom: 8px;">
+                  Skygge
+                </div>
+                <h2 style="font-family: Georgia, serif; font-weight: 300; font-size: 26px; line-height: 1.2; margin: 0 0 16px 0; color: #1A1A1A;">
+                  Din modsatte kant.
+                </h2>
+                <p style="font-size: 15px; line-height: 1.65; color: #4A4A4A; margin: 0 0 12px 0;">
+                  <strong style="color: #1A1A1A; font-weight: normal;">${escapeHtml(data.weakestName)}</strong> er den kvadrant du henter mindst fra — ${escapeHtml(data.weakestShort)}. Det stærkeste du kan gøre er ikke at blive ${escapeHtml(data.weakestName.toLowerCase())}. Det er at omgive dig med nogen der er det, og lytte når de taler.
+                </p>
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td style="padding-top: 40px;">
+                <p style="font-size: 15px; color: rgba(26,26,26,0.55); margin: 0 0 28px 0;">
+                  Se din fulde profil online. Du kan vende tilbage til den til enhver tid.
+                </p>
+                <a href="${data.profileUrl}"
+                   style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                  Se din profil &rarr;
+                </a>
+                <div style="margin-top: 28px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
+                  Gem denne mail &mdash; linket er dit adgangspunkt til profilen.<br>
+                  Spørgsmål? Skriv til hej@alius.dk
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 48px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6; letter-spacing: 0.03em;">
+                Sendt automatisk fra alius.dk/personlighedsprofil
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function fullProfileEmailText(data: FullProfileEmailData): string {
+  const greeting = data.displayName ? `Hej ${data.displayName},` : "Hej,";
+  const strengths = data.strengths
+    .map(([t, d], i) => `${String(i + 1).padStart(2, "0")}. ${t} — ${d}`)
+    .join("\n");
+  const blindspots = data.blindspots
+    .map(([t, d], i) => `${String(i + 1).padStart(2, "0")}. ${t} — ${d}`)
+    .join("\n");
+  const scores = (["A", "B", "C", "D"] as const)
+    .map((q) => `${QUAD_NAMES[q]}: ${data.pct[q]}%`)
+    .join("  ·  ");
+
+  return `${greeting}
+
+Din personlighedsprofil er klar.
+
+${data.primaryName.toUpperCase()}
+med ${data.secondaryName.toLowerCase()} som medløber, og ${data.weakestName.toLowerCase()} som blindt felt.
+
+${data.primaryDescription}
+
+SCORE
+${scores}
+
+STYRKER
+${strengths}
+
+BLINDE FELTER
+${blindspots}
+
+SKYGGE
+${data.weakestName} er din modsatte kant. ${data.weakestShort}.
+
+Se din fulde profil:
+${data.profileUrl}
+
+Gem dette link. Det er dit adgangspunkt til profilen.
+Spørgsmål? Skriv til hej@alius.dk
+
+Alius Personlighedsprofil`;
+}
+
+// ============================================================
+
+type TeamCompletedEmailData = {
+  ownerName: string | null;
+  company: string;
+  totalCount: number;
+  reportUrl: string;
+};
+
+export function teamCompletedEmailHtml(data: TeamCompletedEmailData): string {
+  const greeting = data.ownerName ? `Hej ${escapeHtml(data.ownerName)}.` : "Hej.";
+
+  return `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holdrapporten er klar</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1A1A1A;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px;">
+
+            <tr>
+              <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #1A1A1A; font-weight: 500;">
+                  ALIUS &middot; PERSONLIGHEDSPROFIL
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px;">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #2D5F4A; font-weight: 500; margin-bottom: 16px;">
+                  Holdrapporten er klar
+                </div>
+                <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 40px; line-height: 1.1; margin: 0 0 24px 0; color: #1A1A1A; letter-spacing: -0.01em;">
+                  ${greeting}
+                </h1>
+                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 16px 0;">
+                  Alle <strong style="color: #1A1A1A; font-weight: normal;">${data.totalCount} deltagere</strong> fra
+                  <strong style="color: #1A1A1A; font-weight: normal;">${escapeHtml(data.company)}</strong> har
+                  nu udfyldt profilen. Holdrapporten er klar til at blive åbnet i fællesskab.
+                </p>
+                <p style="font-size: 14px; color: rgba(26,26,26,0.5); margin: 0 0 32px 0;">
+                  Åbn rapporten med holdet — den er bygget til at blive afsløret sektion for sektion.
+                </p>
+
+                <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
+                  <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
+                    Holdrapport
+                  </div>
+                  <a href="${data.reportUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.reportUrl}</a>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(26,26,26,0.1);">
+                  <a href="${data.reportUrl}"
+                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                    Åbn holdrapporten &rarr;
+                  </a>
+                </div>
+
+                <div style="margin-top: 32px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
+                  Spørgsmål? Skriv til hej@alius.dk
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 48px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6; letter-spacing: 0.03em;">
+                Sendt automatisk fra alius.dk/personlighedsprofil
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function teamCompletedEmailText(data: TeamCompletedEmailData): string {
+  const greeting = data.ownerName ? `Hej ${data.ownerName},` : "Hej,";
+  return `${greeting}
+
+Alle ${data.totalCount} deltagere fra ${data.company} har nu udfyldt profilen.
+Holdrapporten er klar til at blive åbnet i fællesskab.
+
+Åbn holdrapporten her:
+${data.reportUrl}
+
+Spørgsmål? Skriv til hej@alius.dk
+
+Alius Personlighedsprofil`;
+}
+
+// ============================================================
 // Helpers
 
 function escapeHtml(s: string): string {

@@ -1,6 +1,12 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { sendEmail, teamProgressEmailHtml, teamProgressEmailText } from "@/lib/email";
+import {
+  sendEmail,
+  teamProgressEmailHtml,
+  teamProgressEmailText,
+  teamCompletedEmailHtml,
+  teamCompletedEmailText,
+} from "@/lib/email";
 
 function isValidTotals(t: unknown): t is { A: number; B: number; C: number; D: number } {
   if (!t || typeof t !== "object") return false;
@@ -72,30 +78,53 @@ export async function POST(
     where: { sessionId: session.id, submittedAt: { not: null } },
   });
 
-  // Send organizer email on first submission only
-  if (submittedCount === 1) {
-    const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
-    const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
-    const reportUrl = `${appUrl}/tankeprofil/hold/rapport/${session.reportToken}`;
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
+  const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
+  const reportUrl = `${appUrl}/tankeprofil/hold/rapport/${session.reportToken}`;
+  const company = session.companyName ?? session.name;
 
+  if (submittedCount === 1) {
     sendEmail({
       to: session.ownerEmail,
-      subject: `Første profil er klar · ${session.companyName ?? session.name}`,
+      subject: `Første profil er klar · ${company}`,
       html: teamProgressEmailHtml({
         ownerName: session.ownerName,
-        company: session.companyName ?? session.name,
+        company,
         submittedCount,
         expectedCount: session.expectedSize,
         reportUrl,
       }),
       text: teamProgressEmailText({
         ownerName: session.ownerName,
-        company: session.companyName ?? session.name,
+        company,
         submittedCount,
         expectedCount: session.expectedSize,
         reportUrl,
       }),
     }).catch((err) => console.error("[team submit] progress email error:", err));
+  }
+
+  if (
+    session.expectedSize &&
+    submittedCount === session.expectedSize &&
+    submittedCount > 1
+  ) {
+    sendEmail({
+      to: session.ownerEmail,
+      subject: `Holdrapporten er klar · ${company}`,
+      html: teamCompletedEmailHtml({
+        ownerName: session.ownerName,
+        company,
+        totalCount: submittedCount,
+        reportUrl,
+      }),
+      text: teamCompletedEmailText({
+        ownerName: session.ownerName,
+        company,
+        totalCount: submittedCount,
+        reportUrl,
+      }),
+    }).catch((err) => console.error("[team submit] completed email error:", err));
   }
 
   return Response.json({ ok: true, accessToken, reportToken: session.reportToken });

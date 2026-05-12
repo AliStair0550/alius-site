@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { sendEmail, profileEmailHtml, profileEmailText } from "@/lib/email";
+import { sendEmail, fullProfileEmailHtml, fullProfileEmailText } from "@/lib/email";
 import { ARCHETYPES } from "@/components/tankeprofil/data";
 import type { QuadrantKey } from "@/components/tankeprofil/data";
 
@@ -119,19 +119,61 @@ export async function PATCH(
       },
     });
 
-    // Send profile link email when an email is first set
+    // Send full profile email when an email is first set
     const emailBeingSaved = updates.email;
     if (emailBeingSaved && !profile.email) {
       const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
       const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
       const profileUrl = `${appUrl}/tankeprofil/min-profil/${accessToken}`;
-      const primaryName = ARCHETYPES[updated.primary as QuadrantKey]?.name ?? updated.primary;
+
+      const primary = updated.primary as QuadrantKey;
+      const secondary = updated.secondary as QuadrantKey;
+      const weakest = updated.weakest as QuadrantKey;
+      const primaryArch = ARCHETYPES[primary];
+      const secondaryArch = ARCHETYPES[secondary];
+      const weakestArch = ARCHETYPES[weakest];
+
+      const raw = updated.totals as Record<string, number> | null;
+      const t = raw
+        ? { A: raw.A ?? 0, B: raw.B ?? 0, C: raw.C ?? 0, D: raw.D ?? 0 }
+        : { A: 0, B: 0, C: 0, D: 0 };
+      const sum = t.A + t.B + t.C + t.D;
+      const pct = sum > 0
+        ? {
+            A: Math.round((t.A / sum) * 100),
+            B: Math.round((t.B / sum) * 100),
+            C: Math.round((t.C / sum) * 100),
+            D: Math.round((t.D / sum) * 100),
+          }
+        : { A: 25, B: 25, C: 25, D: 25 };
 
       const emailResult = await sendEmail({
         to: emailBeingSaved,
-        subject: `Din personlighedsprofil · Alius`,
-        html: profileEmailHtml({ displayName: updated.displayName, primaryName, profileUrl }),
-        text: profileEmailText({ displayName: updated.displayName, primaryName, profileUrl }),
+        subject: `Din personlighedsprofil · ${primaryArch?.name ?? "Alius"}`,
+        html: fullProfileEmailHtml({
+          displayName: updated.displayName,
+          primaryName: primaryArch?.name ?? primary,
+          primaryDescription: primaryArch?.description ?? "",
+          secondaryName: secondaryArch?.name ?? secondary,
+          weakestName: weakestArch?.name ?? weakest,
+          weakestShort: weakestArch?.short ?? "",
+          strengths: primaryArch?.strengths ?? [],
+          blindspots: primaryArch?.blindspots ?? [],
+          pct,
+          profileUrl,
+        }),
+        text: fullProfileEmailText({
+          displayName: updated.displayName,
+          primaryName: primaryArch?.name ?? primary,
+          primaryDescription: primaryArch?.description ?? "",
+          secondaryName: secondaryArch?.name ?? secondary,
+          weakestName: weakestArch?.name ?? weakest,
+          weakestShort: weakestArch?.short ?? "",
+          strengths: primaryArch?.strengths ?? [],
+          blindspots: primaryArch?.blindspots ?? [],
+          pct,
+          profileUrl,
+        }),
       });
       if (!emailResult.ok) {
         console.error("[profile PATCH] email send failed:", emailResult.reason);
