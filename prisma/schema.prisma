@@ -165,3 +165,126 @@ enum TeamRequestStatus {
   DECLINED
   COMPLETED
 }
+
+// ============================================================
+// PULSE — Statistical data from public APIs (DST etc.)
+// ============================================================
+
+model DataSource {
+  id    String @id @default(cuid())
+
+  slug            String  @unique  // e.g. "dst-aus08"
+  name            String
+  description     String?
+  provider        String           // "dst"
+  tableId         String           // DST table id, e.g. "AUS08"
+  unit            String?          // "pct", "1000 persons", etc.
+  sourceUrl       String?
+  license         String?
+  updateFrequency String?
+
+  lastUpdatedAtSource DateTime?
+  lastFetchedAt       DateTime?
+
+  meta        Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dataPoints  DataPoint[]
+  signals     Signal[]
+  fetchLogs   FetchLog[]
+
+  @@index([slug])
+  @@index([provider, tableId])
+}
+
+model DataPoint {
+  id         String @id @default(cuid())
+  sourceId   String
+
+  period     String    // "2026M03", "2026K1", "2026"
+  periodDate DateTime  // first day of the period (UTC)
+  periodType PeriodType
+
+  areaCode   String?
+  areaType   AreaType @default(NATIONAL)
+  areaName   String?
+
+  value      Float?
+  status     String?  // "provisional", "missing", DST status codes
+
+  dimensions Json?    // extra dimensions beyond time + area
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  source     DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, period, areaCode])
+  @@index([sourceId, periodDate])
+  @@index([sourceId, areaCode, periodDate])
+}
+
+enum PeriodType {
+  MONTH
+  QUARTER
+  YEAR
+  WEEK
+}
+
+enum AreaType {
+  NATIONAL
+  REGION
+  LANDSDEL
+  KOMMUNE
+  OTHER
+}
+
+model Signal {
+  id         String @id @default(cuid())
+  sourceId   String
+
+  type        String   // "TOP_MOVER", "RECORD", "STREAK", "COMPARISON", "TURNING_POINT", "OUTLIER"
+  direction   String?  // "UP", "DOWN", "STABLE"
+  severity    String   @default("info")  // "info", "note", "important"
+
+  headline    String
+  body        String?
+
+  period      String?
+  magnitude   Float?
+  areaCode    String?
+  areaName    String?
+  evidence    Json?
+
+  createdAt   DateTime @default(now())
+
+  source      DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, type])
+  @@index([sourceId, period])
+}
+
+model FetchLog {
+  id         String @id @default(cuid())
+  sourceId   String
+
+  success      Boolean   @default(false)
+  error        String?
+  notes        String?
+
+  inserted     Int @default(0)
+  updated      Int @default(0)
+  skipped      Int @default(0)
+  rowsAffected Int @default(0)
+
+  lastUpdatedAtSource DateTime?
+  completedAt         DateTime?
+
+  createdAt  DateTime @default(now())
+
+  source     DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, createdAt])
+}
