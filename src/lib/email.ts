@@ -364,6 +364,113 @@ Alius Personlighedsprofil`;
 
 // ============================================================
 
+type TeamProgressEmailData = {
+  ownerName: string | null;
+  company: string;
+  submittedCount: number;
+  expectedCount: number | null;
+  reportUrl: string;
+};
+
+export function teamProgressEmailHtml(data: TeamProgressEmailData): string {
+  const greeting = data.ownerName ? `Hej ${escapeHtml(data.ownerName)}.` : "Hej.";
+  const progress = data.expectedCount
+    ? `${data.submittedCount} af ${data.expectedCount}`
+    : `${data.submittedCount}`;
+
+  return `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapporten er under opbygning</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1A1A1A;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px;">
+
+            <tr>
+              <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #1A1A1A; font-weight: 500;">
+                  ALIUS &middot; PERSONLIGHEDSPROFIL
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px;">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #2D5F4A; font-weight: 500; margin-bottom: 16px;">
+                  Holdrapport
+                </div>
+                <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 36px; line-height: 1.1; margin: 0 0 24px 0; color: #1A1A1A; letter-spacing: -0.01em;">
+                  ${greeting}
+                </h1>
+                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 16px 0;">
+                  Første deltager fra <strong style="color: #1A1A1A; font-weight: normal;">${escapeHtml(data.company)}</strong> har
+                  udfyldt sin profil. Rapporten er allerede tilgængelig og opdateres automatisk
+                  som resten af holdet gennemfører testen.
+                </p>
+                <p style="font-size: 14px; color: rgba(26,26,26,0.5); margin: 0 0 32px 0;">
+                  Fremgang: ${progress} udfyldt.
+                </p>
+
+                <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
+                  <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
+                    Holdrapport
+                  </div>
+                  <a href="${data.reportUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.reportUrl}</a>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(26,26,26,0.1);">
+                  <a href="${data.reportUrl}"
+                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                    Abn holdrapporten &rarr;
+                  </a>
+                </div>
+
+                <div style="margin-top: 32px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
+                  Spørgsmål? Skriv til hej@alius.dk
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 48px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6; letter-spacing: 0.03em;">
+                Sendt automatisk fra alius.dk/personlighedsprofil
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function teamProgressEmailText(data: TeamProgressEmailData): string {
+  const greeting = data.ownerName ? `Hej ${data.ownerName},` : "Hej,";
+  const progress = data.expectedCount
+    ? `${data.submittedCount} af ${data.expectedCount}`
+    : `${data.submittedCount}`;
+  return `${greeting}
+
+Første deltager fra ${data.company} har udfyldt sin profil.
+Fremgang: ${progress} udfyldt.
+
+Rapporten opdateres automatisk som resten af holdet gennemfører testen.
+Åbn holdrapporten her:
+${data.reportUrl}
+
+Spørgsmål? Skriv til hej@alius.dk
+
+Alius Personlighedsprofil`;
+}
+
+// ============================================================
+
 type InviteEmailData = {
   inviterName: string;
   company: string;

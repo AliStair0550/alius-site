@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
+import { sendEmail, teamProgressEmailHtml, teamProgressEmailText } from "@/lib/email";
 
 function isValidTotals(t: unknown): t is { A: number; B: number; C: number; D: number } {
   if (!t || typeof t !== "object") return false;
@@ -66,5 +67,36 @@ export async function POST(
     data: { submittedAt: new Date() },
   });
 
-  return Response.json({ ok: true, accessToken });
+  // Count submitted members after this submission
+  const submittedCount = await prisma.teamMember.count({
+    where: { sessionId: session.id, submittedAt: { not: null } },
+  });
+
+  // Send organizer email on first submission only
+  if (submittedCount === 1) {
+    const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
+    const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
+    const reportUrl = `${appUrl}/tankeprofil/hold/rapport/${session.reportToken}`;
+
+    sendEmail({
+      to: session.ownerEmail,
+      subject: `Første profil er klar · ${session.companyName ?? session.name}`,
+      html: teamProgressEmailHtml({
+        ownerName: session.ownerName,
+        company: session.companyName ?? session.name,
+        submittedCount,
+        expectedCount: session.expectedSize,
+        reportUrl,
+      }),
+      text: teamProgressEmailText({
+        ownerName: session.ownerName,
+        company: session.companyName ?? session.name,
+        submittedCount,
+        expectedCount: session.expectedSize,
+        reportUrl,
+      }),
+    }).catch((err) => console.error("[team submit] progress email error:", err));
+  }
+
+  return Response.json({ ok: true, accessToken, reportToken: session.reportToken });
 }

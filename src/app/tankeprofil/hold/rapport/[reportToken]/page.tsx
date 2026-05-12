@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { analyzeTeam, type Participant } from "@/lib/team-analysis";
-import { TeamReportView } from "@/components/tankeprofil/TeamReportView";
+import { TeamReportReveal } from "@/components/tankeprofil/TeamReportReveal";
 import type { QuadrantKey } from "@/components/tankeprofil/data";
 
 export const dynamic = "force-dynamic";
@@ -92,6 +92,10 @@ export default async function RapportPage({
   const totalExpected = session.expectedSize ?? session.members.length;
   const totalSubmitted = submittedMembers.length;
 
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.VERCEL_URL;
+  const appUrl = rawUrl?.startsWith("http") ? rawUrl : rawUrl ? `https://${rawUrl}` : "https://alius.dk";
+  const reportUrl = `${appUrl}/tankeprofil/hold/rapport/${reportToken}`;
+
   return (
     <main className="min-h-screen bg-parchment text-ink font-sans font-light">
       <div
@@ -104,12 +108,13 @@ export default async function RapportPage({
         }}
       />
       <div className="relative z-10 max-w-[800px] mx-auto px-5 md:px-8 py-16 md:py-24">
-        <TeamReportView
+        <TeamReportReveal
           companyName={companyName}
           sessionOpen={sessionOpen}
           totalExpected={totalExpected}
           totalSubmitted={totalSubmitted}
           analysis={analysis}
+          reportUrl={reportUrl}
         />
       </div>
     </main>

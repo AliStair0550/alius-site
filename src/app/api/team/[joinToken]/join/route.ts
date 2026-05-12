@@ -45,5 +45,6 @@ export async function POST(
     profileId: profile.id,
     accessToken: profile.accessToken,
     memberId: member.id,
+    reportToken: session.reportToken,
   });
 }

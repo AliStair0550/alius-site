@@ -10,8 +10,8 @@ type Phase =
   | { type: "name-input" }
   | { type: "joining" }
   | { type: "join-error"; message: string }
-  | { type: "testing"; accessToken: string }
-  | { type: "done"; accessToken: string };
+  | { type: "testing"; accessToken: string; reportToken: string }
+  | { type: "done"; accessToken: string; reportToken: string };
 
 export function TeamTestClient({
   joinToken,
@@ -50,7 +50,7 @@ export function TeamTestClient({
       } catch (err) {
         console.error("[TeamTestClient] Submit failed:", err);
       } finally {
-        if (!cancelled) setPhase({ type: "done", accessToken });
+        if (!cancelled) setPhase({ type: "done", accessToken, reportToken: phase.reportToken });
       }
     })();
 
@@ -73,7 +73,7 @@ export function TeamTestClient({
       if (!res.ok || !data.ok) {
         setPhase({ type: "join-error", message: data.error ?? "Kunne ikke tilmelde" });
       } else {
-        setPhase({ type: "testing", accessToken: data.accessToken });
+        setPhase({ type: "testing", accessToken: data.accessToken, reportToken: data.reportToken ?? "" });
       }
     } catch {
       setPhase({ type: "join-error", message: "Netværksfejl. Tjek din forbindelse." });
@@ -135,6 +135,13 @@ export function TeamTestClient({
             displayName={displayName}
             companyName={companyName}
             accessToken={phase.type === "done" ? phase.accessToken : null}
+            reportToken={
+              phase.type === "done"
+                ? phase.reportToken
+                : phase.type === "testing"
+                ? phase.reportToken
+                : null
+            }
           />
         ) : null}
 
