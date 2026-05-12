@@ -55,7 +55,7 @@ export default function Tools() {
 
         {/* Active: Pulse */}
         <Link
-          href="/pulse/ledighed"
+          href="/pulse"
           className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
         >
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />

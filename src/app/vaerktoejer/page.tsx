@@ -17,16 +17,21 @@ const VAERKTOEJER = [
     audience: "For ledere, team og hold der vil forstå hinanden bedre.",
     href: "/tankeprofil",
     accentLabel: "Personlig",
+    subLinks: undefined as { name: string; href: string }[] | undefined,
   },
   {
     slug: "pulse",
     name: "Pulse",
     tagline: "Danske data, fortolket.",
     description:
-      "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Hver måned hentes nye tal fra Danmarks Statistik og forvandles til indsigt.",
+      "Opdaterede tal om Danmark — ledighed kommune for kommune, konkurser måned for måned. Hver dataserie hentes direkte fra Danmarks Statistik og forvandles til signaler du kan handle på.",
     audience: "For virksomheder der vil følge med markedet.",
-    href: "/pulse/ledighed",
+    href: "/pulse",
     accentLabel: "Data",
+    subLinks: [
+      { name: "Ledighed", href: "/pulse/ledighed" },
+      { name: "Konkurser", href: "/pulse/konkurser" },
+    ],
   },
 ];
 
@@ -44,7 +49,6 @@ export default function VaerktoejerPage() {
       />
 
       <div className="max-w-[1200px] mx-auto px-5 py-8 md:px-8 md:py-12 relative z-10">
-        {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-baseline gap-4 pb-8 md:pb-12 border-b border-ink/10 mb-12 md:mb-16">
           <Link
             href="/"
@@ -57,7 +61,6 @@ export default function VaerktoejerPage() {
           </div>
         </header>
 
-        {/* Hero */}
         <section className="py-8 md:py-16 mb-16">
           <div className="text-[11px] tracking-[0.4em] uppercase text-moss mb-8">
             Værktøjer fra Alius
@@ -73,7 +76,6 @@ export default function VaerktoejerPage() {
           </p>
         </section>
 
-        {/* List */}
         <section className="grid grid-cols-1 gap-12 md:gap-16">
           {VAERKTOEJER.map((v) => (
             <article
@@ -96,21 +98,38 @@ export default function VaerktoejerPage() {
                 <p className="text-[13px] text-stone opacity-60 mb-8">
                   {v.audience}
                 </p>
-                <Link
-                  href={v.href}
-                  className="inline-flex items-center gap-3 text-[13px] tracking-[0.2em] uppercase text-ink no-underline border-b border-ink pb-1 hover:text-moss hover:border-moss transition-colors group"
-                >
-                  Åbn {v.name.toLowerCase()}
-                  <span className="transition-transform group-hover:translate-x-1">
-                    &rarr;
-                  </span>
-                </Link>
+
+                {v.subLinks ? (
+                  <div className="flex flex-col gap-3">
+                    {v.subLinks.map((sub) => (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className="inline-flex items-center gap-3 text-[13px] tracking-[0.2em] uppercase text-ink no-underline border-b border-ink/30 pb-1 w-fit hover:text-moss hover:border-moss transition-colors group"
+                      >
+                        Åbn {sub.name.toLowerCase()}
+                        <span className="transition-transform group-hover:translate-x-1">
+                          &rarr;
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <Link
+                    href={v.href}
+                    className="inline-flex items-center gap-3 text-[13px] tracking-[0.2em] uppercase text-ink no-underline border-b border-ink pb-1 hover:text-moss hover:border-moss transition-colors group"
+                  >
+                    Åbn {v.name.toLowerCase()}
+                    <span className="transition-transform group-hover:translate-x-1">
+                      &rarr;
+                    </span>
+                  </Link>
+                )}
               </div>
             </article>
           ))}
         </section>
 
-        {/* CTA */}
         <section className="mt-24 p-10 md:p-16 bg-ink text-parchment">
           <div className="text-[11px] tracking-[0.3em] uppercase text-moss-light mb-4">
             For virksomheder

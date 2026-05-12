@@ -313,6 +313,253 @@ export async function syncAus08(prisma: PrismaClient): Promise<SyncResult> {
 }
 
 // ----------------------------------------------------------------
+// syncKonk3
+// ----------------------------------------------------------------
+
+/**
+ * Sync KONK3 (bankruptcies) from DST.
+ * Only pulls seasonally-adjusted "aktive virksomheder" series to stay
+ * within the unique(sourceId, period, areaCode) constraint (all rows
+ * have areaCode=null for this national-only dataset).
+ */
+export async function syncKonk3(prisma: PrismaClient): Promise<SyncResult> {
+  const TABLE_ID = "KONK3";
+  const SOURCE_SLUG = "dst-konk3";
+
+  const result: SyncResult = {
+    success: false,
+    hadNewData: false,
+    rowsInserted: 0,
+    rowsUpdated: 0,
+    rowsSkipped: 0,
+    newDataPeriod: null,
+  };
+
+  let fetchLogId: string | null = null;
+
+  try {
+    const metadata = await getTableMetadata(TABLE_ID);
+
+    const source = await prisma.dataSource.upsert({
+      where: { slug: SOURCE_SLUG },
+      create: {
+        slug: SOURCE_SLUG,
+        provider: "Danmarks Statistik",
+        tableId: TABLE_ID,
+        name: metadata.label,
+        description: metadata.description || null,
+        sourceUrl: `https://www.statistikbanken.dk/${TABLE_ID}`,
+        license: "CC 4.0 BY",
+        updateFrequency: "MONTHLY",
+        lastUpdatedAtSource: new Date(metadata.lastUpdated),
+      },
+      update: {
+        name: metadata.label,
+        description: metadata.description || null,
+      },
+    });
+
+    const dstUpdated = new Date(metadata.lastUpdated);
+    const ourLastSeen = source.lastUpdatedAtSource;
+
+    if (ourLastSeen && dstUpdated.getTime() === ourLastSeen.getTime()) {
+      await prisma.dataSource.update({
+        where: { id: source.id },
+        data: { lastFetchedAt: new Date() },
+      });
+      result.success = true;
+      result.hadNewData = false;
+      return result;
+    }
+
+    const fetchLog = await prisma.fetchLog.create({
+      data: { sourceId: source.id },
+    });
+    fetchLogId = fetchLog.id;
+
+    const tidVar = findVariable(metadata.variables, "TID");
+    const noegletalVar = findVariable(
+      metadata.variables,
+      "NOEGLETAL",
+      "NØGLETAL",
+      "INDIKATOR"
+    );
+    const saesonVar = findVariable(metadata.variables, "SAESON");
+
+    if (!tidVar)
+      throw new Error(
+        `Could not find Tid dimension. Available: ${metadata.variables.map((v) => v.code).join(", ")}`
+      );
+
+    // Filter to "aktive virksomheder" nøgletal if found
+    let noegletalFilter: string[] = ["*"];
+    if (noegletalVar) {
+      const aktive = noegletalVar.values.find((v) =>
+        v.label.toLowerCase().includes("aktive")
+      );
+      if (aktive) noegletalFilter = [aktive.code];
+    }
+
+    // Filter to seasonally-adjusted only (avoids unique constraint violation)
+    let saesonFilter: string[] = ["*"];
+    if (saesonVar) {
+      const seasonal = saesonVar.values.find((v) => {
+        const t = v.label.toLowerCase();
+        return (
+          (t.includes("sæsonkorrigeret") || t.includes("saeson")) &&
+          !t.includes("ikke") &&
+          !t.includes("faktisk")
+        );
+      });
+      if (seasonal) saesonFilter = [seasonal.code];
+    }
+
+    const filters = [
+      { code: tidVar.code, values: ["*"] },
+      ...(noegletalVar
+        ? [{ code: noegletalVar.code, values: noegletalFilter }]
+        : []),
+      ...(saesonVar ? [{ code: saesonVar.code, values: saesonFilter }] : []),
+    ];
+
+    const datapoints = await getTableData(TABLE_ID, filters);
+
+    const existingRows = await prisma.dataPoint.findMany({
+      where: { sourceId: source.id },
+      select: { id: true, period: true, areaCode: true, value: true },
+    });
+    const existingMap = new Map<string, { id: string; value: number | null }>();
+    for (const row of existingRows) {
+      existingMap.set(`${row.period}::${row.areaCode ?? ""}`, {
+        id: row.id,
+        value: row.value,
+      });
+    }
+
+    type InsertRow = {
+      sourceId: string;
+      period: string;
+      periodDate: Date;
+      periodType: "MONTH" | "QUARTER" | "YEAR" | "WEEK";
+      areaCode: null;
+      areaType: "NATIONAL";
+      areaName: null;
+      value: number | null;
+      status: string | null;
+      dimensions?: Record<string, string>;
+    };
+    const toInsert: InsertRow[] = [];
+    const toUpdate: {
+      id: string;
+      value: number | null;
+      status: string | null;
+    }[] = [];
+
+    let latestPeriodSeen: string | null = null;
+
+    for (const dp of datapoints) {
+      const period = dp.period;
+      if (!period) {
+        result.rowsSkipped++;
+        continue;
+      }
+
+      if (!latestPeriodSeen || period > latestPeriodSeen) {
+        latestPeriodSeen = period;
+      }
+
+      const extraDims: Record<string, string> = {
+        ...(dp.dimensions as Record<string, string>),
+      };
+
+      const mapKey = `${period}::`;
+      const existing = existingMap.get(mapKey);
+
+      if (!existing) {
+        toInsert.push({
+          sourceId: source.id,
+          period,
+          periodDate: dp.periodDate,
+          periodType: parsePeriodType(period),
+          areaCode: null,
+          areaType: "NATIONAL",
+          areaName: null,
+          value: dp.value,
+          status: dp.status ?? null,
+          dimensions:
+            Object.keys(extraDims).length > 0 ? extraDims : undefined,
+        });
+      } else if (existing.value !== dp.value) {
+        toUpdate.push({
+          id: existing.id,
+          value: dp.value,
+          status: dp.status ?? null,
+        });
+      } else {
+        result.rowsSkipped++;
+      }
+    }
+
+    if (toInsert.length > 0) {
+      await prisma.dataPoint.createMany({ data: toInsert, skipDuplicates: true });
+      result.rowsInserted = toInsert.length;
+    }
+
+    for (const u of toUpdate) {
+      await prisma.dataPoint.update({
+        where: { id: u.id },
+        data: { value: u.value, status: u.status },
+      });
+      result.rowsUpdated++;
+    }
+
+    result.newDataPeriod = latestPeriodSeen;
+    result.hadNewData = result.rowsInserted > 0 || result.rowsUpdated > 0;
+
+    await prisma.fetchLog.update({
+      where: { id: fetchLogId },
+      data: {
+        completedAt: new Date(),
+        success: true,
+        inserted: result.rowsInserted,
+        updated: result.rowsUpdated,
+        skipped: result.rowsSkipped,
+        rowsAffected: result.rowsInserted + result.rowsUpdated,
+        lastUpdatedAtSource: dstUpdated,
+        notes: `Inserted: ${result.rowsInserted}, Updated: ${result.rowsUpdated}, Skipped: ${result.rowsSkipped}`,
+      },
+    });
+
+    await prisma.dataSource.update({
+      where: { id: source.id },
+      data: {
+        lastFetchedAt: new Date(),
+        lastUpdatedAtSource: dstUpdated,
+      },
+    });
+
+    result.success = true;
+    return result;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    result.errorMessage = message;
+
+    if (fetchLogId) {
+      await prisma.fetchLog.update({
+        where: { id: fetchLogId },
+        data: {
+          completedAt: new Date(),
+          success: false,
+          error: message,
+        },
+      });
+    }
+
+    return result;
+  }
+}
+
+// ----------------------------------------------------------------
 // regenerateSignalsForAus08
 // ----------------------------------------------------------------
 
@@ -367,6 +614,101 @@ export async function regenerateSignalsForAus08(
     const signals = generateAllSignals(points);
 
     // Atomic replace — no window where signals are absent
+    await prisma.$transaction([
+      prisma.signal.deleteMany({ where: { sourceId: source.id } }),
+      prisma.signal.createMany({
+        data: signals.map((s) => ({
+          sourceId: source.id,
+          type: s.type.toUpperCase() as
+            | "TOP_MOVER"
+            | "RECORD"
+            | "STREAK"
+            | "COMPARISON"
+            | "TURNING_POINT"
+            | "OUTLIER",
+          direction:
+            s.direction === "up"
+              ? "UP"
+              : s.direction === "down"
+              ? "DOWN"
+              : s.direction === "stable"
+              ? "STABLE"
+              : null,
+          severity: s.severity,
+          headline: s.headline,
+          body: s.body,
+          period: s.period,
+          magnitude: s.magnitude,
+          areaCode: s.areaCode,
+          areaName: s.areaName,
+          evidence: s.evidence as Prisma.InputJsonValue | undefined,
+        })),
+      }),
+    ]);
+
+    return {
+      success: true,
+      signalsGenerated: signals.length,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return {
+      success: false,
+      signalsGenerated: 0,
+      errorMessage: message,
+    };
+  }
+}
+
+// ----------------------------------------------------------------
+// regenerateSignalsForKonk3
+// ----------------------------------------------------------------
+
+export async function regenerateSignalsForKonk3(
+  prisma: PrismaClient
+): Promise<SignalResult> {
+  const SOURCE_SLUG = "dst-konk3";
+
+  try {
+    const { generateKonkursSignals } = await import(
+      "./signals/konkurs-detectors"
+    );
+
+    const source = await prisma.dataSource.findUnique({
+      where: { slug: SOURCE_SLUG },
+    });
+    if (!source) {
+      return {
+        success: false,
+        signalsGenerated: 0,
+        errorMessage: `Source ${SOURCE_SLUG} not found`,
+      };
+    }
+
+    const rows = await prisma.dataPoint.findMany({
+      where: { sourceId: source.id },
+      select: {
+        period: true,
+        periodDate: true,
+        areaCode: true,
+        areaName: true,
+        areaType: true,
+        value: true,
+      },
+      orderBy: { periodDate: "asc" },
+    });
+
+    const points = rows.map((r) => ({
+      period: r.period,
+      periodDate: r.periodDate,
+      areaCode: r.areaCode,
+      areaName: r.areaName,
+      areaType: r.areaType as "NATIONAL",
+      value: r.value,
+    }));
+
+    const signals = generateKonkursSignals(points);
+
     await prisma.$transaction([
       prisma.signal.deleteMany({ where: { sourceId: source.id } }),
       prisma.signal.createMany({

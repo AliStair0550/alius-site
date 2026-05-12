@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { syncAus08, regenerateSignalsForAus08 } from "@/lib/pulse-pipeline";
+import {
+  syncAus08,
+  syncKonk3,
+  regenerateSignalsForAus08,
+  regenerateSignalsForKonk3,
+} from "@/lib/pulse-pipeline";
 import { sendPulseUpdateEmail, sendPulseErrorEmail } from "@/lib/pulse-email";
 import { humanizePeriod } from "@/lib/signals/types";
 
-// Vercel sends a special header for cron jobs in production.
-// We also accept manual triggers via ADMIN_SECRET for testing.
 function isAuthorized(req: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
   const adminSecret = process.env.ADMIN_SECRET;
 
-  // Vercel cron jobs send Authorization: Bearer CRON_SECRET
   const authHeader = req.headers.get("authorization");
   if (cronSecret && authHeader === `Bearer ${cronSecret}`) return true;
 
-  // Manual trigger via ?key=ADMIN_SECRET for testing
   const url = new URL(req.url);
   const key = url.searchParams.get("key");
   if (adminSecret && key === adminSecret) return true;
@@ -23,16 +24,14 @@ function isAuthorized(req: Request): boolean {
   return false;
 }
 
-// Avoid double-trigger by tracking the last run
 let lastRunAt: Date | null = null;
-const MIN_INTERVAL_MS = 60 * 1000; // 1 minute
+const MIN_INTERVAL_MS = 60 * 1000;
 
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Throttle: prevent accidental rapid re-triggers
   if (lastRunAt && Date.now() - lastRunAt.getTime() < MIN_INTERVAL_MS) {
     return NextResponse.json({
       ok: true,
@@ -44,7 +43,6 @@ export async function GET(req: Request) {
 
   const startedAt = new Date();
   const log: string[] = [];
-
   const note = (msg: string) => {
     log.push(`[${new Date().toISOString()}] ${msg}`);
   };
@@ -53,33 +51,52 @@ export async function GET(req: Request) {
     note("Starting Pulse cron run");
 
     // ============================================================
-    // Step 1: Sync from DST
+    // Step 1: Sync both sources in parallel
     // ============================================================
-    note("Step 1: syncing AUS08 from DST");
-    const syncResult = await syncAus08(prisma);
+    note("Step 1: syncing AUS08 and KONK3 from DST");
+    const [aus08Sync, konk3Sync] = await Promise.all([
+      syncAus08(prisma),
+      syncKonk3(prisma),
+    ]);
 
-    if (!syncResult.success) {
-      note(`Sync failed: ${syncResult.errorMessage}`);
+    // Log errors but don't abort — the other source might still have data
+    if (!aus08Sync.success) {
+      note(`AUS08 sync failed: ${aus08Sync.errorMessage}`);
       await sendPulseErrorEmail({
         sourceName: "AUS08 (Fuldtidsledige)",
         sourceSlug: "dst-aus08",
         step: "sync",
-        errorMessage: syncResult.errorMessage ?? "Unknown sync error",
+        errorMessage: aus08Sync.errorMessage ?? "Unknown sync error",
         timestamp: new Date(),
       });
-      return NextResponse.json(
-        {
-          ok: false,
-          step: "sync",
-          error: syncResult.errorMessage,
-          log,
-        },
-        { status: 500 }
+    } else {
+      note(
+        aus08Sync.hadNewData
+          ? `AUS08 OK: ${aus08Sync.rowsInserted} inserted, latest: ${aus08Sync.newDataPeriod}`
+          : "AUS08: no new data"
       );
     }
 
-    if (!syncResult.hadNewData) {
-      note("No new data from DST. Exiting early.");
+    if (!konk3Sync.success) {
+      note(`KONK3 sync failed: ${konk3Sync.errorMessage}`);
+      await sendPulseErrorEmail({
+        sourceName: "KONK3 (Konkurser)",
+        sourceSlug: "dst-konk3",
+        step: "sync",
+        errorMessage: konk3Sync.errorMessage ?? "Unknown sync error",
+        timestamp: new Date(),
+      });
+    } else {
+      note(
+        konk3Sync.hadNewData
+          ? `KONK3 OK: ${konk3Sync.rowsInserted} inserted, latest: ${konk3Sync.newDataPeriod}`
+          : "KONK3: no new data"
+      );
+    }
+
+    // Early exit if neither had new data
+    if (!aus08Sync.hadNewData && !konk3Sync.hadNewData) {
+      note("No new data from either source. Exiting early.");
       return NextResponse.json({
         ok: true,
         hadNewData: false,
@@ -88,48 +105,63 @@ export async function GET(req: Request) {
       });
     }
 
-    note(
-      `Sync OK: ${syncResult.rowsInserted} inserted, ${syncResult.rowsUpdated} updated, latest period: ${syncResult.newDataPeriod}`
-    );
-
     // ============================================================
-    // Step 2: Regenerate signals
+    // Step 2: Regenerate signals for sources with new data
     // ============================================================
-    note("Step 2: regenerating signals");
-    const signalResult = await regenerateSignalsForAus08(prisma);
+    let aus08Signals = 0;
+    let konk3Signals = 0;
 
-    if (!signalResult.success) {
-      note(`Signal generation failed: ${signalResult.errorMessage}`);
-      await sendPulseErrorEmail({
-        sourceName: "AUS08 (Fuldtidsledige)",
-        sourceSlug: "dst-aus08",
-        step: "signal generation",
-        errorMessage: signalResult.errorMessage ?? "Unknown signal error",
-        timestamp: new Date(),
-      });
-      return NextResponse.json(
-        {
-          ok: false,
-          step: "signals",
-          error: signalResult.errorMessage,
-          log,
-        },
-        { status: 500 }
-      );
+    if (aus08Sync.hadNewData) {
+      note("Step 2a: regenerating AUS08 signals");
+      const result = await regenerateSignalsForAus08(prisma);
+      if (!result.success) {
+        note(`AUS08 signal generation failed: ${result.errorMessage}`);
+        await sendPulseErrorEmail({
+          sourceName: "AUS08 (Fuldtidsledige)",
+          sourceSlug: "dst-aus08",
+          step: "signal generation",
+          errorMessage: result.errorMessage ?? "Unknown signal error",
+          timestamp: new Date(),
+        });
+      } else {
+        aus08Signals = result.signalsGenerated;
+        note(`AUS08 signals OK: ${aus08Signals} generated`);
+      }
     }
 
-    note(`Signals OK: ${signalResult.signalsGenerated} signals generated`);
+    if (konk3Sync.hadNewData) {
+      note("Step 2b: regenerating KONK3 signals");
+      const result = await regenerateSignalsForKonk3(prisma);
+      if (!result.success) {
+        note(`KONK3 signal generation failed: ${result.errorMessage}`);
+        await sendPulseErrorEmail({
+          sourceName: "KONK3 (Konkurser)",
+          sourceSlug: "dst-konk3",
+          step: "signal generation",
+          errorMessage: result.errorMessage ?? "Unknown signal error",
+          timestamp: new Date(),
+        });
+      } else {
+        konk3Signals = result.signalsGenerated;
+        note(`KONK3 signals OK: ${konk3Signals} generated`);
+      }
+    }
 
     // ============================================================
     // Step 3: Revalidate cached pages
     // ============================================================
     note("Step 3: revalidating pages");
     try {
-      revalidatePath("/pulse/ledighed");
-      revalidatePath("/pulse/ledighed/[kommune]", "page");
-      note("Revalidated /pulse/ledighed and all kommune pages");
+      if (aus08Sync.hadNewData) {
+        revalidatePath("/pulse/ledighed");
+        revalidatePath("/pulse/ledighed/[kommune]", "page");
+      }
+      if (konk3Sync.hadNewData) {
+        revalidatePath("/pulse/konkurser");
+      }
+      revalidatePath("/pulse");
+      note("Revalidated pages");
     } catch (err) {
-      // Revalidation failure is non-critical — log but don't abort
       const msg = err instanceof Error ? err.message : "unknown";
       note(`Revalidation warning: ${msg}`);
     }
@@ -138,35 +170,66 @@ export async function GET(req: Request) {
     // Step 4: Send notification email
     // ============================================================
     note("Step 4: sending notification email");
-    const signals = await prisma.signal.findMany({
-      where: { source: { slug: "dst-aus08" } },
-      orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
-      select: { headline: true, severity: true },
-    });
 
-    await sendPulseUpdateEmail({
-      sourceName: "Ledighed (AUS08)",
-      sourceSlug: "dst-aus08",
-      newDataPeriod: syncResult.newDataPeriod
-        ? humanizePeriod(syncResult.newDataPeriod)
-        : "ny måned",
-      rowsInserted: syncResult.rowsInserted,
-      rowsUpdated: syncResult.rowsUpdated,
-      signalsGenerated: signalResult.signalsGenerated,
-      newSignals: signals,
-    });
+    if (aus08Sync.hadNewData) {
+      const signals = await prisma.signal.findMany({
+        where: { source: { slug: "dst-aus08" } },
+        orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
+        select: { headline: true, severity: true },
+      });
+      await sendPulseUpdateEmail({
+        sourceName: "Ledighed (AUS08)",
+        sourceSlug: "dst-aus08",
+        newDataPeriod: aus08Sync.newDataPeriod
+          ? humanizePeriod(aus08Sync.newDataPeriod)
+          : "ny måned",
+        rowsInserted: aus08Sync.rowsInserted,
+        rowsUpdated: aus08Sync.rowsUpdated,
+        signalsGenerated: aus08Signals,
+        newSignals: signals,
+      });
+    }
 
-    note("Notification sent");
+    if (konk3Sync.hadNewData) {
+      const signals = await prisma.signal.findMany({
+        where: { source: { slug: "dst-konk3" } },
+        orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
+        select: { headline: true, severity: true },
+      });
+      await sendPulseUpdateEmail({
+        sourceName: "Konkurser (KONK3)",
+        sourceSlug: "dst-konk3",
+        newDataPeriod: konk3Sync.newDataPeriod
+          ? humanizePeriod(konk3Sync.newDataPeriod)
+          : "ny måned",
+        rowsInserted: konk3Sync.rowsInserted,
+        rowsUpdated: konk3Sync.rowsUpdated,
+        signalsGenerated: konk3Signals,
+        newSignals: signals,
+      });
+    }
+
+    note("Done");
 
     return NextResponse.json({
       ok: true,
       hadNewData: true,
-      sync: {
-        inserted: syncResult.rowsInserted,
-        updated: syncResult.rowsUpdated,
-        newDataPeriod: syncResult.newDataPeriod,
-      },
-      signals: signalResult.signalsGenerated,
+      aus08: aus08Sync.hadNewData
+        ? {
+            inserted: aus08Sync.rowsInserted,
+            updated: aus08Sync.rowsUpdated,
+            newDataPeriod: aus08Sync.newDataPeriod,
+            signals: aus08Signals,
+          }
+        : null,
+      konk3: konk3Sync.hadNewData
+        ? {
+            inserted: konk3Sync.rowsInserted,
+            updated: konk3Sync.rowsUpdated,
+            newDataPeriod: konk3Sync.newDataPeriod,
+            signals: konk3Signals,
+          }
+        : null,
       runtime_ms: Date.now() - startedAt.getTime(),
       log,
     });
@@ -183,12 +246,7 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json(
-      {
-        ok: false,
-        step: "fatal",
-        error: message,
-        log,
-      },
+      { ok: false, step: "fatal", error: message, log },
       { status: 500 }
     );
   }
