@@ -35,6 +35,17 @@ const DASHBOARDS = [
     status: "live" as const,
   },
   {
+    slug: "kommuner",
+    name: "Kommuner",
+    tagline: "Hvad sker der i din kommune?",
+    description:
+      "Befolkning, disponibel indkomst og ledighed samlet for alle 98 kommuner. Et tværgående billede kommune for kommune.",
+    accentLabel: "Profiler",
+    href: "/pulse/kommuner",
+    sourceSlug: "dst-folk1am",
+    status: "live" as const,
+  },
+  {
     slug: "forbrug",
     name: "Forbrug",
     tagline: "Hvor varmt er forbrugerklimaet?",
@@ -162,7 +173,7 @@ export default async function PulseHubPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {dashboardsWithFreshness.map((d) => {
               if (d.status === "coming") {
                 return (
