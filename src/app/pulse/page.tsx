@@ -6,7 +6,7 @@ import { humanizePeriod } from "@/lib/signals/types";
 export const metadata: Metadata = {
   title: "Pulse · Alius",
   description:
-    "Et opdateret billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
+    "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
 };
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,7 @@ const DASHBOARDS = [
     accentLabel: "Arbejdsmarked",
     href: "/pulse/ledighed",
     sourceSlug: "dst-aus08",
+    status: "live" as const,
   },
   {
     slug: "konkurser",
@@ -31,12 +32,44 @@ const DASHBOARDS = [
     accentLabel: "Erhverv",
     href: "/pulse/konkurser",
     sourceSlug: "dst-konk3",
+    status: "live" as const,
+  },
+  {
+    slug: "forbrug",
+    name: "Forbrug",
+    tagline: "Hvor varmt er forbrugerklimaet?",
+    description:
+      "Inflation, detailomsætning og indkomster: det danske forbrugsbillede måned for måned.",
+    accentLabel: "Privatøkonomi",
+    href: "#",
+    sourceSlug: null,
+    status: "coming" as const,
+  },
+];
+
+const USE_CASES = [
+  {
+    label: "For ejendomsudviklere",
+    description:
+      "Følg ledighedsudviklingen i nye områder før I investerer. Sammenlign kommuner over tid.",
+  },
+  {
+    label: "For banker og revisorer",
+    description:
+      "Overvåg konkurstendenser for risikovurdering. Spot tidlige tegn på brancheskift.",
+  },
+  {
+    label: "For journalister og analytikere",
+    description:
+      "Få nye datavinkler hver måned. Del konkrete signaler i artikler og rapporter.",
   },
 ];
 
 export default async function PulseHubPage() {
   const sources = await prisma.dataSource.findMany({
-    where: { slug: { in: DASHBOARDS.map((d) => d.sourceSlug) } },
+    where: {
+      slug: { in: DASHBOARDS.filter((d) => d.sourceSlug).map((d) => d.sourceSlug!) },
+    },
     select: {
       slug: true,
       lastFetchedAt: true,
@@ -50,7 +83,9 @@ export default async function PulseHubPage() {
   });
 
   const dashboardsWithFreshness = DASHBOARDS.map((d) => {
-    const source = sources.find((s) => s.slug === d.sourceSlug);
+    const source = d.sourceSlug
+      ? sources.find((s) => s.slug === d.sourceSlug)
+      : null;
     return {
       ...d,
       latestPeriod: source?.dataPoints[0]?.period ?? null,
@@ -83,92 +118,179 @@ export default async function PulseHubPage() {
           </div>
         </header>
 
-        <section className="py-8 md:py-16 mb-16">
+        {/* Hero */}
+        <section className="py-8 md:py-16 mb-16 md:mb-20">
           <div className="text-[11px] tracking-[0.4em] uppercase text-moss mb-8">
             Alius Pulse
           </div>
 
-          <h1 className="font-fraunces font-light italic text-[clamp(56px,10vw,120px)] leading-[0.95] tracking-[-0.03em] mb-8 max-w-[900px]">
-            Danske data, <em>fortolket</em>.
+          <h1 className="font-fraunces font-light italic text-[clamp(56px,10vw,120px)] leading-[0.95] tracking-[-0.03em] mb-10 max-w-[1000px]">
+            Et levende billede af <em>Danmark</em>.
           </h1>
 
-          <p className="text-[18px] leading-[1.6] text-stone max-w-[640px]">
-            Hver måned henter vi de seneste tal fra Danmarks Statistik og forvandler dem til indsigt. Ingen abonnement, ingen login. Bare data der opdaterer sig selv.
+          <p className="text-[18px] md:text-[20px] leading-[1.55] text-ink/75 max-w-[680px]">
+            Pulse henter de seneste tal fra Danmarks Statistik og andre åbne kilder. Forvandler dem til signaler du kan handle på. Opdaterer sig selv hver måned.
           </p>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-          {dashboardsWithFreshness.map((d) => (
-            <Link
-              key={d.slug}
-              href={d.href}
-              className="block p-8 md:p-10 bg-fog/40 hover:bg-fog/70 transition-colors no-underline group"
-            >
-              <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-6 font-normal">
-                {d.accentLabel}
-              </div>
-              <h2 className="font-fraunces font-light text-[32px] md:text-[40px] leading-[1.05] tracking-[-0.01em] mb-3 text-ink">
-                {d.name}
+        {/* How it works */}
+        <section className="mt-20 mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
+            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+              Sådan virker det
+            </div>
+            <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em]">
+              Tre trin, automatisk.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <Step
+              number="01"
+              title="Vi henter"
+              body="Hver dag tjekker Pulse om Danmarks Statistik har offentliggjort nye tal. Når de har, henter vi dem automatisk."
+            />
+            <Step
+              number="02"
+              title="Vi fortolker"
+              body="Tallene gennemgår vores signal-engine. Den finder mønstre: stigninger, rekorder, vendinger. Og oversætter dem til læselige observationer."
+            />
+            <Step
+              number="03"
+              title="Vi viser"
+              body="Det hele bliver til pæne grafer, kort og signaler. Bygget til at læse hurtigt, men også gå dybt hvis du vil."
+            />
+          </div>
+        </section>
+
+        {/* Dashboards */}
+        <section className="mt-20 mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
+            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+              Dashboards
+            </div>
+            <div>
+              <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-4">
+                Vælg en vinkel.
               </h2>
-              <p className="font-fraunces font-light italic text-[18px] md:text-[20px] leading-[1.3] text-moss mb-6">
-                {d.tagline}
+              <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
+                Hvert dashboard fokuserer på ét aspekt af det danske samfund. Alle bygger på samme automatiske infrastruktur.
               </p>
-              <p className="text-[14px] leading-[1.6] text-stone mb-8">
-                {d.description}
-              </p>
-              <div className="flex items-center justify-between pt-6 border-t border-ink/10">
-                <span className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-60">
-                  {d.latestPeriod
-                    ? `Senest: ${humanizePeriod(d.latestPeriod)}`
-                    : "Henter data…"}
-                </span>
-                <span className="text-[13px] tracking-[0.2em] uppercase text-ink group-hover:text-moss transition-colors">
-                  Åbn &rarr;
-                </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {dashboardsWithFreshness.map((d) => {
+              if (d.status === "coming") {
+                return (
+                  <div
+                    key={d.slug}
+                    className="p-8 bg-fog/20 border border-ink/10"
+                  >
+                    <div className="text-[11px] tracking-[0.3em] uppercase text-stone/40 mb-6 font-normal">
+                      {d.accentLabel}
+                    </div>
+                    <h3 className="font-fraunces font-light text-[28px] leading-[1.05] tracking-[-0.01em] mb-3 text-stone/60">
+                      {d.name}
+                    </h3>
+                    <p className="font-fraunces font-light italic text-[16px] leading-[1.3] text-stone/50 mb-6">
+                      {d.tagline}
+                    </p>
+                    <p className="text-[13px] leading-[1.6] text-stone/50 mb-8">
+                      {d.description}
+                    </p>
+                    <div className="pt-6 border-t border-ink/10">
+                      <span className="text-[11px] tracking-[0.2em] uppercase text-stone/40">
+                        Kommer 2026
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={d.slug}
+                  href={d.href}
+                  className="block p-8 bg-fog/40 hover:bg-fog/70 transition-colors no-underline group"
+                >
+                  <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-6 font-normal">
+                    {d.accentLabel}
+                  </div>
+                  <h3 className="font-fraunces font-light text-[28px] md:text-[32px] leading-[1.05] tracking-[-0.01em] mb-3 text-ink">
+                    {d.name}
+                  </h3>
+                  <p className="font-fraunces font-light italic text-[16px] md:text-[18px] leading-[1.3] text-moss mb-6">
+                    {d.tagline}
+                  </p>
+                  <p className="text-[13px] leading-[1.6] text-stone mb-8">
+                    {d.description}
+                  </p>
+                  <div className="flex items-center justify-between pt-6 border-t border-ink/10">
+                    <span className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-60">
+                      {d.latestPeriod
+                        ? `Senest: ${humanizePeriod(d.latestPeriod)}`
+                        : "Henter data…"}
+                    </span>
+                    <span className="text-[13px] tracking-[0.2em] uppercase text-ink group-hover:text-moss transition-colors">
+                      Åbn &rarr;
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Use cases */}
+        <section className="mt-20 mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
+            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+              Hvem bruger det
+            </div>
+            <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em]">
+              Tre måder at læse Pulse.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            {USE_CASES.map((useCase) => (
+              <div key={useCase.label}>
+                <div className="text-[11px] tracking-[0.25em] uppercase text-moss mb-4">
+                  {useCase.label}
+                </div>
+                <p className="text-[15px] leading-[1.6] text-ink/75">
+                  {useCase.description}
+                </p>
               </div>
-            </Link>
-          ))}
+            ))}
+          </div>
         </section>
 
-        <section className="mt-20 pt-10 border-t border-ink/10 mb-16">
-          <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-4">
-            Sådan virker det
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-fraunces font-light italic text-[20px] text-ink mb-3">
-                Vi henter
-              </h3>
-              <p className="text-[14px] leading-[1.6] text-stone">
-                Hver dag tjekker vi om Danmarks Statistik har nye tal. Når de har, henter vi dem.
-              </p>
+        {/* Openness note */}
+        <section className="mt-20 pt-10 border-t border-ink/10 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16">
+            <div className="text-[11px] tracking-[0.3em] uppercase text-moss">
+              Åbenhed
             </div>
-            <div>
-              <h3 className="font-fraunces font-light italic text-[20px] text-ink mb-3">
-                Vi fortolker
-              </h3>
-              <p className="text-[14px] leading-[1.6] text-stone">
-                Tallene gennemgår vores signal-engine. Den finder mønstre: stigninger, rekorder, vendinger.
+            <div className="max-w-[640px]">
+              <p className="text-[15px] leading-[1.6] text-ink/80 mb-4">
+                Pulse er gratis at bruge. Vi krediterer altid kilden. Alle tal stammer fra offentlige datasæt og benyttes under licens CC 4.0 BY.
               </p>
-            </div>
-            <div>
-              <h3 className="font-fraunces font-light italic text-[20px] text-ink mb-3">
-                Vi viser
-              </h3>
-              <p className="text-[14px] leading-[1.6] text-stone">
-                Det hele bliver til pæne grafer, kort og signaler, bygget til at læse hurtigt men også gå dybt.
+              <p className="text-[15px] leading-[1.6] text-ink/80">
+                Har I brug for data tilpasset jeres marked, eller skal vi kombinere Pulse med jeres egne tal, så taler vi gerne.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="mt-16 p-10 md:p-16 bg-ink text-parchment">
+        {/* CTA */}
+        <section className="mt-20 p-10 md:p-16 bg-ink text-parchment">
           <div className="text-[11px] tracking-[0.3em] uppercase text-moss-light mb-4">
             For virksomheder
           </div>
           <h3 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] mb-6">
-            Vil I have data{" "}
-            <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
+            Vil I have data <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
           </h3>
           <p className="opacity-70 max-w-[560px] mb-10 text-[16px] leading-[1.6]">
             Pulse er et glimt af hvad vi laver til virksomheder hver dag. Vi kombinerer offentlige data med jeres egne tal og leverer rapporter, dashboards eller månedlige indsigter tilpasset jer.
@@ -188,6 +310,30 @@ export default async function PulseHubPage() {
           Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
         </footer>
       </div>
+    </div>
+  );
+}
+
+function Step({
+  number,
+  title,
+  body,
+}: {
+  number: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div>
+      <div className="font-fraunces italic text-[14px] text-moss opacity-60 mb-4 tracking-[0.05em]">
+        {number}
+      </div>
+      <h3 className="font-fraunces font-light italic text-[24px] md:text-[28px] leading-[1.2] text-ink mb-4">
+        {title}
+      </h3>
+      <p className="text-[14px] leading-[1.65] text-ink/75 max-w-[320px]">
+        {body}
+      </p>
     </div>
   );
 }

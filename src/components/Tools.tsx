@@ -59,10 +59,10 @@ export default function Tools() {
           className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
         >
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
-          <div className="font-[400] text-[0.9rem] text-ink">Ledighedspuls</div>
-          <div className="font-[200] text-[0.7rem] text-slate">Data · Opdateres månedligt</div>
+          <div className="font-[400] text-[0.9rem] text-ink">Pulse</div>
+          <div className="font-[200] text-[0.7rem] text-slate">Data · Opdateres automatisk</div>
           <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
-            Et opdateret billede af ledigheden i Danmark, kommune for kommune. Data fra Danmarks Statistik fortolket til indsigt.
+            Ledighed, konkurser og mere. Danske erhvervs- og samfundsdata fra åbne kilder, fortolket til indsigt hver måned.
           </div>
           <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
             Se data &rarr;

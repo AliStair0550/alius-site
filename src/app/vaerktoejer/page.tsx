@@ -7,7 +7,40 @@ export const metadata: Metadata = {
     "Værktøjer udviklet af Alius. Gratis at bruge. Designet til at give indsigt og fungere som lead magneter til konsulentydelser.",
 };
 
-const VAERKTOEJER = [
+type SubLink = {
+  name: string;
+  href: string;
+  status?: "live" | "coming";
+  meta?: string;
+};
+
+type Vaerktoj = {
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  audience: string;
+  href: string;
+  accentLabel: string;
+  subLinks?: SubLink[];
+};
+
+const VAERKTOEJER: Vaerktoj[] = [
+  {
+    slug: "pulse",
+    name: "Pulse",
+    tagline: "Danske data, fortolket til indsigt.",
+    description:
+      "Hver måned henter Pulse de seneste danske erhvervs- og samfundsdata fra åbne kilder og forvandler dem til signaler, kort og grafer. Ingen abonnement. Ingen login. Bare et levende billede af Danmark.",
+    audience: "For ledere, journalister og virksomheder der vil følge med markedet.",
+    href: "/pulse",
+    accentLabel: "Data · Opdateres automatisk",
+    subLinks: [
+      { name: "Ledighed", href: "/pulse/ledighed", status: "live", meta: "kommune for kommune" },
+      { name: "Konkurser", href: "/pulse/konkurser", status: "live", meta: "månedlig udvikling" },
+      { name: "Forbrug", href: "#", status: "coming", meta: "kommer 2026" },
+    ],
+  },
   {
     slug: "tankeprofil",
     name: "Tankeprofil",
@@ -16,22 +49,7 @@ const VAERKTOEJER = [
       "En personlighedsanalyse inspireret af Whole Brain Thinking. Tag testen alene eller med dit team. Få indsigt i jeres tænkestile og blinde vinkler.",
     audience: "For ledere, team og hold der vil forstå hinanden bedre.",
     href: "/tankeprofil",
-    accentLabel: "Personlig",
-    subLinks: undefined as { name: string; href: string }[] | undefined,
-  },
-  {
-    slug: "pulse",
-    name: "Pulse",
-    tagline: "Danske data, fortolket.",
-    description:
-      "Opdaterede tal om Danmark: ledighed kommune for kommune, konkurser måned for måned. Hver dataserie hentes direkte fra Danmarks Statistik og forvandles til signaler du kan handle på.",
-    audience: "For virksomheder der vil følge med markedet.",
-    href: "/pulse",
-    accentLabel: "Data",
-    subLinks: [
-      { name: "Ledighed", href: "/pulse/ledighed" },
-      { name: "Konkurser", href: "/pulse/konkurser" },
-    ],
+    accentLabel: "Personlig · Gratis test",
   },
 ];
 
@@ -72,11 +90,11 @@ export default function VaerktoejerPage() {
 
           <p className="text-[18px] leading-[1.6] text-stone max-w-[640px]">
             Vi udvikler værktøjer der gør komplekse spørgsmål håndterbare.
-            Alle er gratis, alle er bygget med samme æstetik som resten af Alius, og alle leder, hvis du vil, til en samtale med os.
+            Alle er gratis, bygget med samme æstetik som resten af Alius, og alle leder til en samtale med os hvis du vil.
           </p>
         </section>
 
-        <section className="grid grid-cols-1 gap-12 md:gap-16">
+        <section className="grid grid-cols-1 gap-16 md:gap-24">
           {VAERKTOEJER.map((v) => (
             <article
               key={v.slug}
@@ -86,13 +104,13 @@ export default function VaerktoejerPage() {
                 {v.accentLabel}
               </div>
               <div>
-                <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-3">
+                <h2 className="font-fraunces font-light text-[44px] md:text-[64px] leading-[1.05] tracking-[-0.02em] mb-4">
                   {v.name}
                 </h2>
-                <p className="font-fraunces font-light italic text-[20px] md:text-[24px] leading-[1.3] text-moss mb-6">
+                <p className="font-fraunces font-light italic text-[22px] md:text-[28px] leading-[1.25] text-moss mb-6 max-w-[640px]">
                   {v.tagline}
                 </p>
-                <p className="text-[15px] leading-[1.6] text-stone max-w-[560px] mb-3">
+                <p className="text-[16px] leading-[1.6] text-ink/75 max-w-[600px] mb-3">
                   {v.description}
                 </p>
                 <p className="text-[13px] text-stone opacity-60 mb-8">
@@ -100,20 +118,7 @@ export default function VaerktoejerPage() {
                 </p>
 
                 {v.subLinks ? (
-                  <div className="flex flex-col gap-3">
-                    {v.subLinks.map((sub) => (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        className="inline-flex items-center gap-3 text-[13px] tracking-[0.2em] uppercase text-ink no-underline border-b border-ink/30 pb-1 w-fit hover:text-moss hover:border-moss transition-colors group"
-                      >
-                        Åbn {sub.name.toLowerCase()}
-                        <span className="transition-transform group-hover:translate-x-1">
-                          &rarr;
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
+                  <SubLinkGrid links={v.subLinks} />
                 ) : (
                   <Link
                     href={v.href}
@@ -155,6 +160,51 @@ export default function VaerktoejerPage() {
           Alius &middot; Strategi, brand og teknologi bygget som ét.
         </footer>
       </div>
+    </div>
+  );
+}
+
+function SubLinkGrid({ links }: { links: SubLink[] }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[640px]">
+      {links.map((link) => {
+        if (link.status === "coming") {
+          return (
+            <div
+              key={link.name}
+              className="border border-ink/10 px-4 py-4 bg-fog/20"
+            >
+              <div className="text-[13px] tracking-[0.05em] text-stone/50 mb-1">
+                {link.name}
+              </div>
+              <div className="text-[11px] tracking-[0.05em] uppercase text-stone/40">
+                {link.meta}
+              </div>
+            </div>
+          );
+        }
+        return (
+          <Link
+            key={link.name}
+            href={link.href}
+            className="border border-ink/15 px-4 py-4 bg-fog/40 hover:bg-fog/70 no-underline transition-colors group"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[13px] tracking-[0.05em] text-ink">
+                {link.name}
+              </span>
+              <span className="text-stone opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[12px]">
+                &rarr;
+              </span>
+            </div>
+            {link.meta && (
+              <div className="text-[11px] tracking-[0.05em] text-stone/70">
+                {link.meta}
+              </div>
+            )}
+          </Link>
+        );
+      })}
     </div>
   );
 }
