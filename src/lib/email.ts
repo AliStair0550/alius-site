@@ -1,5 +1,7 @@
 import { Resend } from "resend";
 
+export const EMAIL_TO = process.env.EMAIL_TO ?? "hej@alius.dk";
+
 // Lazy init so env vars are always read at call time, not module load time.
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -12,7 +14,7 @@ function getFrom(): string {
 }
 
 function getTo(): string {
-  return process.env.EMAIL_TO ?? "hej@alius.dk";
+  return EMAIL_TO;
 }
 
 type SendOptions = {
