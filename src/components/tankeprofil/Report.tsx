@@ -62,7 +62,7 @@ export function Report({ totals, pct, primary, secondary, weakest, onRestart }: 
                 <Quadrant totals={totals} size={400} showLabels />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-                {(["A", "B", "C", "D"] as QuadrantKey[]).map((q) => (
+                {(["A", "B", "C", "D"] as QuadrantKey[]).map((q, i) => (
                   <div key={q} className="text-center">
                     <div className="font-fraunces text-sm italic mb-2">
                       {ARCHETYPES[q].name}
@@ -73,7 +73,7 @@ export function Report({ totals, pct, primary, secondary, weakest, onRestart }: 
                     <div className="h-[2px] bg-ink/10 mt-3 relative overflow-hidden">
                       <div
                         className="absolute inset-0 bg-moss origin-left transition-transform duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                        style={{ transform: `scaleX(${pct[q]})` }}
+                        style={{ transform: `scaleX(${pct[q]})`, transitionDelay: `${i * 180}ms` }}
                       />
                     </div>
                   </div>

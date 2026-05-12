@@ -65,7 +65,7 @@ export function TeamReportReveal({
   }
 
   return (
-    <div className="animate-[fadeIn_0.7s_ease-out]">
+    <div className="animate-[revealUp_0.6s_cubic-bezier(0.22,1,0.36,1)]">
       {/* Open session banner */}
       {sessionOpen && (
         <div className="mb-12 px-6 py-4 border border-moss/30 bg-moss/5 text-[13px] text-moss leading-[1.5]">
@@ -329,22 +329,20 @@ export function TeamReportReveal({
         <div className="mt-20 bg-ink text-parchment px-8 md:px-16 py-16 md:py-20">
           <div className="max-w-[560px]">
             <div className="text-[11px] tracking-[0.3em] uppercase text-parchment/60 mb-6">
-              Næste skridt
+              Det var det
             </div>
             <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] mb-6 tracking-[-0.01em]">
-              Hvad gør I med det her?
+              I er kortlagt.
             </h2>
             <p className="text-[16px] leading-[1.65] text-parchment/70 mb-10 max-w-[440px]">
-              En rapport er et udgangspunkt, ikke en konklusion. Book en times samtale
-              med Alius. Vi gennemgår mønstret og finder hvad I konkret kan gøre med det.
+              Brug det I har set her. Brug det i møder, i feedbacksamtaler, i hvem der leder hvad. Rapporten er jeres at vende tilbage til.
             </p>
             <div className="flex flex-wrap gap-4 items-center">
               <a
-                href="mailto:hej@alius.dk?subject=Book samtale om holdrapport"
+                href="https://alius.dk"
                 className="inline-flex items-center gap-4 border border-parchment/30 text-parchment px-8 py-[18px] text-[12px] tracking-[0.25em] uppercase no-underline hover:bg-parchment/10 transition-colors group"
               >
-                Book en samtale
-                <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+                &larr; Tilbage til Alius
               </a>
               <button
                 onClick={() => navigator.clipboard.writeText(reportUrl)}
@@ -389,7 +387,7 @@ function RevealSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="py-16 md:py-20 border-b border-ink/10 animate-[fadeIn_0.7s_ease-out]">
+    <div className="py-16 md:py-20 border-b border-ink/10 animate-[revealUp_0.6s_cubic-bezier(0.22,1,0.36,1)]">
       <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16">
         <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60 pt-2">
           {label}

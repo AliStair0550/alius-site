@@ -125,13 +125,20 @@ export function QuartetStage({
       <div className="flex gap-1 mb-3">
         {quartets.map((q, i) => {
           const done = getAnswer(q.id) != null;
+          const justFilled = completing && i === viewedIdx && done;
           return (
             <button
               key={q.id}
               onClick={() => { if (!completing) setViewedIdx(i); }}
               title={`Spørgsmål ${i + 1}`}
-              className={`h-[3px] flex-1 cursor-pointer border-none p-0 transition-colors duration-500 ${
-                done ? "bg-moss" : i === viewedIdx ? "bg-ink" : "bg-ink/10"
+              className={`h-[3px] flex-1 cursor-pointer border-none p-0 ${
+                justFilled
+                  ? "bg-moss animate-[segmentFill_0.45s_ease-out]"
+                  : done
+                  ? "bg-moss transition-colors duration-300"
+                  : i === viewedIdx
+                  ? "bg-ink"
+                  : "bg-ink/10"
               }`}
             />
           );
@@ -220,7 +227,9 @@ export function QuartetStage({
         <button
           onClick={goNext}
           disabled={!nextEnabled}
-          className="inline-flex items-center gap-4 bg-ink text-parchment px-9 py-[22px] text-[13px] font-normal tracking-[0.25em] uppercase cursor-pointer transition-all duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-moss hover:gap-6 disabled:opacity-40 disabled:pointer-events-none justify-center md:w-auto w-full group"
+          className={`inline-flex items-center gap-4 bg-ink text-parchment px-9 py-[22px] text-[13px] font-normal tracking-[0.25em] uppercase cursor-pointer transition-all duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-moss hover:gap-6 disabled:opacity-40 disabled:pointer-events-none justify-center md:w-auto w-full group ${
+            allAnswered && isLastQuartet && completing ? "animate-[ctaReady_0.6s_ease-out]" : ""
+          }`}
         >
           {nextLabel}
           <span className="transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1">
