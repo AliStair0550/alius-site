@@ -778,10 +778,10 @@ export function fullProfileEmailHtml(data: FullProfileEmailData): string {
 export function fullProfileEmailText(data: FullProfileEmailData): string {
   const greeting = data.displayName ? `Hej ${data.displayName},` : "Hej,";
   const strengths = data.strengths
-    .map(([t, d], i) => `${String(i + 1).padStart(2, "0")}. ${t} — ${d}`)
+    .map(([t, d], i) => `${String(i + 1).padStart(2, "0")}. ${t}: ${d}`)
     .join("\n");
   const blindspots = data.blindspots
-    .map(([t, d], i) => `${String(i + 1).padStart(2, "0")}. ${t} — ${d}`)
+    .map(([t, d], i) => `${String(i + 1).padStart(2, "0")}. ${t}: ${d}`)
     .join("\n");
   const scores = (["A", "B", "C", "D"] as const)
     .map((q) => `${QUAD_NAMES[q]}: ${data.pct[q]}%`)

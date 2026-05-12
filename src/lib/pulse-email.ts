@@ -100,7 +100,7 @@ export async function sendPulseUpdateEmail(data: PulseUpdateData) {
   </table>
 </body>
 </html>`,
-    text: `ALIUS PULSE — ${data.sourceName}
+    text: `ALIUS PULSE: ${data.sourceName}
 
 Ny data for ${data.newDataPeriod}.
 

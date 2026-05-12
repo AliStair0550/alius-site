@@ -47,23 +47,6 @@ const DASHBOARDS = [
   },
 ];
 
-const USE_CASES = [
-  {
-    label: "For ejendomsudviklere",
-    description:
-      "Følg ledighedsudviklingen i nye områder før I investerer. Sammenlign kommuner over tid.",
-  },
-  {
-    label: "For banker og revisorer",
-    description:
-      "Overvåg konkurstendenser for risikovurdering. Spot tidlige tegn på brancheskift.",
-  },
-  {
-    label: "For journalister og analytikere",
-    description:
-      "Få nye datavinkler hver måned. Del konkrete signaler i artikler og rapporter.",
-  },
-];
 
 export default async function PulseHubPage() {
   const sources = await prisma.dataSource.findMany({
@@ -108,7 +91,7 @@ export default async function PulseHubPage() {
       <div className="max-w-[1200px] mx-auto px-5 py-8 md:px-8 md:py-12 relative z-10">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-baseline gap-4 pb-8 md:pb-12 border-b border-ink/10 mb-12 md:mb-16">
           <Link
-            href="/vaerktoejer"
+            href="/værktøjer"
             className="font-extralight text-sm tracking-[0.3em] uppercase text-ink no-underline hover:text-moss transition-colors"
           >
             &larr; Værktøjer
@@ -239,31 +222,6 @@ export default async function PulseHubPage() {
                 </Link>
               );
             })}
-          </div>
-        </section>
-
-        {/* Use cases */}
-        <section className="mt-20 mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
-            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
-              Hvem bruger det
-            </div>
-            <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em]">
-              Tre måder at læse Pulse.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            {USE_CASES.map((useCase) => (
-              <div key={useCase.label}>
-                <div className="text-[11px] tracking-[0.25em] uppercase text-moss mb-4">
-                  {useCase.label}
-                </div>
-                <p className="text-[15px] leading-[1.6] text-ink/75">
-                  {useCase.description}
-                </p>
-              </div>
-            ))}
           </div>
         </section>
 
