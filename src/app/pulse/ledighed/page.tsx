@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { getAllKommuner } from "@/lib/areas";
@@ -8,6 +10,7 @@ import { PulseHero } from "@/components/pulse/Hero";
 import { NationalHistoryChart } from "@/components/pulse/NationalHistoryChart";
 import { KommuneRankings } from "@/components/pulse/KommuneRankings";
 import { KommunePicker } from "@/components/pulse/KommunePicker";
+import { MapWithMobileFallback } from "@/components/pulse/MapWithMobileFallback";
 
 export const metadata: Metadata = {
   title: "Ledighedspuls · Alius Pulse",
@@ -22,6 +25,16 @@ type Direction = "UP" | "DOWN" | "STABLE";
 function toDirection(s: string | null): Direction | null {
   if (s === "UP" || s === "DOWN" || s === "STABLE") return s;
   return null;
+}
+
+async function loadGeoData() {
+  const filePath = path.join(process.cwd(), "public", "data", "kommuner.geojson");
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 export default async function LedighedsPulsPage() {
@@ -69,19 +82,16 @@ export default async function LedighedsPulsPage() {
       })
     : [];
 
-  const topHighest = allKommuner.slice(0, 5).map((k) => ({
+  const kommuneData = allKommuner.map((k) => ({
     areaCode: k.areaCode!,
     areaName: k.areaName!,
     value: k.value!,
   }));
-  const topLowest = allKommuner
-    .slice(-5)
-    .reverse()
-    .map((k) => ({
-      areaCode: k.areaCode!,
-      areaName: k.areaName!,
-      value: k.value!,
-    }));
+
+  const topHighest = kommuneData.slice(0, 5);
+  const topLowest = kommuneData.slice(-5).reverse();
+
+  const geoData = await loadGeoData();
 
   const allSignals = await prisma.signal.findMany({
     where: { sourceId: source.id },
@@ -138,8 +148,36 @@ export default async function LedighedsPulsPage() {
           }
         />
 
-        {/* Kommune picker — directly after hero so people can find themselves */}
-        <section className="mt-12 mb-20">
+        {/* Map */}
+        {geoData && kommuneData.length > 0 && (
+          <section className="mt-16 md:mt-20 mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Geografi
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-4">
+                  Hvor i landet?
+                </h2>
+                <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
+                  Danmark fordelt på kommuner. Mørkere farve betyder højere
+                  ledighed. Hold musen henover for at se tal, klik for at åbne
+                  kommunens detaljer.
+                </p>
+              </div>
+            </div>
+            <div className="bg-fog/30 p-4 md:p-8">
+              <MapWithMobileFallback
+                geoData={geoData}
+                kommuneData={kommuneData}
+                nationalValue={latestNational?.value ?? null}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Kommune picker */}
+        <section className="mb-20">
           <KommunePicker kommuner={getAllKommuner()} />
         </section>
 
@@ -183,7 +221,6 @@ export default async function LedighedsPulsPage() {
                 Hvad sker der i tallene.
               </h2>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {otherSignals.map((s) => (
                 <PulseSignalCard
@@ -235,9 +272,9 @@ export default async function LedighedsPulsPage() {
               Kilde
             </div>
             <p className="text-[14px] leading-[1.6] text-stone mb-3">
-              Alle tal er hentet direkte fra Danmarks Statistik, tabel AUS08
-              (Fuldtidsledige sæsonkorrigeret). Vi opdaterer månedligt når DST
-              udgiver ny data.
+              Tallene er hentet fra Danmarks Statistik, tabel AUS08
+              (Fuldtidsledige sæsonkorrigeret). Kortet bygger på åbne
+              kommunegrænser. Begge opdateres månedligt.
             </p>
             <a
               href={`https://www.statistikbanken.dk/${source.tableId}`}
@@ -277,22 +314,37 @@ export default async function LedighedsPulsPage() {
             For virksomheder
           </div>
           <h3 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] mb-6">
-            Vil I have data <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
+            Vil I have data{" "}
+            <em className="italic text-[#B8C9C1]">tilpasset jeres marked?</em>
           </h3>
           <p className="opacity-70 max-w-[560px] mb-10 text-[16px] leading-[1.6]">
-            Vi laver custom data-analyser for virksomheder der vil forstå deres marked dybere. Kombinerer offentlige data med jeres egne tal, og leverer rapporter, dashboards eller månedlige indsigter.
+            Vi laver custom data-analyser for virksomheder der vil forstå deres
+            marked dybere. Kombinerer offentlige data med jeres egne tal, og
+            leverer rapporter, dashboards eller månedlige indsigter.
           </p>
           <a
             href="mailto:hej@alius.dk?subject=Data-arbejde for [firmanavn]"
             className="inline-flex items-center gap-4 bg-parchment text-ink px-9 py-[22px] text-[13px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
           >
             Tag fat
-            <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+            <span className="transition-transform group-hover:translate-x-1">
+              &rarr;
+            </span>
           </a>
         </section>
 
         <footer className="mt-24 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks
+          Statistik. Tal benyttes under licens CC 4.0 BY. Kommunegrænser fra{" "}
+          <a
+            href="https://github.com/magnuslarsen/geoJSON-Danish-municipalities"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-ink"
+          >
+            Geodatastyrelsen via GeoJSON
+          </a>
+          .
         </footer>
       </div>
     </div>
