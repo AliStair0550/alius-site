@@ -36,6 +36,28 @@ export function Intro({ onStart }: IntroProps) {
               Læs teorien bag
             </Link>
           </div>
+
+          <div className="mt-10 pt-10 border-t border-ink/10">
+            <Link
+              href="/tankeprofil/hold"
+              className="group flex items-start gap-5 no-underline hover:opacity-80 transition-opacity"
+            >
+              <div className="flex-1">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-moss mb-1">
+                  For hold
+                </div>
+                <div className="text-[15px] font-normal text-ink mb-1">
+                  Tag den med dit hold
+                </div>
+                <p className="text-[13px] text-stone opacity-70 leading-[1.5]">
+                  Alle tager testen og I får en fælles rapport. Gratis, klar med det samme.
+                </p>
+              </div>
+              <span className="text-moss mt-1 transition-transform duration-300 group-hover:translate-x-1">
+                &rarr;
+              </span>
+            </Link>
+          </div>
         </div>
         <div className="border-l-0 md:border-l border-t md:border-t-0 border-ink/10 pl-0 md:pl-12 pt-8 md:pt-0">
           {[

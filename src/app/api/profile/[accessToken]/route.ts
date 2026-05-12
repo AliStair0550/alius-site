@@ -127,12 +127,15 @@ export async function PATCH(
       const profileUrl = `${appUrl}/tankeprofil/min-profil/${accessToken}`;
       const primaryName = ARCHETYPES[updated.primary as QuadrantKey]?.name ?? updated.primary;
 
-      sendEmail({
+      const emailResult = await sendEmail({
         to: emailBeingSaved,
         subject: `Din personlighedsprofil · Alius`,
         html: profileEmailHtml({ displayName: updated.displayName, primaryName, profileUrl }),
         text: profileEmailText({ displayName: updated.displayName, primaryName, profileUrl }),
-      }).catch((err) => console.error("[profile PATCH] email error:", err));
+      });
+      if (!emailResult.ok) {
+        console.error("[profile PATCH] email send failed:", emailResult.reason);
+      }
     }
 
     return NextResponse.json({ ok: true, profile: updated });
