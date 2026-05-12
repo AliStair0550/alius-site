@@ -382,6 +382,8 @@ export async function syncKonk3(prisma: PrismaClient): Promise<SyncResult> {
       metadata.variables,
       "NOEGLETAL",
       "NØGLETAL",
+      "BNOGLE",
+      "BNØGLE",
       "INDIKATOR"
     );
     const saesonVar = findVariable(metadata.variables, "SAESON");

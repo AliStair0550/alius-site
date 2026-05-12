@@ -94,8 +94,18 @@ async function main() {
       (v) =>
         v.code.toUpperCase().includes("NOEGLETAL") ||
         v.code.toUpperCase().includes("NØGLETAL") ||
+        v.code.toUpperCase().includes("BNOGLE") ||
+        v.code.toUpperCase().includes("BNØGLE") ||
         v.code.toUpperCase() === "INDIKATOR"
     );
+
+    if (nøgletalVariable) {
+      console.log(`\n📋 ${nøgletalVariable.code} værdier:`);
+      for (const v of nøgletalVariable.values) {
+        console.log(`   - ${v.code}: ${v.label}`);
+      }
+      console.log("");
+    }
     const sæsonVariable = metadata.variables.find(
       (v) =>
         v.code.toUpperCase() === "SAESON" ||
