@@ -11,7 +11,18 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-const DASHBOARDS = [
+type Dashboard = {
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  accentLabel: string;
+  href: string;
+  sourceSlug: string | null;
+  status: "live" | "coming";
+};
+
+const DASHBOARDS: Dashboard[] = [
   {
     slug: "ledighed",
     name: "Ledighed",
@@ -50,11 +61,11 @@ const DASHBOARDS = [
     name: "Forbrug",
     tagline: "Hvor varmt er forbrugerklimaet?",
     description:
-      "Inflation, detailomsætning og indkomster: det danske forbrugsbillede måned for måned.",
+      "Forbrugertillid, detailomsætning og købelyst: det danske forbrugsbillede måned for måned.",
     accentLabel: "Privatøkonomi",
-    href: "#",
-    sourceSlug: null,
-    status: "coming" as const,
+    href: "/pulse/forbrug",
+    sourceSlug: "dst-forv1",
+    status: "live" as const,
   },
 ];
 
