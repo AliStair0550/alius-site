@@ -36,50 +36,60 @@ export default async function KommuneProfilPage({ params }: Props) {
   const kommune = getKommuneBySlug(slug);
   if (!kommune) notFound();
 
-  // Load all three sources in parallel
-  const [aus08Source, folk1amSource, indkp101Source] = await Promise.all([
-    prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
-    prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
-    prisma.dataSource.findUnique({ where: { slug: "dst-indkp101" } }),
-  ]);
+  // Load all sources in parallel
+  const [aus08Source, folk1amSource, indkp101Source, huseSource, lejlSource] =
+    await Promise.all([
+      prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-indkp101" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-huse" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-lejl" } }),
+    ]);
 
   // Fetch datapoints per source in parallel
-  const [unemploymentPoints, populationPoints, incomePoints] =
-    await Promise.all([
-      aus08Source
-        ? prisma.dataPoint.findMany({
-            where: {
-              sourceId: aus08Source.id,
-              areaCode: kommune.code,
-              value: { not: null },
-            },
-            orderBy: { periodDate: "asc" },
-            select: { period: true, periodDate: true, value: true },
-          })
-        : Promise.resolve([]),
-      folk1amSource
-        ? prisma.dataPoint.findMany({
-            where: {
-              sourceId: folk1amSource.id,
-              areaCode: kommune.code,
-              value: { not: null },
-            },
-            orderBy: { periodDate: "asc" },
-            select: { period: true, periodDate: true, value: true },
-          })
-        : Promise.resolve([]),
-      indkp101Source
-        ? prisma.dataPoint.findMany({
-            where: {
-              sourceId: indkp101Source.id,
-              areaCode: kommune.code,
-              value: { not: null },
-            },
-            orderBy: { periodDate: "asc" },
-            select: { period: true, periodDate: true, value: true },
-          })
-        : Promise.resolve([]),
-    ]);
+  const [
+    unemploymentPoints,
+    populationPoints,
+    incomePoints,
+    husePoints,
+    lejlPoints,
+  ] = await Promise.all([
+    aus08Source
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: aus08Source.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+    folk1amSource
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: folk1amSource.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+    indkp101Source
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: indkp101Source.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+    huseSource
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: huseSource.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+    lejlSource
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: lejlSource.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+  ]);
 
   const latestUnemp = unemploymentPoints[unemploymentPoints.length - 1] ?? null;
   const prevUnemp =
@@ -107,6 +117,16 @@ export default async function KommuneProfilPage({ params }: Props) {
   // Income last 10 years for bar chart
   const incomeRecent = incomePoints.slice(-10);
   const incomeBarPoints = incomeRecent.map((p) => ({
+    year: p.periodDate.getUTCFullYear(),
+    value: p.value!,
+  }));
+
+  // Property values
+  const latestHuse = husePoints[husePoints.length - 1] ?? null;
+  const prevHuse = husePoints.length >= 2 ? husePoints[husePoints.length - 2] : null;
+  const latestLejl = lejlPoints[lejlPoints.length - 1] ?? null;
+  const prevLejl = lejlPoints.length >= 2 ? lejlPoints[lejlPoints.length - 2] : null;
+  const huseBarPoints = husePoints.slice(-10).map((p) => ({
     year: p.periodDate.getUTCFullYear(),
     value: p.value!,
   }));
@@ -311,6 +331,62 @@ export default async function KommuneProfilPage({ params }: Props) {
           </section>
         )}
 
+        {/* Property values */}
+        {(latestHuse || latestLejl) && (
+          <section className="mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Boligværdi
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[28px] md:text-[36px] leading-[1.1] tracking-[-0.01em] mb-2">
+                  Ejendomsværdi
+                </h2>
+                <p className="text-stone text-[14px] leading-[1.6] max-w-[500px] mb-2">
+                  Gennemsnitlig markedsværdi per ejendom i {kommune.name}.
+                </p>
+                <p className="text-stone/60 text-[13px] leading-[1.6] max-w-[500px]">
+                  Markedsværdi er SKATs vurdering af ejendommens handelsværdi. Opdateres årligt.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-[640px]">
+              {latestHuse && (
+                <Stat
+                  label="Enfamiliehus"
+                  value={`${(latestHuse.value! / 1_000_000).toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mio.`}
+                  period={latestHuse.period}
+                  delta={prevHuse?.value ? Math.round(latestHuse.value! - prevHuse.value) : null}
+                  deltaLabel="vs. året før"
+                  deltaUnit=" kr."
+                  deltaSign
+                />
+              )}
+              {latestLejl && (
+                <Stat
+                  label="Ejerlejlighed"
+                  value={`${(latestLejl.value! / 1_000_000).toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mio.`}
+                  period={latestLejl.period}
+                  delta={prevLejl?.value ? Math.round(latestLejl.value! - prevLejl.value) : null}
+                  deltaLabel="vs. året før"
+                  deltaUnit=" kr."
+                  deltaSign
+                />
+              )}
+            </div>
+
+            {huseBarPoints.length >= 3 && (
+              <div className="bg-fog/40 p-6 md:p-8">
+                <div className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50 mb-4">
+                  Enfamiliehuse — historisk markedsværdi
+                </div>
+                <IncomeBars points={huseBarPoints} />
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Unemployment link */}
         {latestUnemp && (
           <section className="mb-20">
@@ -401,6 +477,8 @@ export default async function KommuneProfilPage({ params }: Props) {
             <a href="https://www.statistikbanken.dk/INDKP101" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">INDKP101</a>.
             {" "}Ledighedstal fra{" "}
             <a href="https://www.statistikbanken.dk/AUS08" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">AUS08</a>.
+            {" "}Ejendomsværdier fra{" "}
+            <a href="https://www.statistikbanken.dk/EJDFOE1" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">EJDFOE1</a>.
             {" "}Alle fra Danmarks Statistik under licens CC 4.0 BY.
           </p>
         </section>
