@@ -11,7 +11,7 @@ type Props = {
   params: Promise<{ kommune: string }>;
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 

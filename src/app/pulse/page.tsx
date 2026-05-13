@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const DASHBOARDS = [
   {

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Danmark som helhed: befolkning, indkomst og ledighed. Det landsgennemsnit alle kommune-profiler sammenlignes med.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const NATIONAL_AREA_CODE = "000";
 

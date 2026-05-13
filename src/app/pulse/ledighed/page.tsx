@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Opdateres månedligt med data fra Danmarks Statistik.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
