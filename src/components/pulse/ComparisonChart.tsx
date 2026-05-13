@@ -305,30 +305,39 @@ export function ComparisonChart({
                 fill={SECONDARY_COLOR}
               />
             )}
-            <g transform={`translate(${hover.x}, ${padding.top + plotHeight + 48})`}>
-              <rect
-                x={-80}
-                y={-12}
-                width={160}
-                height={20}
-                fill="#1A1A1A"
-                rx={2}
-              />
-              <text
-                x={0}
-                y={3}
-                fontSize={11}
-                fill="#F9F7F2"
-                textAnchor="middle"
-                fontFamily="inherit"
-              >
-                {formatTooltip(hover.period)}
-                {hover.primaryValue !== null &&
-                  ` · ${primaryName.slice(0, 12)}: ${hover.primaryValue.toFixed(1)}%`}
-                {hover.secondaryValue !== null &&
-                  ` · ${hover.secondaryValue.toFixed(1)}%`}
-              </text>
-            </g>
+            {(() => {
+              const tipHalfW = 80;
+              const tipX = Math.max(
+                padding.left + tipHalfW,
+                Math.min(width - padding.right - tipHalfW, hover.x)
+              );
+              return (
+                <g transform={`translate(${tipX}, ${padding.top + plotHeight + 48})`}>
+                  <rect
+                    x={-tipHalfW}
+                    y={-12}
+                    width={tipHalfW * 2}
+                    height={20}
+                    fill="#1A1A1A"
+                    rx={2}
+                  />
+                  <text
+                    x={0}
+                    y={3}
+                    fontSize={11}
+                    fill="#F9F7F2"
+                    textAnchor="middle"
+                    fontFamily="inherit"
+                  >
+                    {formatTooltip(hover.period)}
+                    {hover.primaryValue !== null &&
+                      ` · ${primaryName.slice(0, 12)}: ${hover.primaryValue.toFixed(1)}%`}
+                    {hover.secondaryValue !== null &&
+                      ` · ${hover.secondaryValue.toFixed(1)}%`}
+                  </text>
+                </g>
+              );
+            })()}
           </>
         )}
       </svg>

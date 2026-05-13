@@ -279,30 +279,39 @@ export function KonkursHistoryChart({ seasonalPoints, actualPoints }: Props) {
                 opacity={0.8}
               />
             )}
-            <g transform={`translate(${hover.x}, ${padding.top + plotHeight + 48})`}>
-              <rect
-                x={-95}
-                y={-12}
-                width={190}
-                height={20}
-                fill="#1A1A1A"
-                rx={2}
-              />
-              <text
-                x={0}
-                y={3}
-                fontSize={11}
-                fill="#F9F7F2"
-                textAnchor="middle"
-                fontFamily="inherit"
-              >
-                {formatTooltip(hover.period)}
-                {hover.seasonalValue !== null &&
-                  ` · sæson: ${Math.round(hover.seasonalValue).toLocaleString("da-DK")}`}
-                {hover.actualValue !== null &&
-                  ` · faktisk: ${Math.round(hover.actualValue).toLocaleString("da-DK")}`}
-              </text>
-            </g>
+            {(() => {
+              const tipHalfW = 95;
+              const tipX = Math.max(
+                padding.left + tipHalfW,
+                Math.min(width - padding.right - tipHalfW, hover.x)
+              );
+              return (
+                <g transform={`translate(${tipX}, ${padding.top + plotHeight + 48})`}>
+                  <rect
+                    x={-tipHalfW}
+                    y={-12}
+                    width={tipHalfW * 2}
+                    height={20}
+                    fill="#1A1A1A"
+                    rx={2}
+                  />
+                  <text
+                    x={0}
+                    y={3}
+                    fontSize={11}
+                    fill="#F9F7F2"
+                    textAnchor="middle"
+                    fontFamily="inherit"
+                  >
+                    {formatTooltip(hover.period)}
+                    {hover.seasonalValue !== null &&
+                      ` · sæson: ${Math.round(hover.seasonalValue).toLocaleString("da-DK")}`}
+                    {hover.actualValue !== null &&
+                      ` · faktisk: ${Math.round(hover.actualValue).toLocaleString("da-DK")}`}
+                  </text>
+                </g>
+              );
+            })()}
           </>
         )}
       </svg>

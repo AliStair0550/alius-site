@@ -104,12 +104,17 @@ export function DenmarkMap({ geoData, kommuneData, nationalValue }: Props) {
         })}
 
         {/* Tooltip */}
-        {hovered && (
+        {hovered && (() => {
+          const tipHalfW = 70;
+          const tipH = 44;
+          const tipX = Math.max(tipHalfW, Math.min(MAP_VIEWBOX.width - tipHalfW, hovered.x));
+          const tipY = Math.max(tipH + 10, hovered.y - 10);
+          return (
           <g
-            transform={`translate(${hovered.x}, ${hovered.y - 10})`}
+            transform={`translate(${tipX}, ${tipY})`}
             style={{ pointerEvents: "none" }}
           >
-            <rect x={-70} y={-44} width={140} height={38} fill="#1A1A1A" rx={2} />
+            <rect x={-tipHalfW} y={-tipH} width={tipHalfW * 2} height={tipH - 6} fill="#1A1A1A" rx={2} />
             <text
               x={0}
               y={-26}
@@ -139,7 +144,8 @@ export function DenmarkMap({ geoData, kommuneData, nationalValue }: Props) {
                 : "Ingen data"}
             </text>
           </g>
-        )}
+          );
+        })()}
       </svg>
 
       {/* Legend */}

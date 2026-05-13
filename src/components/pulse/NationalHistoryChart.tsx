@@ -256,41 +256,48 @@ export function NationalHistoryChart({ points, yearsBack = 5 }: Props) {
         ))}
 
         {/* Hover state */}
-        {hover && (
-          <>
-            <line
-              x1={hover.x}
-              x2={hover.x}
-              y1={padding.top}
-              y2={padding.top + plotHeight}
-              stroke="rgba(26,26,26,0.2)"
-              strokeWidth={1}
-              strokeDasharray="2,3"
-            />
-            <circle cx={hover.x} cy={hover.y} r={5} fill="#1A1A1A" />
-            <g transform={`translate(${hover.x}, ${hover.y - 24})`}>
-              <rect
-                x={-50}
-                y={-22}
-                width={100}
-                height={28}
-                fill="#1A1A1A"
-                rx={2}
+        {hover && (() => {
+          const tipHalfW = 56;
+          const tipX = Math.max(
+            padding.left + tipHalfW,
+            Math.min(width - padding.right - tipHalfW, hover.x)
+          );
+          return (
+            <>
+              <line
+                x1={hover.x}
+                x2={hover.x}
+                y1={padding.top}
+                y2={padding.top + plotHeight}
+                stroke="rgba(26,26,26,0.2)"
+                strokeWidth={1}
+                strokeDasharray="2,3"
               />
-              <text
-                x={0}
-                y={-4}
-                fontSize={11}
-                fill="#F9F7F2"
-                textAnchor="middle"
-                fontFamily="inherit"
-              >
-                {formatTooltip(hover.point).label} ·{" "}
-                {formatTooltip(hover.point).value}
-              </text>
-            </g>
-          </>
-        )}
+              <circle cx={hover.x} cy={hover.y} r={5} fill="#1A1A1A" />
+              <g transform={`translate(${tipX}, ${hover.y - 24})`}>
+                <rect
+                  x={-tipHalfW}
+                  y={-22}
+                  width={tipHalfW * 2}
+                  height={28}
+                  fill="#1A1A1A"
+                  rx={2}
+                />
+                <text
+                  x={0}
+                  y={-4}
+                  fontSize={11}
+                  fill="#F9F7F2"
+                  textAnchor="middle"
+                  fontFamily="inherit"
+                >
+                  {formatTooltip(hover.point).label} ·{" "}
+                  {formatTooltip(hover.point).value}
+                </text>
+              </g>
+            </>
+          );
+        })()}
       </svg>
     </div>
   );
