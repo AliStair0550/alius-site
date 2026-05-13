@@ -127,36 +127,6 @@ export default async function PulseHubPage() {
           </p>
         </section>
 
-        {/* How it works */}
-        <section className="mt-20 mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
-            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
-              Sådan virker det
-            </div>
-            <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em]">
-              Tre trin, automatisk.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            <Step
-              number="01"
-              title="Vi henter"
-              body="Hver dag tjekker Pulse om Danmarks Statistik har offentliggjort nye tal. Når de har, henter vi dem automatisk."
-            />
-            <Step
-              number="02"
-              title="Vi fortolker"
-              body="Tallene gennemgår vores signal-engine. Den finder mønstre: stigninger, rekorder, vendinger. Og oversætter dem til læselige observationer."
-            />
-            <Step
-              number="03"
-              title="Vi viser"
-              body="Det hele bliver til pæne grafer, kort og signaler. Bygget til at læse hurtigt, men også gå dybt hvis du vil."
-            />
-          </div>
-        </section>
-
         {/* Dashboards */}
         <section className="mt-20 mb-24">
           <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
@@ -279,30 +249,6 @@ export default async function PulseHubPage() {
           Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
         </footer>
       </div>
-    </div>
-  );
-}
-
-function Step({
-  number,
-  title,
-  body,
-}: {
-  number: string;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div>
-      <div className="font-fraunces italic text-[14px] text-moss opacity-60 mb-4 tracking-[0.05em]">
-        {number}
-      </div>
-      <h3 className="font-fraunces font-light italic text-[24px] md:text-[28px] leading-[1.2] text-ink mb-4">
-        {title}
-      </h3>
-      <p className="text-[14px] leading-[1.65] text-ink/75 max-w-[320px]">
-        {body}
-      </p>
     </div>
   );
 }
