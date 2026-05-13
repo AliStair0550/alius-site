@@ -78,7 +78,7 @@ export function KommunerList({ rows }: { rows: KommuneRow[] }) {
             <button
               key={opt.key}
               onClick={() => handleSort(opt.key)}
-              className={`px-3 py-1.5 text-[11px] tracking-[0.15em] uppercase transition-colors border ${
+              className={`px-3 py-2.5 min-h-[44px] text-[11px] tracking-[0.15em] uppercase transition-colors border ${
                 active
                   ? "bg-ink text-parchment border-ink"
                   : "bg-transparent text-stone border-ink/20 hover:border-ink/50 hover:text-ink"

@@ -35,25 +35,24 @@ export function BrancheRankings({
   return (
     <div>
       {/* Sort toggle */}
-      <div className="flex items-center gap-3 mb-6 text-[11px] tracking-[0.2em] uppercase">
-        <span className="text-stone opacity-60">Sortér:</span>
+      <div className="flex items-center gap-2 mb-6 text-[11px] tracking-[0.2em] uppercase">
+        <span className="text-stone opacity-60 mr-1">Sortér:</span>
         <button
           onClick={() => setSortBy("change")}
-          className={`pb-0.5 transition-colors ${
+          className={`px-3 py-2.5 min-h-[44px] transition-colors border ${
             sortBy === "change"
-              ? "text-ink border-b border-ink"
-              : "text-stone hover:text-ink"
+              ? "text-ink border-ink"
+              : "text-stone border-ink/20 hover:border-ink/50 hover:text-ink"
           }`}
         >
           Ændring
         </button>
-        <span className="text-stone opacity-30">/</span>
         <button
           onClick={() => setSortBy("current")}
-          className={`pb-0.5 transition-colors ${
+          className={`px-3 py-2.5 min-h-[44px] transition-colors border ${
             sortBy === "current"
-              ? "text-ink border-b border-ink"
-              : "text-stone hover:text-ink"
+              ? "text-ink border-ink"
+              : "text-stone border-ink/20 hover:border-ink/50 hover:text-ink"
           }`}
         >
           Antal

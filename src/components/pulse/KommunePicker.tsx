@@ -97,7 +97,7 @@ export function KommunePicker({ kommuner }: Props) {
               key={k.code}
               type="button"
               onClick={() => handleSelect(k)}
-              onMouseEnter={() => setFocusedIdx(i)}
+              onPointerEnter={() => setFocusedIdx(i)}
               className={`block w-full text-left px-4 py-3 text-[15px] transition-colors ${
                 i === focusedIdx ? "bg-fog text-ink" : "text-stone hover:bg-fog/50"
               }`}

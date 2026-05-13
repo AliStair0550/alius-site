@@ -70,7 +70,7 @@ export function DenmarkMap({ geoData, kommuneData, nationalValue }: Props) {
         width="100%"
         style={{ maxWidth: "100%", height: "auto" }}
         className="cursor-pointer"
-        onMouseLeave={() => setHovered(null)}
+        onPointerLeave={() => setHovered(null)}
       >
         {geoData.features.map((feature, i) => {
           const code = feature.properties.lau_1;
@@ -87,7 +87,7 @@ export function DenmarkMap({ geoData, kommuneData, nationalValue }: Props) {
               stroke="#F9F7F2"
               strokeWidth={isHovered ? 1.5 : 0.5}
               opacity={hovered && !isHovered ? 0.6 : 1}
-              onMouseEnter={(e) => {
+              onPointerEnter={(e) => {
                 const bbox = (e.target as SVGGraphicsElement).getBBox();
                 setHovered({
                   code,
