@@ -1,0 +1,145 @@
+name: Sync DST data
+
+# Runs on the 25th of every month at 06:00 UTC.
+# DST publishes monthly stats around the 15th–20th, so the 25th catches
+# all monthly updates with a few days' buffer.
+#
+# Required secret: DATABASE_URL (Neon connection string)
+# Set it at: Settings → Secrets and variables → Actions → New repository secret
+
+on:
+  schedule:
+    - cron: "0 6 25 * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — print which scripts would run without executing"
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    name: Sync all DST sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # ── Monthly sources ────────────────────────────────────────────
+
+      - name: AUS08 — Ledighed
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-aus08.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: FOLK1AM — Befolkning
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-folk1am.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: KONK3 — Konkurser
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-konk3.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: KONK4 — Konkurser (branche)
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-konk4.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: FORV1 — Forbrugerforventninger
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-forv1.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: DETA211A — Detailomsætning
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-deta211a.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: PRIS01 — Forbrugerprisindeks
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-pris01.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # ── Quarterly sources ──────────────────────────────────────────
+
+      - name: BYGV33 — Nyopstartede boliger
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-bygv33.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # ── Yearly sources ─────────────────────────────────────────────
+
+      - name: INDKP101 — Disponibel indkomst
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-indkp101.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: EJDFOE1 — Ejendomsværdier
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-ejdfoe1.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: LABY01 — Befolkningstilvækst
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/sync-laby01.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # ── Signal generation (runs after all data syncs) ──────────────
+
+      - name: Generer signaler — ledighed
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/generate-signals.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generer signaler — konkurser
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/generate-konkurs-signals.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Dry run summary
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          echo "Scripts der ville køre:"
+          ls scripts/sync-*.ts scripts/generate-*.ts
