@@ -26,13 +26,18 @@ export const MAP_VIEWBOX = {
  * Returns [x, y] in SVG coordinate space (0,0 = top-left).
  */
 export function projectToSvg(lng: number, lat: number): [number, number] {
+  // Both axes must use the same units. Convert longitude to radians so it is
+  // comparable to the Mercator Y values (which are also in radians). Without
+  // this, xRange ~7.2 (degrees) vs yRange ~0.097 (radians) causes the scale
+  // to be set by the longitude axis and Denmark collapses to ~10px tall.
+  const mercatorX = (lng: number) => (lng * Math.PI) / 180;
   const mercatorY = (lat: number) => {
     const radLat = (lat * Math.PI) / 180;
     return Math.log(Math.tan(Math.PI / 4 + radLat / 2));
   };
 
-  const minX = DENMARK_BOUNDS.minLng;
-  const maxX = DENMARK_BOUNDS.maxLng;
+  const minX = mercatorX(DENMARK_BOUNDS.minLng);
+  const maxX = mercatorX(DENMARK_BOUNDS.maxLng);
   const minY = mercatorY(DENMARK_BOUNDS.minLat);
   const maxY = mercatorY(DENMARK_BOUNDS.maxLat);
 
@@ -46,7 +51,7 @@ export function projectToSvg(lng: number, lat: number): [number, number] {
   const offsetX = (MAP_VIEWBOX.width - xRange * scale) / 2;
   const offsetY = (MAP_VIEWBOX.height - yRange * scale) / 2;
 
-  const x = offsetX + (lng - minX) * scale;
+  const x = offsetX + (mercatorX(lng) - minX) * scale;
   const y = MAP_VIEWBOX.height - (offsetY + (mercatorY(lat) - minY) * scale);
 
   return [x, y];
