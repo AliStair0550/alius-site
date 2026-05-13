@@ -10,6 +10,10 @@ type Props = {
   severity: string;
   areaName: string | null;
   areaCode: string | null;
+  sourceLabel?: string;
+  // Explicit link override. If omitted, falls back to /pulse/ledighed/[slug] when
+  // the signal is about a known municipality (backward-compatible default).
+  href?: string | null;
 };
 
 export function PulseSignalCard({
@@ -19,12 +23,19 @@ export function PulseSignalCard({
   severity,
   areaName,
   areaCode,
+  sourceLabel,
+  href,
 }: Props) {
   const isImportant = severity === "important";
-  // Only link if signal is about a specific kommune (not national)
-  const kommune = areaCode && areaCode !== "000"
-    ? getKommuneByCode(areaCode)
-    : null;
+
+  // Resolve link: explicit href > default ledighed-link > no link
+  let resolvedHref: string | null = null;
+  if (href !== undefined) {
+    resolvedHref = href;
+  } else {
+    const kommune = areaCode && areaCode !== "000" ? getKommuneByCode(areaCode) : null;
+    resolvedHref = kommune ? `/pulse/ledighed/${kommune.slug}` : null;
+  }
 
   const cardContent = (
     <>
@@ -37,9 +48,22 @@ export function PulseSignalCard({
         >
           {areaName ?? "Hele landet"}
         </span>
-        {kommune && (
+        {sourceLabel && (
+          <span className="ml-auto text-[10px] tracking-[0.2em] uppercase text-stone opacity-30">
+            {sourceLabel}
+          </span>
+        )}
+        {resolvedHref && !sourceLabel && (
           <span
             className="ml-auto text-stone opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[14px]"
+            aria-hidden
+          >
+            &rarr;
+          </span>
+        )}
+        {resolvedHref && sourceLabel && (
+          <span
+            className="text-stone opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[14px]"
             aria-hidden
           >
             &rarr;
@@ -63,9 +87,9 @@ export function PulseSignalCard({
       : "bg-fog/40 hover:bg-fog/70"
   }`;
 
-  if (kommune) {
+  if (resolvedHref) {
     return (
-      <Link href={`/pulse/ledighed/${kommune.slug}`} className={`group ${baseClasses}`}>
+      <Link href={resolvedHref} className={`group ${baseClasses}`}>
         {cardContent}
       </Link>
     );

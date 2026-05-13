@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { TillidsChart } from "@/components/pulse/TillidsChart";
+import { PulseSignalCard } from "@/components/pulse/SignalCard";
 
 export const metadata: Metadata = {
   title: "Forbrugerklimaet · Alius Pulse",
@@ -31,6 +32,23 @@ export default async function ForbrugPage() {
     prisma.dataSource.findUnique({ where: { slug: "dst-deta211a" } }),
     prisma.dataSource.findUnique({ where: { slug: "dst-pris01" } }),
   ]);
+
+  const forv1Signals = forv1Source
+    ? await prisma.signal.findMany({
+        where: { sourceId: forv1Source.id },
+        orderBy: { magnitude: "desc" },
+        take: 20,
+      })
+    : [];
+
+  const sevRank: Record<string, number> = { important: 2, note: 1, info: 0 };
+  const sortedForv1Signals = forv1Signals
+    .sort(
+      (a, b) =>
+        (sevRank[b.severity] ?? 0) - (sevRank[a.severity] ?? 0) ||
+        (b.magnitude ?? 0) - (a.magnitude ?? 0)
+    )
+    .slice(0, 4);
 
   const [f1All, subLatest, retailAll, inflationAll] = await Promise.all([
     forv1Source
@@ -326,6 +344,39 @@ export default async function ForbrugPage() {
             </div>
             <div className="text-ink/15">
               <TillidsChart points={retailPoints} />
+            </div>
+          </section>
+        )}
+
+        {/* FORV1 signal feed */}
+        {sortedForv1Signals.length > 0 && (
+          <section className="mb-20 md:mb-28">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Signaler
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[32px] md:text-[40px] leading-[1.1] tracking-[-0.01em] mb-3">
+                  Hvad fortæller tallene?
+                </h2>
+                <p className="text-stone text-[14px] leading-[1.6] max-w-[560px]">
+                  Automatisk beregnede mønstre i forbrugertillidsdata — streaks, vendepunkter, og årssammenligninger.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sortedForv1Signals.map((s) => (
+                <PulseSignalCard
+                  key={s.id}
+                  headline={s.headline}
+                  body={s.body}
+                  direction={s.direction as "UP" | "DOWN" | "STABLE" | null}
+                  severity={s.severity}
+                  areaName={s.areaName}
+                  areaCode={s.areaCode}
+                  href={null}
+                />
+              ))}
             </div>
           </section>
         )}

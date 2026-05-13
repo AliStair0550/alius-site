@@ -78,17 +78,25 @@ export function getPeriodOffset(points: DataPoint[], monthsBack: number): string
 /**
  * Format a period string for human reading.
  * "2026M03" -> "marts 2026"
+ * "2026K1"  -> "1. kvartal 2026"
+ * "2024"    -> "2024"
  */
 export function humanizePeriod(period: string): string {
-  const match = period.match(/^(\d{4})M(\d{2})$/);
-  if (!match) return period;
-  const year = match[1];
-  const monthIdx = parseInt(match[2], 10) - 1;
-  const months = [
-    "januar", "februar", "marts", "april", "maj", "juni",
-    "juli", "august", "september", "oktober", "november", "december",
-  ];
-  return `${months[monthIdx]} ${year}`;
+  const monthMatch = period.match(/^(\d{4})M(\d{2})$/);
+  if (monthMatch) {
+    const year = monthMatch[1];
+    const monthIdx = parseInt(monthMatch[2], 10) - 1;
+    const months = [
+      "januar", "februar", "marts", "april", "maj", "juni",
+      "juli", "august", "september", "oktober", "november", "december",
+    ];
+    return `${months[monthIdx]} ${year}`;
+  }
+  const quarterMatch = period.match(/^(\d{4})K(\d)$/);
+  if (quarterMatch) {
+    return `${quarterMatch[2]}. kvartal ${quarterMatch[1]}`;
+  }
+  return period;
 }
 
 // ============================================================
@@ -180,4 +188,30 @@ export function calculateChange(
   const to = getValue(points, areaCode, toPeriod);
   if (from === null || to === null) return null;
   return to - from;
+}
+
+/**
+ * Get the period N quarters before the latest quarterly period.
+ * Works with "2024K1"–"2024K4" format.
+ */
+export function getQuarterPeriodOffset(points: DataPoint[], quartersBack: number): string | null {
+  const latest = getLatestPeriod(points);
+  if (!latest) return null;
+  const m = latest.match(/^(\d{4})K(\d)$/);
+  if (!m) return null;
+  let year = parseInt(m[1], 10);
+  let quarter = parseInt(m[2], 10) - quartersBack;
+  while (quarter <= 0) { quarter += 4; year--; }
+  while (quarter > 4) { quarter -= 4; year++; }
+  return `${year}K${quarter}`;
+}
+
+/**
+ * Get the period N years before the latest annual period.
+ * Works with plain 4-digit year strings like "2024".
+ */
+export function getAnnualPeriodOffset(points: DataPoint[], yearsBack: number): string | null {
+  const latest = getLatestPeriod(points);
+  if (!latest || !/^\d{4}$/.test(latest)) return null;
+  return String(parseInt(latest, 10) - yearsBack);
 }

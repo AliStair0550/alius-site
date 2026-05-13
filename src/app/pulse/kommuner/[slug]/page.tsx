@@ -6,10 +6,17 @@ import { getKommuneBySlug, getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
 import { KommuneSparkline } from "@/components/pulse/KommuneSparkline";
 import { IncomeBars } from "@/components/pulse/IncomeBars";
+import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import {
   findSimilarKommuner,
   type KommuneMetrics,
 } from "@/lib/similar-kommuner";
+
+const KOMMUNE_SOURCE_LABELS: Record<string, string> = {
+  "dst-aus08": "Ledighed",
+  "dst-bygv33": "Boligbyggeri",
+  "dst-laby01-b11": "Befolkning",
+};
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -37,7 +44,7 @@ export default async function KommuneProfilPage({ params }: Props) {
   if (!kommune) notFound();
 
   // Load all sources in parallel
-  const [aus08Source, folk1amSource, indkp101Source, huseSource, lejlSource, bygv33Source, laby01Source] =
+  const [aus08Source, folk1amSource, indkp101Source, huseSource, lejlSource, bygv33Source, laby01Source, kommuneSignalsRaw] =
     await Promise.all([
       prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
@@ -46,7 +53,22 @@ export default async function KommuneProfilPage({ params }: Props) {
       prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-lejl" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-bygv33" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-laby01-b11" } }),
+      prisma.signal.findMany({
+        where: { areaCode: kommune.code },
+        include: { source: { select: { slug: true } } },
+        orderBy: { magnitude: "desc" },
+        take: 20,
+      }),
     ]);
+
+  const sevRank: Record<string, number> = { important: 2, note: 1, info: 0 };
+  const kommuneSignals = kommuneSignalsRaw
+    .sort(
+      (a, b) =>
+        (sevRank[b.severity] ?? 0) - (sevRank[a.severity] ?? 0) ||
+        (b.magnitude ?? 0) - (a.magnitude ?? 0)
+    )
+    .slice(0, 4);
 
   // Fetch datapoints per source in parallel
   const [
@@ -312,6 +334,47 @@ export default async function KommuneProfilPage({ params }: Props) {
             )}
           </div>
         </section>
+
+        {/* Municipality signals */}
+        {kommuneSignals.length > 0 && (
+          <section className="mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Signaler
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[28px] md:text-[36px] leading-[1.1] tracking-[-0.01em] mb-2">
+                  Hvad rykker sig?
+                </h2>
+                <p className="text-stone text-[14px] leading-[1.6] max-w-[500px]">
+                  Automatisk beregnede mønstre for {kommune.name} på tværs af alle datakilder.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {kommuneSignals.map((s) => {
+                const sourceSlug = s.source.slug;
+                const href =
+                  sourceSlug === "dst-aus08"
+                    ? `/pulse/ledighed/${kommune.slug}`
+                    : null;
+                return (
+                  <PulseSignalCard
+                    key={s.id}
+                    headline={s.headline}
+                    body={s.body}
+                    direction={s.direction as "UP" | "DOWN" | "STABLE" | null}
+                    severity={s.severity}
+                    areaName={s.areaName}
+                    areaCode={s.areaCode}
+                    sourceLabel={KOMMUNE_SOURCE_LABELS[sourceSlug] ?? undefined}
+                    href={href}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Population trend */}
         {popSparkPoints.length >= 6 && (

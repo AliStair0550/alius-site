@@ -141,6 +141,27 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Generer signaler — forbrugertillid
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/generate-forv1-signals.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generer signaler — boligbyggeri
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/generate-bygv33-signals.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generer signaler — befolkningstilvækst
+        if: ${{ inputs.dry_run != true }}
+        run: npx tsx scripts/generate-laby01-signals.ts
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Dry run summary
         if: ${{ inputs.dry_run == true }}
         run: |
