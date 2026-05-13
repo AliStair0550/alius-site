@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
+import { KommunerList, type KommuneRow } from "@/components/pulse/KommunerList";
 
 export const metadata: Metadata = {
   title: "Kommuneprofiler · Alius Pulse",
@@ -15,45 +16,66 @@ export const revalidate = 3600;
 export default async function KommunerHubPage() {
   const kommuner = getAllKommuner();
 
-  // Fetch latest unemployment rate per kommune (dst-aus08)
-  const aus08Source = await prisma.dataSource.findUnique({
-    where: { slug: "dst-aus08" },
-  });
-  const folk1amSource = await prisma.dataSource.findUnique({
-    where: { slug: "dst-folk1am" },
-  });
+  const [aus08Source, folk1amSource, indkp101Source, ejdfoe1HuseSource] =
+    await Promise.all([
+      prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-indkp101" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-huse" } }),
+    ]);
 
-  const latestUnemployment = aus08Source
-    ? await prisma.dataPoint.findMany({
-        where: {
-          sourceId: aus08Source.id,
-          areaType: "KOMMUNE",
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        distinct: ["areaCode"],
-        select: { areaCode: true, value: true, period: true },
-      })
-    : [];
-
-  const latestPopulation = folk1amSource
-    ? await prisma.dataPoint.findMany({
-        where: {
-          sourceId: folk1amSource.id,
-          areaType: "KOMMUNE",
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        distinct: ["areaCode"],
-        select: { areaCode: true, value: true, period: true },
-      })
-    : [];
+  const [latestUnemployment, latestPopulation, latestIncome, latestHouseValue] =
+    await Promise.all([
+      aus08Source
+        ? prisma.dataPoint.findMany({
+            where: { sourceId: aus08Source.id, areaType: "KOMMUNE", value: { not: null } },
+            orderBy: { periodDate: "desc" },
+            distinct: ["areaCode"],
+            select: { areaCode: true, value: true, period: true },
+          })
+        : [],
+      folk1amSource
+        ? prisma.dataPoint.findMany({
+            where: { sourceId: folk1amSource.id, areaType: "KOMMUNE", value: { not: null } },
+            orderBy: { periodDate: "desc" },
+            distinct: ["areaCode"],
+            select: { areaCode: true, value: true, period: true },
+          })
+        : [],
+      indkp101Source
+        ? prisma.dataPoint.findMany({
+            where: { sourceId: indkp101Source.id, areaType: "KOMMUNE", value: { not: null } },
+            orderBy: { periodDate: "desc" },
+            distinct: ["areaCode"],
+            select: { areaCode: true, value: true, period: true },
+          })
+        : [],
+      ejdfoe1HuseSource
+        ? prisma.dataPoint.findMany({
+            where: { sourceId: ejdfoe1HuseSource.id, areaType: "KOMMUNE", value: { not: null } },
+            orderBy: { periodDate: "desc" },
+            distinct: ["areaCode"],
+            select: { areaCode: true, value: true, period: true },
+          })
+        : [],
+    ]);
 
   const unemploymentByCode = new Map(latestUnemployment.map((r) => [r.areaCode, r]));
   const populationByCode = new Map(latestPopulation.map((r) => [r.areaCode, r]));
+  const incomeByCode = new Map(latestIncome.map((r) => [r.areaCode, r]));
+  const houseValueByCode = new Map(latestHouseValue.map((r) => [r.areaCode, r]));
 
-  const latestUnemploymentPeriod =
-    latestUnemployment[0]?.period ?? null;
+  const kommuneRows: KommuneRow[] = kommuner.map((k) => ({
+    code: k.code,
+    name: k.name,
+    slug: k.slug,
+    ledighed: unemploymentByCode.get(k.code)?.value ?? null,
+    befolkning: populationByCode.get(k.code)?.value ?? null,
+    indkomst: incomeByCode.get(k.code)?.value ?? null,
+    boligvaerdi: houseValueByCode.get(k.code)?.value ?? null,
+  }));
+
+  const latestUnemploymentPeriod = latestUnemployment[0]?.period ?? null;
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">
@@ -123,55 +145,7 @@ export default async function KommunerHubPage() {
         </section>
 
         <section>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {kommuner.map((k) => {
-              const unemp = unemploymentByCode.get(k.code);
-              const pop = populationByCode.get(k.code);
-              return (
-                <Link
-                  key={k.code}
-                  href={`/pulse/kommuner/${k.slug}`}
-                  className="block p-5 bg-fog/30 hover:bg-fog/60 transition-colors no-underline group border border-transparent hover:border-ink/10"
-                >
-                  <div className="flex items-baseline justify-between mb-3">
-                    <span className="font-fraunces font-light text-[20px] leading-[1.1] text-ink">
-                      {k.name}
-                    </span>
-                    <span className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-40 group-hover:opacity-70 transition-opacity">
-                      &rarr;
-                    </span>
-                  </div>
-                  <div className="flex items-end gap-5">
-                    {unemp?.value != null && (
-                      <div>
-                        <div className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-50 mb-0.5">
-                          Ledighed
-                        </div>
-                        <div className="font-fraunces font-light text-[18px] text-ink tabular-nums">
-                          {unemp.value.toFixed(1)}%
-                        </div>
-                      </div>
-                    )}
-                    {pop?.value != null && (
-                      <div>
-                        <div className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-50 mb-0.5">
-                          Befolkning
-                        </div>
-                        <div className="font-fraunces font-light text-[18px] text-ink tabular-nums">
-                          {Math.round(pop.value).toLocaleString("da-DK")}
-                        </div>
-                      </div>
-                    )}
-                    {!unemp && !pop && (
-                      <div className="text-[12px] text-stone opacity-40">
-                        Data hentes...
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <KommunerList rows={kommuneRows} />
         </section>
 
         <section className="mt-20 pt-10 border-t border-ink/10 mb-12">
