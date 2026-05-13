@@ -37,13 +37,15 @@ export default async function KommuneProfilPage({ params }: Props) {
   if (!kommune) notFound();
 
   // Load all sources in parallel
-  const [aus08Source, folk1amSource, indkp101Source, huseSource, lejlSource] =
+  const [aus08Source, folk1amSource, indkp101Source, huseSource, lejlSource, bygv33Source, laby01Source] =
     await Promise.all([
       prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-indkp101" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-huse" } }),
       prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-lejl" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-bygv33" } }),
+      prisma.dataSource.findUnique({ where: { slug: "dst-laby01-b11" } }),
     ]);
 
   // Fetch datapoints per source in parallel
@@ -53,6 +55,8 @@ export default async function KommuneProfilPage({ params }: Props) {
     incomePoints,
     husePoints,
     lejlPoints,
+    bygPoints,
+    vaekstPoints,
   ] = await Promise.all([
     aus08Source
       ? prisma.dataPoint.findMany({
@@ -85,6 +89,20 @@ export default async function KommuneProfilPage({ params }: Props) {
     lejlSource
       ? prisma.dataPoint.findMany({
           where: { sourceId: lejlSource.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+    bygv33Source
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: bygv33Source.id, areaCode: kommune.code, value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, periodDate: true, value: true },
+        })
+      : Promise.resolve([]),
+    laby01Source
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: laby01Source.id, areaCode: kommune.code, value: { not: null } },
           orderBy: { periodDate: "asc" },
           select: { period: true, periodDate: true, value: true },
         })
@@ -130,6 +148,17 @@ export default async function KommuneProfilPage({ params }: Props) {
     year: p.periodDate.getUTCFullYear(),
     value: p.value!,
   }));
+
+  // Building starts: sum last 4 quarters for annual total
+  const latestBygQuarter = bygPoints[bygPoints.length - 1] ?? null;
+  const bygLast4 = bygPoints.slice(-4).reduce((s, p) => s + (p.value ?? 0), 0);
+  const bygPrev4 = bygPoints.length >= 8
+    ? bygPoints.slice(-8, -4).reduce((s, p) => s + (p.value ?? 0), 0)
+    : null;
+
+  // Population growth rate (latest year)
+  const latestVaekst = vaekstPoints[vaekstPoints.length - 1] ?? null;
+  const prevVaekst = vaekstPoints.length >= 2 ? vaekstPoints[vaekstPoints.length - 2] : null;
 
   // "Lignende kommuner" — euclidean distance across unemployment, income, population
   const allKommuner = getAllKommuner();
@@ -387,6 +416,67 @@ export default async function KommuneProfilPage({ params }: Props) {
           </section>
         )}
 
+        {/* Building starts */}
+        {bygPoints.length > 0 && (
+          <section className="mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Byggeri
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[28px] md:text-[36px] leading-[1.1] tracking-[-0.01em] mb-2">
+                  Nyopstartede boliger
+                </h2>
+                <p className="text-stone text-[14px] leading-[1.6] max-w-[500px] mb-6">
+                  Antal nyopstartede boliger (parcelhuse, rækkehuse, etageboliger m.fl.) i {kommune.name}.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-[540px]">
+                  {bygLast4 > 0 && (
+                    <Stat
+                      label="Seneste 12 måneder"
+                      value={Math.round(bygLast4).toLocaleString("da-DK")}
+                      period={latestBygQuarter ? `t.o.m. ${latestBygQuarter.period}` : ""}
+                      delta={bygPrev4 !== null ? Math.round(bygLast4 - bygPrev4) : null}
+                      deltaLabel="vs. samme periode året før"
+                      deltaUnit=" boliger"
+                      deltaSign
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Population growth rate */}
+        {latestVaekst && (
+          <section className="mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Vækst
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[28px] md:text-[36px] leading-[1.1] tracking-[-0.01em] mb-2">
+                  Befolkningstilvækst
+                </h2>
+                <p className="text-stone text-[14px] leading-[1.6] max-w-[500px] mb-6">
+                  Samlet befolkningstilvækst inkl. fødselsoverskud, tilflytning og indvandring.
+                </p>
+                <Stat
+                  label="Tilvækst per 1.000 indbyggere"
+                  value={`${latestVaekst.value!.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`}
+                  period={String(latestVaekst.period)}
+                  delta={prevVaekst?.value != null ? latestVaekst.value! - prevVaekst.value : null}
+                  deltaLabel="vs. året før"
+                  deltaUnit=""
+                  deltaSign
+                  deltaDecimals={1}
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Unemployment link */}
         {latestUnemp && (
           <section className="mb-20">
@@ -479,6 +569,10 @@ export default async function KommuneProfilPage({ params }: Props) {
             <a href="https://www.statistikbanken.dk/AUS08" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">AUS08</a>.
             {" "}Ejendomsværdier fra{" "}
             <a href="https://www.statistikbanken.dk/EJDFOE1" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">EJDFOE1</a>.
+            {" "}Byggeri fra{" "}
+            <a href="https://www.statistikbanken.dk/BYGV33" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">BYGV33</a>.
+            {" "}Befolkningstilvækst fra{" "}
+            <a href="https://www.statistikbanken.dk/LABY01" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">LABY01</a>.
             {" "}Alle fra Danmarks Statistik under licens CC 4.0 BY.
           </p>
         </section>

@@ -26,12 +26,13 @@ function signedFormat(v: number): string {
 }
 
 export default async function ForbrugPage() {
-  const [forv1Source, detaSource] = await Promise.all([
+  const [forv1Source, detaSource, pris01Source] = await Promise.all([
     prisma.dataSource.findUnique({ where: { slug: "dst-forv1" } }),
     prisma.dataSource.findUnique({ where: { slug: "dst-deta211a" } }),
+    prisma.dataSource.findUnique({ where: { slug: "dst-pris01" } }),
   ]);
 
-  const [f1All, subLatest, retailAll] = await Promise.all([
+  const [f1All, subLatest, retailAll, inflationAll] = await Promise.all([
     forv1Source
       ? prisma.dataPoint.findMany({
           where: { sourceId: forv1Source.id, areaCode: "F1", value: { not: null } },
@@ -58,6 +59,13 @@ export default async function ForbrugPage() {
           select: { period: true, value: true },
         })
       : [],
+    pris01Source
+      ? prisma.dataPoint.findMany({
+          where: { sourceId: pris01Source.id, areaCode: "300", value: { not: null } },
+          orderBy: { periodDate: "asc" },
+          select: { period: true, value: true },
+        })
+      : [],
   ]);
 
   const f1Points = (f1All as { period: string; value: number | null }[])
@@ -65,6 +73,11 @@ export default async function ForbrugPage() {
 
   const retailPoints = (retailAll as { period: string; value: number | null }[])
     .filter((p): p is { period: string; value: number } => p.value !== null);
+
+  const inflationPoints = (inflationAll as { period: string; value: number | null }[])
+    .filter((p): p is { period: string; value: number } => p.value !== null);
+
+  const latestInflation = inflationPoints[inflationPoints.length - 1] ?? null;
 
   const subByCode = new Map(subLatest.map(r => [r.areaCode, r]));
 
@@ -235,6 +248,44 @@ export default async function ForbrugPage() {
           </section>
         )}
 
+        {/* Inflation section */}
+        {inflationPoints.length > 0 && (
+          <section className="mb-20 md:mb-28">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
+              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+                Inflation
+              </div>
+              <div>
+                <h2 className="font-fraunces font-light text-[32px] md:text-[40px] leading-[1.1] tracking-[-0.01em] mb-3">
+                  Hvad koster tingene?
+                </h2>
+                {latestInflation && (
+                  <div className="flex flex-wrap items-end gap-6 mb-4">
+                    <div>
+                      <div
+                        className={`font-fraunces font-light text-[56px] md:text-[72px] leading-none tabular-nums tracking-[-0.02em] ${
+                          latestInflation.value > 3 ? "text-[#8B3A3A]" : latestInflation.value > 0 ? "text-ink" : "text-moss"
+                        }`}
+                      >
+                        {latestInflation.value.toFixed(1)}%
+                      </div>
+                      <div className="text-[11px] tracking-[0.1em] uppercase text-stone opacity-50 mt-1">
+                        Inflation · {humanizePeriod(latestInflation.period)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <p className="text-stone text-[13px] leading-[1.6] max-w-[560px]">
+                  Ændring i forbrugerprisindekset sammenlignet med samme måned året før. Et mål for hvor hurtigt priserne stiger i Danmark.
+                </p>
+              </div>
+            </div>
+            <div className="text-ink/15">
+              <TillidsChart points={inflationPoints} />
+            </div>
+          </section>
+        )}
+
         {/* Retail section */}
         {retailPoints.length > 0 && (
           <section className="mb-20 md:mb-28">
@@ -285,7 +336,7 @@ export default async function ForbrugPage() {
             Om dataene
           </div>
           <p className="text-[14px] leading-[1.6] text-stone max-w-[640px]">
-            Forbrugertillid fra DST-tabel FORV1 (månedlig, siden 1974). Detailomsætning fra DETA211A (månedlig, siden 2015). Begge fra Danmarks Statistik under licens CC 4.0 BY.
+            Forbrugertillid fra DST-tabel FORV1 (månedlig, siden 1974). Inflation fra PRIS01 (månedlig, siden 2001). Detailomsætning fra DETA211A (månedlig, siden 2015). Alle fra Danmarks Statistik under licens CC 4.0 BY.
           </p>
         </section>
 
