@@ -11,8 +11,8 @@ type Props = {
 
 // SVG canvas
 const W = 1400;
-const H = 320;
-const TIMELINE_Y = 180;
+const H = 280;
+const TIMELINE_Y = 155;
 const PAD_L = 60;
 const PAD_R = 60;
 const PLOT_W = W - PAD_L - PAD_R;
@@ -104,18 +104,6 @@ export function ThinkerTimeline({ thinkers }: Props) {
         }}
       />
 
-      <div className="relative z-10 px-8 pt-10 pb-0">
-        {/* Header */}
-        <div className="flex items-baseline justify-between mb-6">
-          <span className="text-[10px] tracking-[0.35em] uppercase text-ink/30">
-            Idéernes strøm gennem historien
-          </span>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-ink/20">
-            {sorted[0].born < 0 ? `${Math.abs(sorted[0].born)} f.Kr.` : sorted[0].born} · {sorted[sorted.length - 1].born}
-          </span>
-        </div>
-      </div>
-
       {/* SVG Timeline */}
       <svg
         viewBox={`0 0 ${W} ${H}`}
@@ -169,8 +157,8 @@ export function ThinkerTimeline({ thinkers }: Props) {
               key={zone.label}
               x={cx}
               y={22}
-              fontSize={9}
-              fill="rgba(26,26,26,0.3)"
+              fontSize={10}
+              fill="rgba(26,26,26,0.4)"
               textAnchor="middle"
               letterSpacing={2.5}
               fontFamily="Jost, sans-serif"
@@ -198,8 +186,8 @@ export function ThinkerTimeline({ thinkers }: Props) {
         <line
           x1={PAD_L} x2={W - PAD_R}
           y1={TIMELINE_Y} y2={TIMELINE_Y}
-          stroke="rgba(26,26,26,0.15)"
-          strokeWidth={1}
+          stroke="rgba(26,26,26,0.2)"
+          strokeWidth={1.5}
         />
 
         {/* Connection arcs */}
@@ -251,10 +239,10 @@ export function ThinkerTimeline({ thinkers }: Props) {
 
               {/* Node circle */}
               <circle
-                cx={t.x} cy={nodeY} r={isHovered ? 7 : 5}
-                fill={isHovered ? t.moodColors[1] : "rgba(26,26,26,0.12)"}
-                stroke={isHovered ? t.moodColors[1] : "rgba(26,26,26,0.35)"}
-                strokeWidth={1}
+                cx={t.x} cy={nodeY} r={isHovered ? 8 : 6}
+                fill={isHovered ? t.moodColors[1] : "rgba(26,26,26,0.15)"}
+                stroke={isHovered ? t.moodColors[1] : "rgba(26,26,26,0.45)"}
+                strokeWidth={1.5}
                 style={{ transition: "all 200ms" }}
               />
 
@@ -270,8 +258,8 @@ export function ThinkerTimeline({ thinkers }: Props) {
               {t.showLabel && (
                 <text
                   x={t.x} y={yearY}
-                  fontSize={8.5}
-                  fill="rgba(26,26,26,0.4)"
+                  fontSize={9.5}
+                  fill="rgba(26,26,26,0.45)"
                   textAnchor="middle"
                   fontFamily="Jost, sans-serif"
                 >
@@ -284,8 +272,8 @@ export function ThinkerTimeline({ thinkers }: Props) {
                 <text
                   x={t.x}
                   y={labelY}
-                  fontSize={isHovered ? 12 : 10.5}
-                  fill={isHovered ? "rgba(26,26,26,0.9)" : "rgba(26,26,26,0.5)"}
+                  fontSize={isHovered ? 13 : 11}
+                  fill={isHovered ? "rgba(26,26,26,0.95)" : "rgba(26,26,26,0.6)"}
                   textAnchor="middle"
                   fontFamily="Jost, sans-serif"
                   fontWeight={isHovered ? 400 : 300}

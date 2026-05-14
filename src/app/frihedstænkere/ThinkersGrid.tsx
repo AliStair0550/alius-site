@@ -107,12 +107,17 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
               src={t.portraitSrc}
               alt={t.name}
               fill
-              className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700"
+              className="object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
               onError={() => setImgError(true)}
             />
-            {/* Subtle bottom fade to card background */}
-            <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(33,28,21,0.85) 80%, #211C15 100%)" }}
+            {/* Mood colour wash on hover */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+              style={{ backgroundColor: t.moodColors[1] }}
+            />
+            {/* Bottom fade to card background */}
+            <div className="absolute bottom-0 left-0 right-0 h-28 pointer-events-none"
+              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(33,28,21,0.9) 70%, #211C15 100%)" }}
             />
           </>
         ) : (
