@@ -95,7 +95,7 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
 
   return (
     <Link
-      href={`/frihedstaenkere/${t.slug}`}
+      href={`/frihedstænkere/${t.slug}`}
       className="group block no-underline overflow-hidden border border-ink/10 hover:border-ink/30 transition-all duration-300 bg-parchment"
     >
       {/* Portrait — tall portrait ratio */}
@@ -109,13 +109,9 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
               className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700"
               onError={() => setImgError(true)}
             />
-            {/* Subtle top darkening — dramatisk portræt-look */}
-            <div className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
-              style={{ background: "linear-gradient(to bottom, rgba(18,14,10,0.3), transparent)" }}
-            />
-            {/* Smooth bottom fade to card background */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(249,247,242,0.6) 50%, #F9F7F2 100%)" }}
+            {/* Subtle bottom fade to card background */}
+            <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(245,237,224,0.85) 80%, #F5EDE0 100%)" }}
             />
           </>
         ) : (

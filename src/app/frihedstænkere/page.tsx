@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { THINKERS, ALL_THEMES } from "@/lib/frihedstaenkere";
 import { ThinkersGrid } from "./ThinkersGrid";
+import { ThinkerTimeline } from "@/components/frihedstænkere/ThinkerTimeline";
 
 export const metadata: Metadata = {
   title: "Frihedstænkere · Alius",
@@ -61,21 +62,15 @@ export default function FrihedstaenkerePage() {
             </span>
           </div>
         </div>
+
       </div>
+
+      {/* Timeline */}
+      <ThinkerTimeline thinkers={THINKERS} />
 
       {/* Content section — warm aged paper */}
       <div style={{ backgroundColor: "#F5EDE0" }}>
         <div className="max-w-[1200px] mx-auto px-5 py-16 md:px-8 md:py-20">
-          {/* Section label */}
-          <div className="flex items-baseline justify-between mb-10 md:mb-14 pb-4 border-b border-ink/10">
-            <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-50">
-              Alle tænkere
-            </div>
-            <div className="text-[11px] text-stone opacity-30">
-              {THINKERS.length} i universet
-            </div>
-          </div>
-
           <ThinkersGrid thinkers={THINKERS} allThemes={ALL_THEMES} />
         </div>
       </div>

@@ -78,7 +78,7 @@ export default async function ThinkerPage({ params }: Props) {
 
         <div className="max-w-[1200px] mx-auto px-5 py-8 md:px-8 md:py-10 relative z-10">
           <Link
-            href="/frihedstaenkere"
+            href="/frihedstænkere"
             className="font-extralight text-sm tracking-[0.3em] uppercase text-parchment/40 no-underline hover:text-parchment/80 transition-colors"
           >
             &larr; Frihedstænkere
@@ -244,7 +244,7 @@ export default async function ThinkerPage({ params }: Props) {
                     {relatedThinkers.map((rel) => (
                       <Link
                         key={rel.slug}
-                        href={`/frihedstaenkere/${rel.slug}`}
+                        href={`/frihedstænkere/${rel.slug}`}
                         className="block p-4 no-underline group border border-ink/10 hover:border-ink/20 bg-fog/20 hover:bg-fog/50 transition-colors"
                       >
                         <div className="text-[9px] tracking-[0.25em] uppercase text-stone/40 mb-1">
@@ -287,7 +287,7 @@ export default async function ThinkerPage({ params }: Props) {
       <nav className="border-t border-ink/10 bg-parchment">
         <div className="max-w-[1200px] mx-auto px-5 md:px-8 py-8 grid grid-cols-2 gap-4">
           {prev ? (
-            <Link href={`/frihedstaenkere/${prev.slug}`} className="group no-underline">
+            <Link href={`/frihedstænkere/${prev.slug}`} className="group no-underline">
               <div className="text-[10px] tracking-[0.25em] uppercase text-stone/40 mb-2">
                 &larr; Forrige
               </div>
@@ -300,7 +300,7 @@ export default async function ThinkerPage({ params }: Props) {
             <div />
           )}
           {next ? (
-            <Link href={`/frihedstaenkere/${next.slug}`} className="group no-underline text-right ml-auto w-full">
+            <Link href={`/frihedstænkere/${next.slug}`} className="group no-underline text-right ml-auto w-full">
               <div className="text-[10px] tracking-[0.25em] uppercase text-stone/40 mb-2">
                 Næste &rarr;
               </div>

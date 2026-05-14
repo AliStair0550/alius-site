@@ -58,7 +58,7 @@ const VAERKTOEJER: Vaerktoj[] = [
     description:
       "Et kuratoreret univers af klassiske og moderne tænkere om frihed — politisk, økonomisk og filosofisk. Locke, Hayek, Mill, Rawls og flere. Alle tekster på dansk, skrevet til at tænke med.",
     audience: "For ledere, studerende og nysgerrige der vil forstå idéernes verden.",
-    href: "/frihedstaenkere",
+    href: "/frihedstænkere",
     accentLabel: "Idéhistorie · 23 tænkere",
   },
 ];

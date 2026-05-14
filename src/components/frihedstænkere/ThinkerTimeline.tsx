@@ -89,13 +89,13 @@ export function ThinkerTimeline({ thinkers }: Props) {
 
   const handleClick = useCallback(
     (slug: string) => {
-      router.push(`/frihedstaenkere/${slug}`);
+      router.push(`/frihedstænkere/${slug}`);
     },
     [router]
   );
 
   return (
-    <div className="relative w-full bg-forest overflow-hidden select-none">
+    <div className="relative w-full overflow-hidden select-none" style={{ backgroundColor: "#18140E" }}>
       {/* Subtle grain texture overlay */}
       <div
         aria-hidden
