@@ -75,7 +75,7 @@ export default async function ThinkerPage({ params }: Props) {
               {/* Nationality + years */}
               <div className="text-[10px] tracking-[0.35em] uppercase text-parchment/30 mb-6">
                 {thinker.nationality} &middot; {formatYear(thinker.born)}
-                {thinker.died ? `–${formatYear(thinker.died)}` : " –"}
+                {thinker.died ? `-${formatYear(thinker.died)}` : ""}
               </div>
 
               {/* Name */}
@@ -239,7 +239,7 @@ export default async function ThinkerPage({ params }: Props) {
                         &ldquo;{quote.text}&rdquo;
                       </blockquote>
                       <cite className="not-italic text-[10px] tracking-[0.15em] uppercase text-stone/40">
-                        — {quote.source}
+                        &middot; {quote.source}
                       </cite>
                     </div>
                   ))}
@@ -268,7 +268,7 @@ export default async function ThinkerPage({ params }: Props) {
                         <div className="text-[11px] text-stone/50 mt-0.5">
                           {rel.thinker.nationality} &middot;{" "}
                           {formatYear(rel.thinker.born)}
-                          {rel.thinker.died ? `–${formatYear(rel.thinker.died)}` : ""}
+                          {rel.thinker.died ? `-${formatYear(rel.thinker.died)}` : ""}
                         </div>
                       </Link>
                     ))}

@@ -30,8 +30,8 @@ function xFromYear(year: number): number {
 const ERA_ZONES = [
   { label: "Antikken", start: -500, end: 1600, color: "rgba(193,127,58,0.04)" },
   { label: "Oplysningstiden", start: 1600, end: 1800, color: "rgba(74,140,90,0.04)" },
-  { label: "1800-tallet", start: 1800, end: 1875, color: "rgba(90,110,160,0.04)" },
-  { label: "Det 20. århundrede", start: 1875, end: 2030, color: "rgba(140,90,90,0.04)" },
+  { label: "1800-tallet", start: 1800, end: 1900, color: "rgba(90,110,160,0.04)" },
+  { label: "1900-2000-tallet", start: 1900, end: 2030, color: "rgba(140,90,90,0.04)" },
 ];
 
 export function ThinkerTimeline({ thinkers }: Props) {
@@ -114,7 +114,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
             Idéernes strøm gennem historien
           </span>
           <span className="text-[10px] tracking-[0.2em] uppercase text-parchment/20">
-            {sorted[0].born < 0 ? `${Math.abs(sorted[0].born)} f.Kr.` : sorted[0].born} — {sorted[sorted.length - 1].born}
+            {sorted[0].born < 0 ? `${Math.abs(sorted[0].born)} f.Kr.` : sorted[0].born} · {sorted[sorted.length - 1].born}
           </span>
         </div>
       </div>
@@ -359,7 +359,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
                   fontFamily="Jost, sans-serif"
                   letterSpacing={1}
                 >
-                  {formatYear(hoveredThinker.born)} — {hoveredThinker.died ? formatYear(hoveredThinker.died) : ""}
+                  {formatYear(hoveredThinker.born)}{hoveredThinker.died ? ` - ${formatYear(hoveredThinker.died)}` : ""}
                 </text>
                 {/* Central idea (truncated) */}
                 <text

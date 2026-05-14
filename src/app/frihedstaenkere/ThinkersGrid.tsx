@@ -133,7 +133,7 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
       <div className="p-6">
         {/* Nationality + years */}
         <div className="text-[10px] tracking-[0.3em] uppercase text-stone/50 mb-3">
-          {t.nationality} &middot; {formatYear(t.born)}–{t.died ? formatYear(t.died) : "nu"}
+          {t.nationality} &middot; {formatYear(t.born)}{t.died ? `-${formatYear(t.died)}` : ""}
         </div>
 
         {/* Name */}
