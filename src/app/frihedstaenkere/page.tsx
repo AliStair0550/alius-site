@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { THINKERS, ALL_THEMES } from "@/lib/frihedstaenkere";
 import { ThinkersGrid } from "./ThinkersGrid";
-import { ThinkerTimeline } from "@/components/frihedstaenkere/ThinkerTimeline";
 
 export const metadata: Metadata = {
   title: "Frihedstænkere · Alius",
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function FrihedstaenkerePage() {
   return (
-    <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden">
+    <div className="min-h-screen text-ink font-sans font-light overflow-x-hidden" style={{ backgroundColor: "#F5EDE0" }}>
       {/* Top bar */}
       <div className="max-w-[1200px] mx-auto px-5 py-8 md:px-8 md:py-10 relative z-10">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-baseline gap-4 pb-8 border-b border-ink/10">
@@ -28,8 +27,8 @@ export default function FrihedstaenkerePage() {
         </header>
       </div>
 
-      {/* Hero — dark section */}
-      <div className="bg-forest relative overflow-hidden">
+      {/* Hero — warm library dark */}
+      <div className="relative overflow-hidden" style={{ backgroundColor: "#18140E" }}>
         {/* Dot grid */}
         <div
           aria-hidden
@@ -41,13 +40,9 @@ export default function FrihedstaenkerePage() {
           }}
         />
 
-        <div className="max-w-[1200px] mx-auto px-5 pt-12 pb-8 md:px-8 md:pt-16 md:pb-10 relative z-10">
-          <div className="text-[10px] tracking-[0.45em] uppercase text-moss-light/60 mb-8">
-            Alius &middot; Idébibliotek
-          </div>
-
+        <div className="max-w-[1200px] mx-auto px-5 pt-14 pb-16 md:px-8 md:pt-20 md:pb-24 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-20 mb-10">
-            <h1 className="font-fraunces font-light italic text-[clamp(38px,8.5vw,104px)] leading-[0.93] tracking-[-0.03em] text-parchment hyphens-none">
+            <h1 className="font-fraunces font-light italic text-[clamp(38px,8.5vw,104px)] leading-[0.93] tracking-[-0.03em] text-parchment">
               Frihedstænkere
             </h1>
             <div className="self-end space-y-3 text-[15px] leading-[1.7] text-parchment/45 max-w-[380px]">
@@ -64,26 +59,12 @@ export default function FrihedstaenkerePage() {
             <span>
               {Math.abs([...THINKERS].sort((a, b) => a.born - b.born)[0].born)} f.Kr. · {[...THINKERS].sort((a, b) => b.born - a.born)[0].born}
             </span>
-            <span className="opacity-40">&middot;</span>
-            <span>Alle tekster på dansk</span>
           </div>
-        </div>
-
-        {/* Timeline — full bleed, the main visual element */}
-        <div className="relative z-10">
-          <ThinkerTimeline thinkers={THINKERS} />
         </div>
       </div>
 
-      {/* Content section */}
-      <div
-        className="relative"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(26,26,26,0.04) 1px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }}
-      >
+      {/* Content section — warm aged paper */}
+      <div style={{ backgroundColor: "#F5EDE0" }}>
         <div className="max-w-[1200px] mx-auto px-5 py-16 md:px-8 md:py-20">
           {/* Section label */}
           <div className="flex items-baseline justify-between mb-10 md:mb-14 pb-4 border-b border-ink/10">
@@ -123,7 +104,7 @@ export default function FrihedstaenkerePage() {
         </div>
       </div>
 
-      <footer className="border-t border-ink/10 text-[11px] text-stone/40 tracking-[0.05em] py-6 px-5 md:px-8">
+      <footer className="border-t border-ink/10 text-[11px] text-stone/40 tracking-[0.05em] py-6 px-5 md:px-8" style={{ backgroundColor: "#F5EDE0" }}>
         Alius &middot; Strategi, brand og teknologi bygget som ét.
       </footer>
     </div>

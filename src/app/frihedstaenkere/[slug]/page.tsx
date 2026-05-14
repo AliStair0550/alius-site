@@ -77,17 +77,12 @@ export default async function ThinkerPage({ params }: Props) {
         )}
 
         <div className="max-w-[1200px] mx-auto px-5 py-8 md:px-8 md:py-10 relative z-10">
-          <header className="flex flex-col md:flex-row justify-between items-start md:items-baseline gap-4 pb-8 border-b border-parchment/8">
-            <Link
-              href="/frihedstaenkere"
-              className="font-extralight text-sm tracking-[0.3em] uppercase text-parchment/40 no-underline hover:text-parchment/80 transition-colors"
-            >
-              &larr; Frihedstænkere
-            </Link>
-            <div className="text-[11px] tracking-[0.2em] uppercase text-parchment/25">
-              {thinker.era}
-            </div>
-          </header>
+          <Link
+            href="/frihedstaenkere"
+            className="font-extralight text-sm tracking-[0.3em] uppercase text-parchment/40 no-underline hover:text-parchment/80 transition-colors"
+          >
+            &larr; Frihedstænkere
+          </Link>
         </div>
 
         {/* Identity block */}
