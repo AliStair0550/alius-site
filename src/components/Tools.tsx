@@ -69,6 +69,22 @@ export default function Tools() {
           </div>
         </Link>
 
+        {/* Active: Frihedstænkere */}
+        <Link
+          href="/frihedstaenkere"
+          className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
+        >
+          <div className="w-2 h-2 rounded-full bg-moss mb-1" />
+          <div className="font-[400] text-[0.9rem] text-ink">Frihedstænkere</div>
+          <div className="font-[200] text-[0.7rem] text-slate">Idébibliotek · 23 tænkere</div>
+          <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
+            Et bibliotek over tænkere der har formet vores forståelse af frihed, magt og civilisation — fra Platon til Byung-Chul Han.
+          </div>
+          <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
+            Udforsk &rarr;
+          </div>
+        </Link>
+
         {/* Coming soon */}
         {comingSoon.map((t) => (
           <div
