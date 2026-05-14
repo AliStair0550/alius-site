@@ -109,9 +109,13 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
               className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700"
               onError={() => setImgError(true)}
             />
-            {/* Warm bottom fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-              style={{ background: "linear-gradient(to bottom, transparent, #F9F7F2)" }}
+            {/* Subtle top darkening — dramatisk portræt-look */}
+            <div className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
+              style={{ background: "linear-gradient(to bottom, rgba(18,14,10,0.3), transparent)" }}
+            />
+            {/* Smooth bottom fade to card background */}
+            <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(249,247,242,0.6) 50%, #F9F7F2 100%)" }}
             />
           </>
         ) : (
@@ -142,10 +146,7 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
         </h2>
 
         {/* Central thesis — the hook */}
-        <p
-          className="font-fraunces font-light italic text-[13px] leading-[1.45]"
-          style={{ color: t.moodColors[1] }}
-        >
+        <p className="font-fraunces font-light italic text-[13px] leading-[1.45] text-stone/60">
           {t.visualEnergy}
         </p>
       </div>

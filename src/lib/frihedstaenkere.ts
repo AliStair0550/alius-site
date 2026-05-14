@@ -258,6 +258,7 @@ export const THINKERS: Thinker[] = [
   },
   {
     slug: "john-stuart-mill",
+    portraitSrc: "/images/frihedstaenkere/john-stuart-mill.avif",
     name: "John Stuart Mill",
     born: 1806,
     died: 1873,
@@ -418,6 +419,7 @@ export const THINKERS: Thinker[] = [
   },
   {
     slug: "ludwig-von-mises",
+    portraitSrc: "/images/frihedstaenkere/ludwig-von-mises.avif",
     name: "Ludwig von Mises",
     born: 1881,
     died: 1973,
@@ -521,6 +523,7 @@ export const THINKERS: Thinker[] = [
   },
   {
     slug: "karl-popper",
+    portraitSrc: "/images/frihedstaenkere/karl-popper.avif",
     name: "Karl Popper",
     born: 1902,
     died: 1994,
@@ -572,6 +575,7 @@ export const THINKERS: Thinker[] = [
   },
   {
     slug: "isaiah-berlin",
+    portraitSrc: "/images/frihedstaenkere/isaiah-berlin.avif",
     name: "Isaiah Berlin",
     born: 1909,
     died: 1997,
@@ -678,6 +682,7 @@ export const THINKERS: Thinker[] = [
   },
   {
     slug: "milton-friedman",
+    portraitSrc: "/images/frihedstaenkere/milton-friedman.avif",
     name: "Milton Friedman",
     born: 1912,
     died: 2006,
@@ -781,6 +786,7 @@ export const THINKERS: Thinker[] = [
   },
   {
     slug: "john-rawls",
+    portraitSrc: "/images/frihedstaenkere/john-rawls.avif",
     name: "John Rawls",
     born: 1921,
     died: 2002,
