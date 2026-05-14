@@ -77,7 +77,7 @@ export function ProfileView({
             <p className="text-[17px] leading-[1.65] text-stone mb-5 max-w-[640px]">
               Med <strong className="text-ink font-normal">{secondaryArch.name.toLowerCase()}</strong> som din sekundære kvadrant tilfører du noget der gør profilen særlig. Du er {secondaryArch.short}. Det er den kombination der gør dig genkendelig.
             </p>
-            <div className="mt-8 bg-sand p-12">
+            <div className="mt-8 bg-sand p-5 md:p-12">
               <div className="max-w-[400px] mx-auto">
                 <Quadrant totals={totals} size={400} showLabels />
               </div>

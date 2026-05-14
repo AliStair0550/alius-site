@@ -120,7 +120,7 @@ export function TeamReportView({
           <div className="max-w-[280px] mx-auto">
             <Quadrant totals={a.aggregateTotals} size={280} showLabels />
           </div>
-          <div className="grid grid-cols-4 gap-4 mt-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
             {(["A", "B", "C", "D"] as QuadrantKey[]).map((q) => (
               <div key={q} className="text-center">
                 <div
@@ -266,19 +266,19 @@ export function TeamReportView({
           {a.participants.map((p) => (
             <div
               key={p.id}
-              className="flex items-center justify-between py-4 border-b border-ink/8"
+              className="flex items-start sm:items-center justify-between py-4 border-b border-ink/8 gap-3"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 min-w-0">
                 <span
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: ARCHETYPES[p.primary].color }}
                 />
-                <span className="text-[15px]">{p.name}</span>
-                <span className="text-[11px] text-stone opacity-40 font-mono">
+                <span className="text-[15px] truncate">{p.name}</span>
+                <span className="hidden sm:inline text-[11px] text-stone opacity-40 font-mono flex-shrink-0">
                   {clarityQualifier(calculateClarity(p.totals, p.primary).label)}
                 </span>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <span className="text-[12px] text-stone opacity-50 font-mono">
                   {p.primary}/{p.secondary}
                 </span>

@@ -40,11 +40,11 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
           <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-4">
             {clarityQualifier(clarity.label)}
           </div>
-          <div className="flex items-end justify-between gap-6">
-            <h1 className="font-fraunces font-light italic text-[clamp(72px,13vw,180px)] leading-[0.85] tracking-[-0.04em] text-ink animate-[revealUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.2s_both]">
+          <div className="flex items-end justify-between gap-4 md:gap-6">
+            <h1 className="font-fraunces font-light italic text-[clamp(44px,13vw,180px)] leading-[0.85] tracking-[-0.04em] text-ink animate-[revealUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.2s_both]">
               {primaryArch.name}
             </h1>
-            <div className="w-[100px] md:w-[150px] flex-shrink-0 mb-2">
+            <div className="w-[70px] sm:w-[100px] md:w-[150px] flex-shrink-0 mb-2">
               <Glyph totals={totals} size={150} />
             </div>
           </div>
@@ -131,18 +131,18 @@ export function Teaser({ totals, pct, primary, secondary, weakest, onSubmitEmail
             </li>
           ))}
         </ul>
-        <form onSubmit={handleSubmit} className="flex border border-ink">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row sm:border sm:border-ink gap-2 sm:gap-0">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="din@email.dk"
             required
-            className="flex-1 px-5 py-[18px] border-none bg-transparent text-[15px] font-light text-ink outline-none placeholder:text-stone/50"
+            className="flex-1 px-5 py-[18px] border border-ink sm:border-none bg-transparent text-[15px] font-light text-ink outline-none placeholder:text-stone/50"
           />
           <button
             type="submit"
-            className="bg-ink text-parchment border-none px-7 text-xs font-normal tracking-[0.25em] uppercase cursor-pointer transition-colors duration-300 hover:bg-moss"
+            className="bg-ink text-parchment border-none px-7 py-[18px] sm:py-0 text-xs font-normal tracking-[0.25em] uppercase cursor-pointer transition-colors duration-300 hover:bg-moss"
           >
             Send rapport
           </button>

@@ -51,6 +51,16 @@ const VAERKTOEJER: Vaerktoj[] = [
     href: "/tankeprofil",
     accentLabel: "Personlig · Gratis test",
   },
+  {
+    slug: "frihedstaenkere",
+    name: "Frihedstænkere",
+    tagline: "De tænkere der formede vores forståelse af frihed.",
+    description:
+      "Et kuratoreret univers af klassiske og moderne tænkere om frihed — politisk, økonomisk og filosofisk. Locke, Hayek, Mill, Rawls og flere. Alle tekster på dansk, skrevet til at tænke med.",
+    audience: "For ledere, studerende og nysgerrige der vil forstå idéernes verden.",
+    href: "/frihedstaenkere",
+    accentLabel: "Idéhistorie · 10 tænkere",
+  },
 ];
 
 export default function VaerktoejerPage() {
