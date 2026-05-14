@@ -90,6 +90,7 @@ function SuccessPanel({ result }: { result: SessionResult }) {
   const [sending, setSending] = useState(false);
   const [inviteResult, setInviteResult] = useState<{ sent: number; failed: number } | null>(null);
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function sendInvites(e: React.FormEvent) {
     e.preventDefault();
@@ -123,26 +124,49 @@ function SuccessPanel({ result }: { result: SessionResult }) {
     }
   }
 
+  async function handleCopy() {
+    await navigator.clipboard.writeText(result.joinUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
-    <div className="animate-[fadeIn_0.5s_ease-out] space-y-10">
-      {/* Join link */}
-      <div className="bg-sand p-8 md:p-10">
-        <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-4">
-          Hold-link klar
+    <div className="animate-[fadeIn_0.5s_ease-out] space-y-8">
+      {/* Take the test yourself — first CTA */}
+      <div className="bg-ink text-parchment p-8 md:p-10">
+        <div className="text-[10px] tracking-[0.3em] uppercase text-parchment/50 mb-4">
+          Næste skridt for dig
         </div>
-        <h3 className="font-fraunces font-light text-[28px] leading-[1.1] mb-4 tracking-[-0.01em]">
-          Del dette link med dit hold.
+        <h3 className="font-fraunces font-light text-[26px] leading-[1.1] mb-3 tracking-[-0.01em]">
+          Tag testen selv nu.
         </h3>
-        <p className="text-stone text-[14px] leading-[1.6] mb-6 max-w-[440px]">
-          Alle der klikker linket kan tage testen og bidrage til holdrapporten. De behøver ikke en konto.
+        <p className="text-[14px] text-parchment/70 leading-[1.6] mb-6 max-w-[400px]">
+          Som opretter deltager du på præcis samme måde som alle andre. Klik nedenfor og udfyld din profil.
         </p>
-        <div className="border border-ink/15 bg-parchment p-4 flex flex-col md:flex-row items-start md:items-center gap-3">
-          <span className="text-[14px] text-moss break-all flex-1">{result.joinUrl}</span>
+        <a
+          href={result.joinUrl}
+          className="inline-flex items-center gap-4 bg-parchment text-ink px-8 py-[18px] text-[12px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
+        >
+          Tag testen selv
+          <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+        </a>
+      </div>
+
+      {/* Join link to share */}
+      <div className="bg-sand p-8 md:p-10">
+        <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-3">
+          Hold-link
+        </div>
+        <p className="text-stone text-[14px] leading-[1.6] mb-5 max-w-[440px]">
+          Del dette link med dit hold. Alle der klikker kan tage testen — ingen konto nødvendig.
+        </p>
+        <div className="border border-ink/15 bg-parchment p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <span className="text-[13px] text-moss break-all flex-1 leading-[1.5]">{result.joinUrl}</span>
           <button
-            onClick={() => navigator.clipboard.writeText(result.joinUrl)}
+            onClick={handleCopy}
             className="text-[11px] tracking-[0.2em] uppercase border border-ink/25 px-4 py-2 hover:bg-ink hover:text-parchment hover:border-ink transition-colors cursor-pointer flex-shrink-0"
           >
-            Kopier
+            {copied ? "Kopieret ✓" : "Kopier"}
           </button>
         </div>
       </div>
@@ -152,11 +176,8 @@ function SuccessPanel({ result }: { result: SessionResult }) {
         <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-3">
           Inviter direkte
         </div>
-        <h3 className="font-fraunces font-light text-[22px] leading-[1.2] mb-3 tracking-[-0.01em]">
-          Send invitationer fra Alius.
-        </h3>
-        <p className="text-[14px] text-stone leading-[1.6] mb-5 max-w-[440px]">
-          Skriv emailadresserne på dem du vil invitere, adskilt af komma eller mellemrum. De modtager et link direkte fra Alius.
+        <p className="text-[14px] text-stone leading-[1.6] mb-4 max-w-[440px]">
+          Send invitationer direkte fra Alius. Skriv emailadresser adskilt af komma.
         </p>
 
         {inviteResult ? (
@@ -197,21 +218,22 @@ function SuccessPanel({ result }: { result: SessionResult }) {
         )}
       </div>
 
-      {/* Admin link */}
-      <div className="border-t border-ink/10 pt-8">
-        <div className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50 mb-1">
-          Dit admin-link (gem til dig selv)
+      {/* Admin panel — styled card */}
+      <div className="border border-ink/15 p-6 md:p-8">
+        <div className="text-[10px] tracking-[0.25em] uppercase text-stone/50 mb-3">
+          Admin-panel
         </div>
-        <p className="text-[13px] text-stone opacity-70 leading-[1.5] mb-2">
-          Følg fremgangen og se holdrapporten her.
+        <p className="text-[14px] leading-[1.6] text-stone mb-5 max-w-[400px]">
+          Følg hvem der har udfyldt profilen og se holdrapporten efterhånden som deltagere færdiggør testen.
         </p>
         <a
           href={result.adminUrl}
-          className="text-[13px] text-moss hover:underline break-all"
+          className="inline-flex items-center gap-4 border border-ink text-ink px-7 py-[14px] text-[12px] font-normal tracking-[0.2em] uppercase no-underline hover:bg-ink hover:text-parchment transition-colors group"
         >
-          {result.adminUrl}
+          Åbn admin-panel
+          <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
         </a>
-        <p className="text-[12px] text-stone opacity-50 mt-3">
+        <p className="text-[12px] text-stone/50 mt-5">
           Begge links er sendt til din email.
         </p>
       </div>

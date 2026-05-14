@@ -212,27 +212,37 @@ export function approvalEmailHtml(data: ApprovalEmailData): string {
 
                 <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
                   <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
-                    Deltager-link, send til holdet
+                    Hold-link — send til deltagerne
                   </div>
                   <a href="${data.joinUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.joinUrl}</a>
                 </div>
 
-                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(26,26,26,0.1);">
-                  <p style="font-size: 14px; line-height: 1.6; color: rgba(26,26,26,0.6); margin: 0 0 12px 0;">
-                    Som administrator kan du følge med i hvem der har udfyldt profilen:
-                  </p>
-                  <a href="${data.adminUrl}" style="font-size: 14px; color: #2D5F4A; text-decoration: none;">${data.adminUrl}</a>
-                </div>
-
                 <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(26,26,26,0.1);">
-                  <a href="${data.joinUrl}"
-                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
-                    Åbn deltager-link &rarr;
-                  </a>
+                  <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 16px;">
+                    Dine to links
+                  </div>
+                  <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="padding-bottom: 12px;">
+                        <a href="${data.joinUrl}"
+                           style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                          Tag testen selv &rarr;
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <a href="${data.adminUrl}"
+                           style="display: inline-block; background-color: transparent; color: #1A1A1A; padding: 14px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 400; border: 1px solid rgba(26,26,26,0.25);">
+                          Se admin-panel &rarr;
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
 
                 <div style="margin-top: 32px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
-                  Gem dette link. Det er dit adgangspunkt til holdrapporten.<br>
+                  Gem denne email. Dine links er dit adgangspunkt til session og rapport.<br>
                   Spørgsmål? Skriv til hej@alius.dk
                 </div>
               </td>
@@ -255,15 +265,18 @@ export function approvalEmailHtml(data: ApprovalEmailData): string {
 export function approvalEmailText(data: ApprovalEmailData): string {
   return `Hej ${data.name},
 
-Jeres hold-link til ${data.company} er klar.
+Jeres hold-session hos ${data.company} er klar.
 
-Send dette link til alle deltagere:
+HOLD-LINK (send til deltagerne):
 ${data.joinUrl}
 
-Dit admin-link (hold til dig selv):
-${data.adminUrl}
+Tag testen selv ved at klikke samme link — du deltager på præcis samme måde som holdet.
 
-Gem disse links, de er jeres adgang til holdrapporten.
+ADMIN-PANEL (gem til dig selv):
+${data.adminUrl}
+Følg hvem der har udfyldt profilen og se holdrapporten her.
+
+Gem denne email. Dine links er dit adgangspunkt til session og rapport.
 Spørgsmål? Skriv til hej@alius.dk
 
 Alius Personlighedsprofil`;

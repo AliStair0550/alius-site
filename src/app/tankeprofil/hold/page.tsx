@@ -50,35 +50,6 @@ export default function HoldPage() {
           </p>
         </section>
 
-        {/* Hvad I får */}
-        <section className="mb-20 border-t border-ink/10 pt-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-            {[
-              {
-                n: "01",
-                title: "Individuelle profiler",
-                desc: "Alle tager testen på fem minutter og får sin egen profil med det samme.",
-              },
-              {
-                n: "02",
-                title: "Fælles rapport",
-                desc: "Holdrapporten viser jeres samlede mønster: styrker, blinde felter, spændinger og hvem I er som gruppe.",
-              },
-              {
-                n: "03",
-                title: "Stærkere samarbejde",
-                desc: "Brug rapporten til at forstå hinanden bedre, fordele ansvar klogere og have de samtaler der ellers ikke sker.",
-              },
-            ].map(({ n, title, desc }) => (
-              <div key={n}>
-                <div className="font-fraunces font-light text-2xl text-moss mb-4">{n}</div>
-                <div className="font-normal text-base mb-2">{title}</div>
-                <p className="text-[14px] leading-[1.6] text-stone">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Form */}
         <section className="border-t border-ink/10 pt-16 mb-24">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-12 md:gap-20">
