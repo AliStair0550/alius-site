@@ -42,27 +42,49 @@ export default async function ThinkerPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden">
-      {/* Dark hero header */}
-      <div className="bg-forest relative overflow-hidden">
+      {/* Hero — warm library dark */}
+      <div className="relative overflow-hidden" style={{ backgroundColor: "#18140E" }}>
+        {/* Subtle warm paper grain */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba(249,247,242,0.025) 1px, transparent 0)",
-            backgroundSize: "28px 28px",
+              "radial-gradient(circle at 1px 1px, rgba(249,247,242,0.03) 1px, transparent 0)",
+            backgroundSize: "24px 24px",
           }}
         />
 
+        {/* Portrait — bleeds in from right, fades left */}
+        {thinker.portraitSrc && (
+          <div className="absolute right-0 inset-y-0 w-[45%] hidden md:block pointer-events-none">
+            <Image
+              src={thinker.portraitSrc}
+              alt={thinker.name}
+              fill
+              className="object-cover object-top grayscale opacity-50"
+              priority
+            />
+            {/* Fade left into dark */}
+            <div className="absolute inset-0" style={{
+              background: "linear-gradient(to right, #18140E 0%, rgba(24,20,14,0.5) 40%, transparent 100%)"
+            }} />
+            {/* Warm amber glow overlay */}
+            <div className="absolute inset-0" style={{
+              background: "radial-gradient(ellipse at 60% 40%, rgba(201,169,110,0.08) 0%, transparent 70%)"
+            }} />
+          </div>
+        )}
+
         <div className="max-w-[1200px] mx-auto px-5 py-8 md:px-8 md:py-10 relative z-10">
-          <header className="flex flex-col md:flex-row justify-between items-start md:items-baseline gap-4 pb-8 border-b border-parchment/10">
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-baseline gap-4 pb-8 border-b border-parchment/8">
             <Link
               href="/frihedstaenkere"
-              className="font-extralight text-sm tracking-[0.3em] uppercase text-parchment/50 no-underline hover:text-parchment transition-colors"
+              className="font-extralight text-sm tracking-[0.3em] uppercase text-parchment/40 no-underline hover:text-parchment/80 transition-colors"
             >
               &larr; Frihedstænkere
             </Link>
-            <div className="text-[11px] tracking-[0.2em] uppercase text-parchment/30">
+            <div className="text-[11px] tracking-[0.2em] uppercase text-parchment/25">
               {thinker.era}
             </div>
           </header>
@@ -70,61 +92,32 @@ export default async function ThinkerPage({ params }: Props) {
 
         {/* Identity block */}
         <div className="max-w-[1200px] mx-auto px-5 pb-0 md:px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-0 md:gap-0 items-end">
-            <div className="pt-6 pb-12 md:pb-16">
-              {/* Nationality + years */}
-              <div className="text-[10px] tracking-[0.35em] uppercase text-parchment/30 mb-6">
-                {thinker.nationality} &middot; {formatYear(thinker.born)}
-                {thinker.died ? `-${formatYear(thinker.died)}` : ""}
-              </div>
-
-              {/* Name */}
-              <h1 className="font-fraunces font-light text-[clamp(36px,7.5vw,88px)] leading-[0.95] tracking-[-0.025em] text-parchment mb-6">
-                {thinker.name}
-              </h1>
-
-              {/* Tagline */}
-              <p
-                className="font-fraunces font-light italic text-[20px] md:text-[24px] leading-[1.35] max-w-[560px] mb-8"
-                style={{ color: thinker.moodColors[1] }}
-              >
-                {thinker.tagline}
-              </p>
-
-              {/* Visual energy badge */}
-              <div className="inline-flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-parchment/25">
-                <span
-                  className="inline-block w-2 h-2 rounded-full"
-                  style={{ backgroundColor: thinker.moodColors[1] }}
-                />
-                {thinker.symbol} &middot; &ldquo;{thinker.visualEnergy}&rdquo;
-              </div>
+          <div className="pt-4 pb-14 md:pb-20 max-w-[680px]">
+            {/* Nationality + years */}
+            <div className="text-[10px] tracking-[0.35em] uppercase mb-6" style={{ color: "rgba(201,169,110,0.45)" }}>
+              {thinker.nationality} &middot; {formatYear(thinker.born)}
+              {thinker.died ? `-${formatYear(thinker.died)}` : ""}
             </div>
 
-            {/* Portrait */}
-            <div className="relative self-stretch hidden md:block">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: `radial-gradient(ellipse at 40% 50%, ${thinker.moodColors[1]}33, ${thinker.moodColors[0]} 70%)`,
-                }}
-              />
-              {thinker.portraitSrc && (
-                <Image
-                  src={thinker.portraitSrc}
-                  alt={thinker.name}
-                  fill
-                  className="object-cover object-top grayscale mix-blend-luminosity"
-                  priority
-                />
-              )}
-              {/* Gradient fade to dark at bottom */}
-              <div
-                className="absolute bottom-0 left-0 right-0 h-24"
-                style={{
-                  background: `linear-gradient(to bottom, transparent, ${thinker.moodColors[0]})`,
-                }}
-              />
+            {/* Name */}
+            <h1 className="font-fraunces font-light text-[clamp(44px,8vw,100px)] leading-[0.92] tracking-[-0.03em] text-parchment mb-6">
+              {thinker.name}
+            </h1>
+
+            {/* Tagline */}
+            <p
+              className="font-fraunces font-light italic text-[20px] md:text-[26px] leading-[1.3] max-w-[540px] mb-10"
+              style={{ color: "rgba(201,169,110,0.8)" }}
+            >
+              {thinker.tagline}
+            </p>
+
+            {/* Visual energy — the thesis */}
+            <div className="flex items-center gap-4">
+              <span className="h-px w-10 flex-shrink-0" style={{ backgroundColor: "rgba(201,169,110,0.3)" }} />
+              <span className="text-[11px] tracking-[0.3em] uppercase" style={{ color: "rgba(201,169,110,0.4)" }}>
+                &ldquo;{thinker.visualEnergy}&rdquo;
+              </span>
             </div>
           </div>
         </div>

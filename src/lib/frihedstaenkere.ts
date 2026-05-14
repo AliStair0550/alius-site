@@ -55,7 +55,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#1A1208", "#C17F3A"],
     visualEnergy: "virkelighed er konstrueret",
     portraitSrc: "/images/frihedstaenkere/platon.avif",
-    themes: ["Erkendelse", "Virkelighed", "Sjæl"],
+    themes: ["Sandhed", "Bevidsthed"],
     relations: [
       { slug: "karl-popper", name: "Karl Popper", label: "Kritiseret af" },
       { slug: "john-rawls", name: "John Rawls", label: "Idémæssig forfader til" },
@@ -107,8 +107,9 @@ export const THINKERS: Thinker[] = [
     centralIdea: "Mennesket fødes med naturlige rettigheder - og al legitim magt kræver samtykke.",
     symbol: "Kontrakten",
     moodColors: ["#1A1408", "#B8923A"],
+    portraitSrc: "/images/frihedstaenkere/john-locke.avif",
     visualEnergy: "ret er altid forud for magt",
-    themes: ["Naturret", "Ejendom", "Samtykke"],
+    themes: ["Frihed", "Samfund"],
     relations: [
       { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirkede" },
       { slug: "john-rawls", name: "John Rawls", label: "Påvirkede" },
@@ -159,8 +160,9 @@ export const THINKERS: Thinker[] = [
     centralIdea: "Individers egeninteresse, kanaliseret gennem fri udveksling, skaber kollektiv velstand.",
     symbol: "Den usynlige hånd",
     moodColors: ["#0A1A0A", "#4A8C5A"],
+    portraitSrc: "/images/frihedstaenkere/adam-smith.avif",
     visualEnergy: "orden opstår uden planlægning",
-    themes: ["Marked", "Arbejdsdeling", "Velstand"],
+    themes: ["Marked", "Samfund"],
     relations: [
       { slug: "ludwig-von-mises", name: "Ludwig von Mises", label: "Påvirkede" },
       { slug: "milton-friedman", name: "Milton Friedman", label: "Påvirkede" },
@@ -212,8 +214,9 @@ export const THINKERS: Thinker[] = [
     centralIdea: "Demokratiet bærer kimen til sin egen korrumpering: majoritetens tyranni og statens blide despotisme.",
     symbol: "Massen",
     moodColors: ["#1A0E08", "#8C5A3A"],
+    portraitSrc: "/images/frihedstaenkere/alexis-de-tocqueville.avif",
     visualEnergy: "flertallet kan undertrykke",
-    themes: ["Demokrati", "Civilsamfund", "Frihed"],
+    themes: ["Frihed", "Samfund"],
     relations: [
       { slug: "john-locke", name: "John Locke", label: "Påvirket af" },
       { slug: "rene-girard", name: "René Girard", label: "Påvirkede" },
@@ -265,7 +268,7 @@ export const THINKERS: Thinker[] = [
     symbol: "Skalesvægten",
     moodColors: ["#0A1020", "#5A6EA0"],
     visualEnergy: "skad ingen, gør alt",
-    themes: ["Ytringsfrihed", "Skadesprincippet", "Individ"],
+    themes: ["Frihed", "Samfund"],
     relations: [
       { slug: "john-locke", name: "John Locke", label: "Påvirket af" },
       { slug: "isaiah-berlin", name: "Isaiah Berlin", label: "Påvirkede" },
@@ -319,7 +322,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#1A0C06", "#C87040"],
     visualEnergy: "intet er sandt - alt er tilladt",
     portraitSrc: "/images/frihedstaenkere/friedrich-nietzsche.avif",
-    themes: ["Moral", "Identitet", "Magt"],
+    themes: ["Identitet", "Magt"],
     relations: [
       { slug: "carl-jung", name: "Carl Jung", label: "Påvirkede" },
       { slug: "rene-girard", name: "René Girard", label: "Påvirkede" },
@@ -374,7 +377,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#080F1A", "#3A7A8A"],
     visualEnergy: "det skjulte selv",
     portraitSrc: "/images/frihedstaenkere/carl-jung.avif",
-    themes: ["Det ubevidste", "Arketyper", "Individuering"],
+    themes: ["Bevidsthed", "Identitet"],
     relations: [
       { slug: "friedrich-nietzsche", name: "Friedrich Nietzsche", label: "Påvirket af" },
       { slug: "rene-girard", name: "René Girard", label: "Beslægtet med" },
@@ -425,7 +428,7 @@ export const THINKERS: Thinker[] = [
     symbol: "Prissystemet",
     moodColors: ["#180A08", "#9E5A3A"],
     visualEnergy: "planlægning er blind",
-    themes: ["Østrigsk økonomi", "Praxeologi", "Socialismekritik"],
+    themes: ["Marked", "Frihed"],
     relations: [
       { slug: "adam-smith", name: "Adam Smith", label: "Påvirket af" },
       { slug: "friedrich-hayek", name: "Friedrich Hayek", label: "Påvirkede" },
@@ -475,8 +478,9 @@ export const THINKERS: Thinker[] = [
     centralIdea: "Markedets virkelige fortrin er informationsbehandling: det koordinerer spredt, tavsliggjort viden som ingen central instans kan besidde.",
     symbol: "Prisen",
     moodColors: ["#08101A", "#4A6E9E"],
+    portraitSrc: "/images/frihedstaenkere/friedrich-hayek.avif",
     visualEnergy: "viden er spredt og tavsliggjort",
-    themes: ["Spontan orden", "Vidensproblemet", "Planøkonomi"],
+    themes: ["Marked", "Frihed"],
     relations: [
       { slug: "ludwig-von-mises", name: "Ludwig von Mises", label: "Påvirket af" },
       { slug: "milton-friedman", name: "Milton Friedman", label: "Påvirkede" },
@@ -527,7 +531,7 @@ export const THINKERS: Thinker[] = [
     symbol: "Den åbne dør",
     moodColors: ["#101810", "#5A8E5A"],
     visualEnergy: "falsifiér eller forkast",
-    themes: ["Åbent samfund", "Kritisk rationalisme", "Falsifikation"],
+    themes: ["Sandhed", "Samfund"],
     relations: [
       { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirket af" },
       { slug: "platon", name: "Platon", label: "Reaktion mod" },
@@ -578,7 +582,7 @@ export const THINKERS: Thinker[] = [
     symbol: "De to pile",
     moodColors: ["#150A20", "#7A5A9E"],
     visualEnergy: "frihed har to modstridende ansigter",
-    themes: ["Negative frihed", "Positive frihed", "Pluralisme"],
+    themes: ["Frihed"],
     relations: [
       { slug: "john-locke", name: "John Locke", label: "Påvirket af" },
       { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirket af" },
@@ -630,7 +634,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#080E18", "#3E6E9E"],
     visualEnergy: "mediet er budskabet",
     portraitSrc: "/images/frihedstaenkere/marshall-mcluhan.avif",
-    themes: ["Teknologi", "Perception", "Medier"],
+    themes: ["Teknologi", "Samfund"],
     relations: [
       { slug: "joseph-weizenbaum", name: "Joseph Weizenbaum", label: "Påvirkede" },
       { slug: "jacques-ellul", name: "Jacques Ellul", label: "Beslægtet med" },
@@ -684,7 +688,7 @@ export const THINKERS: Thinker[] = [
     symbol: "Valgsedlen",
     moodColors: ["#081818", "#3A8E8E"],
     visualEnergy: "frihed og velstand er ét",
-    themes: ["Monetarisme", "Frit valg", "Markedsøkonomi"],
+    themes: ["Marked", "Frihed"],
     relations: [
       { slug: "friedrich-hayek", name: "Friedrich Hayek", label: "Påvirket af" },
       { slug: "ludwig-von-mises", name: "Ludwig von Mises", label: "Påvirket af" },
@@ -736,7 +740,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#0A0E12", "#3A5E70"],
     visualEnergy: "effektivitet uden formål",
     portraitSrc: "/images/frihedstaenkere/jacques-ellul.avif",
-    themes: ["Teknologi", "Effektivitet", "Kontrol", "Modernitet", "Systemer"],
+    themes: ["Teknologi", "Magt"],
     relations: [
       { slug: "marshall-mcluhan", name: "Marshall McLuhan", label: "Beslægtet med" },
       { slug: "ivan-illich", name: "Ivan Illich", label: "Påvirkede" },
@@ -787,7 +791,7 @@ export const THINKERS: Thinker[] = [
     symbol: "Sløret",
     moodColors: ["#181208", "#9E8E5A"],
     visualEnergy: "retfærdighed kræver uviden om sig selv",
-    themes: ["Retfærdighed", "Uvidenhedens slør", "Liberal lighed"],
+    themes: ["Samfund", "Frihed"],
     relations: [
       { slug: "john-locke", name: "John Locke", label: "Påvirket af" },
       { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirket af" },
@@ -840,7 +844,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#1A0808", "#8C2020"],
     visualEnergy: "mennesker kopierer hinanden",
     portraitSrc: "/images/frihedstaenkere/rene-girard.avif",
-    themes: ["Imitation", "Begær", "Syndebuk"],
+    themes: ["Identitet", "Magt"],
     relations: [
       { slug: "alexis-de-tocqueville", name: "Tocqueville", label: "Påvirket af" },
       { slug: "carl-jung", name: "Carl Jung", label: "Beslægtet med" },
@@ -892,7 +896,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#060C16", "#2A647A"],
     visualEnergy: "maskinen lytter - mennesket tror",
     portraitSrc: "/images/frihedstaenkere/joseph-weizenbaum.avif",
-    themes: ["Kunstig intelligens", "Illusion", "Teknologi"],
+    themes: ["Teknologi", "Sandhed"],
     relations: [
       { slug: "marshall-mcluhan", name: "Marshall McLuhan", label: "Påvirket af" },
       { slug: "ivan-illich", name: "Ivan Illich", label: "Beslægtet med" },
@@ -944,7 +948,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#080C10", "#3A5E7A"],
     visualEnergy: "magt skjult som normalitet",
     portraitSrc: "/images/frihedstaenkere/michel-foucault.avif",
-    themes: ["Magt", "Overvågning", "Normer", "Viden", "Kontrol"],
+    themes: ["Magt", "Sandhed"],
     relations: [
       { slug: "friedrich-nietzsche", name: "Friedrich Nietzsche", label: "Påvirket af" },
       { slug: "guy-debord", name: "Guy Debord", label: "Beslægtet med" },
@@ -996,7 +1000,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#081408", "#3E7A3A"],
     visualEnergy: "store systemer underminerer sig selv",
     portraitSrc: "/images/frihedstaenkere/ivan-illich.avif",
-    themes: ["Systemer", "Autonomi", "Uddannelse", "Teknologi", "Menneskelig frihed"],
+    themes: ["Teknologi", "Frihed"],
     relations: [
       { slug: "jacques-ellul", name: "Jacques Ellul", label: "Påvirket af" },
       { slug: "joseph-weizenbaum", name: "Joseph Weizenbaum", label: "Beslægtet med" },
@@ -1048,7 +1052,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#180818", "#9A4EA0"],
     visualEnergy: "kopien er mere virkelig end originalen",
     portraitSrc: "/images/frihedstaenkere/jean-baudrillard.avif",
-    themes: ["Medier", "Hyperrealitet", "Forbrug", "Virkelighed", "Simulation"],
+    themes: ["Sandhed", "Teknologi"],
     relations: [
       { slug: "marshall-mcluhan", name: "Marshall McLuhan", label: "Påvirket af" },
       { slug: "guy-debord", name: "Guy Debord", label: "Beslægtet med" },
@@ -1100,7 +1104,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#12080E", "#8E3A6A"],
     visualEnergy: "liv erstattet af iscenesættelse",
     portraitSrc: "/images/frihedstaenkere/guy-debord.avif",
-    themes: ["Spektakel", "Performance", "Opmærksomhed", "Kultur", "Identitet"],
+    themes: ["Magt", "Samfund"],
     relations: [
       { slug: "marshall-mcluhan", name: "Marshall McLuhan", label: "Påvirket af" },
       { slug: "jean-baudrillard", name: "Jean Baudrillard", label: "Beslægtet med" },
@@ -1152,7 +1156,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#100C08", "#8C6830"],
     visualEnergy: "alvor opløst i underholdning",
     portraitSrc: "/images/frihedstaenkere/neil-postman.avif",
-    themes: ["Medier", "Opmærksomhed", "Underholdning", "Demokrati", "Kultur"],
+    themes: ["Teknologi", "Samfund"],
     relations: [
       { slug: "marshall-mcluhan", name: "Marshall McLuhan", label: "Påvirket af" },
       { slug: "guy-debord", name: "Guy Debord", label: "Beslægtet med" },
@@ -1204,7 +1208,7 @@ export const THINKERS: Thinker[] = [
     moodColors: ["#101018", "#6A6890"],
     visualEnergy: "frihed der udmatter",
     portraitSrc: "/images/frihedstaenkere/byung-chul-han.avif",
-    themes: ["Mental træthed", "Digital kultur", "Selvoptimering", "Modernitet", "Identitet"],
+    themes: ["Bevidsthed", "Teknologi"],
     relations: [
       { slug: "michel-foucault", name: "Michel Foucault", label: "Påvirket af" },
       { slug: "jean-baudrillard", name: "Jean Baudrillard", label: "Beslægtet med" },

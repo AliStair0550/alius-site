@@ -80,7 +80,7 @@ export function ThinkersGrid({ thinkers, allThemes }: Props) {
           Ingen tænkere matcher søgningen.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-ink/8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {filtered.map((t) => (
             <ThinkerCard key={t.slug} thinker={t} />
           ))}
@@ -96,20 +96,25 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
   return (
     <Link
       href={`/frihedstaenkere/${t.slug}`}
-      className="group block bg-parchment hover:bg-fog/30 transition-colors no-underline overflow-hidden"
+      className="group block no-underline overflow-hidden border border-ink/10 hover:border-ink/30 transition-all duration-300 bg-parchment"
     >
-      {/* Portrait / placeholder */}
-      <div className="relative w-full aspect-[4/3] overflow-hidden">
+      {/* Portrait — tall portrait ratio */}
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
         {t.portraitSrc && !imgError ? (
-          <Image
-            src={t.portraitSrc}
-            alt={t.name}
-            fill
-            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-            onError={() => setImgError(true)}
-          />
+          <>
+            <Image
+              src={t.portraitSrc}
+              alt={t.name}
+              fill
+              className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700"
+              onError={() => setImgError(true)}
+            />
+            {/* Warm bottom fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+              style={{ background: "linear-gradient(to bottom, transparent, #F9F7F2)" }}
+            />
+          </>
         ) : (
-          // Mood color gradient placeholder
           <div
             className="absolute inset-0"
             style={{
@@ -118,57 +123,31 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
           />
         )}
 
-        {/* Symbol overlay */}
-        <div className="absolute bottom-3 left-4 text-[10px] tracking-[0.3em] uppercase text-parchment/30 pointer-events-none">
-          {t.symbol}
-        </div>
-
         {/* Era badge */}
-        <div className="absolute top-3 right-3 text-[9px] tracking-[0.25em] uppercase bg-ink/50 text-parchment/70 px-2 py-1 backdrop-blur-sm">
+        <div className="absolute top-2 left-2 text-[8px] tracking-[0.2em] uppercase bg-parchment/80 text-ink/50 px-2 py-1 backdrop-blur-sm">
           {t.era}
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-6">
-        {/* Nationality + years */}
-        <div className="text-[10px] tracking-[0.3em] uppercase text-stone/50 mb-3">
-          {t.nationality} &middot; {formatYear(t.born)}{t.died ? `-${formatYear(t.died)}` : ""}
+      <div className="px-4 py-4">
+        {/* Years */}
+        <div className="text-[9px] tracking-[0.25em] uppercase text-stone/40 mb-2">
+          {formatYear(t.born)}{t.died ? `-${formatYear(t.died)}` : ""}
         </div>
 
         {/* Name */}
-        <h2 className="font-fraunces font-light text-[26px] leading-[1.1] tracking-[-0.01em] text-ink mb-2 group-hover:text-moss transition-colors">
+        <h2 className="font-fraunces font-light text-[20px] leading-[1.1] tracking-[-0.01em] text-ink mb-2 group-hover:text-moss transition-colors">
           {t.name}
         </h2>
 
-        {/* Visual energy */}
+        {/* Central thesis — the hook */}
         <p
-          className="font-fraunces font-light italic text-[13px] mb-4 leading-[1.4]"
+          className="font-fraunces font-light italic text-[13px] leading-[1.45]"
           style={{ color: t.moodColors[1] }}
         >
-          &ldquo;{t.visualEnergy}&rdquo;
+          {t.visualEnergy}
         </p>
-
-        {/* Central idea */}
-        <p className="text-[13px] leading-[1.6] text-stone/70 line-clamp-2 mb-4">
-          {t.centralIdea}
-        </p>
-
-        {/* Themes */}
-        <div className="flex flex-wrap gap-1.5">
-          {t.themes.map((theme) => (
-            <span
-              key={theme}
-              className="text-[9px] tracking-[0.2em] uppercase border px-2 py-1"
-              style={{
-                color: `${t.moodColors[1]}99`,
-                borderColor: `${t.moodColors[1]}33`,
-              }}
-            >
-              {theme}
-            </span>
-          ))}
-        </div>
       </div>
     </Link>
   );
