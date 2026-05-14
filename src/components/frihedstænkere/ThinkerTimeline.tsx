@@ -28,10 +28,10 @@ function xFromYear(year: number): number {
 }
 
 const ERA_ZONES = [
-  { label: "Antikken", start: -500, end: 1600, color: "rgba(193,127,58,0.04)" },
-  { label: "Oplysningstiden", start: 1600, end: 1800, color: "rgba(74,140,90,0.04)" },
-  { label: "1800-tallet", start: 1800, end: 1900, color: "rgba(90,110,160,0.04)" },
-  { label: "1900-2000-tallet", start: 1900, end: 2030, color: "rgba(140,90,90,0.04)" },
+  { label: "Antikken", start: -500, end: 1600, color: "rgba(193,127,58,0.06)" },
+  { label: "Oplysningstiden", start: 1600, end: 1800, color: "rgba(74,140,90,0.06)" },
+  { label: "1800-tallet", start: 1800, end: 1900, color: "rgba(90,110,160,0.06)" },
+  { label: "1900-2000-tallet", start: 1900, end: 2030, color: "rgba(140,90,90,0.06)" },
 ];
 
 export function ThinkerTimeline({ thinkers }: Props) {
@@ -40,13 +40,11 @@ export function ThinkerTimeline({ thinkers }: Props) {
 
   const sorted = [...thinkers].sort((a, b) => a.born - b.born);
 
-  // Compute x positions
   const positions = sorted.map((t) => ({
     ...t,
     x: xFromYear(t.born),
   }));
 
-  // Determine label positions: alternate above/below, but avoid overlaps in dense clusters
   const labeled = positions.map((t, i) => {
     const prev = positions[i - 1];
     const next = positions[i + 1];
@@ -56,7 +54,6 @@ export function ThinkerTimeline({ thinkers }: Props) {
     return { ...t, showLabel: !tooClose, above: i % 2 === 0 };
   });
 
-  // Build connection arcs (only between thinkers in the dataset)
   const slugSet = new Set(thinkers.map((t) => t.slug));
   type Arc = {
     x1: number; x2: number; slug1: string; slug2: string;
@@ -95,14 +92,14 @@ export function ThinkerTimeline({ thinkers }: Props) {
   );
 
   return (
-    <div className="relative w-full overflow-hidden select-none" style={{ backgroundColor: "#18140E" }}>
+    <div className="relative w-full overflow-hidden select-none" style={{ backgroundColor: "#F5EDE0" }}>
       {/* Subtle grain texture overlay */}
       <div
         aria-hidden
-        className="absolute inset-0 pointer-events-none z-0 opacity-30"
+        className="absolute inset-0 pointer-events-none z-0 opacity-40"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(249,247,242,0.03) 1px, transparent 0)",
+            "radial-gradient(circle at 1px 1px, rgba(26,26,26,0.04) 1px, transparent 0)",
           backgroundSize: "16px 16px",
         }}
       />
@@ -110,10 +107,10 @@ export function ThinkerTimeline({ thinkers }: Props) {
       <div className="relative z-10 px-8 pt-10 pb-0">
         {/* Header */}
         <div className="flex items-baseline justify-between mb-6">
-          <span className="text-[10px] tracking-[0.35em] uppercase text-parchment/30">
+          <span className="text-[10px] tracking-[0.35em] uppercase text-ink/30">
             Idéernes strøm gennem historien
           </span>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-parchment/20">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-ink/20">
             {sorted[0].born < 0 ? `${Math.abs(sorted[0].born)} f.Kr.` : sorted[0].born} · {sorted[sorted.length - 1].born}
           </span>
         </div>
@@ -128,7 +125,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
       >
         <defs>
           <marker id="arrow-moss" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
-            <polygon points="0 0, 6 2.5, 0 5" fill="rgba(45,95,74,0.5)" />
+            <polygon points="0 0, 6 2.5, 0 5" fill="rgba(45,95,74,0.6)" />
           </marker>
         </defs>
 
@@ -155,7 +152,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
             <line
               key={zone.label}
               x1={x} x2={x} y1={20} y2={H - 20}
-              stroke="rgba(249,247,242,0.06)"
+              stroke="rgba(26,26,26,0.08)"
               strokeWidth={1}
               strokeDasharray="3,6"
             />
@@ -173,7 +170,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
               x={cx}
               y={22}
               fontSize={9}
-              fill="rgba(249,247,242,0.25)"
+              fill="rgba(26,26,26,0.3)"
               textAnchor="middle"
               letterSpacing={2.5}
               fontFamily="Jost, sans-serif"
@@ -190,9 +187,9 @@ export function ThinkerTimeline({ thinkers }: Props) {
           return (
             <>
               <line x1={xBreak - 8} x2={xBreak - 2} y1={TIMELINE_Y - 8} y2={TIMELINE_Y + 8}
-                stroke="rgba(249,247,242,0.15)" strokeWidth={1} />
+                stroke="rgba(26,26,26,0.2)" strokeWidth={1} />
               <line x1={xBreak + 2} x2={xBreak + 8} y1={TIMELINE_Y - 8} y2={TIMELINE_Y + 8}
-                stroke="rgba(249,247,242,0.15)" strokeWidth={1} />
+                stroke="rgba(26,26,26,0.2)" strokeWidth={1} />
             </>
           );
         })()}
@@ -201,7 +198,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
         <line
           x1={PAD_L} x2={W - PAD_R}
           y1={TIMELINE_Y} y2={TIMELINE_Y}
-          stroke="rgba(249,247,242,0.12)"
+          stroke="rgba(26,26,26,0.15)"
           strokeWidth={1}
         />
 
@@ -217,7 +214,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
               key={i}
               d={`M ${arc.x1} ${TIMELINE_Y} Q ${midX} ${controlY} ${arc.x2} ${TIMELINE_Y}`}
               fill="none"
-              stroke={isActive ? arc.color : "rgba(249,247,242,0.08)"}
+              stroke={isActive ? arc.color : "rgba(26,26,26,0.1)"}
               strokeWidth={isActive ? 1.5 : 0.8}
               strokeDasharray={isActive ? "none" : "2,4"}
               style={{ transition: "stroke 200ms, stroke-width 200ms" }}
@@ -248,15 +245,15 @@ export function ThinkerTimeline({ thinkers }: Props) {
                   fill="none"
                   stroke={t.moodColors[1]}
                   strokeWidth={1}
-                  opacity={0.3}
+                  opacity={0.4}
                 />
               )}
 
               {/* Node circle */}
               <circle
                 cx={t.x} cy={nodeY} r={isHovered ? 7 : 5}
-                fill={isHovered ? t.moodColors[1] : "rgba(249,247,242,0.15)"}
-                stroke={isHovered ? t.moodColors[1] : "rgba(249,247,242,0.3)"}
+                fill={isHovered ? t.moodColors[1] : "rgba(26,26,26,0.12)"}
+                stroke={isHovered ? t.moodColors[1] : "rgba(26,26,26,0.35)"}
                 strokeWidth={1}
                 style={{ transition: "all 200ms" }}
               />
@@ -264,8 +261,8 @@ export function ThinkerTimeline({ thinkers }: Props) {
               {/* Tick below node */}
               <line
                 x1={t.x} x2={t.x}
-                y1={nodeY + 5} y2={nodeY + (t.above ? 12 : 12)}
-                stroke="rgba(249,247,242,0.15)"
+                y1={nodeY + 5} y2={nodeY + 12}
+                stroke="rgba(26,26,26,0.15)"
                 strokeWidth={1}
               />
 
@@ -274,7 +271,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
                 <text
                   x={t.x} y={yearY}
                   fontSize={8.5}
-                  fill="rgba(249,247,242,0.25)"
+                  fill="rgba(26,26,26,0.4)"
                   textAnchor="middle"
                   fontFamily="Jost, sans-serif"
                 >
@@ -288,7 +285,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
                   x={t.x}
                   y={labelY}
                   fontSize={isHovered ? 12 : 10.5}
-                  fill={isHovered ? "rgba(249,247,242,0.95)" : "rgba(249,247,242,0.45)"}
+                  fill={isHovered ? "rgba(26,26,26,0.9)" : "rgba(26,26,26,0.5)"}
                   textAnchor="middle"
                   fontFamily="Jost, sans-serif"
                   fontWeight={isHovered ? 400 : 300}
@@ -325,7 +322,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
                   y2={above ? tipY + tooltipH : tipY}
                   stroke={hoveredThinker.moodColors[1]}
                   strokeWidth={0.8}
-                  opacity={0.4}
+                  opacity={0.5}
                 />
                 {/* Tooltip rect */}
                 <rect
@@ -333,17 +330,17 @@ export function ThinkerTimeline({ thinkers }: Props) {
                   y={tipY}
                   width={tooltipW}
                   height={tooltipH}
-                  fill="#1A2E24"
+                  fill="#F9F7F2"
                   stroke={hoveredThinker.moodColors[1]}
                   strokeWidth={0.8}
-                  strokeOpacity={0.4}
+                  strokeOpacity={0.5}
                   rx={1}
                 />
                 {/* Name */}
                 <text
                   x={tipX} y={tipY + 18}
                   fontSize={11}
-                  fill="rgba(249,247,242,0.9)"
+                  fill="rgba(26,26,26,0.85)"
                   textAnchor="middle"
                   fontFamily="Jost, sans-serif"
                   fontWeight={400}
@@ -354,14 +351,14 @@ export function ThinkerTimeline({ thinkers }: Props) {
                 <text
                   x={tipX} y={tipY + 30}
                   fontSize={9}
-                  fill="rgba(249,247,242,0.35)"
+                  fill="rgba(26,26,26,0.4)"
                   textAnchor="middle"
                   fontFamily="Jost, sans-serif"
                   letterSpacing={1}
                 >
                   {formatYear(hoveredThinker.born)}{hoveredThinker.died ? ` - ${formatYear(hoveredThinker.died)}` : ""}
                 </text>
-                {/* Central idea (truncated) */}
+                {/* Central idea */}
                 <text
                   x={tipX} y={tipY + 48}
                   fontSize={9.5}
@@ -378,7 +375,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
           })()}
       </svg>
 
-      {/* Dense thinker name row (always visible, for the crowded 20th century) */}
+      {/* Dense thinker name row */}
       <div className="px-4 md:px-8 pb-6 pt-2">
         <div
           className="flex items-center gap-0 overflow-x-auto pb-1"
@@ -395,7 +392,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
                 color:
                   hoveredSlug === t.slug
                     ? t.moodColors[1]
-                    : "rgba(249,247,242,0.3)",
+                    : "rgba(26,26,26,0.35)",
               }}
             >
               {t.name}

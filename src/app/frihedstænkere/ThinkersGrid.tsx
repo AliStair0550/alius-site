@@ -42,18 +42,18 @@ export function ThinkersGrid({ thinkers, allThemes }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Søg tænker eller tema..."
-          className="w-full max-w-[480px] px-0 py-3 bg-transparent border-0 border-b border-ink/20 text-[16px] font-light text-ink outline-none placeholder:text-stone/40 focus:border-ink transition-colors"
+          className="w-full max-w-[480px] px-0 py-3 bg-transparent border-0 border-b border-parchment/20 text-[16px] font-light text-parchment outline-none placeholder:text-parchment/30 focus:border-parchment/60 transition-colors"
         />
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] tracking-[0.25em] uppercase text-stone opacity-50 mr-1">
+          <span className="text-[11px] tracking-[0.25em] uppercase text-parchment/40 mr-1">
             Tema:
           </span>
           <button
             onClick={() => setActiveTheme(null)}
             className={`px-3 py-2 text-[11px] tracking-[0.15em] uppercase border transition-colors ${
               activeTheme === null
-                ? "bg-ink text-parchment border-ink"
-                : "text-stone border-ink/20 hover:border-ink/50 hover:text-ink"
+                ? "bg-parchment text-ink border-parchment"
+                : "text-parchment/50 border-parchment/20 hover:border-parchment/50 hover:text-parchment"
             }`}
           >
             Alle
@@ -64,8 +64,8 @@ export function ThinkersGrid({ thinkers, allThemes }: Props) {
               onClick={() => setActiveTheme(theme === activeTheme ? null : theme)}
               className={`px-3 py-2 text-[11px] tracking-[0.15em] uppercase border transition-colors ${
                 activeTheme === theme
-                  ? "bg-ink text-parchment border-ink"
-                  : "text-stone border-ink/20 hover:border-ink/50 hover:text-ink"
+                  ? "bg-parchment text-ink border-parchment"
+                  : "text-parchment/50 border-parchment/20 hover:border-parchment/50 hover:text-parchment"
               }`}
             >
               {theme}
@@ -76,7 +76,7 @@ export function ThinkersGrid({ thinkers, allThemes }: Props) {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <p className="text-stone opacity-50 text-[15px] italic font-light py-8">
+        <p className="text-parchment/50 text-[15px] italic font-light py-8">
           Ingen tænkere matcher søgningen.
         </p>
       ) : (
@@ -96,7 +96,8 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
   return (
     <Link
       href={`/frihedstænkere/${t.slug}`}
-      className="group block no-underline overflow-hidden border border-ink/10 hover:border-ink/30 transition-all duration-300 bg-parchment"
+      className="group block no-underline overflow-hidden border border-parchment/10 hover:border-parchment/25 transition-all duration-300"
+      style={{ backgroundColor: "#211C15" }}
     >
       {/* Portrait — tall portrait ratio */}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
@@ -111,7 +112,7 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
             />
             {/* Subtle bottom fade to card background */}
             <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(245,237,224,0.85) 80%, #F5EDE0 100%)" }}
+              style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(33,28,21,0.85) 80%, #211C15 100%)" }}
             />
           </>
         ) : (
@@ -124,7 +125,7 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
         )}
 
         {/* Era badge */}
-        <div className="absolute top-2 left-2 text-[8px] tracking-[0.2em] uppercase bg-parchment/80 text-ink/50 px-2 py-1 backdrop-blur-sm">
+        <div className="absolute top-2 left-2 text-[8px] tracking-[0.2em] uppercase bg-ink/60 text-parchment/50 px-2 py-1 backdrop-blur-sm">
           {t.era}
         </div>
       </div>
@@ -132,17 +133,17 @@ function ThinkerCard({ thinker: t }: { thinker: Thinker }) {
       {/* Info */}
       <div className="px-4 py-4">
         {/* Years */}
-        <div className="text-[9px] tracking-[0.25em] uppercase text-stone/40 mb-2">
+        <div className="text-[9px] tracking-[0.25em] uppercase text-parchment/30 mb-2">
           {formatYear(t.born)}{t.died ? `-${formatYear(t.died)}` : ""}
         </div>
 
         {/* Name */}
-        <h2 className="font-fraunces font-light text-[20px] leading-[1.1] tracking-[-0.01em] text-ink mb-2 group-hover:text-moss transition-colors">
+        <h2 className="font-fraunces font-light text-[20px] leading-[1.1] tracking-[-0.01em] text-parchment mb-2 group-hover:text-moss transition-colors">
           {t.name}
         </h2>
 
         {/* Central thesis — the hook */}
-        <p className="font-fraunces font-light italic text-[13px] leading-[1.45] text-stone/60">
+        <p className="font-fraunces font-light italic text-[13px] leading-[1.45] text-parchment/45">
           {t.visualEnergy}
         </p>
       </div>

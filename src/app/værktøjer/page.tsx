@@ -43,7 +43,7 @@ const VAERKTOEJER: Vaerktoj[] = [
   },
   {
     slug: "tankeprofil",
-    name: "Tankeprofil",
+    name: "Personlighedsprofil",
     tagline: "Hvordan tænker du, og dem du arbejder med?",
     description:
       "En personlighedsanalyse inspireret af Whole Brain Thinking. Tag testen alene eller med dit team. Få indsigt i jeres tænkestile og blinde vinkler.",

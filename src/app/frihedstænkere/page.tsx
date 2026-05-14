@@ -28,33 +28,33 @@ export default function FrihedstaenkerePage() {
         </header>
       </div>
 
-      {/* Hero — warm library dark */}
-      <div className="relative overflow-hidden" style={{ backgroundColor: "#18140E" }}>
+      {/* Hero — warm light paper */}
+      <div className="relative overflow-hidden" style={{ backgroundColor: "#F5EDE0" }}>
         {/* Dot grid */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba(249,247,242,0.025) 1px, transparent 0)",
+              "radial-gradient(circle at 1px 1px, rgba(26,26,26,0.04) 1px, transparent 0)",
             backgroundSize: "28px 28px",
           }}
         />
 
         <div className="max-w-[1200px] mx-auto px-5 pt-14 pb-16 md:px-8 md:pt-20 md:pb-24 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-20 mb-10">
-            <h1 className="font-fraunces font-light italic text-[clamp(38px,8.5vw,104px)] leading-[0.93] tracking-[-0.03em] text-parchment">
+            <h1 className="font-fraunces font-light italic text-[clamp(38px,8.5vw,104px)] leading-[0.93] tracking-[-0.03em] text-ink">
               Frihedstænkere
             </h1>
-            <div className="self-end space-y-3 text-[15px] leading-[1.7] text-parchment/45 max-w-[380px]">
+            <div className="self-end space-y-3 text-[15px] leading-[1.7] text-stone/60 max-w-[380px]">
               <p>De fleste mennesker overtager deres verdenssyn uden nogensinde at opdage det.</p>
               <p>Fra skolen. Fra kulturen. Fra algoritmer. Fra hinanden.</p>
-              <p className="text-parchment/60">Frihedstænkere er et bibliotek over mennesker der så noget andet.</p>
+              <p className="text-stone/80">Frihedstænkere er et bibliotek over mennesker der så noget andet.</p>
             </div>
           </div>
 
           {/* Stats row */}
-          <div className="flex flex-wrap items-center gap-6 text-[11px] tracking-[0.2em] uppercase text-parchment/20">
+          <div className="flex flex-wrap items-center gap-6 text-[11px] tracking-[0.2em] uppercase text-ink/30">
             <span>{THINKERS.length} tænkere</span>
             <span className="opacity-40">&middot;</span>
             <span>
@@ -62,14 +62,13 @@ export default function FrihedstaenkerePage() {
             </span>
           </div>
         </div>
-
       </div>
 
       {/* Timeline */}
       <ThinkerTimeline thinkers={THINKERS} />
 
-      {/* Content section — warm aged paper */}
-      <div style={{ backgroundColor: "#F5EDE0" }}>
+      {/* Content section — warm dark */}
+      <div style={{ backgroundColor: "#18140E" }}>
         <div className="max-w-[1200px] mx-auto px-5 py-16 md:px-8 md:py-20">
           <ThinkersGrid thinkers={THINKERS} allThemes={ALL_THEMES} />
         </div>
