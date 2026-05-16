@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { TankeprofilClient } from "@/components/tankeprofil/TankeprofilClient";
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = {
   title: "Tankeprofil · Alius",
   description:

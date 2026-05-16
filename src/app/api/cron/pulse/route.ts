@@ -155,6 +155,9 @@ export async function GET(req: Request) {
       if (aus08Sync.hadNewData) {
         revalidatePath("/pulse/ledighed");
         revalidatePath("/pulse/ledighed/[kommune]", "page");
+        revalidatePath("/pulse/kommuner");
+        revalidatePath("/pulse/kommuner/[slug]", "page");
+        revalidatePath("/pulse/kommuner/danmark");
       }
       if (konk3Sync.hadNewData) {
         revalidatePath("/pulse/konkurser");

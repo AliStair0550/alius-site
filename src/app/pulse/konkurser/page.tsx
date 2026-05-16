@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Antallet af konkurser i danske virksomheder, måned for måned og branche for branche. Sæsonkorrigerede tal fra Danmarks Statistik.",
 };
 
-export const revalidate = 86400;
+export const revalidate = false;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
@@ -133,29 +133,27 @@ export default async function KonkursPulsPage() {
     where: { slug: "dst-konk4" },
   });
 
-  const allDatapoints = await prisma.dataPoint.findMany({
-    where: { sourceId: source.id, value: { not: null } },
-    orderBy: { periodDate: "asc" },
-    select: { period: true, periodDate: true, value: true, dimensions: true },
-  });
-
-  // KONK3 sync only stores the seasonal series (enforced by filter + unique constraint)
-  const seasonal = allDatapoints;
-  const actual: typeof allDatapoints = [];
-
-  const latestSeasonal = seasonal[seasonal.length - 1] ?? null;
-
   const fiveYearsAgo = new Date();
   fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
-  const seasonalHistory = seasonal.filter((p) => p.periodDate >= fiveYearsAgo);
-  const actualHistory = actual.filter((p) => p.periodDate >= fiveYearsAgo);
+  const seasonal = await prisma.dataPoint.findMany({
+    where: { sourceId: source.id, value: { not: null }, periodDate: { gte: fiveYearsAgo } },
+    orderBy: { periodDate: "asc" },
+    select: { period: true, periodDate: true, value: true, dimensions: true },
+  });
+  const actual: typeof seasonal = [];
 
-  // Load branche data
+  const latestSeasonal = seasonal[seasonal.length - 1] ?? null;
+  const seasonalHistory = seasonal;
+  const actualHistory = actual;
+
+  // Load branche data — needs 24 months for comparison (12 current + 12 previous)
   let brancheAggregation = null;
   if (brancheSource && latestSeasonal) {
+    const brancheStart = new Date(latestSeasonal.periodDate);
+    brancheStart.setMonth(brancheStart.getMonth() - 24);
     const brancheRows = await prisma.dataPoint.findMany({
-      where: { sourceId: brancheSource.id, value: { not: null } },
+      where: { sourceId: brancheSource.id, value: { not: null }, periodDate: { gte: brancheStart } },
       select: { period: true, periodDate: true, value: true, dimensions: true },
     });
     const typed = brancheRows.map((r) => ({

@@ -11,7 +11,7 @@ type Props = {
   params: Promise<{ kommune: string }>;
 };
 
-export const revalidate = 86400;
+export const revalidate = false;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ARCHETYPES } from "@/components/tankeprofil/data";
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = {
   title: "Teorien bag · Personlighedsprofil · Alius",
   description:

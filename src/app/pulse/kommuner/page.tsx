@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Befolkning, indkomst og ledighed for alle 98 danske kommuner. Data fra Danmarks Statistik opdateret månedligt.",
 };
 
-export const revalidate = 86400;
+export const revalidate = false;
 
 export default async function KommunerHubPage() {
   const kommuner = getAllKommuner();
