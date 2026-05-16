@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Forbrugertillid, detailomsætning og danskernes købelyst. Månedlige nøgletal fra Danmarks Statistik.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const SUB_INDICATORS = [
   { code: "F2", label: "Familiens økonomi i dag", note: "vs. for et år siden" },
