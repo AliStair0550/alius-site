@@ -1253,6 +1253,266 @@ export const THINKERS: Thinker[] = [
     modernRelevance:
       "Burnout, angst, koncentrationsbesvær, tomhed trods succes - disse er epidemier i det 21. århundrede. Han peger på den systemiske årsag: et samfund der ikke giver mulighed for pauser, kontemplation eller negativitet. Sociale medier og AI accelererer præstationskravet: der er altid mere at optimere, mere at vise, mere at producere. Hans diagnose er ikke en personlig svaghed - det er en kulturel sygdom.",
   },
+  {
+    slug: "soren-kierkegaard",
+    name: "Søren Kierkegaard",
+    born: 1813,
+    died: 1855,
+    nationality: "Dansk",
+    era: "1800-tallet",
+    tagline: "Mennesket flygter fra sig selv.",
+    centralIdea: "De fleste mennesker bliver aldrig sig selv - de følger mængden, normerne og forventningerne, fordi ægte frihed er angstprovokerende. Sandhed er ikke noget man forstår abstrakt - det er noget man lever.",
+    symbol: "Springet",
+    moodColors: ["#150E0A", "#7A5C42"],
+    visualEnergy: "frihed er angst",
+    portraitSrc: "/images/frihedstaenkere/soren-kierkegaard.avif",
+    themes: ["Bevidsthed", "Frihed", "Identitet"],
+    relations: [
+      { slug: "friedrich-nietzsche", name: "Friedrich Nietzsche", label: "Påvirkede" },
+      { slug: "byung-chul-han", name: "Byung-Chul Han", label: "Idémæssig forfader til" },
+    ],
+    intro:
+      "Søren Kierkegaard er en af de mest originale tænkere i vestlig filosofi. Han mente at de fleste mennesker aldrig virkelig lever - de eksisterer. De følger mængden, opfylder forventningerne og lever systemets logik, ikke fordi de vil, men fordi autentisk frihed er angstprovokerende. Kierkegaard var den første til at stille det eksistentielle spørgsmål: hvem er du, når du fjerner alt det andre har fortalt dig?",
+    coreIdeas: [
+      {
+        title: "Angsten som frihedens svimmelhed",
+        body:
+          "Kierkegaard mente at angst opstår netop fordi vi har frihed - ikke fordi vi er ufrie. Frihed er svimmelhed: den åbne afgrund af muligheder der ligger foran ethvert valg. De fleste mennesker flygter fra denne angst ved at følge normer, konventioner og andres forventninger. Men dermed opgiver de sig selv.",
+      },
+      {
+        title: "De tre eksistensstadier",
+        body:
+          "Kierkegaard beskrev tre måder at leve på: det æstetiske stadie (leve for nydelse og stimulation), det etiske stadie (leve efter pligter og normer) og det religiøse stadie (det radikale spring til autentisk selvforhold). De fleste mennesker sidder fast i de første to - og kalder det et godt liv.",
+      },
+      {
+        title: "Sandhed er subjektiv",
+        body:
+          "Kierkegaard mente ikke at fakta er ligegyldige. Men at et menneske kun virkelig forstår noget når det leves og erfares. Abstrakt viden er ikke det samme som eksistentiel indsigt. En sandhed gælder først for dig når du har taget den på dig - når den ændrer den måde du lever.",
+      },
+    ],
+    quotes: [
+      {
+        text: "The most common form of despair is not being who you are.",
+        source: "The Sickness Unto Death, 1849",
+      },
+      {
+        text: "Anxiety is the dizziness of freedom.",
+        source: "The Concept of Anxiety, 1844",
+      },
+    ],
+    legacy:
+      "Kierkegaard er eksistentialismens ophav. Han påvirkede Nietzsche, Heidegger, Sartre og hele det 20. århundredes filosofi om autenticitet, valg og identitet. Han var den første til at stille spørgsmålet der definerer vores tid: hvad vil det sige at leve et autentisk liv i et samfund der konstant forsøger at forme dig?",
+    modernRelevance:
+      "Kierkegaards analyse af menneskers flugt fra sig selv er skræmmende præcis i sociale mediers tidsalder. Spidsborgerlighed - at leve andres forventninger uden at stille spørgsmål - er nu algoritmiseret. Angsten for frihed driver forbrug, identitetspolitik og den konstante søgning efter distraktioner. Hans spørgsmål er aldrig blevet mere presserende: hvem er du egentlig?",
+  },
+  {
+    slug: "oswald-spengler",
+    name: "Oswald Spengler",
+    born: 1880,
+    died: 1936,
+    nationality: "Tysk",
+    era: "1900-tallet",
+    tagline: "Civilisationer dør ligesom mennesker.",
+    centralIdea: "Civilisationer er levende organismer med en biologisk livscyklus - de fødes, vokser, kulminerer og kollapser. Vesten er allerede gået fra kultur til civilisation: fra ånd og mening til teknik, bureaukrati og magt.",
+    symbol: "Årstiderne",
+    moodColors: ["#180A04", "#8C4E2C"],
+    visualEnergy: "civilisationer kollapser",
+    portraitSrc: "/images/frihedstaenkere/oswald-spengler.avif",
+    themes: ["Magt", "Samfund"],
+    relations: [
+      { slug: "friedrich-nietzsche", name: "Friedrich Nietzsche", label: "Påvirket af" },
+      { slug: "rene-guenon", name: "René Guénon", label: "Beslægtet med" },
+    ],
+    intro:
+      "Oswald Spengler er en af historiens mest kontroversielle og visionære kulturfilosoffer. I 'Vestens undergang' (1918) fremsatte han en radikal tese: civilisationer er ikke fremskridt - de er organismer. De fødes, vokser, kulminerer og dør. Og Vesten var, mente han, allerede i sin efterårsfase. Det var ikke pessimisme. Det var diagnose.",
+    coreIdeas: [
+      {
+        title: "Civilisationens livscyklus",
+        body:
+          "Spengler mente at enhver stor kultur gennemgår fire faser ligesom årstiderne: forår (mytisk, religiøs skabelse), sommer (filosofisk og kunstnerisk blomstring), efterår (rationalistisk afklaring) og vinter (teknisk, materialistisk og imperialistisk forfald). Vesten befandt sig, mente han, i vinteren - og videnskab, demokrati og penge var tegn herpå, ikke fremgang.",
+      },
+      {
+        title: "Fra kultur til civilisation",
+        body:
+          "Spengler skelner skarpt mellem kultur og civilisation. Kulturen er levende: skabende, åndelig, organisk. Civilisationen er det der kommer bagefter: mekanisk, teknisk, urbant massemenneske. Rom var ikke Grækenlands højdepunkt - det var dets grav. Spengler mente Vesten bevægede sig fra Goethe til Caesar: fra ånd til magt.",
+      },
+      {
+        title: "Teknikken som skæbne",
+        body:
+          "For Spengler er moderne teknik ikke neutral - den er Vestens sjæl i dens sidste fase. Masseproduktion, bureaukrati og penge erstatter mening, kunst og religion. Vestens faustiske kultur - altid stræbende efter uendelighed og beherskelse - ender med at skabe det der fortærer den: en teknisk-materiel civilisation uden indre liv.",
+      },
+    ],
+    quotes: [
+      {
+        text: "Optimism is cowardice.",
+        source: "Man and Technics, 1931",
+      },
+      {
+        text: "The press today is an army with carefully organized weapons, the journalists its officers, the readers its soldiers. The reader neither knows nor is supposed to know the purposes for which he is used.",
+        source: "The Decline of the West, 1918",
+      },
+    ],
+    legacy:
+      "Spengler er en af de mest læste og mest anfægtede historiefilosoffer. Hans diagnose af Vestens forfald inspirerede tænkere på tværs af det politiske spektrum. Hans analyse af teknikken, massemedier og pengeøkonomi som tegn på kulturelt forfald er ekstraordinært relevant - og ubehagelig. Han forudsagde det 20. århundredes totalitarismer og Vestens geopolitiske tilbagegang med eerie præcision.",
+    modernRelevance:
+      "AI, techgiganter, bureaukratisk global styring og kulturelt forfald i medierne - Spengler ville nikke genkendende. Han er ikke en kilde til løsninger men til diagnose: hvad sker der med en civilisation der har valgt teknik og penge som sine højeste værdier? Hans spørgsmål er ubehageligt fordi svaret ikke er opmuntrende.",
+  },
+  {
+    slug: "rene-guenon",
+    name: "René Guénon",
+    born: 1886,
+    died: 1951,
+    nationality: "Fransk",
+    era: "1900-tallet",
+    tagline: "Moderniteten har mistet det hellige.",
+    centralIdea: "Den moderne verden lider af åndelig kollaps - ikke nødvendigvis religiøst, men eksistentielt. Moderniteten reducerer virkeligheden til materiale, produktion og rationalitet, og mister derved forbindelsen til symboler, myter og transcendens.",
+    symbol: "Aksen",
+    moodColors: ["#0E0A1A", "#7A5A9A"],
+    visualEnergy: "moderniteten er åndsfattig",
+    portraitSrc: "/images/frihedstaenkere/rene-guenon.avif",
+    themes: ["Bevidsthed", "Sandhed"],
+    relations: [
+      { slug: "oswald-spengler", name: "Oswald Spengler", label: "Beslægtet med" },
+      { slug: "jean-baudrillard", name: "Jean Baudrillard", label: "Idémæssig forfader til" },
+    ],
+    intro:
+      "René Guénon er en af det 20. århundredes mest radikale kulturkritikere. Han konverterede til islam, bosatte sig i Kairo og brugte sit liv på at argumentere for noget moderne mennesker finder svært at acceptere: at den vestlige modernitet ikke er fremskridt - det er en civilisation der har mistet sin åndelige akse. Hans tænkning er skarp, systematisk og ubehagelig præcis.",
+    coreIdeas: [
+      {
+        title: "Kvantitetens herredømme",
+        body:
+          "Guénons centrale diagnose er at moderniteten har reduceret virkelighed til kvantitet: tal, produktion, forbrug, målbarhed. Alt hvad der ikke kan måles - symboler, myter, transcendens, kvalitet - er elimineret eller trivialiseret. Resultatet er en civilisation der er enormt produktiv og åndelig hul.",
+      },
+      {
+        title: "Traditionen som modsvar",
+        body:
+          "Guénon mente at store civilisationer alle bygger på en primordial tradition - en fælles åndelig kerne der udtrykker sig forskelligt i forskellige kulturer. Den moderne Vesten har brudt med denne tradition og erstattet den med rationalisme og materialisme. Resultatet er ikke frihed men rodløshed og nihilisme.",
+      },
+      {
+        title: "Symbolernes magt",
+        body:
+          "For Guénon er symboler ikke dekorative - de er adgang til dybere virkelighed. Myter, ritualer og sakramente er ikke overtro - de er præcise teknikker til at forbinde mennesket med det der ligger bag det umiddelbart synlige. Moderniteten har mistet evnen til at læse symboler og betaler prisen i form af eksistentiel tomhed.",
+      },
+    ],
+    quotes: [
+      {
+        text: "The reign of quantity is the reign of matter.",
+        source: "The Reign of Quantity and the Signs of the Times, 1945",
+      },
+      {
+        text: "Modern civilization appears in history as a veritable anomaly.",
+        source: "The Crisis of the Modern World, 1927",
+      },
+    ],
+    legacy:
+      "Guénon grundlagde den traditionalisme der påvirkede både islamisk intellektuel fornyelse, vestlig esoterisme og kritikken af modernitet. Hans idéer levede videre hos tænkere som Frithjof Schuon og Julius Evola. Han er en af de tænkere der bedst forklarer den åndelige dimension af modernitetens krise - og dermed relevant for enhver der spørger: hvad mangler vi egentlig?",
+    modernRelevance:
+      "I en tid med burnout, meningsløshed og eksistentiel tomhed trods materiel overflod er Guénons diagnose skarp: vi har optimeret kvantitet og glemt kvalitet. AI og digital acceleration repræsenterer kvantitetens endelige triumf - algoritmer der kvantificerer alt fra opmærksomhed til relationer. Hans spørgsmål er radikalt: hvad taber vi når vi reducerer alt til det målbare?",
+  },
+  {
+    slug: "marshall-berman",
+    name: "Marshall Berman",
+    born: 1940,
+    died: 2013,
+    nationality: "Amerikansk",
+    era: "1900-tallet",
+    tagline: "Alt fast fordamper.",
+    centralIdea: "Modernitet er ikke en tilstand - det er en konstant opløsning. Teknologi, byer, arbejde, identitet og kultur ændrer sig hurtigere og hurtigere, og moderne mennesker lever simultant i frihed, fremdrift, kaos og fremmedgørelse.",
+    symbol: "Byrummets flow",
+    moodColors: ["#0A1018", "#5A7080"],
+    visualEnergy: "alt smelter konstant",
+    portraitSrc: "/images/frihedstaenkere/marshall-berman.avif",
+    themes: ["Frihed", "Samfund", "Bevidsthed"],
+    relations: [
+      { slug: "jean-baudrillard", name: "Jean Baudrillard", label: "Beslægtet med" },
+      { slug: "ivan-krastev", name: "Ivan Krastev", label: "Idémæssig forfader til" },
+    ],
+    intro:
+      "Marshall Berman er ophavsmanden til den mest præcise sætning om moderne liv: 'Alt fast fordamper.' Titlen på hans masterværk fra 1982 er hentet fra Marx og peger på det der definerer modernitet: konstant forandring som grundtilstand. Berman mente at modernitet ikke er farlig fordi den er ond - men fordi den er umulig at stå stille i.",
+    coreIdeas: [
+      {
+        title: "Modernitet som permanent revolution",
+        body:
+          "For Berman er modernitet ikke en historisk periode - det er en eksistentiel tilstand. Modernitetens væsen er konstant disruption: alt det der var stabilt - fællesskaber, traditioner, identiteter, arbejde - opløses og genopbygges konstant. Det skaber muligheder og fremmedgørelse på samme tid.",
+      },
+      {
+        title: "Byens dialektik",
+        body:
+          "Berman bruger storbyen - særligt New York - som modernitetens mest intense udtryk. Byens gader er arenaer for frihed og anonymitet, for mødet med det fremmede, for konstant forandring. Men den samme by fragmenterer fællesskaber, river kvarterer ned og erstatter mennesker med kapital. Modernitetens by er både frigørelse og ødelæggelse.",
+      },
+      {
+        title: "Frihed og fremmedgørelse som to sider",
+        body:
+          "Berman afviser den simple fortælling om modernitet som enten fremskridt eller forfald. Moderniteten er begge dele på en gang: den giver mennesker muligheder, mobilitet og selvbestemmelse de aldrig har haft. Og den river dem løs fra stabilitet, mening og tilhørsforhold. Man kan ikke have det ene uden det andet.",
+      },
+    ],
+    quotes: [
+      {
+        text: "All that is solid melts into air, all that is holy is profaned.",
+        source: "All That Is Solid Melts into Air, 1982",
+      },
+      {
+        text: "To be modern is to find ourselves in an environment that promises us adventure, power, joy, growth, transformation of ourselves and the world - and, at the same time, that threatens to destroy everything we have, everything we know, everything we are.",
+        source: "All That Is Solid Melts into Air, 1982",
+      },
+    ],
+    legacy:
+      "Berman er en af de mest læste kulturkritikere i det 20. århundrede. Hans evne til at forbinde Marx, Goethe og gadebilledet i New York skabte en ny måde at tænke modernitet på - ikke som abstrakt teori men som levet erfaring. Han er uundgåelig i diskussioner om urbanisme, identitet og kapitalismens acceleration.",
+    modernRelevance:
+      "Digital acceleration, platform-økonomi og AI gør modernitetens opløsningskraft endnu mere intens. Arbejde, identitet, relationer og fællesskaber omformes hurtigere end mennesker kan følge med. Bermans indsigt er at dette ikke er en fejl - det er modernitetens DNA. Spørgsmålet er ikke om det kan stoppes, men hvad der kan give stabilitet midt i opløsningen.",
+  },
+  {
+    slug: "ivan-krastev",
+    name: "Ivan Krastev",
+    born: 1965,
+    died: null,
+    nationality: "Bulgaro-europæisk",
+    era: "2000-tallet",
+    tagline: "Moderne samfund mister tillid hurtigere end institutioner kan forstå.",
+    centralIdea: "Globalisering, migration, internet og AI har skabt en ny form for politisk usikkerhed - moderne mennesker frygter ikke kun økonomi, men tab af kontrol, kulturel opløsning og irrelevans.",
+    symbol: "Det tomme valglokale",
+    moodColors: ["#0A0E18", "#4A6A8C"],
+    visualEnergy: "mistillid som system",
+    portraitSrc: "/images/frihedstaenkere/ivan-krastev.avif",
+    themes: ["Magt", "Samfund", "Frihed"],
+    relations: [
+      { slug: "byung-chul-han", name: "Byung-Chul Han", label: "Beslægtet med" },
+      { slug: "marshall-berman", name: "Marshall Berman", label: "Påvirket af" },
+    ],
+    intro:
+      "Ivan Krastev er en af Europas skarpeste politiske analytikere. Han forklarer noget ingen andre rigtig kan: hvorfor demokratier smuldrer indefra, og hvorfor rationelle mennesker stemmer på irrationelle partier. Svaret er ikke økonomi - det er angst. Ikke for fattigdom, men for irrelevans, kulturel opløsning og at miste den verden man kendte.",
+    coreIdeas: [
+      {
+        title: "Mistillidens alder",
+        body:
+          "Krastev dokumenterer at tillid til institutioner - parlamenter, medier, eksperter, EU - er i fri fald i hele den vestlige verden. Og ikke fordi institutionerne nødvendigvis er korrupte, men fordi de har mistet evnen til at tale til menneskers dybeste bekymringer: ikke hvad de har, men hvem de er og om de stadig hører til.",
+      },
+      {
+        title: "Migration som eksistentiel trussel",
+        body:
+          "Krastev argumenterer at migration ikke primært er et økonomisk spørgsmål - det er et identitetsspørgsmål. For mange europæere er masseindvandring ikke en trussel mod lønnen men mod forestillingen om et kulturelt fællesskab. Frygten er ikke rationel - den er eksistentiel: vi er ved at miste det der definerer os.",
+      },
+      {
+        title: "Populisme som symptom",
+        body:
+          "Krastev ser ikke populisme som en patologi men som et signal: det er demokratiets måde at råbe på. Når store grupper føler sig ignorerede, uhørte og irrelevante, vælger de den mest dramatiske måde at gøre opmærksom på sig selv - og det er ikke nødvendigvis den rationelt bedste kandidat men den der beviser at systemet kan rystes.",
+      },
+    ],
+    quotes: [
+      {
+        text: "People are not voting for change. They are voting against the future they are afraid of.",
+        source: "Is It Tomorrow Yet?, 2020",
+      },
+      {
+        text: "The great paradox of our times is that globalization has made the world more interdependent while making people feel more alone.",
+        source: "After Europe, 2017",
+      },
+    ],
+    legacy:
+      "Krastev er den europæiske analytiker der bedst forstår det 21. århundredes politiske psykologi. Hans bøger om populisme, Europas krise og demokratiets fremtid er obligatorisk læsning for enhver der forsøger at forstå hvorfor verden politisk bevæger sig i den retning den gør.",
+    modernRelevance:
+      "AI, algoritmiske ekkokamre og platformsøkonomi accelererer præcis de dynamikker Krastev analyserer: fragmentering af den fælles offentlighed, stigende mistillid, og en følelse af at store beslutninger træffes af usynlige kræfter uden for demokratisk kontrol. Hans analyse er essentiel for enhver der arbejder med fremtidens organisation, samfund eller kommunikation.",
+  },
 ];
 
 export function getThinkerBySlug(slug: string): Thinker | undefined {
