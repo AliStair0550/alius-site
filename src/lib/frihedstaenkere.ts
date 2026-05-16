@@ -1513,6 +1513,267 @@ export const THINKERS: Thinker[] = [
     modernRelevance:
       "AI, algoritmiske ekkokamre og platformsøkonomi accelererer præcis de dynamikker Krastev analyserer: fragmentering af den fælles offentlighed, stigende mistillid, og en følelse af at store beslutninger træffes af usynlige kræfter uden for demokratisk kontrol. Hans analyse er essentiel for enhver der arbejder med fremtidens organisation, samfund eller kommunikation.",
   },
+  // ─── NYE 5 ──────────────────────────────────────────────────────────────────
+  {
+    slug: "arnold-toynbee",
+    name: "Arnold Toynbee",
+    born: 1889,
+    died: 1975,
+    nationality: "Britisk",
+    era: "1900-tallet",
+    tagline: "Civilisationer dør ikke af fjender. De dør af stagnation.",
+    centralIdea: "Civilisationer falder ikke fordi de besejres udefra, men fordi deres egne eliter mister evnen til at svare kreativt på nye udfordringer og i stedet forsøger at bevare kontrollen gennem administration og symbolik.",
+    symbol: "Bølgen",
+    moodColors: ["#0E0A04", "#8A6530"],
+    visualEnergy: "civilisationer vokser og forgår i cyklusser af udfordring og respons",
+    portraitSrc: "/images/frihedstaenkere/arnold-toynbee.avif",
+    themes: ["Civilisationer", "Historie", "Magt"],
+    relations: [
+      { slug: "oswald-spengler", name: "Oswald Spengler", label: "Beslægtet med" },
+      { slug: "neil-howe", name: "Neil Howe", label: "Påvirkede" },
+    ],
+    intro:
+      "Arnold Toynbee brugte sit liv på at analysere 26 civilisationer fra antikken til nu. Hans konklusion var brutal: civilisationer bryder sjældent sammen fordi de besejres udefra. De bryder sammen fordi deres egne eliter mister evnen til at skabe kreative svar på kriser. Institutioner bliver selvbeskyttende, frakoblede fra virkeligheden og optaget af at bevare kontrollen - frem for at forny den.",
+    coreIdeas: [
+      {
+        title: "Udfordring og respons",
+        body:
+          "Toynbee så civilisationer vokse når de formår at reagere kreativt på kriser og udfordringer. Det er ikke ressourcer eller geografi der afgør en civilisations skæbne - det er om dens folk og ledere er i stand til at opfinde nye svar. Stagnation opstår ikke i mangel på problemer, men i mangel på kreativ evne til at løse dem.",
+      },
+      {
+        title: "Eliternes forfald",
+        body:
+          "Toynbee dokumenterede at kollapsende civilisationer følger et mønster: en kreativ minoritet der engang løste samfundets problemer degenererer til en 'dominerende minoritet' der bruger magt til at bevare sin position. De har mistet evnen til inspiration og legitim ledelse - tilbage er kun administration, symbolik og tvang.",
+      },
+      {
+        title: "Historien som bølger",
+        body:
+          "I modsætning til lineære fremskridtsfortællinger så Toynbee historien som rytmiske bevægelser: udfordring, respons, vækst, stagnation, opløsning. Ingen civilisation er garanteret overlevelse. Og ingen er dømt til undergang - så længe den bevarer sin kreative energi og institutionernes evne til at fornye sig.",
+      },
+    ],
+    quotes: [
+      {
+        text: "Civilizations die from suicide, not by murder.",
+        source: "A Study of History, 1934–1961",
+      },
+      {
+        text: "The supreme accomplishment is to blur the line between work and play.",
+        source: "A Study of History",
+      },
+    ],
+    legacy:
+      "Toynbees 12-binds 'A Study of History' er et af det 20. århundredes mest ambitiøse historiske projekter. Han var den første der systematisk sammenlignede civilisationer på tværs af tid og sted. Selvom hans metode kritiseres af specialister, er hans grundlæggende indsigter om eliter, kreativitet og institutionel stagnation mere relevante end nogensinde.",
+    modernRelevance:
+      "AI, institutionel mistillid, polarisering og teknologisk acceleration. Toynbee ville have spurgt: er Vesten stadig kreativt levende, eller forsøger systemerne blot at bevare sig selv? For enhver der tænker over organisationers, samfunds og civilisationers fremtid er hans spørgsmål det vigtigste: hvad er det kreative svar på nutidens udfordring?",
+  },
+  {
+    slug: "antonio-gramsci",
+    name: "Antonio Gramsci",
+    born: 1891,
+    died: 1937,
+    nationality: "Italiensk",
+    era: "1900-tallet",
+    tagline: "Den stærkeste magt føles naturlig.",
+    centralIdea: "Magt udøves ikke primært gennem tvang men via kulturelt hegemoni: den gruppe der former normer, sprog og fortællinger styrer samfundet uden at det mærkes - fordi folk tror deres verdenssyn opstod spontant.",
+    symbol: "Hegemoniet",
+    moodColors: ["#0A0E14", "#5A3E6E"],
+    visualEnergy: "magt som usynlig kulturel kraft",
+    portraitSrc: "/images/frihedstaenkere/antonio-gramsci.avif",
+    themes: ["Kultur", "Magt", "Medier"],
+    relations: [
+      { slug: "michel-foucault", name: "Michel Foucault", label: "Beslægtet med" },
+      { slug: "byung-chul-han", name: "Byung-Chul Han", label: "Påvirkede" },
+    ],
+    intro:
+      "Antonio Gramsci forstod noget moderne samfund bruger konstant: magt handler ikke kun om love, politi eller penge. Den handler om kultur. Fra en fængselscelle under Mussolinis regime udviklede han idéen om kulturelt hegemoni - at den mest magtfulde gruppe ikke nødvendigvis er den rigeste, men den der former hvad mennesker opfatter som normalt, muligt og moralsk rigtigt.",
+    coreIdeas: [
+      {
+        title: "Kulturelt hegemoni",
+        body:
+          "Gramsci viste at dominans opretholdes ikke primært via tvang men via kulturel lederskab. Institutioner - skoler, medier, kirker, virksomheder - producerer kontinuerligt et verdenssyn der legitimerer den herskende orden. Det gørende ved hegemoniet er at det føles naturligt, ikke påtvunget: folk accepterer det fordi de har internaliseret det som sund fornuft.",
+      },
+      {
+        title: "Kampen om fortællingen",
+        body:
+          "For Gramsci er politisk kamp i bund og grund en kamp om fortolkning: om hvad der tæller som virkelighed, hvem der definerer problemerne og hvilke løsninger der virker thinkable. Den gruppe der vinder denne kulturelle kamp besidder hegemoniet - og kan dermed styre uden konstant brug af magt. Kontra-hegemoni opstår når alternative fortællinger organiseres systematisk.",
+      },
+      {
+        title: "Organiske intellektuelle",
+        body:
+          "Gramsci mente at alle grupper producerer egne intellektuelle der giver dem bevidsthed om deres position og interesser. De 'organiske intellektuelle' er ikke nødvendigvis akademikere - de er journalister, aktivister, lærere, ledere: dem der formulerer gruppers erfaring til en sammenhængende fortolkning af verden. Enhver social bevægelse har brug for dem.",
+      },
+    ],
+    quotes: [
+      {
+        text: "The crisis consists precisely in the fact that the old is dying and the new cannot be born.",
+        source: "Prison Notebooks, 1929–1935",
+      },
+      {
+        text: "Pessimism of the intellect, optimism of the will.",
+        source: "Prison Notebooks",
+      },
+    ],
+    legacy:
+      "Gramsci skrev sine 'Fængselsnotater' i hemmelighed under fascismen. De blev offentliggjort posthumt og blev et af det 20. århundredes mest indflydelsesrige politiske filosofiske bidrag. Hans begreb om kulturelt hegemoni er i dag analytisk standard inden for sociologi, mediestudier, politologi og kulturteori.",
+    modernRelevance:
+      "Sociale medier, branding, corporate kultur, politisk kommunikation og AI-systemer konkurrerer alle om at forme perception. Gramsci forstod at magt er mest effektiv når folk tror deres verdenssyn opstod spontant. I en tid hvor algoritmerne bestemmer hvad millioner ser og tror, er hans analyse af kulturel magt mere relevant end nogensinde.",
+  },
+  {
+    slug: "christopher-alexander",
+    name: "Christopher Alexander",
+    born: 1936,
+    died: 2022,
+    nationality: "Britisk-Amerikansk",
+    era: "1900-tallet",
+    tagline: "Systemer mister menneskelighed når de bliver for mekaniske.",
+    centralIdea: "Levende systemer opstår ikke gennem rigid kontrol men gennem menneskelige mønstre - og mennesker mærker intuitivt når noget er bygget uden sjæl, hvad enten det er en bygning, en app eller en organisation.",
+    symbol: "Mønstret",
+    moodColors: ["#0C0D08", "#5E7A4A"],
+    visualEnergy: "systemer der puster liv ind i omgivelserne",
+    portraitSrc: "/images/frihedstaenkere/christopher-alexander.avif",
+    themes: ["Design", "Teknologi", "Systemer"],
+    relations: [
+      { slug: "ivan-illich", name: "Ivan Illich", label: "Beslægtet med" },
+      { slug: "marshall-mcluhan", name: "Marshall McLuhan", label: "Beslægtet med" },
+    ],
+    intro:
+      "Christopher Alexander forsøgte at forstå hvorfor nogle steder, bygninger og systemer føles levende - og hvorfor andre føles kolde. Hans svar var at liv ikke er tilfældigt: det opstår fra bestemte mønstre der gentages i menneskelige omgivelser. Moderne samfund bygger effektivt, hurtigt og rationelt - men ofte uden menneskelig dybde. Resultatet er miljøer der fungerer teknisk men føles døde.",
+    coreIdeas: [
+      {
+        title: "A Pattern Language",
+        body:
+          "Alexanders mest kendte værk beskriver 253 mønstre - fra byers skala til et vindues proportioner - der tilsammen skaber levende, menneskelige omgivelser. Mønstrene er ikke regler men observationer: dette er hvad mennesker igen og igen finder trygt, stimulerende og levende. De kan kombineres frit, men de virker fordi de er forankret i dybere menneskelige behov.",
+      },
+      {
+        title: "Levende struktur",
+        body:
+          "Alexander mente at livet i en bygning eller et system opstår fra en bestemt slags orden: ikke symmetri eller regularitet, men en rig, differentieret orden med centre der forstærker hinanden. Han kaldte det 'the quality without a name' - den egenskab ved steder og systemer der gør at vi instinktivt føler os mere levende i dem.",
+      },
+      {
+        title: "Indflydelse på software",
+        body:
+          "Alexanders mønstersprog blev fundamentalt for softwareudvikling: design patterns, agile metoder og UX-principper er alle direkte inspireret af ham. Hans pointe - at systemer skal vokse organisk gennem iterative mønstre frem for top-down design - blev en hjørnesten i moderne produktudvikling.",
+      },
+    ],
+    quotes: [
+      {
+        text: "What matters in the end is the life of the building, not the ideas behind it.",
+        source: "The Nature of Order, 2002",
+      },
+      {
+        text: "Every part of the environment should be made by people who care for that part.",
+        source: "A Pattern Language, 1977",
+      },
+    ],
+    legacy:
+      "Alexanders 'A Pattern Language' er en af de mest solgte arkitekturbøger nogensinde og er dybt forankret i softwareverdenens design-DNA. Han påvirkede ikke blot arkitektur men UX-design, systemtænkning, produktdesign og agilemetoder. Hans insisteren på at systemer skal tjene menneskelig livserfaring er en vedvarende korrektiv til teknologiens fristelse til abstraktioner.",
+    modernRelevance:
+      "Når apps føles kolde, arbejdspladser dræner energi og digitale produkter skaber fremmedgørelse, beskriver Alexander præcis hvad der mangler. Teknologi fungerer bedst når mennesker føler sig mere levende i den - ikke mindre. I en tid med AI-genererede interfaces og algoritmisk designede platforme er hans spørgsmål afgørende: er dette system bygget til menneskelig blomstring, eller blot til effektivitet?",
+  },
+  {
+    slug: "neil-howe",
+    name: "Neil Howe",
+    born: 1951,
+    died: null,
+    nationality: "Amerikansk",
+    era: "2000-tallet",
+    tagline: "Historien gentager ikke sig selv. Men den rimer.",
+    centralIdea: "Samfund bevæger sig i generationelle cyklusser af stabilitet, individualisme, opløsning og krise - cyklusserne former generationerne og generationerne former civilisationen tilbage.",
+    symbol: "Cyklussen",
+    moodColors: ["#0D0A10", "#6A5A8A"],
+    visualEnergy: "historien som tilbagevendende bølger af generationel energi",
+    portraitSrc: "/images/frihedstaenkere/neil-howe.avif",
+    themes: ["Generationer", "Historie", "Civilisationer"],
+    relations: [
+      { slug: "arnold-toynbee", name: "Arnold Toynbee", label: "Påvirket af" },
+      { slug: "oswald-spengler", name: "Oswald Spengler", label: "Beslægtet med" },
+    ],
+    intro:
+      "Neil Howe er kendt for teorien om 'The Fourth Turning': en idé om at samfund bevæger sig i tilbagevendende generationelle cyklusser. Perioder med stabilitet, individualisme, opløsning og krise gentager sig i et rytmisk mønster. Hver generation formes af den verden de vokser op i - og former siden civilisationen tilbage. Hans analyse er blevet grundlæsning for investorer, geopolitikere og strategiske rådgivere.",
+    coreIdeas: [
+      {
+        title: "De fire turnings",
+        body:
+          "Howe beskriver fire generationelle faser der tilsammen udgør et saeculum på ca. 80-100 år. 'The High' er perioden af institutionel opbygning efter en krise. 'The Awakening' er en opblomstring af individualisme og protest. 'The Unraveling' er en tid af fragmentering og faldende institutionel tillid. Og 'The Fourth Turning' er selve krisen - den katastrofale omstilling der renser ud og genstarter cyklussen.",
+      },
+      {
+        title: "Generationernes arketyder",
+        body:
+          "Howe identificerer fire generationelle arketyder der roterer: Profeter (idealistiske, moralske), Nomader (pragmatiske, selvhjulpne), Helte (kollektivistiske, handlingsorienterede) og Kunstnere (tilpasningsdygtige, diplomatiske). Hver generation formes af hvilken fase af cyklussen de vokser op i, og besidder derpå den arketypiske energi der passer til næste fase.",
+      },
+      {
+        title: "Krisens nødvendighed",
+        body:
+          "Howe ser ikke kriser som ulykker der kan undgås - men som systemiske renselser der er nødvendige for civilisationens fornyelse. Institutioner der var nødvendige i én fase bliver forhindringer i en anden. Fourth Turnings er smertefulde, men de er også det øjeblik hvor ny orden kan skabes. At forstå hvilken fase man er i, er afgørende for hvad der kræves af lederskab.",
+      },
+    ],
+    quotes: [
+      {
+        text: "History is seasonal, and winter is coming.",
+        source: "The Fourth Turning, 1997",
+      },
+      {
+        text: "The next Fourth Turning is due to begin shortly after the new millennium, midway through the Oh-Oh decade. Around the year 2005, a sudden spark will catalyze a Crisis mood.",
+        source: "The Fourth Turning, 1997",
+      },
+    ],
+    legacy:
+      "Howes 'The Fourth Turning' (1997) er blevet en af de mest indflydelsesrige bøger inden for generationel og politisk analyse. Steve Bannon har refereret til den, Ray Dalio har bygget videre på dens principper, og talrige investorer bruger dens cyklus-ramme til at tolke historiske og politiske skift. Hans opfølger 'The Fourth Turning Is Here' (2023) opdaterede analysen til nutiden.",
+    modernRelevance:
+      "Polarisering, institutionel mistillid, kulturel fragmentering og politisk krise: Howe ville sige at vi befinder os midt i et Fourth Turning. Spørgsmålet er ikke om krisen kommer, men hvad vi bygger i den anden side af den. For ledere, strateger og organisationer er hans ramme et kraftfuldt redskab til at forstå den historiske fase - og hvad der kræves nu.",
+  },
+  {
+    slug: "marshall-sahlins",
+    name: "Marshall Sahlins",
+    born: 1930,
+    died: 2021,
+    nationality: "Amerikansk",
+    era: "1900-tallet",
+    tagline: "Mennesker lever ikke kun for profit.",
+    centralIdea: "Samfund er ikke primært organiseret efter rationel økonomi men efter relationer, ritualer, symboler og mening - og det vigtigste ved mennesker kan ikke måles.",
+    symbol: "Ritualet",
+    moodColors: ["#0A0C08", "#7A6E3E"],
+    visualEnergy: "mennesker søger mening og tilhørsforhold mere end profit",
+    portraitSrc: "/images/frihedstaenkere/marshall-sahlins.avif",
+    themes: ["Kultur", "Økonomi", "Identitet"],
+    relations: [
+      { slug: "ivan-illich", name: "Ivan Illich", label: "Beslægtet med" },
+      { slug: "byung-chul-han", name: "Byung-Chul Han", label: "Beslægtet med" },
+    ],
+    intro:
+      "Marshall Sahlins var en af det 20. århundredes mest originale antropologer. Han udfordrede en af modernitetens mest grundlæggende antagelser: at mennesker primært handler rationelt-økonomisk. Gennem årtiers feltarbejde og teoretisk arbejde viste han at samfund historisk har været organiseret omkring relationer, ritualer, symboler og mening - ikke profit. Hans kritik af den neoklassiske økonomiforståelse er stadig provokerende og nødvendig.",
+    coreIdeas: [
+      {
+        title: "Stenalderens velstand",
+        body:
+          "I 'Stone Age Economics' (1972) fremsatte Sahlins en provokerende tese: jæger-samlersamfund var faktisk de første velfærdssamfund. De arbejdede få timer om dagen og havde rigeligt. Velstand handler ikke om absolut forbrug men om forholdet mellem begær og ressourcer. Moderne samfund skaber konstant nye begær - og kalder det fremskridt.",
+      },
+      {
+        title: "Kulturens primat",
+        body:
+          "Sahlins insisterede på at kulturen - ikke biologien eller økonomien - er den primære kraft der former menneskelig adfærd. Menschen er ikke rationelle optimerende maskiner men kulturelle væsener der handler inden for symbolske verdener. Samme materielle omstændigheder kan give radikalt forskellig adfærd i forskellige kulturelle kontekster.",
+      },
+      {
+        title: "Det umålelige",
+        body:
+          "Sahlins kritiserede moderne samfunds tendens til at reducere mennesker til forbrugere, producenter og datapunkter. Menneskelig adfærd drives af tilhørsforhold, identitet, anerkendelse og mening - ikke kun incitamenter og priser. Modeller der ignorerer dette mislykkes ikke blot akademisk: de skaber institutioner og systemer der er strukturelt ude af stand til at møde hvad mennesker egentlig søger.",
+      },
+    ],
+    quotes: [
+      {
+        text: "The market mentality... mistakes economy for culture.",
+        source: "Stone Age Economics, 1972",
+      },
+      {
+        text: "Humanity is not everywhere the same. Human nature is everywhere the same. Cultures are not the same.",
+        source: "The Western Illusion of Human Nature, 2008",
+      },
+    ],
+    legacy:
+      "Sahlins var en af de mest produktive og kontroversieltantropologer i det 20. århundrede. Hans debat med E.O. Wilson om sociobiologi, hans kritik af neoklassisk økonomi og hans arbejde om kapitalismens kulturelle logik satte dagsordenen for antropologisk teori i årtier. Hans idéer er grundlæggende for enhver seriøs analyse af organisation, kultur og human motivation.",
+    modernRelevance:
+      "AI, platformøkonomi, sociale medier og digital identitet forsøger konstant at måle mennesker og forudsige adfærd via rationelle modeller. Sahlins ville sige: det vigtigste ved mennesker kan ofte ikke måles. Organisationer der forstår dette - at medarbejdere, kunder og borgere søger mening, tilhørsforhold og anerkendelse, ikke kun belønning - har en varig konkurrencefordel. Hans kritik er ikke romantisk nostalgi. Den er analytisk præcis.",
+  },
 ];
 
 export function getThinkerBySlug(slug: string): Thinker | undefined {
