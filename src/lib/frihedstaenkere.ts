@@ -112,6 +112,7 @@ export const THINKERS: Thinker[] = [
     themes: ["Frihed", "Samfund"],
     relations: [
       { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirkede" },
+      { slug: "mary-wollstonecraft", name: "Mary Wollstonecraft", label: "Påvirkede" },
       { slug: "john-rawls", name: "John Rawls", label: "Påvirkede" },
       { slug: "isaiah-berlin", name: "Isaiah Berlin", label: "Påvirkede" },
     ],
@@ -272,6 +273,7 @@ export const THINKERS: Thinker[] = [
     themes: ["Frihed", "Samfund"],
     relations: [
       { slug: "john-locke", name: "John Locke", label: "Påvirket af" },
+      { slug: "mary-wollstonecraft", name: "Mary Wollstonecraft", label: "Påvirket af" },
       { slug: "isaiah-berlin", name: "Isaiah Berlin", label: "Påvirkede" },
       { slug: "john-rawls", name: "John Rawls", label: "Påvirkede" },
     ],
@@ -326,6 +328,7 @@ export const THINKERS: Thinker[] = [
     themes: ["Identitet", "Magt"],
     relations: [
       { slug: "carl-jung", name: "Carl Jung", label: "Påvirkede" },
+      { slug: "sigmund-freud", name: "Sigmund Freud", label: "Påvirkede" },
       { slug: "rene-girard", name: "René Girard", label: "Påvirkede" },
       { slug: "michel-foucault", name: "Michel Foucault", label: "Påvirkede" },
     ],
@@ -381,6 +384,7 @@ export const THINKERS: Thinker[] = [
     themes: ["Bevidsthed", "Identitet"],
     relations: [
       { slug: "friedrich-nietzsche", name: "Friedrich Nietzsche", label: "Påvirket af" },
+      { slug: "sigmund-freud", name: "Sigmund Freud", label: "Påvirket af" },
       { slug: "rene-girard", name: "René Girard", label: "Beslægtet med" },
     ],
     intro:
@@ -399,7 +403,7 @@ export const THINKERS: Thinker[] = [
       {
         title: "Individuationen",
         body:
-          "Jungs centrale terapeutiske og eksistentielle mål var individuation: den proces, hvorved en person integrerer alle aspekter af sig selv - inklusive skyggen, de dele af selvet man har undertrykt eller nægtet. Det fuldt integrerede selv er ikke harmonisk i konventionel forstand - det er hult.",
+          "Jungs centrale terapeutiske og eksistentielle mål var individuation: den proces, hvorved en person integrerer alle aspekter af sig selv - inklusive skyggen, de dele af selvet man har undertrykt eller nægtet. Det fuldt integrerede selv er ikke harmonisk i konventionel forstand - det er helt.",
       },
     ],
     quotes: [
@@ -1773,6 +1777,268 @@ export const THINKERS: Thinker[] = [
       "Sahlins var en af de mest produktive og kontroversieltantropologer i det 20. århundrede. Hans debat med E.O. Wilson om sociobiologi, hans kritik af neoklassisk økonomi og hans arbejde om kapitalismens kulturelle logik satte dagsordenen for antropologisk teori i årtier. Hans idéer er grundlæggende for enhver seriøs analyse af organisation, kultur og human motivation.",
     modernRelevance:
       "AI, platformøkonomi, sociale medier og digital identitet forsøger konstant at måle mennesker og forudsige adfærd via rationelle modeller. Sahlins ville sige: det vigtigste ved mennesker kan ofte ikke måles. Organisationer der forstår dette - at medarbejdere, kunder og borgere søger mening, tilhørsforhold og anerkendelse, ikke kun belønning - har en varig konkurrencefordel. Hans kritik er ikke romantisk nostalgi. Den er analytisk præcis.",
+  },
+  // ─── KVINDELIGE TÆNKERE & NYE STEMMER ───────────────────────────────────────
+  {
+    slug: "mary-wollstonecraft",
+    name: "Mary Wollstonecraft",
+    born: 1759,
+    died: 1797,
+    nationality: "Britisk",
+    era: "Oplysningstiden",
+    tagline: "Frihed er ikke kun for mænd.",
+    centralIdea: "Kvinder er ikke irrationelle og svage af natur - de er blot opdragede til at være det. Giv dem samme uddannelse og frihed som mænd, og de vil bevise at fornuft ikke kender køn.",
+    symbol: "Pennen",
+    moodColors: ["#0A1410", "#5A9070"],
+    visualEnergy: "fornuft og frihed gælder alle",
+    themes: ["Frihed", "Identitet", "Samfund"],
+    relations: [
+      { slug: "john-locke", name: "John Locke", label: "Påvirket af" },
+      { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirkede" },
+      { slug: "simone-de-beauvoir", name: "Simone de Beauvoir", label: "Idémæssig forfader til" },
+    ],
+    intro:
+      "Mary Wollstonecraft skrev i 1792 'A Vindication of the Rights of Woman' - et af historiens tidligste og skarpeste feministiske argumenter. Hendes ræsonnement var enkelt og radikalt: hvis Oplysningstidens mænd havde ret i at frihed og fornuft er universelle menneskelige rettigheder, måtte de gælde for kvinder også. Wollstonecraft forlangte ikke særbehandling. Hun forlangte konsekvens.",
+    coreIdeas: [
+      {
+        title: "Opdragelsens tyranni",
+        body:
+          "Kvinder er ikke svage og irrationelle af natur - de opdrættes til at være det. Det 18. århundredes pigedannelse handlede om at gøre piger tiltalende og lydige, ikke om at udvikle deres fornuft. Resultatet var kvinder der var afhængige og ude af stand til at tage ansvar for eget liv - og et samfund der kaldte det naturens orden.",
+      },
+      {
+        title: "Rettigheder kræver uddannelse",
+        body:
+          "Wollstonecrafts løsning var radikal i sin tid: giv kvinder samme intellektuelle uddannelse som mænd. Ikke for at gøre dem til mænd - men for at udvikle den fornuft der er forudsætningen for ægte frihed og moralsk ansvar. Rettigheder uden evnen til at bruge dem er tomme.",
+      },
+      {
+        title: "Frihed som moralsk fundament",
+        body:
+          "Kun frie mennesker kan udvise ægte dyd. Kvinder der lever under mandens autoritet kan ikke være moralsk ansvarlige - og det er ikke blot uretfærdigt over for kvinder. Det er en skade på civilisationen som helhed. Wollstonecraft mente at et samfund af afhængige kvinder ikke kan producere frie mænd.",
+      },
+    ],
+    quotes: [
+      {
+        text: "I do not wish women to have power over men; but over themselves.",
+        source: "A Vindication of the Rights of Woman, 1792",
+      },
+      {
+        text: "Taught from infancy that beauty is woman's sceptre, the mind shapes itself to the body, and roaming round its gilt cage, only seeks to adorn its prison.",
+        source: "A Vindication of the Rights of Woman, 1792",
+      },
+    ],
+    legacy:
+      "Wollstonecraft er feminismens grundlægger. 'A Vindication of the Rights of Woman' er det første systematiske argument for kvinders rettigheder baseret på universelle oplysningsprincipper. Hendes arbejde inspirerede suffragettebevægelsen der kæmpede for stemmeret, og John Stuart Mill byggede direkte videre på hendes argumenter i 'The Subjection of Women' (1869). Hendes datter, Mary Shelley, skrev Frankenstein.",
+    modernRelevance:
+      "Wollstonecrafts argument om at kvinder opdrages til at begrænse sig selv er mere relevant end det burde være. Sociale mediers skønhedsidealer, reklamernes kvindesyn og uddannelsessystemers systematiske bias er alle nutidens version af det 18. århundredes pigedannelse. Hendes spørgsmål er ikke løst: former vi stadig kvinder til lydighed frem for selvstændighed?",
+  },
+  {
+    slug: "sigmund-freud",
+    name: "Sigmund Freud",
+    born: 1856,
+    died: 1939,
+    nationality: "Østrigsk",
+    era: "1800-tallet",
+    tagline: "Vi er ikke hvem vi tror vi er.",
+    centralIdea: "Det meste af hvad vi gør, tænker og føler, styres af ubevidste kræfter - fortrængte drifter, traumer og konflikter vi ikke har direkte adgang til. Bevidstheden er isbjergets spids.",
+    symbol: "Sofaen",
+    moodColors: ["#1A0A0A", "#9E4A3A"],
+    visualEnergy: "det ubevidste styrer det bevidste",
+    themes: ["Bevidsthed", "Identitet", "Frihed"],
+    relations: [
+      { slug: "friedrich-nietzsche", name: "Friedrich Nietzsche", label: "Påvirket af" },
+      { slug: "carl-jung", name: "Carl Jung", label: "Påvirkede" },
+      { slug: "rene-girard", name: "René Girard", label: "Idémæssig forfader til" },
+    ],
+    intro:
+      "Sigmund Freud ændrede det 20. århundredes selvforståelse grundlæggende: du er ikke den rationelle, bevidste person du tror du er. Det meste af hvad du gør, føler og ønsker, drives af kræfter du ikke har adgang til - fortrængte begær, tidlige traumer og ubevidste konflikter der arbejder under overfladen. Freuds psykoanalyse var ikke bare en behandlingsmetode. Det var en ny menneskeopfattelse.",
+    coreIdeas: [
+      {
+        title: "Det ubevidste sind",
+        body:
+          "Freuds vigtigste bidrag: det meste af sindet er ubevidst. Bag den lille bevidste overflade gemmer sig et enormt reservoar af fortrængte ønsker, frygt og minder. Det ubevidste lækker ud som drømme, fejltagelser, symptomer og irrationel adfærd. Det er ikke uvæsentligt - det er den egentlige motor i menneskets liv. Freuds metafor: bevidstheden er isbjergets spids.",
+      },
+      {
+        title: "Drifterne: Eros og Thanatos",
+        body:
+          "Freud mente at mennesket drives af to grundlæggende kræfter: livsdriften (Eros) - seksualitet, forbundethed og skabervilje - og dødsdriften (Thanatos) - aggression, selvdestruktion og tilbagevenden til det uorganiske. Civilisationen er bygget på undertrykkelse af disse drifter. Og prisen er permanent indre spænding og utilfredshed.",
+      },
+      {
+        title: "Civilisation og undertrykkelse",
+        body:
+          "I 'Civilization and its Discontents' (1930) formulerede Freud sin mest desperate indsigt: civilisation kræver driftsundertrykkelse. For at leve sammen i samfund skal mennesker opgive instinktiv tilfredsstillelse. Det skaber velstand og orden - og permanent utilfredshed. Frihed og civilisation er i fundamental konflikt. Det er prisen vi betaler for at have et samfund.",
+      },
+    ],
+    quotes: [
+      {
+        text: "The ego is not master in its own house.",
+        source: "A Difficulty in the Path of Psycho-Analysis, 1917",
+      },
+      {
+        text: "Being entirely honest with oneself is a good exercise.",
+        source: "Letters of Sigmund Freud, 1873-1939",
+      },
+    ],
+    legacy:
+      "Freud revolutionerede vestens selvforståelse. Begreber som det ubevidste, forsvarsmekanismer, fortrængning, overføring og Ødipal-komplekset er nu hverdagssprog og grundlag for al moderne psykologi og psykiatri. Psykoanalysen satte sig igennem i filosofi, litteratur, film, kunst og kulturteori. Selvom mange af hans specifikke teorier er revideret, er grundindsigten - at mennesket ikke er gennemskueligt for sig selv - aldrig tilbagevist.",
+    modernRelevance:
+      "Neurovidenskab og kognitionspsykologi har bekræftet Freuds kerneidé: det meste af menneskelig adfærd er automatisk, ubevidst og drevet af processer vi ikke har direkte adgang til. Reklame, politisk propaganda og platform-algoritmer udnytter præcis det Freud kortlagde: vores irrationelle, affektdrevne og ubevidste sider. Hans spørgsmål er stadig det vigtigste: hvem styrer egentlig dig?",
+  },
+  {
+    slug: "hannah-arendt",
+    name: "Hannah Arendt",
+    born: 1906,
+    died: 1975,
+    nationality: "Tysk-Amerikansk",
+    era: "1900-tallet",
+    tagline: "Det største onde kræver ikke monstre.",
+    centralIdea: "Totalitarisme og massemord kræver ikke sadister og fanatikere - de kræver blot folk der holder op med at tænke. Det onde er ikke dramatisk. Det er banalt.",
+    symbol: "Kontorskranken",
+    moodColors: ["#0C1018", "#4E6A90"],
+    visualEnergy: "ondskab som tankeløshed",
+    themes: ["Magt", "Sandhed", "Frihed", "Samfund"],
+    relations: [
+      { slug: "karl-popper", name: "Karl Popper", label: "Beslægtet med" },
+      { slug: "michel-foucault", name: "Michel Foucault", label: "Påvirkede" },
+      { slug: "simone-de-beauvoir", name: "Simone de Beauvoir", label: "Beslægtet med" },
+    ],
+    intro:
+      "Hannah Arendt dækkede Eichmann-retssagen i Jerusalem i 1961 og kom hjem med en konklusion der chokerede verden: Adolf Eichmann, der organiserede deportationen af millioner af jøder, var ikke en sadist eller et monster. Han var en kontorfunktionær der adlød ordrer og aldrig rigtig tænkte over hvad han gjorde. Arendts begreb 'ondskabens banalitet' er en af det 20. århundredes mest ubehagelige og vigtige indsigter: det største onde skabes ikke af onde mennesker - det skabes af folk der holder op med at tænke.",
+    coreIdeas: [
+      {
+        title: "Ondskabens banalitet",
+        body:
+          "Eichmann var ikke fanatiker. Han var en karrieremand der fulgte reglerne og 'bare adlød ordrer'. Arendt konkluderede at det ekstraordinære onde ikke kræver ekstraordinært onde mennesker - det kræver blot fraværet af tænkning: den mekaniske udførelse af ordrer uden moralsk refleksion. Tankeløshed er den farligste menneskelige egenskab.",
+      },
+      {
+        title: "Totalitarismens natur",
+        body:
+          "I 'The Origins of Totalitarianism' (1951) argumenterede Arendt at nazisme og stalinisme var radikalt nye fænomener i historien. De søgte ikke blot at kontrollere adfærd men at transformere menneskenes natur selv - at gøre fri tænkning umulig via propaganda, terror og ideologi. Det var ikke blot tyranni. Det var et angreb på selve betingelserne for menneskelig eksistens.",
+      },
+      {
+        title: "Frihed som fælles handling",
+        body:
+          "For Arendt er ægte frihed ikke blot fraværet af hindringer - det er evnen til at handle i fællesskab og begynde noget nyt i verden. Det politiske liv er ikke et nødvendigt onde. Det er stedet hvor mennesket er mest menneskeligt: den arena hvor frie individer mødes som ligemænd og skaber noget der ikke fandtes før.",
+      },
+    ],
+    quotes: [
+      {
+        text: "The sad truth is that most evil is done by people who never make up their minds to be good or evil.",
+        source: "The Life of the Mind, 1978",
+      },
+      {
+        text: "Totalitarianism is never content to rule by external means, namely, through the state and a machinery of violence; thanks to its peculiar ideology, it has discovered a means of dominating and terrorizing human beings from within.",
+        source: "The Origins of Totalitarianism, 1951",
+      },
+    ],
+    legacy:
+      "Arendt er en af det 20. århundredes vigtigste politiske filosoffer. Hendes analyse af totalitarisme, 'ondskabens banalitet' og politisk frihed har formet diskussionen om demokrati, autoritarisme og moralsk ansvar i årtier. Hun er en af de få tænkere der formåede at forstå nazisme og stalinisme som radikalt nye fænomener i historien - ikke blot forlængelser af gammelt tyranni.",
+    modernRelevance:
+      "I en tid med stigende autoritarisme, institutionel lydighed og algoritmisk beslutningstagning er Arendts advarsel mere relevant end nogensinde: den største fare er ikke ondsindede ledere - det er tankeløs lydighed. Hendes begreb om 'banalitet' er direkte relevant for diskussionen om AI-systemer der udfører kommandoer uden moralsk vurdering - og de mennesker der lader dem gøre det.",
+  },
+  {
+    slug: "simone-de-beauvoir",
+    name: "Simone de Beauvoir",
+    born: 1908,
+    died: 1986,
+    nationality: "Fransk",
+    era: "1900-tallet",
+    tagline: "Man fødes ikke som kvinde. Man bliver det.",
+    centralIdea: "Kvindelighed er ikke biologi - det er en kulturelt konstrueret rolle som samfundet definerer og tvinger kvinder ind i. Frihed kræver at man nægter at lade andre definere ens eksistens.",
+    symbol: "Det andet køn",
+    moodColors: ["#1A0E1A", "#9A5080"],
+    visualEnergy: "kvindelighed som kulturel konstruktion",
+    themes: ["Frihed", "Identitet", "Magt"],
+    relations: [
+      { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirket af" },
+      { slug: "mary-wollstonecraft", name: "Mary Wollstonecraft", label: "Påvirket af" },
+      { slug: "hannah-arendt", name: "Hannah Arendt", label: "Beslægtet med" },
+      { slug: "michel-foucault", name: "Michel Foucault", label: "Idémæssig forfader til" },
+    ],
+    intro:
+      "Da Simone de Beauvoir udgav 'Det andet køn' i 1949, sagde hun noget der lød simpelt men ændrede alt: kvinder fødes ikke svage, passive og afhængige - de opdrages til det. Kvindelighed er ikke et naturgivet faktum. Det er et kulturelt projekt. Et system af normer, forventninger og begrænsninger der definerer halvdelen af menneskeheden som 'den anden' - det ufuldstændige, det afledte, det sekundære. Beauvoirs analyse er starten på moderne feministisk tænkning.",
+    coreIdeas: [
+      {
+        title: "Det andet køn",
+        body:
+          "Beauvoirs kerneidé: kvinder er ikke bare 'mænd minus noget'. De er defineret som det absolutte Andet - det der ikke er manden. I et samfund skabt af og for mænd defineres kvinden altid relativt: som hustru, mor, datter, objekt. Hun eksisterer ikke for sig selv - hun eksisterer i relation til manden. Befrielse kræver at kvinder insisterer på at eksistere på egne betingelser.",
+      },
+      {
+        title: "Frihed er noget man tager",
+        body:
+          "Som eksistentialist mente Beauvoir at frihed ikke er noget man har - det er noget man aktivt vælger. Kvinder kan ikke vente på at samfundet giver dem frihed. De må nægte de roller der er defineret for dem og skabe deres eget liv. Det er angstprovokerende og ubehageligt. Men det er det eneste alternativ til at leve andres definition af sig selv.",
+      },
+      {
+        title: "Undertrykkelse som system",
+        body:
+          "Kvindeundertrykkelse er ikke blot enkle mænd med dårlige holdninger. Det er et system - indlejret i institutioner, sprog, kultur og normer. Uddannelse, ægteskab, medier og religion samarbejder om at producere kvinder der selv tror at deres underordnede rolle er naturlig og ønsket. Det er systemets sejr: de undertrykte overtager undertrykkelsens logik og kalder det frihed.",
+      },
+    ],
+    quotes: [
+      {
+        text: "One is not born, but rather becomes, a woman.",
+        source: "The Second Sex, 1949",
+      },
+      {
+        text: "To catch a husband is an art; to hold him is a job.",
+        source: "The Second Sex, 1949",
+      },
+    ],
+    legacy:
+      "Beauvoirs 'Det andet køn' er det vigtigste feministiske dokument i det 20. århundrede. Det lagde grunden til anden bølges feminisme og påvirkede tænkere fra Betty Friedan til Judith Butler. Hendes analyse af kvinder som 'den anden' gennemsyrer humanistisk akademia - og hendes eksistentialistiske tilgang til frihed er stadig det skarpeste svar på spørgsmålet om hvad befrielse egentlig betyder.",
+    modernRelevance:
+      "Beauvoirs analyse er mere relevant end nogensinde i en tid, hvor sociale medier konstruerer nye feminitetsidealer og AI-systemer replikerer kønsstereotyper med algoritmisk præcision. TikTok-skønhedsidealer og Instagram-husmodertrenden er det 21. århundredes version af 'det andet køn'. Hendes spørgsmål er ikke historisk: hvem definerer den rolle du spiller - og hvad ville det kræve at nægte den?",
+  },
+  {
+    slug: "hugh-hefner",
+    name: "Hugh Hefner",
+    born: 1926,
+    died: 2017,
+    nationality: "Amerikansk",
+    era: "1900-tallet",
+    tagline: "Nydelse er ikke synd. Skam er.",
+    centralIdea: "Playboy var ikke bare pornografi - det var et kulturpolitisk projekt: et opgør med Amerikas puritanske arv og et argument for at seksuel frihed, nydelse og personlig autonomi er legitime menneskelige værdier.",
+    symbol: "Kaninen",
+    moodColors: ["#1A0808", "#8C3030"],
+    visualEnergy: "nydelse som frigørelse",
+    themes: ["Frihed", "Identitet", "Samfund"],
+    relations: [
+      { slug: "john-stuart-mill", name: "J.S. Mill", label: "Påvirket af" },
+      { slug: "isaiah-berlin", name: "Isaiah Berlin", label: "Beslægtet med" },
+      { slug: "simone-de-beauvoir", name: "Simone de Beauvoir", label: "Reaktion mod" },
+    ],
+    intro:
+      "Da Hugh Hefner lancerede Playboy i 1953 med Marilyn Monroe på forsiden, skabte han mere end et magasin. Han skabte en ideologi. I et Amerika gennemsyret af puritansk seksualmoral, McCarthy-paranoia og konformitetspres argumenterede Playboy for noget enkelt og radikalt: at nydelse, seksualitet og fri livsførelse var legitime - ikke syndige. Hefner var ikke primært pornograf. Han var kulturpolitisk aktør.",
+    coreIdeas: [
+      {
+        title: "Playboy-filosofien",
+        body:
+          "Hefner formulerede eksplicit en filosofi: hedonisme som etik. Voksne mennesker har ret til at søge nydelse, forme deres seksuelle liv og leve uden statslig eller religiøs kontrol over kroppen. Det lyder indlysende nu. I 1953 var det kontroversielt og provokerende. Playboy-filosofien var del af den bredere liberaliseringsbevægelse der formede 1960'ernes seksuelle revolution.",
+      },
+      {
+        title: "Civil rights og seksuel frihed",
+        body:
+          "Hefner var en tidlig fortaler for borgerrettigheder. Playboy var et af de første store amerikanske magasiner der regelmæssigt bragte sort litteratur og interviews. Hefner argumenterede for at seksuel undertrykkelse og racemæssig undertrykkelse var dele af den samme puritanske kontrol - en overbevisning om at staten ikke har at gøre med hvad voksne gør frivilligt i privatlivet.",
+      },
+      {
+        title: "Frihed og objektivering - på én gang",
+        body:
+          "Hefners arv er dybt tvetydig. Hans argument for seksuel frihed bidrog til at liberalisere vestlig seksualmoral og udvide det personlige rums grænser. Men projektet er uadskilleligt fra en systematisk commodificering af kvindekroppen. Feministisk kritik fra Friedan og Steinem: Hefner befriede ikke kvinder - han befriede mænds ret til at se dem som objekter. Begge analyser er sande på én gang.",
+      },
+    ],
+    quotes: [
+      {
+        text: "Life is too short to be living somebody else's dream.",
+        source: "Hugh Hefner",
+      },
+      {
+        text: "The interesting thing is that I think of myself as a romantic. And I always have. I believe in love.",
+        source: "Hugh Hefner interview, 2011",
+      },
+    ],
+    legacy:
+      "Hefner formede den seksuelle revolution og det 20. århundredes ændrede holdning til seksualitet, nøgenhed og personlig frihed i Vesten. Playboy var et kulturelt fænomen der blandede litteratur, politisk journalistik og erotik og dermed legitimerede pornografi som mainstream. Hans projekt er tvetydigt: han kæmpede for frigørelse og satte en ny form for objektivering i system.",
+    modernRelevance:
+      "OnlyFans, streaming-pornografi og digitale intimøkonomier er Hefners logik skaleret og demokratiseret. Hans dilemma er blevet globalt: seksuel frihed og kommerciel objektivering er fortsat viklet ind i hinanden på måder der er svære at adskille. Hans projekt viste at seksualmoral kan liberaliseres - og rejste spørgsmålet om hvem der egentlig vinder ved den liberalisering.",
   },
 ];
 
