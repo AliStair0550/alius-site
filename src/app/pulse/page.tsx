@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
 };
 
-export const revalidate = false;
+export const dynamic = "force-dynamic";
 
 type Dashboard = {
   slug: string;

@@ -22,7 +22,7 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export const revalidate = false;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -34,8 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// Undgå at pre-rendere alle kommuner ved build (tømmer DB-kvoten).
+// Siderne renderes on-demand ved første besøg og caches derefter (revalidate=false).
 export async function generateStaticParams() {
-  return getAllKommuner().map((k) => ({ slug: k.slug }));
+  return [];
 }
 
 export default async function KommuneProfilPage({ params }: Props) {

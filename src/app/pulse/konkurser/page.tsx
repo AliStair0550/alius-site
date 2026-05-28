@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Antallet af konkurser i danske virksomheder, måned for måned og branche for branche. Sæsonkorrigerede tal fra Danmarks Statistik.",
 };
 
-export const revalidate = false;
+export const dynamic = "force-dynamic";
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
