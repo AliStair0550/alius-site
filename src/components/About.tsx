@@ -8,15 +8,16 @@ export default function About() {
   return (
     <section id="om" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16">
-        <div className="relative overflow-hidden group" style={{ maxHeight: "500px" }}>
-          <img
-            src="/ali.jpg"
-            alt="Ali"
-            className="w-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
-            style={{ mixBlendMode: "multiply" }}
-          />
-          <div className="absolute bottom-0 left-0 right-0 h-[30px] bg-gradient-to-t from-parchment/60 to-transparent" />
-          <div className="absolute bottom-0 left-[5%] right-[5%] h-[2px] bg-clay" />
+        {/* Ramme: ydre moss-kant + indre billede med fade */}
+        <div className="p-[6px] border border-clay/60" style={{ maxHeight: "520px" }}>
+          <div className="relative overflow-hidden group h-full border border-clay/30">
+            <img
+              src="/ali-portrait.png"
+              alt="Ali"
+              className="w-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
+            />
+            <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-parchment/70 to-transparent" />
+          </div>
         </div>
 
         <div>
