@@ -16,7 +16,7 @@ export default function About() {
               alt="Ali"
               className="w-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
             />
-            <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-parchment/70 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-[24px] bg-gradient-to-t from-parchment/60 to-transparent" />
           </div>
         </div>
 
@@ -36,16 +36,23 @@ export default function About() {
             adskilles, men kombineres fra start.
           </p>
 
-          <div className="flex flex-col gap-3">
-            {values.map((v) => (
-              <div key={v.label} className="flex items-baseline gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-moss shrink-0 mt-0.5" />
-                <div className="font-[200] text-[0.85rem] text-stone leading-[1.6]">
-                  <strong className="font-[400] text-ink">{v.label}</strong> -{" "}
-                  {v.desc}
+          <div className="flex flex-col">
+            {values.map((v, i) => (
+              <div key={v.label} className="py-4 border-t border-clay/40 flex gap-5 items-start">
+                <span className="text-[8px] tracking-[0.15em] text-clay font-[300] pt-[3px] shrink-0 tabular-nums">
+                  0{i + 1}
+                </span>
+                <div>
+                  <div className="font-fraunces font-light italic text-[1.05rem] text-ink mb-1">
+                    {v.label}
+                  </div>
+                  <div className="font-[200] text-[0.8rem] text-stone leading-[1.65]">
+                    {v.desc}
+                  </div>
                 </div>
               </div>
             ))}
+            <div className="border-t border-clay/40" />
           </div>
 
           <a
