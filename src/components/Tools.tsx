@@ -13,12 +13,9 @@ export default function Tools() {
         Vores værktøjer giver dig indsigt inden du tager kontakt. De er gratis og kræver ingen tilmelding.
       </p>
 
-      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {/* Active: Tankeprofil */}
-        <Link
-          href="/tankeprofil"
-          className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
-        >
+      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Tankeprofil */}
+        <Link href="/tankeprofil" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
           <div className="font-[400] text-[0.9rem] text-ink">Personlighedsprofil</div>
           <div className="font-[200] text-[0.7rem] text-slate">Personlighedsprofil · 4 min</div>
@@ -30,11 +27,21 @@ export default function Tools() {
           </div>
         </Link>
 
-        {/* Active: Pulse */}
-        <Link
-          href="/pulse"
-          className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
-        >
+        {/* Prioritizer */}
+        <Link href="/prioritizer" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
+          <div className="w-2 h-2 rounded-full bg-moss mb-1" />
+          <div className="font-[400] text-[0.9rem] text-ink">Prioritizer</div>
+          <div className="font-[200] text-[0.7rem] text-slate">Strategi · Gratis · Beta</div>
+          <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
+            Scoringsmodel, Impact/Effort-matrix og ledelsesrapport. Prioritér initiativer evidensbaseret frem for intuitivt.
+          </div>
+          <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
+            Åbn værktøj &rarr;
+          </div>
+        </Link>
+
+        {/* Pulse */}
+        <Link href="/pulse" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
           <div className="font-[400] text-[0.9rem] text-ink">Pulse</div>
           <div className="font-[200] text-[0.7rem] text-slate">Data · Opdateres automatisk</div>
@@ -46,11 +53,8 @@ export default function Tools() {
           </div>
         </Link>
 
-        {/* Active: Frihedstænkere */}
-        <Link
-          href="/frihedstænkere"
-          className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors"
-        >
+        {/* Frihedstænkere */}
+        <Link href="/frihedstænkere" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
           <div className="font-[400] text-[0.9rem] text-ink">Frihedstænkere</div>
           <div className="font-[200] text-[0.7rem] text-slate">Idébibliotek · 38 tænkere</div>

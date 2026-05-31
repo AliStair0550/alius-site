@@ -59,7 +59,17 @@ const VAERKTOEJER: Vaerktoj[] = [
       "Et kuratoreret univers af klassiske og moderne tænkere om frihed — politisk, økonomisk og filosofisk. Locke, Hayek, Mill, Rawls og flere. Alle tekster på dansk, skrevet til at tænke med.",
     audience: "For ledere, studerende og nysgerrige der vil forstå idéernes verden.",
     href: "/frihedstænkere",
-    accentLabel: "Idéhistorie · 33 tænkere",
+    accentLabel: "Idéhistorie · 38 tænkere",
+  },
+  {
+    slug: "prioritizer",
+    name: "Alius Prioritizer",
+    tagline: "Prioritér det der rent faktisk rykker.",
+    description:
+      "Scoringsmodel, Impact/Effort-matrix, prioriteret roadmap og automatisk ledelsesrapport. Opret initiativer, score dem på impact, effort, strategi, risiko og tidshorisont — og få øjeblikkeligt overblik over hvad der skal gøres nu.",
+    audience: "For ledelser, projektkontorer og konsulenter der vil prioritere strategisk frem for intuitivt.",
+    href: "/prioritizer",
+    accentLabel: "Strategi · Gratis · Beta",
   },
 ];
 
