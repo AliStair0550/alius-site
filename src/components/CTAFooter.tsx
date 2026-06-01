@@ -66,49 +66,61 @@ export function CTA() {
   return (
     <section
       id="kontakt"
-      className="bg-sand py-20 md:py-28 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
+      className="bg-sand py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
     >
-      <div className="w-12 h-12 rounded-full bg-moss mb-8" />
-      <h2 className="font-[300] text-[1.8rem] text-ink mb-4 tracking-[0.03em]">
+      <div className="w-12 h-12 rounded-full bg-moss mb-7" />
+      <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em]">
         Lad os finde ud af om vi er det rigtige match.
       </h2>
-      <p className="font-[200] text-[0.95rem] text-slate mb-14 max-w-[400px] leading-[1.8]">
+      <p className="font-[200] text-[0.95rem] text-slate mb-10 max-w-[400px] leading-[1.8]">
         Lad os tage en åben snak om din virksomhed.
       </p>
 
       {/* ── Animation stage ── */}
-      <div className="relative flex flex-col items-center" style={{ minHeight: 260 }}>
+      <div className="relative flex flex-col items-center" style={{ minHeight: 220 }}>
 
         {phase !== "matched" ? (
           /* ──────────── IDLE + SWIPING ──────────── */
           <div className="flex flex-col items-center gap-4">
-            {/* Bankende hjerte */}
             <button
               onClick={handleMatch}
               className="group flex flex-col items-center gap-3 select-none"
               aria-label="Er vi et match?"
               disabled={phase === "swiping"}
             >
-              <div className="relative w-20 h-20 rounded-full border border-clay/35 bg-parchment flex items-center justify-center
-                hover:border-moss hover:bg-moss/5 transition-all duration-200
-                group-active:scale-90"
+              {/* Ydre mosgrøn ring */}
+              <div className="relative rounded-full p-[3px] group-hover:opacity-90 transition-opacity"
                 style={{
-                  transform: phase === "swiping" ? "scale(1.3)" : undefined,
+                  background: "rgba(45,95,74,0.18)",
+                  transform: phase === "swiping" ? "scale(1.25)" : "scale(1)",
                   transition: "transform 300ms cubic-bezier(0.34,1.56,0.64,1)",
                 }}>
                 {/* Pulsering ved swiping */}
                 {phase === "swiping" && (
                   <div className="absolute inset-0 rounded-full"
-                    style={{ animation: "matchPulseRing 0.5s ease-out infinite", border: "2px solid #2D5F4A" }} />
+                    style={{ animation: "matchPulseRing 0.45s ease-out infinite", border: "2px solid #2D5F4A" }} />
                 )}
-                <span
-                  className={`text-[34px] leading-none transition-colors ${phase === "swiping" ? "text-moss" : "text-clay group-hover:text-moss"}`}
-                  style={{ animation: phase === "idle" ? "matchHeartbeat 1.8s ease-in-out infinite" : "matchHeartbeat 0.4s ease-in-out infinite" }}>
-                  {phase === "swiping" ? "♥" : "♡"}
-                </span>
+                {/* Indre cirkel med mosgrøn kant */}
+                <div className="w-24 h-24 rounded-full bg-parchment border-2 border-moss/60
+                  flex items-center justify-center
+                  group-hover:border-moss group-hover:bg-moss/5 transition-all duration-200
+                  group-active:scale-95">
+                  <span
+                    className={`text-[38px] leading-none transition-colors ${
+                      phase === "swiping" ? "text-moss" : "text-moss/50 group-hover:text-moss"
+                    }`}
+                    style={{
+                      animation: phase === "idle"
+                        ? "matchHeartbeat 1.8s ease-in-out infinite"
+                        : "matchHeartbeat 0.4s ease-in-out infinite",
+                    }}>
+                    {phase === "swiping" ? "♥" : "♡"}
+                  </span>
+                </div>
               </div>
+
               {phase === "idle" && (
-                <span className="text-[10px] tracking-[0.2em] uppercase text-clay/70 font-[300] group-hover:text-moss transition-colors">
+                <span className="text-[10px] tracking-[0.2em] uppercase text-clay/60 font-[300] group-hover:text-moss transition-colors">
                   Er vi et match?
                 </span>
               )}
