@@ -63,10 +63,10 @@ const VAERKTOEJER: Vaerktoj[] = [
   },
   {
     slug: "prioritizer",
-    name: "Alius Prioritizer",
+    name: "Prioriteringsværktøj",
     tagline: "Prioritér det der rent faktisk rykker.",
     description:
-      "Scoringsmodel, Impact/Effort-matrix, prioriteret roadmap og automatisk ledelsesrapport. Opret initiativer, score dem på impact, effort, strategi, risiko og tidshorisont — og få øjeblikkeligt overblik over hvad der skal gøres nu.",
+      "Scoringsmodel, effekt/indsats-matrix, prioriteret handlingsplan og automatisk ledelsesrapport. Opret initiativer, scorer dem på effekt, indsats, strategi, risiko og tidshorisont — og få øjeblikkeligt overblik over hvad der skal gøres nu.",
     audience: "For ledelser, projektkontorer og konsulenter der vil prioritere strategisk frem for intuitivt.",
     href: "/prioritizer",
     accentLabel: "Strategi · Gratis · Beta",

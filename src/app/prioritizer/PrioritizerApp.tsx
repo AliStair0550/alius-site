@@ -48,10 +48,10 @@ const SCORE_LABELS = {
 };
 
 const Q_META: Record<Quadrant, { label: string; dotColor: string; textClass: string; bgAlpha: string }> = {
-  "quick-win":     { label:"Quick Win",     dotColor:"#2D5F4A", textClass:"text-moss",   bgAlpha:"rgba(45,95,74,0.07)"   },
-  "strategic-bet": { label:"Strategic Bet", dotColor:"#B45309", textClass:"text-amber-600", bgAlpha:"rgba(180,83,9,0.07)" },
-  "fill-in":       { label:"Fill In",       dotColor:"#6B7B75", textClass:"text-slate",  bgAlpha:"rgba(107,123,117,0.07)"},
-  "avoid":         { label:"Avoid",         dotColor:"#B91C1C", textClass:"text-red-700", bgAlpha:"rgba(185,28,28,0.06)" },
+  "quick-win":     { label:"Hurtig gevinst",     dotColor:"#2D5F4A", textClass:"text-moss",      bgAlpha:"rgba(45,95,74,0.07)"    },
+  "strategic-bet": { label:"Strategisk indsats", dotColor:"#B45309", textClass:"text-amber-600", bgAlpha:"rgba(180,83,9,0.07)"    },
+  "fill-in":       { label:"Lav prioritet",      dotColor:"#6B7B75", textClass:"text-slate",     bgAlpha:"rgba(107,123,117,0.07)" },
+  "avoid":         { label:"Undgå",              dotColor:"#B91C1C", textClass:"text-red-700",   bgAlpha:"rgba(185,28,28,0.06)"   },
 };
 
 const T_META: Record<Tier, { sub: string; borderClass: string; dotClass: string }> = {
@@ -84,11 +84,19 @@ function uid() { return Math.random().toString(36).slice(2, 10); }
 // ─── SAMPLE DATA ───────────────────────────────────────────────────────────────
 
 const SAMPLE: Initiative[] = [
-  { id:"s1", name:"AI-chatbot til kundeservice",    description:"Automatiseret kundeservice via AI-drevet chatbot",  owner:"Digitalt Team",    department:"Marketing & Salg", category:"AI & Automatisering", comments:"Hurtig ROI forventet",        impact:4, effort:2, strategic:5, risk:2, timeToValue:2, createdAt:new Date().toISOString() },
-  { id:"s2", name:"Nyt CRM-system",                 description:"Modernisering af salgs- og kundestyringsplatform",  owner:"Salg",             department:"Salg",             category:"Digitalisering",       comments:"Kræver datamigration",        impact:4, effort:4, strategic:4, risk:3, timeToValue:4, createdAt:new Date().toISOString() },
-  { id:"s3", name:"Automatisering af onboarding",   description:"Digitalisér og automatisér medarbejderonboarding", owner:"HR",               department:"HR & Operations",  category:"Effektivisering",      comments:"Stor tidsbesparelse pr. ansæt",impact:3, effort:2, strategic:3, risk:1, timeToValue:2, createdAt:new Date().toISOString() },
-  { id:"s4", name:"Redesign af hjemmeside",         description:"Komplet UX-redesign med fokus på konvertering",    owner:"Marketing",        department:"Marketing & Salg", category:"Kundeoplevelse",       comments:"Vigtigt for employer branding",impact:3, effort:3, strategic:3, risk:2, timeToValue:3, createdAt:new Date().toISOString() },
-  { id:"s5", name:"Nyt medlemskoncept",             description:"Loyalitets- og medlemsprogram for kunder",         owner:"Forretningsudv.",  department:"Salg",             category:"Vækst",                comments:"Øget kundefastholdelse",      impact:4, effort:3, strategic:4, risk:3, timeToValue:3, createdAt:new Date().toISOString() },
+  // ── Hurtige gevinster (høj impact, lav indsats) ──────────────────────────────
+  { id:"s1", name:"AI-chatbot til kundeservice",    description:"Automatiseret kundeservice via AI-drevet chatbot på hjemmeside og app",      owner:"Digitalt Team",   department:"Marketing & Salg",  category:"AI & Automatisering",    comments:"Hurtig ROI - kunder efterspørger det", impact:4, effort:2, strategic:5, risk:2, timeToValue:2, createdAt:new Date().toISOString() },
+  { id:"s2", name:"Automatisering af onboarding",   description:"Digitalisér og automatisér medarbejder- og kundeonboarding med flows",       owner:"HR",              department:"HR & Operations",   category:"Effektivisering",        comments:"Sparer 4 timer pr. ny ansættelse",      impact:3, effort:2, strategic:3, risk:1, timeToValue:1, createdAt:new Date().toISOString() },
+  { id:"s3", name:"Nyt medlemskoncept",             description:"Loyalitets- og fastholdelsesprogram for eksisterende kunder",                owner:"Forretningsudv.", department:"Salg",              category:"Vækst",                  comments:"Øger gennemsnitsindtægt pr. kunde",    impact:4, effort:3, strategic:4, risk:2, timeToValue:3, createdAt:new Date().toISOString() },
+  { id:"s4", name:"Automatisk fakturering",         description:"Fuld automatisering af fakturaflow fra tilbud til betaling og bogføring",    owner:"Finans",          department:"Økonomi",           category:"Effektivisering",        comments:"Eliminerer 12 timer/uge manuel tid",    impact:3, effort:1, strategic:3, risk:1, timeToValue:1, createdAt:new Date().toISOString() },
+  // ── Strategiske indsatser (høj impact, høj indsats) ──────────────────────────
+  { id:"s5", name:"Nyt CRM-system",                 description:"Modernisering af salgs- og kundestyringsplatform med full integration",      owner:"Salg",            department:"Salg",              category:"Digitalisering",         comments:"Kræver datamigration og uddannelse",   impact:4, effort:4, strategic:4, risk:3, timeToValue:4, createdAt:new Date().toISOString() },
+  { id:"s6", name:"Datadrevet prissætning",         description:"Dynamisk prissætningsmodel baseret på adfærdsdata og markedsanalyse",        owner:"Strategi",        department:"Forretningsudv.",   category:"Vækst",                  comments:"Potentiale for 8-12% marginforbedring", impact:5, effort:4, strategic:5, risk:3, timeToValue:3, createdAt:new Date().toISOString() },
+  // ── Lav prioritet (lav impact, lav indsats) ──────────────────────────────────
+  { id:"s7", name:"Redesign af hjemmeside",         description:"Visuel opdatering af hjemmeside uden strukturelle ændringer",               owner:"Marketing",       department:"Marketing & Salg",  category:"Kundeoplevelse",         comments:"Essentielt for brand, men ikke urgent", impact:2, effort:2, strategic:2, risk:1, timeToValue:2, createdAt:new Date().toISOString() },
+  { id:"s8", name:"Intern vidensdelingsplatform",   description:"Wiki og dokumentationsportal til intern vidensdeling",                      owner:"HR",              department:"HR & Operations",   category:"Organisation & Ledelse", comments:"Nice-to-have, lav forretningseffekt",   impact:2, effort:2, strategic:2, risk:1, timeToValue:3, createdAt:new Date().toISOString() },
+  // ── Undgå (lav impact, høj indsats) ──────────────────────────────────────────
+  { id:"s9", name:"Nedlæggelse af legacy-system",   description:"Komplet udfasning og migrering af 15 år gammelt ERP-system",               owner:"IT",              department:"IT",                category:"Digitalisering",         comments:"Massivt projekt, uklar forretningscase", impact:2, effort:5, strategic:2, risk:5, timeToValue:5, createdAt:new Date().toISOString() },
 ];
 
 const BLANK: Omit<Initiative,"id"|"createdAt"> = {
@@ -103,62 +111,104 @@ interface Insight { headline: string; body: string; type: InsightType }
 
 function generateInsights(items: Computed[]): Insight[] {
   if (!items.length) return [];
-  const ins: Insight[] = [];
-  const qw  = items.filter(i => i.quadrant === "quick-win");
-  const sb  = items.filter(i => i.quadrant === "strategic-bet");
-  const av  = items.filter(i => i.quadrant === "avoid");
-  const hiE = items.filter(i => i.effort >= 4);
-  const hiR = items.filter(i => i.risk >= 4);
-  const top = [...items].sort((a,b) => b.score - a.score)[0];
+  const candidates: Insight[] = [];
+  const sorted = [...items].sort((a, b) => b.score - a.score);
+  const top    = sorted[0];
+  const qw     = items.filter(i => i.quadrant === "quick-win");
+  const sb     = items.filter(i => i.quadrant === "strategic-bet");
+  const av     = items.filter(i => i.quadrant === "avoid");
+  const hiE    = items.filter(i => i.effort >= 4);
+  const hiR    = items.filter(i => i.risk >= 4);
+  const tier1  = items.filter(i => i.tier === 1);
+  const avgScore = items.reduce((s, i) => s + i.score, 0) / items.length;
 
-  if (qw.length > 0) {
-    const best = [...qw].sort((a,b) => b.score - a.score)[0];
-    ins.push({ type:"opportunity", headline:`${best.name} er porteføljens mest attraktive Quick Win.`,
-      body:`Impact ${best.impact}/5 kombineret med lav indsats (${best.effort}/5) giver den bedste risk/reward-profil i porteføljen. Anbefales igangsat i indeværende kvartal.` });
-  } else {
-    ins.push({ type:"warning", headline:"Porteføljen mangler Quick Wins.",
-      body:"Ingen initiativer befinder sig i Quick Win-kvadranten. Overvej om eksisterende initiativer kan scopes ned for hurtigere og billigere værdirealisering." });
+  // ── 1. Topinitiativ (altid) ────────────────────────────────────────────────
+  candidates.push({
+    type: "opportunity",
+    headline: `${top.name} er porteføljens stærkeste initiativ med en score på ${top.score.toFixed(2)}.`,
+    body: `Impact ${top.impact}/5 og strategisk relevans ${top.strategic}/5 placerer dette øverst. ${
+      top.quadrant === "quick-win"
+        ? `Med lav indsats (${top.effort}/5) er gevinsten tilgængelig hurtigt — anbefales igangsat i indeværende kvartal.`
+        : `Det kræver betydelig indsats (${top.effort}/5), men den strategiske gevinst er proportional og bør planlægges nu.`
+    }`,
+  });
+
+  // ── 2. Hurtige gevinster ───────────────────────────────────────────────────
+  if (qw.length === 0) {
+    candidates.push({ type:"warning",
+      headline: "Porteføljen mangler hurtige gevinster.",
+      body: "Ingen initiativer befinder sig i Hurtig gevinst-kvadranten. Overvej om eksisterende initiativer kan scopejusteres eller deles op for hurtigere og billigere værdirealisering." });
+  } else if (qw.length >= 2) {
+    const best2 = [...qw].sort((a,b) => b.score - a.score).slice(0, 2);
+    candidates.push({ type:"opportunity",
+      headline: `${qw.length} initiativer kan levere hurtige gevinster med lav indsats.`,
+      body: `${best2.map(i=>i.name).join(" og ")} har begge høj impact og lav implementeringsindsats. Start med disse for at skabe momentum, finansiere de tyngre initiativer og bevise konceptet.` });
   }
 
-  if (hiE.length > Math.ceil(items.length / 2)) {
-    ins.push({ type:"warning", headline:`${hiE.length} ud af ${items.length} initiativer er ressourcetunge (effort ≥ 4).`,
-      body:`${hiE.map(i=>i.name).join(", ")} kræver alle høj indsats. Risiko for kapacitetspres og forsinkelse. Anbefal sekventiel frem for parallel implementering.` });
+  // ── 3. Undgå-kvadrant ─────────────────────────────────────────────────────
+  if (av.length === 1) {
+    candidates.push({ type:"warning",
+      headline: `${av[0].name} bør genovervejes inden igangsætning.`,
+      body: `Lav forretningseffekt (impact ${av[0].impact}/5) kombineret med meget høj indsats (effort ${av[0].effort}/5) er en ufordelagtig kombination. Initiativet bør scopejusteres markant, opdeles eller fravalges.` });
+  } else if (av.length > 1) {
+    candidates.push({ type:"warning",
+      headline: `${av.length} initiativer befinder sig i Undgå-kvadranten.`,
+      body: `${av.map(i=>i.name).join(", ")} kombinerer lav forretningseffekt med høj indsats. Overvej at fravælge eller fundamentalt redefinere disse initiativer, da de forbruger kapacitet uden proportional gevinst.` });
   }
 
-  if (av.length > 0) {
-    ins.push({ type:"warning",
-      headline:`${av.length === 1 ? av[0].name : av.length + " initiativer"} er placeret i Avoid-kvadranten.`,
-      body:`Lav impact kombineret med høj indsats er en ufordelagtig kombination. ${av.length === 1 ? "Initiativet bør" : "Disse bør"} genudbbydes, scopejusteres eller afvikles.` });
+  // ── 4. Kapacitetspres ─────────────────────────────────────────────────────
+  if (hiE.length >= 2) {
+    candidates.push({ type:"warning",
+      headline: `${hiE.length} ressourcetunge initiativer konkurrerer om den samme kapacitet.`,
+      body: `${hiE.map(i=>i.name).join(", ")} kræver alle høj til meget høj indsats. Parallel implementering risikerer forsinkelse og kvalitetstab. En sekventiel plan med klare start- og slutdatoer anbefales stærkt.` });
   }
 
-  if (sb.length > 2) {
-    ins.push({ type:"info",
-      headline:`${sb.length} strategiske indsatser kræver flerårig planlægning og tydelig sponsorship.`,
-      body:`${sb.slice(0,3).map(i=>i.name).join(", ")} er alle Strategic Bets. Sørg for dedikeret resursebevilling over en 12-24 måneders tidshorisont og tydelig executiv sponsorship.` });
+  // ── 5. Strategiske indsatser ──────────────────────────────────────────────
+  if (sb.length >= 2) {
+    candidates.push({ type:"info",
+      headline: `${sb.length} strategiske indsatser kræver flerårig planlægning og tydelig sponsorship.`,
+      body: `${sb.map(i=>i.name).join(" og ")} er begge høj-impact initiativer, men med høj implementeringsindsats. Dedikér et projektteam, etablér styregruppe og sæt realistiske milepæle over 12-24 måneder.` });
+  } else if (sb.length === 1) {
+    candidates.push({ type:"info",
+      headline: `${sb[0].name} er en langsigtet strategisk investering.`,
+      body: `Impact ${sb[0].impact}/5 gør dette strategisk attraktivt, men indsats på ${sb[0].effort}/5 kræver dedikeret budget og ledelsesmæssig opbakning. Faseret implementering anbefales.` });
   }
 
-  if (hiR.length >= 2) {
-    ins.push({ type:"warning",
-      headline:`${hiR.length} initiativer bærer forhøjet risiko.`,
-      body:`${hiR.map(i=>i.name).join(" og ")} scorer ${hiR.map(i=>i.risk).join(" og ")} på risiko. En proof-of-concept fase anbefales inden fuld ressourcebevilling.` });
+  // ── 6. Risikoprofil ───────────────────────────────────────────────────────
+  if (hiR.length >= 1) {
+    candidates.push({ type:"warning",
+      headline: `${hiR.length === 1 ? hiR[0].name + " bærer" : hiR.length + " initiativer bærer"} forhøjet risiko.`,
+      body: `${hiR.map(i=>i.name).join(" og ")} scorer ${hiR.map(i=>i.risk).join(" hhv. ")} på risiko. Anbefal en proof-of-concept-fase og en dedikeret risikomitigationsplan inden fuld ressourcebevilling.` });
   }
 
-  if (ins.length < 3 && top) {
-    ins.push({ type:"info",
-      headline:`${top.name} topper porteføljen med en samlet score på ${top.score.toFixed(2)}.`,
-      body:`Kombinationen af høj strategisk relevans (${top.strategic}/5) og impact (${top.impact}/5) gør dette til det mest udsigtsgivende initiativ. Anbefales som primær prioritet.` });
+  // ── 7. Tier 1-portefølje ──────────────────────────────────────────────────
+  if (tier1.length >= 3) {
+    candidates.push({ type:"info",
+      headline: `${tier1.length} initiativer er klar til igangsætning nu (score ≥ 3.5).`,
+      body: `Med en porteføljegns. på ${avgScore.toFixed(1)} er der solid strategisk drivkraft. Start med de hurtige gevinster for at frigøre kapacitet og bygge organisatorisk momentum.` });
+  } else if (tier1.length === 0 && items.length >= 3) {
+    candidates.push({ type:"warning",
+      headline: "Ingen initiativer når tærsklen for øjeblikkelig igangsætning (score ≥ 3.5).",
+      body: `Gennemsnitsscore er ${avgScore.toFixed(1)}. Overvej om initiativernes impact og strategiske relevans er tilstrækkeligt vurderet, eller om porteføljens ambitionsniveau bør justeres.` });
   }
 
-  // Category gap insight
-  const cats = new Set(items.map(i => i.category));
+  // ── 8. Kategorigab ────────────────────────────────────────────────────────
+  const cats    = new Set(items.map(i => i.category));
   const missing = MATURITY_CATS.filter(c => !cats.has(c));
-  if (missing.length >= 3 && items.length >= 3) {
-    ins.push({ type:"info",
-      headline:`Porteføljen dækker kun ${cats.size} ud af 6 strategiske fokusområder.`,
-      body:`${missing.slice(0,3).join(", ")} er ikke repræsenteret. Overvej om dette afspejler en bevidst strategisk prioritering, eller om der eksisterer en blind vinkel.` });
+  if (missing.length >= 2 && items.length >= 4) {
+    candidates.push({ type:"info",
+      headline: `${missing.length} strategiske fokusområder er ikke dækket.`,
+      body: `${missing.slice(0,3).join(", ")} mangler i porteføljen. Overvej om dette er en bevidst prioritering, eller om virksomheden har blinde vinkler i sin strategiske planlægning.` });
   }
 
-  return ins.slice(0, 5);
+  // Sikr mindst 3 indsigter — tilføj en generel anbefaling ved behov
+  if (candidates.length < 3 && items.length >= 2) {
+    candidates.push({ type:"info",
+      headline: `Porteføljens samlede prioriteringsscore er ${avgScore.toFixed(1)} ud af 5.`,
+      body: `${sorted.slice(0,2).map(i=>i.name).join(" og ")} udgør de stærkeste initiativer. Fokusér ledelsesenergi og ressourcer her for at maksimere porteføljens samlede strategiske afkast.` });
+  }
+
+  return candidates.slice(0, 5);
 }
 
 // ─── EXECUTIVE SUMMARY ─────────────────────────────────────────────────────────
@@ -183,8 +233,8 @@ function generateSummary(items: Computed[]): string {
   if (qw.length > 0) {
     const n = qw.map(i=>i.name);
     parts.push(n.length === 1
-      ? `${n[0]} er identificeret som en klar Quick Win, der leverer høj forretningsmæssig effekt med relativ lav implementeringsindsats og med fordel igangsættes i indeværende kvartal.`
-      : `${n.join(" og ")} er identificeret som Quick Wins, der kombinerer høj impact med lav til moderat implementeringsindsats og bør prioriteres i nærmeste fremtid.`
+      ? `${n[0]} er identificeret som en klar hurtig gevinst, der leverer høj forretningsmæssig effekt med relativ lav implementeringsindsats og med fordel igangsættes i indeværende kvartal.`
+      : `${n.join(" og ")} er identificeret som hurtige gevinster, der kombinerer høj effekt med lav til moderat implementeringsindsats og bør prioriteres i nærmeste fremtid.`
     );
   }
   if (sb.length > 0) {
@@ -416,7 +466,7 @@ function InitiativesTab({ items, onEdit, onDelete }: {
         {[
           { l:"Initiativer",   v:items.length.toString() },
           { l:"Gns. score",    v:items.length ? (items.reduce((s,i)=>s+i.score,0)/items.length).toFixed(2) : "—" },
-          { l:"Quick Wins",    v:items.filter(i=>i.quadrant==="quick-win").length.toString() },
+          { l:"Hurtige gevinster", v:items.filter(i=>i.quadrant==="quick-win").length.toString() },
           { l:"Gør nu",        v:items.filter(i=>i.tier===1).length.toString() },
         ].map(s => (
           <div key={s.l} className="border border-clay/30 px-5 py-4">
@@ -530,10 +580,10 @@ function MatrixTab({ items }: { items: Computed[] }) {
           <line x1={P.l} y1={P.t} x2={P.l} y2={P.b} stroke="rgba(26,26,26,0.2)" strokeWidth={1}/>
 
           {/* Quadrant labels */}
-          <text x={P.l+10}  y={P.t+18}   fontSize={9}  fill={Q_META["quick-win"].dotColor}     fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>QUICK WIN</text>
-          <text x={DX+10}   y={P.t+18}   fontSize={9}  fill={Q_META["strategic-bet"].dotColor}  fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>STRATEGIC BET</text>
-          <text x={P.l+10}  y={P.b-12}   fontSize={9}  fill={Q_META["fill-in"].dotColor}        fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>FILL IN</text>
-          <text x={DX+10}   y={P.b-12}   fontSize={9}  fill={Q_META["avoid"].dotColor}           fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>AVOID</text>
+          <text x={P.l+10}  y={P.t+18}   fontSize={9}  fill={Q_META["quick-win"].dotColor}     fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>HURTIG GEVINST</text>
+          <text x={DX+10}   y={P.t+18}   fontSize={9}  fill={Q_META["strategic-bet"].dotColor}  fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>STRATEGISK INDSATS</text>
+          <text x={P.l+10}  y={P.b-12}   fontSize={9}  fill={Q_META["fill-in"].dotColor}        fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>LAV PRIORITET</text>
+          <text x={DX+10}   y={P.b-12}   fontSize={9}  fill={Q_META["avoid"].dotColor}           fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>UNDGÅ</text>
 
           {/* Axis titles */}
           <text x={(P.l+P.r)/2} y={H-4} textAnchor="middle" fontSize={10} fill="rgba(26,26,26,0.38)" fontFamily="Jost,sans-serif" letterSpacing={1.5}>EFFORT (INDSATS)</text>
@@ -664,7 +714,7 @@ function ReportTab({ items }: { items: Computed[] }) {
 
       {/* Summary block */}
       <div className="border border-clay/30 bg-sand/30 px-8 py-7 mb-6">
-        <div className="text-[9px] tracking-[0.3em] uppercase text-moss font-[400] mb-4">Executive Summary</div>
+        <div className="text-[9px] tracking-[0.3em] uppercase text-moss font-[400] mb-4">Ledelsesoversigt</div>
         <p className="font-fraunces font-light italic text-[16px] leading-[1.85] text-ink">{summary}</p>
       </div>
 
@@ -929,7 +979,7 @@ export function PrioritizerApp() {
               ← Alius
             </Link>
             <span className="text-parchment/15 text-lg font-[100]">|</span>
-            <span className="text-parchment text-[11px] tracking-[0.22em] uppercase font-[300]">Prioritizer</span>
+            <span className="text-parchment text-[11px] tracking-[0.22em] uppercase font-[300]">Prioriteringsværktøj</span>
             <span className="text-[8px] tracking-[0.15em] uppercase bg-moss/25 text-moss-light px-2 py-0.5 font-[400]">Beta</span>
           </div>
           <div className="flex items-center gap-3">
