@@ -83,21 +83,7 @@ function uid() { return Math.random().toString(36).slice(2, 10); }
 
 // ─── SAMPLE DATA ───────────────────────────────────────────────────────────────
 
-const SAMPLE: Initiative[] = [
-  // ── Hurtige gevinster (høj impact, lav indsats) ──────────────────────────────
-  { id:"s1", name:"AI-chatbot til kundeservice",    description:"Automatiseret kundeservice via AI-drevet chatbot på hjemmeside og app",      owner:"Digitalt Team",   department:"Marketing & Salg",  category:"AI & Automatisering",    comments:"Hurtig ROI - kunder efterspørger det", impact:4, effort:2, strategic:5, risk:2, timeToValue:2, createdAt:new Date().toISOString() },
-  { id:"s2", name:"Automatisering af onboarding",   description:"Digitalisér og automatisér medarbejder- og kundeonboarding med flows",       owner:"HR",              department:"HR & Operations",   category:"Effektivisering",        comments:"Sparer 4 timer pr. ny ansættelse",      impact:3, effort:2, strategic:3, risk:1, timeToValue:1, createdAt:new Date().toISOString() },
-  { id:"s3", name:"Nyt medlemskoncept",             description:"Loyalitets- og fastholdelsesprogram for eksisterende kunder",                owner:"Forretningsudv.", department:"Salg",              category:"Vækst",                  comments:"Øger gennemsnitsindtægt pr. kunde",    impact:4, effort:3, strategic:4, risk:2, timeToValue:3, createdAt:new Date().toISOString() },
-  { id:"s4", name:"Automatisk fakturering",         description:"Fuld automatisering af fakturaflow fra tilbud til betaling og bogføring",    owner:"Finans",          department:"Økonomi",           category:"Effektivisering",        comments:"Eliminerer 12 timer/uge manuel tid",    impact:3, effort:1, strategic:3, risk:1, timeToValue:1, createdAt:new Date().toISOString() },
-  // ── Strategiske indsatser (høj impact, høj indsats) ──────────────────────────
-  { id:"s5", name:"Nyt CRM-system",                 description:"Modernisering af salgs- og kundestyringsplatform med full integration",      owner:"Salg",            department:"Salg",              category:"Digitalisering",         comments:"Kræver datamigration og uddannelse",   impact:4, effort:4, strategic:4, risk:3, timeToValue:4, createdAt:new Date().toISOString() },
-  { id:"s6", name:"Datadrevet prissætning",         description:"Dynamisk prissætningsmodel baseret på adfærdsdata og markedsanalyse",        owner:"Strategi",        department:"Forretningsudv.",   category:"Vækst",                  comments:"Potentiale for 8-12% marginforbedring", impact:5, effort:4, strategic:5, risk:3, timeToValue:3, createdAt:new Date().toISOString() },
-  // ── Lav prioritet (lav impact, lav indsats) ──────────────────────────────────
-  { id:"s7", name:"Redesign af hjemmeside",         description:"Visuel opdatering af hjemmeside uden strukturelle ændringer",               owner:"Marketing",       department:"Marketing & Salg",  category:"Kundeoplevelse",         comments:"Essentielt for brand, men ikke urgent", impact:2, effort:2, strategic:2, risk:1, timeToValue:2, createdAt:new Date().toISOString() },
-  { id:"s8", name:"Intern vidensdelingsplatform",   description:"Wiki og dokumentationsportal til intern vidensdeling",                      owner:"HR",              department:"HR & Operations",   category:"Organisation & Ledelse", comments:"Nice-to-have, lav forretningseffekt",   impact:2, effort:2, strategic:2, risk:1, timeToValue:3, createdAt:new Date().toISOString() },
-  // ── Undgå (lav impact, høj indsats) ──────────────────────────────────────────
-  { id:"s9", name:"Nedlæggelse af legacy-system",   description:"Komplet udfasning og migrering af 15 år gammelt ERP-system",               owner:"IT",              department:"IT",                category:"Digitalisering",         comments:"Massivt projekt, uklar forretningscase", impact:2, effort:5, strategic:2, risk:5, timeToValue:5, createdAt:new Date().toISOString() },
-];
+const SAMPLE: Initiative[] = [];
 
 const BLANK: Omit<Initiative,"id"|"createdAt"> = {
   name:"", description:"", owner:"", department:"", category:"Vækst", comments:"",
@@ -313,136 +299,148 @@ function TBadge({ t }: { t: Tier }) {
 
 // ─── MODAL ─────────────────────────────────────────────────────────────────────
 
+// ─── EMPTY STATE ───────────────────────────────────────────────────────────────
+
+function EmptyState({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div className="w-2 h-2 rounded-full bg-moss mb-8" />
+      <h2 className="font-fraunces font-light italic text-[clamp(28px,4vw,48px)] text-ink leading-[1.1] mb-4 max-w-[560px]">
+        Hvad skal vi gøre nu — og hvad kan vente?
+      </h2>
+      <p className="text-[15px] text-stone font-[300] leading-[1.8] max-w-[440px] mb-12">
+        Tilføj dine initiativer, scorer dem på fem parametre og se øjeblikkeligt hvilke der skal prioriteres — og hvilke der kan fravalges.
+      </p>
+
+      {/* Steps */}
+      <div className="flex flex-col md:flex-row gap-4 mb-14 max-w-[680px] w-full text-left">
+        {[
+          { n:"01", t:"Opret initiativer",   d:"Tilføj de projekter og idéer du overvejer at igangsætte." },
+          { n:"02", t:"Score hvert initiativ", d:"Vurdér effekt, indsats, strategi, risiko og tidshorisont." },
+          { n:"03", t:"Se prioriteterne",     d:"Matrix og handlingsplan bygger sig automatisk." },
+        ].map(s => (
+          <div key={s.n} className="flex-1 border border-clay/35 px-6 py-5">
+            <div className="text-[9px] tracking-[0.25em] uppercase text-moss font-[400] mb-2">{s.n}</div>
+            <div className="font-fraunces font-light text-[17px] text-ink mb-1.5">{s.t}</div>
+            <div className="text-[12px] text-stone font-[300] leading-[1.6]">{s.d}</div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={onAdd}
+        className="bg-moss text-parchment px-12 py-4 text-[12px] tracking-[0.22em] uppercase hover:bg-moss-light transition-colors font-[300]">
+        + Opret dit første initiativ
+      </button>
+    </div>
+  );
+}
+
+// ─── MODAL ─────────────────────────────────────────────────────────────────────
+
 function Modal({ initial, onSave, onClose }: {
   initial: Initiative | null;
   onSave: (i: Initiative) => void;
   onClose: () => void;
 }) {
-  const [form, setForm] = useState<Omit<Initiative,"id"|"createdAt">>(() =>
-    initial
-      ? { name:initial.name, description:initial.description, owner:initial.owner,
-          department:initial.department, category:initial.category, comments:initial.comments,
-          impact:initial.impact, effort:initial.effort, strategic:initial.strategic,
-          risk:initial.risk, timeToValue:initial.timeToValue }
-      : { ...BLANK }
-  );
+  const [form, setForm] = useState({
+    name: initial?.name ?? "",
+    description: initial?.description ?? "",
+    impact: initial?.impact ?? 3 as Score,
+    effort: initial?.effort ?? 3 as Score,
+    strategic: initial?.strategic ?? 3 as Score,
+    risk: initial?.risk ?? 3 as Score,
+    timeToValue: initial?.timeToValue ?? 3 as Score,
+  });
 
   const set = <K extends keyof typeof form>(k: K, v: typeof form[K]) => setForm(f => ({ ...f, [k]: v }));
-  const preview = useMemo(() => calcScore(form), [form]);
+
+  const fullForm = { ...BLANK, ...form };
+  const preview  = useMemo(() => calcScore(fullForm), [form]);
   const previewTier = tier(preview);
-  const previewQ = quadrant({ ...form, id:"", createdAt:"" } as Initiative);
+  const previewQ    = quadrant({ ...fullForm, id:"", createdAt:"" } as Initiative);
+
+  const isNew = !initial;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/70 backdrop-blur-sm overflow-y-auto p-4"
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/70 backdrop-blur-sm overflow-y-auto p-4 md:p-8"
          onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="w-full max-w-[700px] bg-parchment border border-clay/40 my-8">
+      <div className="w-full max-w-[620px] bg-parchment my-8">
+
         {/* Header */}
-        <div className="flex items-center justify-between px-8 py-5 border-b border-clay/25">
-          <div>
-            <h2 className="font-fraunces font-light text-[20px] text-ink">
-              {initial ? "Rediger initiativ" : "Nyt initiativ"}
-            </h2>
-            <div className="text-[10px] tracking-[0.15em] uppercase text-slate font-[300] mt-0.5">
-              Udfyld felter og scorer nedenfor
-            </div>
-          </div>
-          <button onClick={onClose} className="text-clay hover:text-ink text-[22px] leading-none transition-colors w-8 h-8 flex items-center justify-center">&times;</button>
+        <div className="flex items-center justify-between px-8 py-6 border-b border-clay/25">
+          <h2 className="font-fraunces font-light text-[22px] text-ink">
+            {isNew ? "Opret initiativ" : "Rediger initiativ"}
+          </h2>
+          <button onClick={onClose}
+            className="text-clay hover:text-ink text-[24px] leading-none transition-colors">&times;</button>
         </div>
 
-        <div className="px-8 py-6 space-y-4">
-          {/* Name */}
+        <div className="px-8 py-7 space-y-5">
+          {/* Name — stor og prominent */}
           <div>
-            <label className="block text-[10px] tracking-[0.1em] uppercase text-stone font-[300] mb-1.5">Initiativnavn *</label>
-            <input value={form.name} onChange={e => set("name", e.target.value)}
-              className="w-full border border-clay/40 bg-transparent px-4 py-2.5 text-[14px] font-[300] text-ink placeholder:text-clay/60 focus:outline-none focus:border-moss transition-colors"
-              placeholder="Beskriv initiativet kortfattet..." />
+            <input
+              autoFocus
+              value={form.name}
+              onChange={e => set("name", e.target.value)}
+              className="w-full border-0 border-b-2 border-clay/40 bg-transparent pb-3 text-[22px] font-fraunces font-light text-ink placeholder:text-clay/50 focus:outline-none focus:border-moss transition-colors"
+              placeholder="Hvad hedder initiativet?" />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-[10px] tracking-[0.1em] uppercase text-stone font-[300] mb-1.5">Beskrivelse</label>
-            <textarea value={form.description} onChange={e => set("description", e.target.value)} rows={2}
-              className="w-full border border-clay/40 bg-transparent px-4 py-2.5 text-[13px] font-[300] text-ink placeholder:text-clay/60 focus:outline-none focus:border-moss transition-colors resize-none"
-              placeholder="Uddyb formål, leverancer og forventet gevinst..." />
+            <textarea
+              value={form.description}
+              onChange={e => set("description", e.target.value)}
+              rows={2}
+              className="w-full border border-clay/30 bg-sand/30 px-4 py-3 text-[14px] font-[300] text-stone placeholder:text-clay/50 focus:outline-none focus:border-moss transition-colors resize-none"
+              placeholder="Beskriv initiativet kort og hvad det skal opnå... (valgfrit)" />
           </div>
 
-          {/* Owner / Department / Category */}
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-[10px] tracking-[0.1em] uppercase text-stone font-[300] mb-1.5">Ansvarlig</label>
-              <input value={form.owner} onChange={e => set("owner", e.target.value)}
-                className="w-full border border-clay/40 bg-transparent px-3 py-2 text-[13px] font-[300] text-ink placeholder:text-clay/60 focus:outline-none focus:border-moss transition-colors"
-                placeholder="Navn eller rolle" />
-            </div>
-            <div>
-              <label className="block text-[10px] tracking-[0.1em] uppercase text-stone font-[300] mb-1.5">Afdeling</label>
-              <input value={form.department} onChange={e => set("department", e.target.value)}
-                className="w-full border border-clay/40 bg-transparent px-3 py-2 text-[13px] font-[300] text-ink placeholder:text-clay/60 focus:outline-none focus:border-moss transition-colors"
-                placeholder="Forretningsområde" />
-            </div>
-            <div>
-              <label className="block text-[10px] tracking-[0.1em] uppercase text-stone font-[300] mb-1.5">Kategori</label>
-              <select value={form.category} onChange={e => set("category", e.target.value as MaturityCat)}
-                className="w-full border border-clay/40 bg-parchment px-3 py-2 text-[13px] font-[300] text-ink focus:outline-none focus:border-moss transition-colors cursor-pointer">
-                {MATURITY_CATS.map(c => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Comments */}
-          <div>
-            <label className="block text-[10px] tracking-[0.1em] uppercase text-stone font-[300] mb-1.5">Kommentarer</label>
-            <input value={form.comments} onChange={e => set("comments", e.target.value)}
-              className="w-full border border-clay/40 bg-transparent px-4 py-2 text-[13px] font-[300] text-ink placeholder:text-clay/60 focus:outline-none focus:border-moss transition-colors"
-              placeholder="Risici, afhængigheder, noter..." />
-          </div>
-
-          {/* Scoring section */}
-          <div className="border-t border-clay/25 pt-5">
-            <div className="flex items-center justify-between mb-5">
+          {/* Scoring */}
+          <div className="pt-2">
+            {/* Live preview */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-clay/25">
               <span className="text-[10px] tracking-[0.25em] uppercase text-stone font-[300]">Scoring</span>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] tracking-[0.1em] uppercase text-slate">Live forudsigelse</span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-fraunces font-light text-[26px] text-ink leading-none">{preview.toFixed(2)}</span>
-                  <span className="text-[10px] text-clay">/ 5</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-fraunces font-light text-[32px] text-ink leading-none">{preview.toFixed(1)}</span>
+                  <span className="text-[11px] text-clay font-[300]">/ 5</span>
                 </div>
-                <QBadge q={previewQ} />
-                <TBadge t={previewTier} />
+                <div className="flex items-center gap-2">
+                  <QBadge q={previewQ} />
+                  <TBadge t={previewTier} />
+                </div>
               </div>
-            </div>
-            <div className="space-y-4">
-              <ScorePicker label="Impact" field="impact" value={form.impact} onChange={v => set("impact",v)} />
-              <ScorePicker label="Effort (indsats)" field="effort" value={form.effort} onChange={v => set("effort",v)} />
-              <ScorePicker label="Strategisk relevans" field="strategic" value={form.strategic} onChange={v => set("strategic",v)} />
-              <ScorePicker label="Risiko" field="risk" value={form.risk} onChange={v => set("risk",v)} />
-              <ScorePicker label="Tid til gevinst" field="timeToValue" value={form.timeToValue} onChange={v => set("timeToValue",v)} />
             </div>
 
-            {/* Formula hint */}
-            <div className="mt-4 pt-4 border-t border-clay/20">
-              <div className="text-[9px] tracking-[0.1em] text-clay font-[300] leading-relaxed">
-                Score = (Impact × 0.4) + (Strategisk × 0.3) + ((6-Effort) × 0.15) + ((6-Risiko) × 0.1) + ((6-Tid) × 0.05)
-              </div>
+            <div className="space-y-5">
+              <ScorePicker label="Effekt"             field="impact"      value={form.impact}      onChange={v => set("impact",v)} />
+              <ScorePicker label="Implementeringsindsats" field="effort"  value={form.effort}      onChange={v => set("effort",v)} />
+              <ScorePicker label="Strategisk relevans" field="strategic"  value={form.strategic}   onChange={v => set("strategic",v)} />
+              <ScorePicker label="Risiko"              field="risk"       value={form.risk}        onChange={v => set("risk",v)} />
+              <ScorePicker label="Tid til gevinst"     field="timeToValue" value={form.timeToValue} onChange={v => set("timeToValue",v)} />
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between px-8 py-5 border-t border-clay/25">
-          <button onClick={onClose} className="text-[11px] tracking-[0.1em] uppercase text-stone hover:text-ink transition-colors font-[300]">
+          <button onClick={onClose}
+            className="text-[11px] tracking-[0.1em] uppercase text-stone hover:text-ink transition-colors font-[300]">
             Annuller
           </button>
           <button
             onClick={() => {
               if (!form.name.trim()) return;
-              const owner = form.owner || form.department || "";
-              const dept  = form.department || "";
-              onSave({ ...form, owner, department: dept, id: initial?.id ?? uid(), createdAt: initial?.createdAt ?? new Date().toISOString() });
+              onSave({
+                ...BLANK, ...form,
+                id: initial?.id ?? uid(),
+                createdAt: initial?.createdAt ?? new Date().toISOString(),
+              });
             }}
             disabled={!form.name.trim()}
-            className="bg-moss text-parchment px-8 py-2.5 text-[11px] tracking-[0.15em] uppercase hover:bg-moss-light transition-colors disabled:opacity-40 font-[300]">
-            {initial ? "Gem ændringer" : "Opret initiativ"}
+            className="bg-moss text-parchment px-10 py-3 text-[12px] tracking-[0.18em] uppercase hover:bg-moss-light transition-colors disabled:opacity-40 font-[300]">
+            {isNew ? "Opret initiativ" : "Gem ændringer"}
           </button>
         </div>
       </div>
@@ -452,86 +450,70 @@ function Modal({ initial, onSave, onClose }: {
 
 // ─── INITIATIVES TAB ───────────────────────────────────────────────────────────
 
-function InitiativesTab({ items, onEdit, onDelete }: {
-  items: Computed[]; onEdit: (i: Initiative) => void; onDelete: (id: string) => void;
+function InitiativesTab({ items, onEdit, onDelete, onAdd }: {
+  items: Computed[];
+  onEdit: (i: Initiative) => void;
+  onDelete: (id: string) => void;
+  onAdd: () => void;
 }) {
-  const [filterQ, setFilterQ] = useState<Quadrant | "all">("all");
-  const filtered = filterQ === "all" ? items : items.filter(i => i.quadrant === filterQ);
-  const sorted   = [...filtered].sort((a,b) => b.score - a.score);
+  const sorted = [...items].sort((a, b) => b.score - a.score);
+
+  if (items.length === 0) return <EmptyState onAdd={onAdd} />;
 
   return (
     <div>
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      {/* Minimal stats row */}
+      <div className="flex flex-wrap items-center gap-8 mb-8 pb-6 border-b border-clay/25">
         {[
-          { l:"Initiativer",   v:items.length.toString() },
-          { l:"Gns. score",    v:items.length ? (items.reduce((s,i)=>s+i.score,0)/items.length).toFixed(2) : "—" },
-          { l:"Hurtige gevinster", v:items.filter(i=>i.quadrant==="quick-win").length.toString() },
-          { l:"Gør nu",        v:items.filter(i=>i.tier===1).length.toString() },
-        ].map(s => (
-          <div key={s.l} className="border border-clay/30 px-5 py-4">
-            <div className="text-[9px] tracking-[0.2em] uppercase text-slate font-[300] mb-1.5">{s.l}</div>
-            <div className="font-fraunces font-light text-[30px] text-ink leading-none">{s.v}</div>
+          { l:"Initiativer",       v: String(items.length) },
+          { l:"Hurtige gevinster", v: String(items.filter(i=>i.quadrant==="quick-win").length) },
+          { l:"Gør nu",            v: String(items.filter(i=>i.tier===1).length) },
+          { l:"Gennemsnitsscore",  v: (items.reduce((s,i)=>s+i.score,0)/items.length).toFixed(1) },
+        ].map((s, idx) => (
+          <div key={s.l} className={`${idx > 0 ? "pl-8 border-l border-clay/25" : ""}`}>
+            <div className="text-[9px] tracking-[0.2em] uppercase text-clay font-[300] mb-1">{s.l}</div>
+            <div className="font-fraunces font-light text-[34px] text-ink leading-none">{s.v}</div>
+          </div>
+        ))}
+        <button onClick={onAdd}
+          className="ml-auto bg-moss text-parchment px-7 py-3 text-[11px] tracking-[0.18em] uppercase hover:bg-moss-light transition-colors font-[300]">
+          + Nyt initiativ
+        </button>
+      </div>
+
+      {/* Initiative rows — clean cards */}
+      <div className="space-y-2">
+        {sorted.map((item) => (
+          <div key={item.id}
+            className="flex items-center gap-6 px-6 py-5 border border-clay/20 hover:border-clay/40 hover:bg-fog/15 transition-all group">
+            <div className="flex-1 min-w-0">
+              <div className="font-fraunces font-light text-[19px] text-ink leading-tight truncate">{item.name}</div>
+              {item.description && (
+                <div className="text-[12px] text-stone font-[300] mt-1 truncate">{item.description}</div>
+              )}
+            </div>
+            <div className="flex-shrink-0 hidden md:block">
+              <QBadge q={item.quadrant} />
+            </div>
+            <div className="flex-shrink-0 w-32 hidden md:block">
+              <ScoreBar score={item.score} />
+            </div>
+            <div className="flex-shrink-0 hidden md:block">
+              <TBadge t={item.tier} />
+            </div>
+            <div className="flex-shrink-0 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={() => onEdit(item)}
+                className="text-[10px] tracking-[0.1em] uppercase text-stone hover:text-moss transition-colors font-[300]">
+                Rediger
+              </button>
+              <button onClick={() => onDelete(item.id)}
+                className="text-[10px] tracking-[0.1em] uppercase text-clay hover:text-red-600 transition-colors font-[300]">
+                Slet
+              </button>
+            </div>
           </div>
         ))}
       </div>
-
-      {/* Filter */}
-      <div className="flex flex-wrap items-center gap-2 mb-5">
-        <span className="text-[9px] tracking-[0.2em] uppercase text-clay font-[300] mr-1">Filter:</span>
-        {(["all","quick-win","strategic-bet","fill-in","avoid"] as const).map(q => (
-          <button key={q} onClick={() => setFilterQ(q)}
-            className={`px-3 py-1 text-[9px] tracking-[0.12em] uppercase border transition-colors font-[300] ${
-              filterQ === q ? "bg-ink text-parchment border-ink" : "border-clay/40 text-stone hover:border-ink/30"
-            }`}>
-            {q === "all" ? "Alle" : Q_META[q].label}
-          </button>
-        ))}
-        <span className="ml-auto text-[10px] text-clay font-[300]">{sorted.length} initiativ{sorted.length !== 1 ? "er" : ""}</span>
-      </div>
-
-      {/* Table */}
-      {sorted.length === 0 ? (
-        <div className="border border-clay/20 py-16 text-center text-stone text-[14px] font-[300]">
-          Ingen initiativer matcher filteret.
-        </div>
-      ) : (
-        <div className="border border-clay/30 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-clay/25 bg-sand/60">
-                {["Initiativ","Ansvarlig","Kvadrant","Score","Prioritet",""].map((h,i) => (
-                  <th key={i} className="text-left px-5 py-3 text-[8px] tracking-[0.2em] uppercase text-slate font-[400]">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((item, i) => (
-                <tr key={item.id} className={`border-b border-clay/15 hover:bg-fog/25 transition-colors ${i%2===1?"bg-sand/20":""}`}>
-                  <td className="px-5 py-4 max-w-[240px]">
-                    <div className="font-[400] text-[13px] text-ink truncate">{item.name}</div>
-                    {item.description && <div className="text-[10px] text-slate font-[300] mt-0.5 truncate">{item.description}</div>}
-                    {item.category && <div className="text-[9px] text-clay font-[300] mt-0.5">{item.category}</div>}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-[12px] text-stone font-[300]">{item.owner || "—"}</div>
-                    <div className="text-[10px] text-clay font-[300]">{item.department}</div>
-                  </td>
-                  <td className="px-4 py-4"><QBadge q={item.quadrant} /></td>
-                  <td className="px-4 py-4 w-40"><ScoreBar score={item.score} /></td>
-                  <td className="px-4 py-4"><TBadge t={item.tier} /></td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => onEdit(item)} className="text-[9px] tracking-[0.1em] uppercase text-stone hover:text-moss transition-colors font-[300]">Rediger</button>
-                      <button onClick={() => onDelete(item.id)} className="text-[9px] tracking-[0.1em] uppercase text-clay hover:text-red-600 transition-colors font-[300]">Slet</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }
@@ -540,78 +522,137 @@ function InitiativesTab({ items, onEdit, onDelete }: {
 
 function MatrixTab({ items }: { items: Computed[] }) {
   const [hovId, setHovId] = useState<string | null>(null);
-  const W=720, H=520;
-  const P = { l:80, r:660, t:30, b:460 };
+
+  // Bigger canvas for more presence
+  const W = 800, H = 580;
+  const P = { l: 60, r: 740, t: 40, b: 510 };
   const PW = P.r - P.l, PH = P.b - P.t;
-  const xF = (e: number) => P.l + (e-1)/4 * PW;
-  const yF = (i: number) => P.b - (i-1)/4 * PH;
-  const DX = xF(3), DY = yF(3);
+  const xF  = (e: number) => P.l + (e - 1) / 4 * PW;
+  const yF  = (i: number) => P.b - (i - 1) / 4 * PH;
+  const DX  = xF(3), DY = yF(3);
+
+  // Centered label positions per quadrant
+  const QC = {
+    "quick-win":     { cx:(P.l+DX)/2,   cy:(P.t+DY)/2   },
+    "strategic-bet": { cx:(DX+P.r)/2,   cy:(P.t+DY)/2   },
+    "fill-in":       { cx:(P.l+DX)/2,   cy:(DY+P.b)/2   },
+    "avoid":         { cx:(DX+P.r)/2,   cy:(DY+P.b)/2   },
+  } as const;
+
+  const Q_LABELS = {
+    "quick-win":     { line1:"Hurtig",    line2:"gevinst"   },
+    "strategic-bet": { line1:"Strategisk", line2:"indsats"  },
+    "fill-in":       { line1:"Lav",       line2:"prioritet" },
+    "avoid":         { line1:"Undgå",     line2:""          },
+  } as const;
+
+  // Stronger quadrant backgrounds
+  const Q_BG: Record<Quadrant, string> = {
+    "quick-win":     "rgba(45,95,74,0.10)",
+    "strategic-bet": "rgba(180,83,9,0.08)",
+    "fill-in":       "rgba(107,123,117,0.08)",
+    "avoid":         "rgba(185,28,28,0.08)",
+  };
 
   return (
     <div>
-      <div className="border border-clay/30 bg-parchment overflow-hidden">
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight:520 }}>
-          {/* Quadrant backgrounds */}
-          {([
-            ["quick-win",    P.l, P.t,  DX-P.l,   DY-P.t  ],
-            ["strategic-bet",DX,  P.t,  P.r-DX,   DY-P.t  ],
-            ["fill-in",      P.l, DY,   DX-P.l,   P.b-DY  ],
-            ["avoid",        DX,  DY,   P.r-DX,   P.b-DY  ],
-          ] as [Quadrant,number,number,number,number][]).map(([q,x,y,w,h]) => (
-            <rect key={q} x={x} y={y} width={w} height={h} fill={Q_META[q].bgAlpha} />
-          ))}
+      <div className="bg-sand/30 border border-clay/25 overflow-hidden">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 580 }}>
+          <defs>
+            <radialGradient id="qw-grad"  cx="30%" cy="35%"><stop offset="0%" stopColor="#2D5F4A" stopOpacity="0.13"/><stop offset="100%" stopColor="#2D5F4A" stopOpacity="0.04"/></radialGradient>
+            <radialGradient id="sb-grad"  cx="70%" cy="35%"><stop offset="0%" stopColor="#B45309" stopOpacity="0.11"/><stop offset="100%" stopColor="#B45309" stopOpacity="0.03"/></radialGradient>
+            <radialGradient id="fi-grad"  cx="30%" cy="70%"><stop offset="0%" stopColor="#6B7B75" stopOpacity="0.10"/><stop offset="100%" stopColor="#6B7B75" stopOpacity="0.03"/></radialGradient>
+            <radialGradient id="av-grad"  cx="70%" cy="70%"><stop offset="0%" stopColor="#B91C1C" stopOpacity="0.10"/><stop offset="100%" stopColor="#B91C1C" stopOpacity="0.02"/></radialGradient>
+          </defs>
 
-          {/* Dividers */}
-          <line x1={DX} y1={P.t} x2={DX} y2={P.b} stroke="rgba(26,26,26,0.12)" strokeWidth={1} strokeDasharray="4,7"/>
-          <line x1={P.l} y1={DY} x2={P.r} y2={DY} stroke="rgba(26,26,26,0.12)" strokeWidth={1} strokeDasharray="4,7"/>
+          {/* Quadrant fills with gradient */}
+          <rect x={P.l}  y={P.t} width={DX-P.l} height={DY-P.t} fill="url(#qw-grad)" />
+          <rect x={DX}   y={P.t} width={P.r-DX}  height={DY-P.t} fill="url(#sb-grad)" />
+          <rect x={P.l}  y={DY}  width={DX-P.l}  height={P.b-DY} fill="url(#fi-grad)" />
+          <rect x={DX}   y={DY}  width={P.r-DX}  height={P.b-DY} fill="url(#av-grad)" />
 
-          {/* Grid ticks + labels */}
-          {[1,2,3,4,5].map(n => (
-            <g key={n}>
-              <line x1={xF(n)} y1={P.b} x2={xF(n)} y2={P.b+5} stroke="rgba(26,26,26,0.18)" strokeWidth={1}/>
-              <text x={xF(n)} y={P.b+17} textAnchor="middle" fontSize={10} fill="rgba(26,26,26,0.35)" fontFamily="Jost,sans-serif">{n}</text>
-              <line x1={P.l-5} y1={yF(n)} x2={P.l} y2={yF(n)} stroke="rgba(26,26,26,0.18)" strokeWidth={1}/>
-              <text x={P.l-9} y={yF(n)+4} textAnchor="end" fontSize={10} fill="rgba(26,26,26,0.35)" fontFamily="Jost,sans-serif">{n}</text>
-            </g>
-          ))}
+          {/* Quadrant border lines */}
+          <rect x={P.l} y={P.t} width={DX-P.l} height={DY-P.t} fill="none" stroke={Q_META["quick-win"].dotColor}     strokeWidth={0.6} strokeOpacity={0.2}/>
+          <rect x={DX}  y={P.t} width={P.r-DX}  height={DY-P.t} fill="none" stroke={Q_META["strategic-bet"].dotColor} strokeWidth={0.6} strokeOpacity={0.2}/>
+          <rect x={P.l} y={DY}  width={DX-P.l}  height={P.b-DY} fill="none" stroke={Q_META["fill-in"].dotColor}       strokeWidth={0.6} strokeOpacity={0.15}/>
+          <rect x={DX}  y={DY}  width={P.r-DX}  height={P.b-DY} fill="none" stroke={Q_META["avoid"].dotColor}         strokeWidth={0.6} strokeOpacity={0.15}/>
 
-          {/* Axes */}
-          <line x1={P.l} y1={P.b} x2={P.r} y2={P.b} stroke="rgba(26,26,26,0.2)" strokeWidth={1}/>
-          <line x1={P.l} y1={P.t} x2={P.l} y2={P.b} stroke="rgba(26,26,26,0.2)" strokeWidth={1}/>
+          {/* Center dividers */}
+          <line x1={DX} y1={P.t} x2={DX} y2={P.b} stroke="rgba(26,26,26,0.15)" strokeWidth={1.5}/>
+          <line x1={P.l} y1={DY} x2={P.r} y2={DY} stroke="rgba(26,26,26,0.15)" strokeWidth={1.5}/>
 
-          {/* Quadrant labels */}
-          <text x={P.l+10}  y={P.t+18}   fontSize={9}  fill={Q_META["quick-win"].dotColor}     fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>HURTIG GEVINST</text>
-          <text x={DX+10}   y={P.t+18}   fontSize={9}  fill={Q_META["strategic-bet"].dotColor}  fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>STRATEGISK INDSATS</text>
-          <text x={P.l+10}  y={P.b-12}   fontSize={9}  fill={Q_META["fill-in"].dotColor}        fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>LAV PRIORITET</text>
-          <text x={DX+10}   y={P.b-12}   fontSize={9}  fill={Q_META["avoid"].dotColor}           fontFamily="Jost,sans-serif" letterSpacing={2.5} opacity={0.75}>UNDGÅ</text>
-
-          {/* Axis titles */}
-          <text x={(P.l+P.r)/2} y={H-4} textAnchor="middle" fontSize={10} fill="rgba(26,26,26,0.38)" fontFamily="Jost,sans-serif" letterSpacing={1.5}>EFFORT (INDSATS)</text>
-          <text transform={`rotate(-90) translate(-${(P.t+P.b)/2} 18)`} textAnchor="middle" fontSize={10} fill="rgba(26,26,26,0.38)" fontFamily="Jost,sans-serif" letterSpacing={1.5}>IMPACT (EFFEKT)</text>
-
-          {/* Dots */}
-          {items.map(item => {
-            const x = xF(item.effort), y = yF(item.impact);
-            const hov = hovId === item.id;
-            const col = Q_META[item.quadrant].dotColor;
-            const TW = Math.max(168, item.name.length * 6.8 + 24);
-            const tx = x + 16 > W - TW - 10 ? x - TW - 10 : x + 16;
-            const ty = y - 38 < P.t ? y + 8 : y - 42;
+          {/* Large centered quadrant labels */}
+          {(Object.keys(QC) as Quadrant[]).map(q => {
+            const { cx, cy } = QC[q];
+            const { line1, line2 } = Q_LABELS[q];
+            const col = Q_META[q].dotColor;
+            const count = items.filter(i => i.quadrant === q).length;
             return (
-              <g key={item.id} onMouseEnter={() => setHovId(item.id)} onMouseLeave={() => setHovId(null)} style={{ cursor:"pointer" }}>
-                {hov && <circle cx={x} cy={y} r={20} fill={col} opacity={0.1}/>}
-                <circle cx={x} cy={y} r={hov?10:7} fill={col} opacity={hov?1:0.78} style={{ transition:"all 150ms" }}/>
-                {!hov && (
-                  <text x={x} y={y-12} textAnchor="middle" fontSize={8.5} fill="rgba(26,26,26,0.5)" fontFamily="Jost,sans-serif" style={{ pointerEvents:"none" }}>
-                    {item.name.length > 16 ? item.name.slice(0,15)+"…" : item.name}
+              <g key={q}>
+                <text x={cx} y={cy - (line2 ? 10 : 4)} textAnchor="middle"
+                  fontSize={18} fill={col} fontFamily="Fraunces,Georgia,serif"
+                  fontWeight={300} fontStyle="italic" opacity={0.55}>
+                  {line1}
+                </text>
+                {line2 && (
+                  <text x={cx} y={cy + 16} textAnchor="middle"
+                    fontSize={18} fill={col} fontFamily="Fraunces,Georgia,serif"
+                    fontWeight={300} fontStyle="italic" opacity={0.55}>
+                    {line2}
                   </text>
                 )}
+                {/* Count badge */}
+                {count > 0 && (
+                  <text x={cx} y={cy + (line2 ? 42 : 28)} textAnchor="middle"
+                    fontSize={11} fill={col} fontFamily="Jost,sans-serif"
+                    fontWeight={400} opacity={0.5} letterSpacing={1}>
+                    {count} initiativ{count !== 1 ? "er" : ""}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Axis labels */}
+          <text x={(P.l+P.r)/2} y={H - 10} textAnchor="middle" fontSize={11} fill="rgba(26,26,26,0.35)" fontFamily="Jost,sans-serif" letterSpacing={2}>INDSATS →</text>
+          <text transform={`rotate(-90) translate(-${(P.t+P.b)/2} 20)`} textAnchor="middle" fontSize={11} fill="rgba(26,26,26,0.35)" fontFamily="Jost,sans-serif" letterSpacing={2}>EFFEKT →</text>
+
+          {/* Scale labels — only 1 and 5 at extremes */}
+          <text x={xF(1)} y={P.b+18} textAnchor="middle" fontSize={9} fill="rgba(26,26,26,0.28)" fontFamily="Jost,sans-serif">lav</text>
+          <text x={xF(5)} y={P.b+18} textAnchor="middle" fontSize={9} fill="rgba(26,26,26,0.28)" fontFamily="Jost,sans-serif">høj</text>
+          <text x={P.l-8} y={yF(1)+4} textAnchor="end" fontSize={9} fill="rgba(26,26,26,0.28)" fontFamily="Jost,sans-serif">lav</text>
+          <text x={P.l-8} y={yF(5)+4} textAnchor="end" fontSize={9} fill="rgba(26,26,26,0.28)" fontFamily="Jost,sans-serif">høj</text>
+
+          {/* Initiative dots */}
+          {items.map(item => {
+            const x   = xF(item.effort), y = yF(item.impact);
+            const hov = hovId === item.id;
+            const col = Q_META[item.quadrant].dotColor;
+            const TW  = Math.max(180, item.name.length * 7 + 28);
+            const tx  = x + 18 > W - TW - 12 ? x - TW - 12 : x + 18;
+            const ty  = y - 48 < P.t + 10 ? y + 10 : y - 52;
+            return (
+              <g key={item.id} onMouseEnter={() => setHovId(item.id)} onMouseLeave={() => setHovId(null)} style={{ cursor:"pointer" }}>
+                {/* Glow ring on hover */}
+                {hov && <circle cx={x} cy={y} r={24} fill={col} opacity={0.1}/>}
+                {hov && <circle cx={x} cy={y} r={16} fill={col} opacity={0.15}/>}
+                {/* Dot */}
+                <circle cx={x} cy={y} r={hov ? 11 : 8} fill={col} opacity={hov ? 1 : 0.82} style={{ transition:"all 180ms" }}/>
+                {/* Name label always visible (not on hover) */}
+                {!hov && (
+                  <text x={x} y={y - 14} textAnchor="middle" fontSize={10} fill="rgba(26,26,26,0.6)"
+                    fontFamily="Jost,sans-serif" fontWeight={300} style={{ pointerEvents:"none" }}>
+                    {item.name.length > 18 ? item.name.slice(0, 17) + "…" : item.name}
+                  </text>
+                )}
+                {/* Rich tooltip on hover */}
                 {hov && (
                   <g style={{ pointerEvents:"none" }}>
-                    <rect x={tx} y={ty} width={TW} height={44} fill="#1A1A1A" rx={2}/>
-                    <text x={tx+10} y={ty+17} fontSize={12} fill="rgba(250,248,244,0.92)" fontFamily="Jost,sans-serif" fontWeight={400}>{item.name}</text>
-                    <text x={tx+10} y={ty+33} fontSize={10} fill="rgba(250,248,244,0.42)" fontFamily="Jost,sans-serif">
-                      {item.score.toFixed(2)} · {Q_META[item.quadrant].label} · P{item.tier}
+                    <rect x={tx} y={ty} width={TW} height={50} fill="#1A1A1A" rx={3}/>
+                    <rect x={tx} y={ty} width={TW} height={3} fill={col} rx={1}/>
+                    <text x={tx+12} y={ty+20} fontSize={13} fill="rgba(250,248,244,0.95)" fontFamily="Jost,sans-serif" fontWeight={400}>{item.name}</text>
+                    <text x={tx+12} y={ty+37} fontSize={10} fill="rgba(250,248,244,0.4)" fontFamily="Jost,sans-serif">
+                      Score {item.score.toFixed(2)} · {Q_META[item.quadrant].label} · P{item.tier}
                     </text>
                   </g>
                 )}
@@ -622,12 +663,14 @@ function MatrixTab({ items }: { items: Computed[] }) {
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap gap-5">
-        {(Object.entries(Q_META) as [Quadrant, typeof Q_META[Quadrant]][]).map(([q,m]) => (
-          <div key={q} className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor:m.dotColor }}/>
-            <span className="text-[11px] text-stone font-[300]">{m.label}</span>
-            <span className="text-[10px] text-clay font-[300]">({items.filter(i=>i.quadrant===q).length})</span>
+      <div className="mt-5 flex flex-wrap gap-6">
+        {(Object.entries(Q_META) as [Quadrant, typeof Q_META[Quadrant]][]).map(([q, m]) => (
+          <div key={q} className="flex items-center gap-2.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: m.dotColor }} />
+            <span className="text-[12px] text-stone font-[300]">{m.label}</span>
+            <span className="text-[11px] text-clay font-[300]">
+              ({items.filter(i => i.quadrant === q).length})
+            </span>
           </div>
         ))}
       </div>
@@ -983,14 +1026,18 @@ export function PrioritizerApp() {
             <span className="text-[8px] tracking-[0.15em] uppercase bg-moss/25 text-moss-light px-2 py-0.5 font-[400]">Beta</span>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={exportCSV}
-              className="text-parchment/45 hover:text-parchment/80 text-[10px] tracking-[0.12em] uppercase border border-parchment/15 hover:border-parchment/35 px-4 py-1.5 transition-colors font-[300]">
-              Eksport CSV
-            </button>
-            <button onClick={() => setModal({ open:true, editing:null })}
-              className="bg-moss text-parchment text-[10px] tracking-[0.18em] uppercase px-5 py-1.5 hover:bg-moss-light transition-colors font-[300]">
-              + Nyt initiativ
-            </button>
+            {computed.length > 0 && (
+              <button onClick={exportCSV}
+                className="text-parchment/45 hover:text-parchment/80 text-[10px] tracking-[0.12em] uppercase border border-parchment/15 hover:border-parchment/35 px-4 py-1.5 transition-colors font-[300]">
+                Eksport CSV
+              </button>
+            )}
+            {computed.length > 0 && (
+              <button onClick={() => setModal({ open:true, editing:null })}
+                className="bg-moss text-parchment text-[10px] tracking-[0.18em] uppercase px-5 py-1.5 hover:bg-moss-light transition-colors font-[300]">
+                + Nyt initiativ
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -1016,7 +1063,7 @@ export function PrioritizerApp() {
 
       {/* Content */}
       <main className="max-w-[1400px] mx-auto px-6 py-10">
-        {tab === "initiatives" && <InitiativesTab items={computed} onEdit={i => setModal({ open:true, editing:i })} onDelete={del}/>}
+        {tab === "initiatives" && <InitiativesTab items={computed} onEdit={i => setModal({ open:true, editing:i })} onDelete={del} onAdd={() => setModal({ open:true, editing:null })}/>}
         {tab === "matrix"      && <MatrixTab items={computed}/>}
         {tab === "roadmap"     && <RoadmapTab items={computed}/>}
         {tab === "report"      && <ReportTab items={computed}/>}
