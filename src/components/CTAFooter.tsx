@@ -68,11 +68,12 @@ export function CTA() {
       id="kontakt"
       className="bg-sand py-20 md:py-28 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
     >
+      <div className="w-12 h-12 rounded-full bg-moss mb-8" />
       <h2 className="font-[300] text-[1.8rem] text-ink mb-4 tracking-[0.03em]">
         Lad os finde ud af om vi er det rigtige match.
       </h2>
       <p className="font-[200] text-[0.95rem] text-slate mb-14 max-w-[400px] leading-[1.8]">
-        Book 20 minutter. Ingen salgspitch, ingen forpligtelse. Bare en ærlig samtale om din virksomhed.
+        Lad os tage en åben snak om din virksomhed.
       </p>
 
       {/* ── Animation stage ── */}
@@ -80,73 +81,38 @@ export function CTA() {
 
         {phase !== "matched" ? (
           /* ──────────── IDLE + SWIPING ──────────── */
-          <div className="flex flex-col items-center gap-10">
-
-            {/* Two circles */}
-            <div className="flex items-center" style={{ gap: 40 }}>
-              {/* Alius circle */}
-              <div style={{
-                transition: "transform 480ms cubic-bezier(0.34,1.2,0.64,1)",
-                transform: phase === "swiping" ? "translateX(62px) scale(1.05)" : "translateX(0)",
-                animation: phase === "idle" ? "matchBob 3s ease-in-out infinite" : undefined,
-                zIndex: 2,
-              }}>
-                <div className="w-24 h-24 rounded-full bg-moss flex items-center justify-center relative">
-                  {/* Pulse ring — only idle */}
-                  {phase === "idle" && (
-                    <div className="absolute inset-0 rounded-full"
-                      style={{ animation: "matchPulseRing 2.5s ease-out 1s infinite", border: "2px solid #2D5F4A" }} />
-                  )}
-                  <span className="font-fraunces font-light text-[28px] text-parchment leading-none">A</span>
-                </div>
-                <div className="text-[9px] tracking-[0.25em] uppercase text-clay font-[300] mt-2 text-center">Alius</div>
+          <div className="flex flex-col items-center gap-4">
+            {/* Bankende hjerte */}
+            <button
+              onClick={handleMatch}
+              className="group flex flex-col items-center gap-3 select-none"
+              aria-label="Er vi et match?"
+              disabled={phase === "swiping"}
+            >
+              <div className="relative w-20 h-20 rounded-full border border-clay/35 bg-parchment flex items-center justify-center
+                hover:border-moss hover:bg-moss/5 transition-all duration-200
+                group-active:scale-90"
+                style={{
+                  transform: phase === "swiping" ? "scale(1.3)" : undefined,
+                  transition: "transform 300ms cubic-bezier(0.34,1.56,0.64,1)",
+                }}>
+                {/* Pulsering ved swiping */}
+                {phase === "swiping" && (
+                  <div className="absolute inset-0 rounded-full"
+                    style={{ animation: "matchPulseRing 0.5s ease-out infinite", border: "2px solid #2D5F4A" }} />
+                )}
+                <span
+                  className={`text-[34px] leading-none transition-colors ${phase === "swiping" ? "text-moss" : "text-clay group-hover:text-moss"}`}
+                  style={{ animation: phase === "idle" ? "matchHeartbeat 1.8s ease-in-out infinite" : "matchHeartbeat 0.4s ease-in-out infinite" }}>
+                  {phase === "swiping" ? "♥" : "♡"}
+                </span>
               </div>
-
-              {/* Client circle */}
-              <div style={{
-                transition: "transform 480ms cubic-bezier(0.34,1.2,0.64,1)",
-                transform: phase === "swiping" ? "translateX(-62px) scale(1.05)" : "translateX(0)",
-                animation: phase === "idle" ? "matchBob 3s ease-in-out 0.4s infinite" : undefined,
-                zIndex: 2,
-              }}>
-                <div className="w-24 h-24 rounded-full border-2 border-clay/35 bg-fog/70 flex items-center justify-center">
-                  <span className="font-fraunces font-light text-[28px] text-clay leading-none">?</span>
-                </div>
-                <div className="text-[9px] tracking-[0.25em] uppercase text-clay font-[300] mt-2 text-center">Din virksomhed</div>
-              </div>
-            </div>
-
-            {/* Heart button — only in idle */}
-            {phase === "idle" && (
-              <button
-                onClick={handleMatch}
-                className="group flex flex-col items-center gap-3 select-none"
-                aria-label="Er vi et match?"
-              >
-                <div className="relative w-16 h-16 rounded-full border border-clay/35 bg-parchment flex items-center justify-center
-                  hover:border-moss hover:bg-moss/5 transition-all duration-200
-                  group-active:scale-90">
-                  <span
-                    className="text-[28px] leading-none text-clay group-hover:text-moss transition-colors"
-                    style={{ animation: "matchHeartbeat 2s ease-in-out infinite" }}>
-                    ♡
-                  </span>
-                </div>
+              {phase === "idle" && (
                 <span className="text-[10px] tracking-[0.2em] uppercase text-clay/70 font-[300] group-hover:text-moss transition-colors">
                   Er vi et match?
                 </span>
-              </button>
-            )}
-
-            {/* Swiping — interim dots */}
-            {phase === "swiping" && (
-              <div className="flex gap-2 mt-2">
-                {[0,1,2].map(i => (
-                  <div key={i} className="w-1.5 h-1.5 rounded-full bg-moss/40"
-                    style={{ animation: `matchBob 0.5s ease-in-out ${i*120}ms infinite` }} />
-                ))}
-              </div>
-            )}
+              )}
+            </button>
           </div>
 
         ) : (
