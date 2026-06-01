@@ -101,9 +101,9 @@ export function CTA() {
                     style={{ animation: "matchPulseRing 0.45s ease-out infinite", border: "2px solid #2D5F4A" }} />
                 )}
                 {/* Indre cirkel med mosgrøn kant */}
-                <div className="w-24 h-24 rounded-full bg-parchment border-2 border-moss/60
+                <div className="w-24 h-24 rounded-full bg-parchment
                   flex items-center justify-center
-                  group-hover:border-moss group-hover:bg-moss/5 transition-all duration-200
+                  group-hover:bg-moss/5 transition-all duration-200
                   group-active:scale-95">
                   <span
                     className={`text-[38px] leading-none transition-colors ${
