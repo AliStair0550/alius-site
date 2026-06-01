@@ -3,117 +3,134 @@
 import { useEffect, useRef, useState } from "react";
 
 // ── Brand Visualization ─────────────────────────────────────────────────────
-// Brand identity canvas: construction → mark → colour system → type scale
+// Digital experience canvas: browser + mobile screens building themselves up
 function BrandViz({ active }: { active: boolean }) {
-  const R    = 38;
-  const CIRC = +(2 * Math.PI * R).toFixed(1);        // 238.8
-  const IR   = 21;
-  const IC   = +(2 * Math.PI * IR).toFixed(1);       // 131.9
-
-  const SWATCHES = ["#1A1A1A","#2D5F4A","#4A4A4A","#6B7B75","#D4D0C8","#FAF8F4"];
-
-  const WEIGHTS = [
-    { w: "100", label: "THIN",       x: 0   },
-    { w: "200", label: "EXTRALIGHT", x: 88  },
-    { w: "300", label: "LIGHT",      x: 176 },
-  ];
+  const B_PERIM = 2 * (155 + 88); // browser frame perimeter
+  const M_PERIM = 2 * (38  + 68); // mobile frame perimeter
 
   return (
-    <div className="overflow-hidden select-none" style={{ height: 220 }}>
-      <svg viewBox="0 0 260 190" className="w-full h-full">
+    <div className="h-[172px] overflow-hidden select-none">
+      <svg viewBox="0 0 260 120" className="w-full h-full">
 
-        {/* ── 1. Construction guides ── */}
-        <line x1="44" y1="5" x2="44" y2="91"
-          stroke="rgba(26,26,26,0.08)" strokeWidth="0.5" strokeDasharray="3,5"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 350ms 80ms" }} />
-        <line x1="2" y1="48" x2="86" y2="48"
-          stroke="rgba(26,26,26,0.08)" strokeWidth="0.5" strokeDasharray="3,5"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 350ms 80ms" }} />
-        <circle cx="44" cy="48" r="43" fill="none"
-          stroke="rgba(26,26,26,0.07)" strokeWidth="0.6" strokeDasharray="3,7"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 320ms 200ms" }} />
+        {/* ═══ Browser frame ═══ */}
+        <rect x="0.5" y="1.5" width="155" height="88" rx="3"
+          fill="none" stroke="#2D5F4A" strokeWidth="1.2"
+          style={{
+            strokeDasharray: B_PERIM,
+            strokeDashoffset: active ? 0 : B_PERIM,
+            transition: "stroke-dashoffset 820ms cubic-bezier(0.4,0,0.2,1) 120ms",
+          }} />
 
-        {/* Corner registration marks */}
-        {([
-          [5,6,14,6],[5,6,5,15],
-          [74,6,83,6],[83,6,83,15],
-          [5,81,14,81],[5,90,5,81],
-          [74,90,83,90],[83,90,83,81],
-        ] as [number,number,number,number][]).map(([x1,y1,x2,y2], i) => (
-          <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-            stroke="rgba(26,26,26,0.22)" strokeWidth="0.7"
-            style={{ opacity: active ? 1 : 0, transition: `opacity 260ms ${200 + i * 28}ms` }} />
+        {/* Chrome bar */}
+        <line x1="0.5" y1="14.5" x2="155.5" y2="14.5"
+          stroke="rgba(45,95,74,0.18)" strokeWidth="0.6"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 250ms 880ms" }} />
+
+        {/* Window controls */}
+        {[6, 12, 18].map((x, i) => (
+          <circle key={i} cx={x} cy="8" r="2"
+            fill={["rgba(45,95,74,0.75)","rgba(45,95,74,0.4)","rgba(45,95,74,0.2)"][i]}
+            style={{ opacity: active ? 1 : 0, transition: `opacity 220ms ${900 + i * 55}ms` }} />
         ))}
 
-        {/* ── 2. Brand mark ── */}
-        <circle cx="44" cy="48" r={R} fill="none"
-          stroke="#2D5F4A" strokeWidth="1.5" strokeLinecap="round"
-          transform="rotate(-90 44 48)"
-          style={{
-            strokeDasharray: CIRC,
-            strokeDashoffset: active ? 0 : CIRC,
-            transition: "stroke-dashoffset 1000ms cubic-bezier(0.4,0,0.2,1) 380ms",
-          }} />
-        <circle cx="44" cy="48" r={IR} fill="none"
-          stroke="rgba(45,95,74,0.15)" strokeWidth="0.65"
-          style={{
-            strokeDasharray: IC,
-            strokeDashoffset: active ? 0 : IC,
-            transition: "stroke-dashoffset 550ms ease-out 1000ms",
-          }} />
-        <circle cx="44" cy="48" r="4.5" fill="#2D5F4A"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 400ms 1320ms" }} />
-
-        {/* ── 3. Colour palette ── */}
-        <text x="108" y="12" fontSize="5" fill="rgba(26,26,26,0.22)"
-          fontFamily="Jost,sans-serif" letterSpacing="1.8"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 300ms 620ms" }}>
-          FARVEPALETTE
+        {/* URL bar */}
+        <rect x="26" y="3.5" width="88" height="8" rx="4"
+          fill="rgba(45,95,74,0.06)" stroke="rgba(45,95,74,0.14)" strokeWidth="0.5"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 250ms 950ms" }} />
+        <text x="70" y="9.5" fontSize="3.8" fill="rgba(26,26,26,0.28)"
+          fontFamily="Jost,sans-serif" textAnchor="middle"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 200ms 1000ms" }}>
+          alius.dk
         </text>
 
-        {SWATCHES.map((c, i) => (
-          <g key={c}>
-            <rect x={108 + i * 26} y="18" width="21" height="36" rx="0.8"
-              fill={c}
-              stroke={i >= 4 ? "rgba(212,208,200,0.65)" : "none"} strokeWidth="0.7"
-              style={{ opacity: active ? 1 : 0, transition: `opacity 400ms ${680 + i * 95}ms` }} />
-            <text x={108 + i * 26 + 2} y="65" fontSize="4.2"
-              fill="rgba(26,26,26,0.18)" fontFamily="monospace"
-              style={{ opacity: active ? 1 : 0, transition: `opacity 300ms ${1180 + i * 55}ms` }}>
-              {c.slice(1)}
-            </text>
+        {/* Nav items */}
+        {[7, 40, 73, 118].map((x, i) => (
+          <rect key={i} x={x} y="18" width={i === 3 ? 18 : 22} height="3" rx="1.5"
+            fill={i === 3 ? "rgba(45,95,74,0.6)" : "rgba(26,26,26,0.1)"}
+            style={{ opacity: active ? 1 : 0, transition: `opacity 220ms ${1040 + i * 50}ms` }} />
+        ))}
+
+        {/* Hero heading */}
+        <rect x="7" y="28" width="110" height="5" rx="1" fill="rgba(26,26,26,0.18)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 320ms 1180ms" }} />
+        <rect x="7" y="36" width="80" height="3" rx="1" fill="rgba(26,26,26,0.1)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 280ms 1260ms" }} />
+        <rect x="7" y="41.5" width="60" height="2.5" rx="1" fill="rgba(26,26,26,0.07)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 260ms 1320ms" }} />
+
+        {/* CTA button */}
+        <rect x="7" y="49" width="34" height="8.5" rx="2" fill="rgba(45,95,74,0.85)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 320ms 1400ms" }} />
+        <text x="24" y="55" fontSize="3.6" fill="rgba(250,248,244,0.92)"
+          fontFamily="Jost,sans-serif" textAnchor="middle"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 260ms 1460ms" }}>
+          Se mere →
+        </text>
+
+        {/* Feature cards */}
+        {[0, 1, 2].map(i => (
+          <g key={i}>
+            <rect x={7 + i * 50} y="64" width="44" height="21" rx="2"
+              fill="rgba(26,26,26,0.03)" stroke="rgba(26,26,26,0.08)" strokeWidth="0.5"
+              style={{ opacity: active ? 1 : 0, transition: `opacity 280ms ${1480 + i * 70}ms` }} />
+            <rect x={11 + i * 50} y="69" width="16" height="2.5" rx="1" fill="rgba(26,26,26,0.18)"
+              style={{ opacity: active ? 1 : 0, transition: `opacity 220ms ${1530 + i * 70}ms` }} />
+            <rect x={11 + i * 50} y="74" width="30" height="2" rx="1" fill="rgba(26,26,26,0.09)"
+              style={{ opacity: active ? 1 : 0, transition: `opacity 200ms ${1560 + i * 70}ms` }} />
+            <rect x={11 + i * 50} y="78" width="22" height="2" rx="1" fill="rgba(26,26,26,0.06)"
+              style={{ opacity: active ? 1 : 0, transition: `opacity 200ms ${1580 + i * 70}ms` }} />
           </g>
         ))}
 
-        <line x1="108" y1="57" x2="259" y2="57"
-          stroke="rgba(26,26,26,0.06)" strokeWidth="0.5"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 300ms 1120ms" }} />
+        {/* ═══ Mobile frame ═══ */}
+        <rect x="165.5" y="7.5" width="38" height="68" rx="5"
+          fill="none" stroke="#2D5F4A" strokeWidth="1.0"
+          style={{
+            strokeDasharray: M_PERIM,
+            strokeDashoffset: active ? 0 : M_PERIM,
+            transition: "stroke-dashoffset 560ms ease-out 650ms",
+          }} />
 
-        {/* ── 4. Section separator ── */}
-        <line x1="0" y1="95" x2="260" y2="95"
-          stroke="rgba(26,26,26,0.07)" strokeWidth="0.7"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 400ms 920ms" }} />
+        {/* Phone notch */}
+        <rect x="178" y="11.5" width="12" height="4" rx="2"
+          fill="rgba(45,95,74,0.15)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 220ms 1240ms" }} />
 
-        {/* ── 5. Typography scale ── */}
-        {WEIGHTS.map((t, i) => (
-          <g key={t.w}>
-            <text x={t.x} y="135" fontSize="31" fill="rgba(26,26,26,0.82)"
-              fontFamily="Jost,sans-serif" fontWeight={t.w}
-              style={{ opacity: active ? 1 : 0, transition: `opacity 500ms ${1080 + i * 170}ms` }}>
-              Aa
-            </text>
-            <text x={t.x + 1} y="148" fontSize="5.2"
-              fill="rgba(26,26,26,0.22)" fontFamily="Jost,sans-serif" letterSpacing="1"
-              style={{ opacity: active ? 1 : 0, transition: `opacity 350ms ${1250 + i * 170}ms` }}>
-              {t.label}
-            </text>
-          </g>
+        {/* Mobile content */}
+        <rect x="170" y="22" width="28" height="2.5" rx="1" fill="rgba(26,26,26,0.15)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 280ms 1290ms" }} />
+        <rect x="170" y="27.5" width="22" height="2" rx="1" fill="rgba(26,26,26,0.08)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 250ms 1350ms" }} />
+        <rect x="170" y="32" width="16" height="2" rx="1" fill="rgba(26,26,26,0.05)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 240ms 1390ms" }} />
+
+        {/* Mobile CTA */}
+        <rect x="170" y="39" width="28" height="8" rx="2" fill="rgba(45,95,74,0.75)"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 300ms 1470ms" }} />
+
+        {/* Mobile cards */}
+        {[0, 1].map(i => (
+          <rect key={i} x={170 + i * 16} y="55" width="12" height="9" rx="1.5"
+            fill="rgba(26,26,26,0.04)" stroke="rgba(26,26,26,0.08)" strokeWidth="0.5"
+            style={{ opacity: active ? 1 : 0, transition: `opacity 250ms ${1580 + i * 60}ms` }} />
         ))}
 
-        {/* ── 6. Identity label ── */}
-        <text x="0" y="173" fontSize="6" fill="rgba(26,26,26,0.2)"
-          fontFamily="Jost,sans-serif" letterSpacing="2.5"
-          style={{ opacity: active ? 1 : 0, transition: "opacity 400ms 1750ms" }}>
+        {/* Bottom nav dots */}
+        {[179, 184, 189].map((x, i) => (
+          <circle key={i} cx={x} cy="70" r="1.5"
+            fill={i === 1 ? "#2D5F4A" : "rgba(26,26,26,0.18)"}
+            style={{ opacity: active ? 1 : 0, transition: `opacity 220ms ${1670 + i * 40}ms` }} />
+        ))}
+
+        {/* Responsive connector */}
+        <line x1="156" y1="44" x2="165" y2="44"
+          stroke="rgba(45,95,74,0.2)" strokeWidth="0.6" strokeDasharray="2,2.5"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 280ms 1580ms" }} />
+
+        {/* Label */}
+        <text x="0" y="106" fontSize="5" fill="rgba(26,26,26,0.2)"
+          fontFamily="Jost,sans-serif" letterSpacing="2.2"
+          style={{ opacity: active ? 1 : 0, transition: "opacity 380ms 1840ms" }}>
           IDENTITET · UDTRYK · OPLEVELSE
         </text>
 
@@ -290,7 +307,7 @@ const columns = [
   {
     label:   "Brand",
     heading: "Identitet, udtryk og oplevelse",
-    desc:    null,
+    desc:    "Vi bygger oplevelser, der styrker dit brand og får dig til at skille dig ud.",
     Viz:     BrandViz,
   },
   {
