@@ -56,7 +56,7 @@ const VAERKTOEJER: Vaerktoj[] = [
     name: "Frihedstænkere",
     tagline: "De tænkere der formede vores forståelse af frihed.",
     description:
-      "Et kuratoreret univers af klassiske og moderne tænkere om frihed — politisk, økonomisk og filosofisk. Locke, Hayek, Mill, Rawls og flere. Alle tekster på dansk, skrevet til at tænke med.",
+      "Et kuratoreret univers af klassiske og moderne tænkere om frihed - politisk, okonomisk og filosofisk. Locke, Hayek, Mill, Rawls og flere. Alle tekster på dansk, skrevet til at tænke med.",
     audience: "For ledere, studerende og nysgerrige der vil forstå idéernes verden.",
     href: "/frihedstænkere",
     accentLabel: "Idéhistorie · 38 tænkere",
@@ -66,10 +66,10 @@ const VAERKTOEJER: Vaerktoj[] = [
     name: "Prioriteringsværktøj",
     tagline: "Prioritér det der rent faktisk rykker.",
     description:
-      "Scoringsmodel, effekt/indsats-matrix, prioriteret handlingsplan og automatisk ledelsesrapport. Opret initiativer, scorer dem på effekt, indsats, strategi, risiko og tidshorisont — og få øjeblikkeligt overblik over hvad der skal gøres nu.",
+      "Scoringsmodel, effekt/indsats-matrix og prioriteret handlingsplan. Opret initiativer, scorer dem på effekt, indsats, strategi, risiko og tidshorisont, og få øjeblikkeligt overblik over hvad der skal gøres nu.",
     audience: "For ledelser, projektkontorer og konsulenter der vil prioritere strategisk frem for intuitivt.",
     href: "/prioritizer",
-    accentLabel: "Strategi · Gratis · Beta",
+    accentLabel: "Strategi · Gratis",
   },
 ];
 
@@ -104,13 +104,12 @@ export default function VaerktoejerPage() {
             Værktøjer fra Alius
           </div>
 
-          <h1 className="font-fraunces font-light italic text-[clamp(56px,10vw,120px)] leading-[0.95] tracking-[-0.03em] mb-8 max-w-[900px]">
-            Bygget til at <em>tænke med</em>.
+          <h1 className="font-fraunces font-light italic text-[clamp(38px,8vw,110px)] leading-[0.95] tracking-[-0.03em] mb-8 max-w-[900px]">
+            Bygget til at tænke med.
           </h1>
 
           <p className="text-[18px] leading-[1.6] text-stone max-w-[640px]">
-            Vi udvikler værktøjer der gør komplekse spørgsmål håndterbare.
-            Alle er gratis, bygget med samme æstetik som resten af Alius, og alle leder til en samtale med os hvis du vil.
+            Vi udvikler værktøjer der styrker din forretning. Brug dem gratis.
           </p>
         </section>
 
@@ -176,8 +175,20 @@ export default function VaerktoejerPage() {
           </a>
         </section>
 
-        <footer className="mt-24 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius &middot; Strategi, brand og teknologi bygget som ét.
+        <footer className="mt-24 pt-8 border-t border-ink/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="text-[11px] text-stone opacity-50 tracking-[0.05em]">
+            Alius &middot; Strategi, brand og teknologi. Bygget som ét.
+          </div>
+          <div className="flex gap-6">
+            <a href="https://www.linkedin.com/in/alialfarhan/" target="_blank" rel="noopener noreferrer"
+              className="text-[11px] text-stone opacity-50 tracking-[0.05em] hover:opacity-100 hover:text-moss transition-all no-underline">
+              LinkedIn
+            </a>
+            <a href="mailto:hej@alius.dk"
+              className="text-[11px] text-stone opacity-50 tracking-[0.05em] hover:opacity-100 hover:text-moss transition-all no-underline">
+              hej@alius.dk
+            </a>
+          </div>
         </footer>
       </div>
     </div>
