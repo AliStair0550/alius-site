@@ -238,12 +238,12 @@ function TBadge({ t }: { t: Tier }) {
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-      <div className="w-2 h-2 rounded-full bg-moss mb-8" />
+      <div className="w-5 h-5 rounded-full bg-moss mb-8" />
       <h2 className="font-fraunces font-light italic text-[clamp(28px,4vw,48px)] text-ink leading-[1.1] mb-4 max-w-[560px]">
         Prioriter det der betyder mest.
       </h2>
       <p className="text-[15px] text-stone font-[300] leading-[1.8] max-w-[440px] mb-12">
-        Opret dine initiativer og prioriter imellem dem. Se med det samme hvad der skal handles på nu — og hvad der kan vente.
+        Opret dine initiativer og prioriter imellem dem. Se med det samme, hvad der skal handles på nu, og hvad der kan vente.
       </p>
 
       <div className="flex flex-col md:flex-row gap-4 mb-14 max-w-[680px] w-full text-left">
@@ -740,7 +740,6 @@ export function PrioritizerApp() {
             </Link>
             <span className="text-parchment/15 text-lg font-[100]">|</span>
             <span className="text-parchment text-[11px] tracking-[0.22em] uppercase font-[300]">Prioriteringsværktøj</span>
-            <span className="text-[8px] tracking-[0.15em] uppercase bg-moss/25 text-moss-light px-2 py-0.5 font-[400]">Beta</span>
           </div>
           <div className="flex items-center gap-3">
             {computed.length > 0 && (

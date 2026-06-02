@@ -21,7 +21,7 @@
   - Sand: #F5F3EF (sektionsbaggrunde)
   - Parchment: #FAF8F4 (primær baggrund)
 - Ingen gradients, ingen skygger, ingen farver uden for paletten
-- Brug aldrig lang bindestreg (-), kun almindelig (-)
+- Brug aldrig lang bindestreg (—) eller em dash på offentlige sider. Brug kun almindelig bindestreg (-)
 
 ## Principper
 - Ma: Whitespace er aktivt designelement
