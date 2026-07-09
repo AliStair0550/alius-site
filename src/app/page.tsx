@@ -16,7 +16,7 @@ export default function Home() {
       {/* Manifesto */}
       <section className="bg-sand py-20 md:py-28 px-6 md:px-8 flex flex-col items-center text-center">
         <p className="font-[300] text-[1.3rem] md:text-[1.6rem] text-ink leading-[1.6] max-w-[600px] mb-5">
-          Brand, strategi og teknologi i én løsning, der styrker din forretning.
+          Automatisering, AI og digitale platforme, der skaber reel værdi.
         </p>
       </section>
 

@@ -2,13 +2,29 @@
 
 const projects = [
   {
+    name: "Karnov Group",
+    type: "Projektledelse - Platform",
+    desc: "Projektledelse og lancering af digital platform skræddersyet til det danske marked.",
+    image: "/karnov.png",
+    link: "https://www.karnovgroup.com",
+    layout: "image-right" as const,
+  },
+  {
+    name: "Arbejdernes Landsbank",
+    type: "Projektledelse - Strategi",
+    desc: "Strategisk projektledelse af bankens vigtigste udviklingsinitiativer og opbygning af Cash Management-området.",
+    image: "/al.jpg",
+    link: "https://www.al-bank.dk",
+    layout: "image-left" as const,
+  },
+  {
     name: "SSTUDIO",
     type: "Branding - Hjemmeside",
     desc: "Branding af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
     image: "/stylister.avif",
     cornerLogo: "/sstudio-logo.svg",
     link: "https://sstudio.dk",
-    layout: "image-left" as const,
+    layout: "image-right" as const,
   },
   {
     name: "Smashii",
@@ -17,7 +33,7 @@ const projects = [
     bg: "#F5F2F0",
     logo: "/logo_darkpurple.png",
     link: "https://smashii.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
   {
     name: "Cafe Christian IX",
@@ -26,7 +42,7 @@ const projects = [
     bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
-    layout: "image-left" as const,
+    layout: "image-right" as const,
   },
   {
     name: "Markus Brandt",
@@ -35,7 +51,7 @@ const projects = [
     image: "https://markusbrandt.dk/assets/hero.avif",
     overlay: { title: "Markus Brandt" },
     link: "https://markusbrandt.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
   {
     name: "folka",
@@ -132,12 +148,9 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
       <div className="font-[400] text-[1.3rem] text-parchment mb-2">
         {p.name}
       </div>
-      <div className="font-[200] text-[0.85rem] leading-[1.7] mb-4" style={{ color: "rgba(255,255,255,0.6)" }}>
+      <div className="font-[200] text-[0.85rem] leading-[1.7]" style={{ color: "rgba(255,255,255,0.6)" }}>
         {p.desc}
       </div>
-      <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-parchment hover:opacity-70 transition-opacity">
-        Se projekt &rarr;
-      </span>
     </div>
   );
 }
@@ -203,12 +216,9 @@ export default function Portfolio() {
                     >
                       {p.name}
                     </div>
-                    <div className="font-[200] text-[0.85rem] leading-[1.7] max-w-[480px] mb-4" style={{ color: "rgba(255,255,255,0.6)" }}>
+                    <div className="font-[200] text-[0.85rem] leading-[1.7] max-w-[480px]" style={{ color: "rgba(255,255,255,0.6)" }}>
                       {p.desc}
                     </div>
-                    <span className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-parchment">
-                      Se projekt &rarr;
-                    </span>
                   </div>
                 </div>
               ) : (
