@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ALIUS - Vi bygger det, jeres forretning kører på.",
+  title: "ALIUS - Vi bygger digitale maskiner.",
   description:
     "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.",
   metadataBase: new URL("https://alius.dk"),
   openGraph: {
-    title: "ALIUS - Vi bygger det, jeres forretning kører på.",
+    title: "ALIUS - Vi bygger digitale maskiner.",
     description:
       "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.",
     url: "https://alius.dk",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "ALIUS - Vi bygger det, jeres forretning kører på.",
+        alt: "ALIUS - Vi bygger digitale maskiner.",
       },
     ],
     locale: "da_DK",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ALIUS - Vi bygger det, jeres forretning kører på.",
+    title: "ALIUS - Vi bygger digitale maskiner.",
     description:
       "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.",
     images: ["/og.png"],
