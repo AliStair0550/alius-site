@@ -22,11 +22,12 @@ export default function Home() {
 
       <div className="h-px bg-clay max-w-[1100px] mx-auto" />
       <Services />
+      <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+      <About />
       <Portfolio />
       <div className="h-px bg-clay max-w-[1100px] mx-auto" />
       <Tools />
       <div className="h-px bg-clay max-w-[1100px] mx-auto" />
-      <About />
       <CTA />
       <Footer />
     </>

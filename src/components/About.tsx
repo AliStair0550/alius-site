@@ -22,18 +22,22 @@ export default function About() {
 
         <div>
           <h3 className="font-[300] text-[1.4rem] text-ink mb-5">
-            Brand, strategi og teknologi. Bygget som ét.
+            Maskiner, der skaber værdi. Bygget af én, der forstår forretningen.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Jeg hedder Ali, og jeg bygger løsninger, der styrker forretninger.
-            Med erfaring inden for forretningsudvikling, strategi og tech
-            hjælper jeg virksomheder med at vækste gennem løsninger, hvor
-            strategi, brand og teknologi spiller sammen.
+            Jeg hedder Ali, og jeg bygger Alius. Agentic AI, automatisering og
+            systemer, der fjerner manuelt arbejde og skaber overblik i danske
+            virksomheder.
+          </p>
+          <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
+            Baggrunden er ikke et bureau: bank, legal tech hos Karnov og Molt
+            Wengel, fødevarebranchen og dansk eksport for Udenrigsministeriet.
+            Derfor bygger jeg ikke teknologi for teknologiens skyld. Jeg taler
+            både bestyrelse og backend.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            <strong className="font-[400] text-ink">Alius blev grundlagt med en overbevisning:</strong>{" "}
-            De bedste løsninger opstår når brand, strategi og teknologi ikke
-            adskilles, men kombineres fra start.
+            <strong className="font-[400] text-ink">Alt herunder er bygget af mig.</strong>{" "}
+            Det meste af det kører lige nu.
           </p>
 
           <div className="flex flex-col">
