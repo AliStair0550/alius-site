@@ -19,32 +19,51 @@ const CHAOS = [
   { x: 62, y: 90, c: "mf-chaos-c", d: "-0.9s" },
 ];
 
-// Prikker trukket ind i maskinen (venstre -> midte), jævn strøm
-const INTAKE = ["0s", "-0.64s", "-1.28s", "-1.92s", "-2.56s"];
+function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
+  const a = (deg * Math.PI) / 180;
+  return [+(cx + r * Math.cos(a)).toFixed(2), +(cy + r * Math.sin(a)).toFixed(2)];
+}
 
-// Maskinen: ordnet koncentrisk ring af prikker (radius 24 om 230,84)
+// Konvergerende indtag: tre baner der samles i maskinen (tragt)
+const INTAKE = [
+  { cls: "mf-in-a", x: 100, y: 60, d: "0s" }, { cls: "mf-in-a", x: 100, y: 60, d: "-1.5s" },
+  { cls: "mf-in-b", x: 100, y: 84, d: "-0.5s" }, { cls: "mf-in-b", x: 100, y: 84, d: "-2s" },
+  { cls: "mf-in-c", x: 100, y: 108, d: "-1s" }, { cls: "mf-in-c", x: 100, y: 108, d: "-2.5s" },
+];
+// Divergerende output: tre baner der vifter ud til rækkerne
+const OUTPUT = [
+  { cls: "mf-out-a", d: "0s" }, { cls: "mf-out-a", d: "-1.5s" },
+  { cls: "mf-out-b", d: "-0.75s" }, { cls: "mf-out-b", d: "-2.25s" },
+  { cls: "mf-out-c", d: "-0.4s" }, { cls: "mf-out-c", d: "-1.9s" },
+];
+
+// Svage guide-linjer der viser tragten ind og viften ud
+const IN_GUIDE = [
+  { x1: 104, y1: 60, x2: 192, y2: 84 },
+  { x1: 104, y1: 84, x2: 192, y2: 84 },
+  { x1: 104, y1: 108, x2: 192, y2: 84 },
+];
+const OUT_GUIDE = [
+  { x1: 268, y1: 84, x2: 356, y2: 68 },
+  { x1: 268, y1: 84, x2: 356, y2: 84 },
+  { x1: 268, y1: 84, x2: 356, y2: 100 },
+];
+
+// Maskinen: ordnet koncentrisk ring af prikker + tandhjuls-takker
 const RING = [
   [254, 84], [247, 67], [230, 60], [213, 67],
   [206, 84], [213, 101], [230, 108], [247, 101],
 ] as const;
-const RING_INNER = [
-  [242, 84], [230, 72], [218, 84], [230, 96],
-] as const;
-
-// Prikker forlader maskinen i jævn takt (midte -> højre)
-const OUTPUT = ["0s", "-0.64s", "-1.28s", "-1.92s", "-2.56s"];
-
-// Forbindelseslinjens geometri (genbruges til de rejsende highlights)
-const LINE = { x1: 24, y1: 84, x2: 436, y2: 84 };
+const TEETH = Array.from({ length: 16 }, (_, i) => i * 22.5);
 
 // Resultat: gjort arbejde i ordnede rækker (korte streger)
 const RESULT: { x1: number; x2: number; y: number; d: string }[] = [];
-[72, 84, 96].forEach((y, r) => {
+[68, 84, 100].forEach((y, r) => {
   [
-    { x1: 372, x2: 386 },
-    { x1: 390, x2: 404 },
+    { x1: 366, x2: 382 },
+    { x1: 388, x2: 404 },
   ].forEach((col, c) => {
-    RESULT.push({ ...col, y, d: `${(r * 2 + c) * 0.4}s` });
+    RESULT.push({ ...col, y, d: `${(r * 2 + c) * 0.35}s` });
   });
 });
 
@@ -57,28 +76,26 @@ function MachineFlow() {
       className="mt-16 md:mt-0 w-full max-w-[380px] md:max-w-[460px] md:w-[46%] md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 z-0"
     >
       <svg viewBox="0 0 460 200" className="w-full h-auto" role="presentation">
-        {/* Forbindelseslinje gennem maskinen */}
-        <line {...LINE} stroke={INK} strokeWidth="1" opacity="0.1" />
-
-        {/* Lysende flow der rejser hele vejen: rod -> maskine -> resultat */}
-        {["0s", "-1.3s"].map((d) => (
-          <line
-            key={`tr${d}`}
-            {...LINE}
-            className="mf-travel"
-            style={{ animationDelay: d }}
-            pathLength={100}
-            stroke={MOSS}
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeDasharray="7 93"
-          />
+        {/* Guide-linjer: tragt ind, vifte ud */}
+        {[...IN_GUIDE, ...OUT_GUIDE].map((g, i) => (
+          <line key={`g${i}`} {...g} stroke={INK} strokeWidth="1" opacity="0.07" />
         ))}
 
         {/* Cirkel-omrids: venstre + højre i ink, midten i moss (eneste accent) */}
         <circle cx="72" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
         <circle cx="388" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
+
+        {/* Maskinen: tandhjul (roterende takker) + rim */}
         <circle cx="230" cy="84" r="52" fill="none" stroke={MOSS} strokeWidth="1" opacity="0.55" />
+        <g className="mf-ring" style={MID_ORIGIN}>
+          {TEETH.map((a, i) => {
+            const [x1, y1] = polar(230, 84, 52, a);
+            const [x2, y2] = polar(230, 84, 58, a);
+            return (
+              <line key={`t${i}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={MOSS} strokeWidth="1.4" strokeLinecap="round" opacity="0.4" />
+            );
+          })}
+        </g>
 
         {/* Emitterende puls-ringe fra kernen (dopamin) */}
         {["0s", "-1.5s"].map((d) => (
@@ -100,7 +117,7 @@ function MachineFlow() {
           style={MID_ORIGIN}
           cx="230"
           cy="84"
-          r="45"
+          r="42"
           fill="none"
           stroke={MOSS}
           strokeWidth="1"
@@ -122,40 +139,35 @@ function MachineFlow() {
           />
         ))}
 
-        {/* Flow ind i maskinen */}
-        {INTAKE.map((d, i) => (
+        {/* Konvergerende flow ind i maskinen */}
+        {INTAKE.map((p, i) => (
           <circle
             key={`in${i}`}
-            className="mf-flow mf-intake"
-            style={{ animationDelay: d }}
-            cx="108"
-            cy="84"
+            className={`mf-flow ${p.cls}`}
+            style={{ animationDelay: p.d }}
+            cx={p.x}
+            cy={p.y}
             r="2.2"
             fill={INK}
           />
         ))}
 
-        {/* Maskinen: ordnet rotation */}
+        {/* Maskinens indre prik-ring roterer */}
         <g className="mf-ring" style={MID_ORIGIN}>
           {RING.map(([x, y], i) => (
             <circle key={`r${i}`} cx={x} cy={y} r="2" fill={INK} opacity="0.5" />
           ))}
         </g>
-        <g className="mf-ring-rev" style={MID_ORIGIN}>
-          {RING_INNER.map(([x, y], i) => (
-            <circle key={`ri${i}`} cx={x} cy={y} r="1.6" fill={INK} opacity="0.38" />
-          ))}
-        </g>
 
         {/* Vejrtrækkende kerne */}
-        <circle className="mf-breathe" style={MID_ORIGIN} cx="230" cy="84" r="3.2" fill={MOSS} />
+        <circle className="mf-breathe" style={MID_ORIGIN} cx="230" cy="84" r="3.4" fill={MOSS} />
 
-        {/* Flow ud af maskinen */}
-        {OUTPUT.map((d, i) => (
+        {/* Divergerende flow ud af maskinen */}
+        {OUTPUT.map((p, i) => (
           <circle
             key={`out${i}`}
-            className="mf-flow mf-output"
-            style={{ animationDelay: d }}
+            className={`mf-flow ${p.cls}`}
+            style={{ animationDelay: p.d }}
             cx="252"
             cy="84"
             r="2.2"
@@ -212,11 +224,11 @@ export default function Hero() {
       </div>
 
       <h1 className="animate-fade-up delay-500 font-[300] text-[1.8rem] md:text-[2.2rem] text-ink leading-[1.35] tracking-[0.01em] max-w-[600px] mb-5 relative z-10">
-        Vi bygger det, jeres forretning kører på.
+        Vi bygger digitale maskiner.
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8 relative z-10">
-        Vi finder de arbejdsgange, der bremser jer, og bygger maskinerne, der fjerner det manuelle arbejde. Fast pris. Fast deadline. I ejer alt.
+        Vi finder de arbejdsgange, der bremser jer, og bygger maskinerne, der gør jeres virksomhed hurtigere, stærkere og mere skalerbar.
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap relative z-10">

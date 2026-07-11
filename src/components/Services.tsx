@@ -12,16 +12,7 @@ const CAPS = "rgba(26,26,26,0.2)"; // caps-etiket i illustration (jf. IDENTITET 
 const VB = "0 0 480 260";
 const CENTER = { transformBox: "view-box", transformOrigin: "240px 130px" } as const;
 
-function ringDots(cx: number, cy: number, r: number, n: number, startDeg = 0): [number, number][] {
-  const out: [number, number][] = [];
-  for (let i = 0; i < n; i++) {
-    const a = ((startDeg + (360 / n) * i) * Math.PI) / 180;
-    out.push([+(cx + r * Math.cos(a)).toFixed(2), +(cy + r * Math.sin(a)).toFixed(2)]);
-  }
-  return out;
-}
-
-// ── 01 KORTLÆG: spredt rod, tre fundne prikker der pulser ("fundet") ────────
+// ── 01 KORTLÆG: en scanner sweeper feltet og finder de tre arbejdsgange ─────
 const KORTLAEG: { x: number; y: number; hi?: boolean }[] = [
   { x: 60, y: 55 }, { x: 120, y: 45, hi: true }, { x: 180, y: 62 }, { x: 250, y: 48 },
   { x: 320, y: 58 }, { x: 390, y: 50 }, { x: 432, y: 82 },
@@ -48,6 +39,10 @@ function KortlaegViz() {
             <circle key={i} cx={p.x} cy={p.y} r={3.6} fill={GRAY} />
           )
         )}
+
+        {/* Scanner der sweeper hen over feltet */}
+        <line className="svc-sweep" x1={20} y1={28} x2={20} y2={236} stroke={MOSS} strokeWidth={1.5} strokeLinecap="round" />
+
         {/* Emitterende puls på de fundne - i sekvens */}
         {FOUND.map((p, i) => (
           <circle
@@ -67,61 +62,77 @@ function KortlaegViz() {
   );
 }
 
-// ── 02 BYG: koncentriske ringe der roterer lagdelt, kerne der pulser ────────
-const BYG_INNER = ringDots(240, 130, 42, 8, 0);
-const BYG_MID = ringDots(240, 130, 82, 14, 12);
-const BYG_OUTER = ringDots(240, 130, 118, 20, 0);
+// ── 02 BYG: jeres systemer forbindes til én maskine (netværk med data-puls) ─
+const NET_HUB: [number, number] = [240, 130];
+const NET_NODES: [number, number][] = [
+  [108, 74], [212, 52], [332, 66], [402, 126],
+  [350, 198], [232, 216], [118, 190], [76, 130],
+];
+const NET_MESH: [number, number][] = [[0, 1], [2, 3], [4, 5], [6, 7], [1, 2], [7, 0]];
+const NET_PULSE = [0, 2, 4, 6];
 
 function BygViz() {
+  const [hx, hy] = NET_HUB;
   return (
     <div className="h-[172px] overflow-hidden select-none">
       <svg viewBox={VB} className="w-full h-full" aria-hidden="true" role="presentation">
-        {/* Ydre ring tegnet som tynd Moss-cirkel */}
-        <circle cx={240} cy={130} r={118} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.4} />
+        {/* Forbindelser: hub -> systemer */}
+        {NET_NODES.map(([x, y], i) => (
+          <line key={`s${i}`} x1={hx} y1={hy} x2={x} y2={y} stroke={GRAY} strokeWidth={1} />
+        ))}
+        {/* Mesh mellem systemer */}
+        {NET_MESH.map(([a, b], i) => (
+          <line
+            key={`me${i}`}
+            x1={NET_NODES[a][0]} y1={NET_NODES[a][1]}
+            x2={NET_NODES[b][0]} y2={NET_NODES[b][1]}
+            stroke={GRAY} strokeWidth={0.8} opacity={0.55}
+          />
+        ))}
 
-        {/* Kerne-puls (dopamin) */}
+        {/* Data-puls der rejser ind mod hub (automatisering) */}
+        {NET_PULSE.map((ni, i) => {
+          const [x, y] = NET_NODES[ni];
+          return (
+            <line
+              key={`p${i}`}
+              className="svc-travel"
+              style={{ animationDelay: `${i * 0.6}s` }}
+              x1={x} y1={y} x2={hx} y2={hy}
+              pathLength={100}
+              stroke={MOSS}
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeDasharray="9 91"
+            />
+          );
+        })}
+
+        {/* System-noder */}
+        {NET_NODES.map(([x, y], i) => (
+          <circle key={`n${i}`} cx={x} cy={y} r={4} fill={GRAY} />
+        ))}
+
+        {/* Kerne-puls */}
         {["0s", "-1.5s"].map((d) => (
           <circle
             key={d}
             className="svc-pulse"
             style={{ ...CENTER, animationDelay: d }}
-            cx={240}
-            cy={130}
-            r={16}
-            fill="none"
-            stroke={MOSS}
-            strokeWidth={1}
+            cx={hx} cy={hy} r={14}
+            fill="none" stroke={MOSS} strokeWidth={1}
           />
         ))}
 
-        {/* Indre prik-ring (statisk) */}
-        {BYG_INNER.map(([x, y], i) => (
-          <circle key={`i${i}`} cx={x} cy={y} r={3.6} fill={GRAY} />
-        ))}
-
-        {/* Midterring roterer modsat - lagdelt mekanisme */}
-        <g className="svc-rotate-rev" style={CENTER}>
-          {BYG_MID.map(([x, y], i) => (
-            <circle key={`m${i}`} cx={x} cy={y} r={3.4} fill={GRAY} />
-          ))}
-        </g>
-
-        {/* Yderste prik-ring roterer langsomt (slås fra ved reduced-motion) */}
-        <g className="svc-rotate" style={CENTER}>
-          {BYG_OUTER.map(([x, y], i) => (
-            <circle key={`o${i}`} cx={x} cy={y} r={3.2} fill={GRAY} />
-          ))}
-        </g>
-
-        {/* Centrum: fyldt Moss med dobbeltring */}
-        <circle cx={240} cy={130} r={5.5} fill={MOSS} />
-        <circle cx={240} cy={130} r={11} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.55} />
+        {/* Hub: den samlede maskine */}
+        <circle cx={hx} cy={hy} r={6} fill={MOSS} />
+        <circle cx={hx} cy={hy} r={12} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.55} />
       </svg>
     </div>
   );
 }
 
-// ── 03 DRIFT: jævne rækker, glødende diagonal, levende puls-linje ───────────
+// ── 03 DRIFT: kørende system - ordnet grid, live-indikator og ECG-puls ──────
 const DRIFT_COLS = [90, 140, 190, 240, 290, 340, 390];
 const DRIFT_ROWS = [108, 146, 184, 222];
 const ECG = "M 55,58 H 190 C 205,58 208,42 222,42 C 236,42 239,58 253,58 H 425";
@@ -130,6 +141,9 @@ function DriftViz() {
   return (
     <div className="h-[172px] overflow-hidden select-none">
       <svg viewBox={VB} className="w-full h-full" aria-hidden="true" role="presentation">
+        {/* Live-indikator ved linjens start */}
+        <circle className="svc-glow" cx={44} cy={58} r={3} fill={MOSS} />
+
         {/* Rolig ECG-linje (svag) over rækkerne */}
         <path d={ECG} fill="none" stroke={MOSS} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" opacity={0.28} />
 

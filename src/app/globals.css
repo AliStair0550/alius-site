@@ -224,10 +224,26 @@ body {
 }
 .mf-breathe { animation: mfBreathe 2.8s ease-in-out infinite; }
 
+/* Konvergerende indtag (rod trækkes ind i maskinen som en tragt) */
+@keyframes mfInA { 0% { transform: translate(0,0); opacity: 0; } 18% { opacity: 0.6; } 100% { transform: translate(128px, 24px);  opacity: 0; } }
+@keyframes mfInB { 0% { transform: translate(0,0); opacity: 0; } 18% { opacity: 0.6; } 100% { transform: translate(128px, 0);     opacity: 0; } }
+@keyframes mfInC { 0% { transform: translate(0,0); opacity: 0; } 18% { opacity: 0.6; } 100% { transform: translate(128px, -24px); opacity: 0; } }
+/* Divergerende output (orden vifter ud til resultat-rækkerne) */
+@keyframes mfOutA { 0% { transform: translate(0,0); opacity: 0; } 22% { opacity: 0.6; } 100% { transform: translate(128px, -16px); opacity: 0; } }
+@keyframes mfOutB { 0% { transform: translate(0,0); opacity: 0; } 22% { opacity: 0.6; } 100% { transform: translate(128px, 0);     opacity: 0; } }
+@keyframes mfOutC { 0% { transform: translate(0,0); opacity: 0; } 22% { opacity: 0.6; } 100% { transform: translate(128px, 16px);  opacity: 0; } }
+.mf-in-a { animation: mfInA 3s linear infinite; }
+.mf-in-b { animation: mfInB 3s linear infinite; }
+.mf-in-c { animation: mfInC 3s linear infinite; }
+.mf-out-a { animation: mfOutA 3s linear infinite; }
+.mf-out-b { animation: mfOutB 3s linear infinite; }
+.mf-out-c { animation: mfOutC 3s linear infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .mf-chaos-a, .mf-chaos-b, .mf-chaos-c,
   .mf-ring, .mf-ring-rev, .mf-land,
-  .mf-emit, .mf-travel, .mf-breathe { animation: none !important; }
+  .mf-emit, .mf-travel, .mf-breathe,
+  .mf-in-a, .mf-in-b, .mf-in-c, .mf-out-a, .mf-out-b, .mf-out-c { animation: none !important; }
   .mf-flow { animation: none !important; opacity: 0 !important; }
   .mf-emit { opacity: 0 !important; }
 }
@@ -256,14 +272,23 @@ body {
 }
 .svc-travel { animation: svcTravel 2.8s cubic-bezier(0.4,0,0.2,1) infinite; }
 
-/* Blødt blink på moss-diagonalen (03) */
+/* Blødt blink på moss-diagonal / live-indikator (03) */
 @keyframes svcGlow {
   0%, 100% { opacity: 0.9; }
   50%      { opacity: 0.35; }
 }
 .svc-glow { animation: svcGlow 2.6s ease-in-out infinite; }
 
+/* Scanner der sweeper hen over feltet og kortlægger (01) */
+@keyframes svcSweep {
+  0%   { transform: translateX(0);     opacity: 0; }
+  12%  { opacity: 0.7; }
+  88%  { opacity: 0.7; }
+  100% { transform: translateX(430px); opacity: 0; }
+}
+.svc-sweep { animation: svcSweep 4.2s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow { animation: none !important; }
-  .svc-pulse { opacity: 0 !important; }
+  .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow, .svc-sweep { animation: none !important; }
+  .svc-pulse, .svc-sweep { opacity: 0 !important; }
 }
