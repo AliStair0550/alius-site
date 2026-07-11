@@ -10,9 +10,20 @@ const PARCHMENT = "#FAF8F4";
 // Pipeline-geometri
 const SPINE = { x1: 74, x2: 380, y: 100 };
 const NODES_X = [110, 190, 270, 350];       // fire proces-trin
-const STACK_Y = [46, 70, 94, 118, 142];     // input-kø / output-resultater
-const NODE_DELAY = ["-0.1s", "0.5s", "1.1s", "1.7s"]; // trin lyser i sekvens
-const TOKENS = ["0s", "-0.48s", "-0.96s", "-1.44s", "-1.92s"]; // jævn strøm
+const NODE_DELAY = ["-0.15s", "0.7s", "1.55s", "2.4s"]; // trin lyser i sekvens (3.4s cyklus)
+const TOKENS = ["0s", "-0.68s", "-1.36s", "-2.04s", "-2.72s"]; // jævn strøm
+
+// Rod: manuelle opgaver der ligger skævt og spredt
+const MESS = [
+  { x: 20, y: 48, w: 32, h: 10, rot: -8, d: "0s" },
+  { x: 31, y: 64, w: 25, h: 9, rot: 7, d: "-0.9s" },
+  { x: 17, y: 81, w: 34, h: 10, rot: -4, d: "-1.8s" },
+  { x: 33, y: 97, w: 23, h: 9, rot: 11, d: "-0.5s" },
+  { x: 22, y: 114, w: 31, h: 10, rot: -10, d: "-2.4s" },
+  { x: 30, y: 131, w: 26, h: 9, rot: 5, d: "-1.3s" },
+];
+// Struktur: de samme opgaver, nu ordnet i lige rækker
+const STRUCT_Y = [48, 66, 84, 102, 120, 138];
 
 function MachineFlow() {
   return (
@@ -21,25 +32,27 @@ function MachineFlow() {
       className="mt-16 md:mt-0 w-full max-w-[400px] md:max-w-[480px] md:w-[48%] md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 z-0"
     >
       <svg viewBox="0 0 460 200" className="w-full h-auto" role="presentation">
-        {/* Input-kø: manuelle opgaver der venter */}
-        {STACK_Y.map((y, i) => (
-          <rect
-            key={`q${i}`}
-            className="mf-queue"
-            style={{ animationDelay: `${-i * 0.3}s` }}
-            x={26}
-            y={y}
-            width={34}
-            height={12}
-            rx={2.5}
-            fill="none"
-            stroke={INK}
-            strokeWidth={1}
-          />
+        {/* Rod: manuelle opgaver der ligger skævt og spredt */}
+        {MESS.map((m, i) => (
+          <g key={`m${i}`} transform={`rotate(${m.rot} ${m.x + m.w / 2} ${m.y + m.h / 2})`}>
+            <rect
+              className="mf-mess"
+              style={{ animationDelay: m.d }}
+              x={m.x}
+              y={m.y}
+              width={m.w}
+              height={m.h}
+              rx={2}
+              fill="none"
+              stroke={INK}
+              strokeWidth={1}
+              opacity={0.4}
+            />
+          </g>
         ))}
-        {/* Feeders: opgaver trækkes ind i pipelinen */}
-        {[52, 100, 148].map((y, i) => (
-          <line key={`fi${i}`} x1={60} y1={y} x2={SPINE.x1} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.1} />
+        {/* Feeders: rodet trækkes ind i pipelinen */}
+        {[60, 92, 124].map((y, i) => (
+          <line key={`fi${i}`} x1={58} y1={y} x2={SPINE.x1} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.09} />
         ))}
 
         {/* Pipeline-spine */}
@@ -94,24 +107,24 @@ function MachineFlow() {
           />
         ))}
 
-        {/* Feeders ud til resultaterne */}
-        {[52, 100, 148].map((y, i) => (
-          <line key={`fo${i}`} x1={SPINE.x2} y1={SPINE.y} x2={404} y2={y} stroke={INK} strokeWidth={1} opacity={0.1} />
+        {/* Feeders ud til den ordnede struktur */}
+        {[60, 92, 124].map((y, i) => (
+          <line key={`fo${i}`} x1={SPINE.x2} y1={SPINE.y} x2={402} y2={y} stroke={INK} strokeWidth={1} opacity={0.09} />
         ))}
 
-        {/* Output: færdige resultater der lyser i takt */}
-        {STACK_Y.map((y, i) => (
+        {/* Struktur: færdige resultater i lige, ordnede rækker */}
+        {STRUCT_Y.map((y, i) => (
           <rect
             key={`r${i}`}
             className="mf-result"
-            style={{ animationDelay: `${i * 0.2}s` }}
-            x={404}
+            style={{ animationDelay: `${i * 0.28}s` }}
+            x={402}
             y={y}
-            width={34}
-            height={12}
-            rx={2.5}
+            width={40}
+            height={10}
+            rx={2}
             fill={MOSS}
-            opacity={0.18}
+            opacity={0.4}
           />
         ))}
 

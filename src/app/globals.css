@@ -146,22 +146,22 @@ body {
 }
 .portfolio-track::-webkit-scrollbar { display: none; }
 
-/* ── Automatiserings-pipeline (Hero): opgaver → automatisk eksekvering → færdigt ── */
-/* Token der flyder gennem pipelinen */
+/* ── Automatiserings-pipeline (Hero): rod → automatisk eksekvering → struktur ── */
+/* Token der flyder gennem pipelinen (roligt tempo) */
 @keyframes mfPipe {
   0%   { transform: translateX(0);     opacity: 0; }
   7%   { opacity: 1; }
   93%  { opacity: 1; }
   100% { transform: translateX(306px); opacity: 0; }
 }
-.mf-pipe { animation: mfPipe 2.4s cubic-bezier(0.45,0,0.55,1) infinite; }
+.mf-pipe { animation: mfPipe 3.4s cubic-bezier(0.45,0,0.55,1) infinite; }
 
 /* Trin lyser op i sekvens når eksekveringen passerer */
 @keyframes mfNode {
   0%, 64%, 100% { opacity: 0; }
   12%, 40%      { opacity: 1; }
 }
-.mf-node { animation: mfNode 2.4s ease-in-out infinite; }
+.mf-node { animation: mfNode 3.4s ease-in-out infinite; }
 
 /* Eksekverings-energi der sweeper langs pipelinen (pathLength = 100) */
 @keyframes mfExec {
@@ -170,24 +170,26 @@ body {
   85%  { opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 0; }
 }
-.mf-exec { animation: mfExec 2.4s cubic-bezier(0.45,0,0.55,1) infinite; }
+.mf-exec { animation: mfExec 3.4s cubic-bezier(0.45,0,0.55,1) infinite; }
 
-/* Resultat der lyser når arbejde er gjort */
+/* Struktur: færdige resultater der lyser i takt (bliver stående som orden) */
 @keyframes mfResult {
-  0%, 52%, 100% { opacity: 0.18; }
+  0%, 52%, 100% { opacity: 0.4; }
   68%, 92%      { opacity: 1; }
 }
-.mf-result { animation: mfResult 2.4s ease-in-out infinite; }
+.mf-result { animation: mfResult 3.4s ease-in-out infinite; }
 
-/* Opgave trukket ind fra køen */
-@keyframes mfQueue {
-  0%, 100% { opacity: 0.4; }
-  50%      { opacity: 0.85; }
+/* Rod: manuelle opgaver der ligger uroligt */
+@keyframes mfMess {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(1.2px, -1.4px); }
+  50%      { transform: translate(-1.4px, 1px); }
+  75%      { transform: translate(1px, 1.2px); }
 }
-.mf-queue { animation: mfQueue 2.4s ease-in-out infinite; }
+.mf-mess { animation: mfMess 3.8s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mf-pipe, .mf-node, .mf-exec, .mf-result, .mf-queue { animation: none !important; }
+  .mf-pipe, .mf-node, .mf-exec, .mf-result, .mf-mess { animation: none !important; }
   .mf-pipe, .mf-exec { opacity: 0 !important; }
 }
 
