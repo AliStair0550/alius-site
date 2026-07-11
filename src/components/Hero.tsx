@@ -5,208 +5,131 @@ import AliusLogo from "./AliusLogo";
 const INK = "#1A1A1A";
 const MOSS = "#2D5F4A";
 const SLATE = "#6B7B75";
+const PARCHMENT = "#FAF8F4";
 
-// Venstre cirkel: manuelt rod - urolige prikker
-const CHAOS = [
-  { x: 50, y: 70, c: "mf-chaos-a", d: "0s" },
-  { x: 78, y: 60, c: "mf-chaos-b", d: "-0.6s" },
-  { x: 44, y: 90, c: "mf-chaos-c", d: "-1.2s" },
-  { x: 92, y: 96, c: "mf-chaos-a", d: "-1.8s" },
-  { x: 66, y: 108, c: "mf-chaos-b", d: "-0.3s" },
-  { x: 98, y: 78, c: "mf-chaos-c", d: "-2.1s" },
-  { x: 56, y: 104, c: "mf-chaos-a", d: "-1.5s" },
-  { x: 82, y: 82, c: "mf-chaos-b", d: "-2.7s" },
-  { x: 62, y: 90, c: "mf-chaos-c", d: "-0.9s" },
-];
-
-function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
-  const a = (deg * Math.PI) / 180;
-  return [+(cx + r * Math.cos(a)).toFixed(2), +(cy + r * Math.sin(a)).toFixed(2)];
-}
-
-// Konvergerende indtag: tre baner der samles i maskinen (tragt)
-const INTAKE = [
-  { cls: "mf-in-a", x: 100, y: 60, d: "0s" }, { cls: "mf-in-a", x: 100, y: 60, d: "-1.5s" },
-  { cls: "mf-in-b", x: 100, y: 84, d: "-0.5s" }, { cls: "mf-in-b", x: 100, y: 84, d: "-2s" },
-  { cls: "mf-in-c", x: 100, y: 108, d: "-1s" }, { cls: "mf-in-c", x: 100, y: 108, d: "-2.5s" },
-];
-// Divergerende output: tre baner der vifter ud til rækkerne
-const OUTPUT = [
-  { cls: "mf-out-a", d: "0s" }, { cls: "mf-out-a", d: "-1.5s" },
-  { cls: "mf-out-b", d: "-0.75s" }, { cls: "mf-out-b", d: "-2.25s" },
-  { cls: "mf-out-c", d: "-0.4s" }, { cls: "mf-out-c", d: "-1.9s" },
-];
-
-// Svage guide-linjer der viser tragten ind og viften ud
-const IN_GUIDE = [
-  { x1: 104, y1: 60, x2: 192, y2: 84 },
-  { x1: 104, y1: 84, x2: 192, y2: 84 },
-  { x1: 104, y1: 108, x2: 192, y2: 84 },
-];
-const OUT_GUIDE = [
-  { x1: 268, y1: 84, x2: 356, y2: 68 },
-  { x1: 268, y1: 84, x2: 356, y2: 84 },
-  { x1: 268, y1: 84, x2: 356, y2: 100 },
-];
-
-// Maskinen: ordnet koncentrisk ring af prikker + tandhjuls-takker
-const RING = [
-  [254, 84], [247, 67], [230, 60], [213, 67],
-  [206, 84], [213, 101], [230, 108], [247, 101],
-] as const;
-const TEETH = Array.from({ length: 16 }, (_, i) => i * 22.5);
-
-// Resultat: gjort arbejde i ordnede rækker (korte streger)
-const RESULT: { x1: number; x2: number; y: number; d: string }[] = [];
-[68, 84, 100].forEach((y, r) => {
-  [
-    { x1: 366, x2: 382 },
-    { x1: 388, x2: 404 },
-  ].forEach((col, c) => {
-    RESULT.push({ ...col, y, d: `${(r * 2 + c) * 0.35}s` });
-  });
-});
-
-const MID_ORIGIN = { transformBox: "view-box", transformOrigin: "230px 84px" } as const;
+// Pipeline-geometri
+const SPINE = { x1: 74, x2: 380, y: 100 };
+const NODES_X = [110, 190, 270, 350];       // fire proces-trin
+const STACK_Y = [46, 70, 94, 118, 142];     // input-kø / output-resultater
+const NODE_DELAY = ["-0.1s", "0.5s", "1.1s", "1.7s"]; // trin lyser i sekvens
+const TOKENS = ["0s", "-0.48s", "-0.96s", "-1.44s", "-1.92s"]; // jævn strøm
 
 function MachineFlow() {
   return (
     <div
       aria-hidden
-      className="mt-16 md:mt-0 w-full max-w-[380px] md:max-w-[460px] md:w-[46%] md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 z-0"
+      className="mt-16 md:mt-0 w-full max-w-[400px] md:max-w-[480px] md:w-[48%] md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 z-0"
     >
       <svg viewBox="0 0 460 200" className="w-full h-auto" role="presentation">
-        {/* Guide-linjer: tragt ind, vifte ud */}
-        {[...IN_GUIDE, ...OUT_GUIDE].map((g, i) => (
-          <line key={`g${i}`} {...g} stroke={INK} strokeWidth="1" opacity="0.07" />
-        ))}
-
-        {/* Cirkel-omrids: venstre + højre i ink, midten i moss (eneste accent) */}
-        <circle cx="72" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
-        <circle cx="388" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
-
-        {/* Maskinen: tandhjul (roterende takker) + rim */}
-        <circle cx="230" cy="84" r="52" fill="none" stroke={MOSS} strokeWidth="1" opacity="0.55" />
-        <g className="mf-ring" style={MID_ORIGIN}>
-          {TEETH.map((a, i) => {
-            const [x1, y1] = polar(230, 84, 52, a);
-            const [x2, y2] = polar(230, 84, 58, a);
-            return (
-              <line key={`t${i}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={MOSS} strokeWidth="1.4" strokeLinecap="round" opacity="0.4" />
-            );
-          })}
-        </g>
-
-        {/* Emitterende puls-ringe fra kernen (dopamin) */}
-        {["0s", "-1.5s"].map((d) => (
-          <circle
-            key={`em${d}`}
-            className="mf-emit"
-            style={{ ...MID_ORIGIN, animationDelay: d }}
-            cx="230"
-            cy="84"
-            r="18"
+        {/* Input-kø: manuelle opgaver der venter */}
+        {STACK_Y.map((y, i) => (
+          <rect
+            key={`q${i}`}
+            className="mf-queue"
+            style={{ animationDelay: `${-i * 0.3}s` }}
+            x={26}
+            y={y}
+            width={34}
+            height={12}
+            rx={2.5}
             fill="none"
-            stroke={MOSS}
-            strokeWidth="1"
-          />
-        ))}
-
-        <circle
-          className="mf-ring-rev"
-          style={MID_ORIGIN}
-          cx="230"
-          cy="84"
-          r="42"
-          fill="none"
-          stroke={MOSS}
-          strokeWidth="1"
-          strokeDasharray="4 7"
-          opacity="0.5"
-        />
-
-        {/* Venstre: manuelt rod */}
-        {CHAOS.map((p, i) => (
-          <circle
-            key={`c${i}`}
-            className={p.c}
-            style={{ animationDelay: p.d }}
-            cx={p.x}
-            cy={p.y}
-            r="2"
-            fill={INK}
-            opacity="0.42"
-          />
-        ))}
-
-        {/* Konvergerende flow ind i maskinen */}
-        {INTAKE.map((p, i) => (
-          <circle
-            key={`in${i}`}
-            className={`mf-flow ${p.cls}`}
-            style={{ animationDelay: p.d }}
-            cx={p.x}
-            cy={p.y}
-            r="2.2"
-            fill={INK}
-          />
-        ))}
-
-        {/* Maskinens indre prik-ring roterer */}
-        <g className="mf-ring" style={MID_ORIGIN}>
-          {RING.map(([x, y], i) => (
-            <circle key={`r${i}`} cx={x} cy={y} r="2" fill={INK} opacity="0.5" />
-          ))}
-        </g>
-
-        {/* Vejrtrækkende kerne */}
-        <circle className="mf-breathe" style={MID_ORIGIN} cx="230" cy="84" r="3.4" fill={MOSS} />
-
-        {/* Divergerende flow ud af maskinen */}
-        {OUTPUT.map((p, i) => (
-          <circle
-            key={`out${i}`}
-            className={`mf-flow ${p.cls}`}
-            style={{ animationDelay: p.d }}
-            cx="252"
-            cy="84"
-            r="2.2"
-            fill={INK}
-          />
-        ))}
-
-        {/* Højre: resultatet - ordnede rækker */}
-        {RESULT.map((s, i) => (
-          <line
-            key={`res${i}`}
-            className="mf-land"
-            style={{ animationDelay: s.d }}
-            x1={s.x1}
-            y1={s.y}
-            x2={s.x2}
-            y2={s.y}
             stroke={INK}
-            strokeWidth="2"
+            strokeWidth={1}
+          />
+        ))}
+        {/* Feeders: opgaver trækkes ind i pipelinen */}
+        {[52, 100, 148].map((y, i) => (
+          <line key={`fi${i}`} x1={60} y1={y} x2={SPINE.x1} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.1} />
+        ))}
+
+        {/* Pipeline-spine */}
+        <line x1={SPINE.x1} y1={SPINE.y} x2={SPINE.x2} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.14} />
+
+        {/* Eksekverings-energi der sweeper gennem pipelinen */}
+        {["0s", "-1.2s"].map((d) => (
+          <line
+            key={`ex${d}`}
+            className="mf-exec"
+            style={{ animationDelay: d }}
+            x1={SPINE.x1}
+            y1={SPINE.y}
+            x2={SPINE.x2}
+            y2={SPINE.y}
+            pathLength={100}
+            stroke={MOSS}
+            strokeWidth={2.2}
             strokeLinecap="round"
-            opacity="0.5"
+            strokeDasharray="10 90"
+          />
+        ))}
+
+        {/* Trin-noder (moduler) der lyser op når de eksekverer */}
+        {NODES_X.map((x, i) => (
+          <g key={`n${i}`}>
+            <rect x={x - 11} y={89} width={22} height={22} rx={5} fill={PARCHMENT} stroke={INK} strokeWidth={1} opacity={0.55} />
+            <rect
+              className="mf-node"
+              style={{ animationDelay: NODE_DELAY[i] }}
+              x={x - 11}
+              y={89}
+              width={22}
+              height={22}
+              rx={5}
+              fill={MOSS}
+              opacity={0}
+            />
+          </g>
+        ))}
+
+        {/* Tokens der flyder gennem pipelinen */}
+        {TOKENS.map((d, i) => (
+          <circle
+            key={`t${i}`}
+            className="mf-pipe"
+            style={{ animationDelay: d }}
+            cx={SPINE.x1}
+            cy={SPINE.y}
+            r={2.8}
+            fill={MOSS}
+          />
+        ))}
+
+        {/* Feeders ud til resultaterne */}
+        {[52, 100, 148].map((y, i) => (
+          <line key={`fo${i}`} x1={SPINE.x2} y1={SPINE.y} x2={404} y2={y} stroke={INK} strokeWidth={1} opacity={0.1} />
+        ))}
+
+        {/* Output: færdige resultater der lyser i takt */}
+        {STACK_Y.map((y, i) => (
+          <rect
+            key={`r${i}`}
+            className="mf-result"
+            style={{ animationDelay: `${i * 0.2}s` }}
+            x={404}
+            y={y}
+            width={34}
+            height={12}
+            rx={2.5}
+            fill={MOSS}
+            opacity={0.18}
           />
         ))}
 
         {/* Etiketter */}
         {(
           [
-            [72, "MANUELT"],
-            [230, "MASKINEN"],
-            [388, "RESULTAT"],
+            [43, "MANUELT"],
+            [227, "AUTOMATISERING"],
+            [421, "FÆRDIGT"],
           ] as const
         ).map(([x, label]) => (
           <text
             key={label}
             x={x}
-            y="168"
+            y="178"
             textAnchor="middle"
             fill={SLATE}
-            style={{ fontSize: "9px", letterSpacing: "0.18em", fontWeight: 300, opacity: 0.6 }}
+            style={{ fontSize: "9px", letterSpacing: "0.16em", fontWeight: 300, opacity: 0.6 }}
           >
             {label}
           </text>

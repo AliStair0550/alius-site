@@ -146,106 +146,49 @@ body {
 }
 .portfolio-track::-webkit-scrollbar { display: none; }
 
-/* ── Machine flow (Hero): rod ind → maskine → orden ud ─────────────── */
-/* Venstre: uroligt manuelt rod */
-@keyframes mfJitterA {
-  0%, 100% { transform: translate(0, 0); }
-  25%      { transform: translate(3px, -4px); }
-  50%      { transform: translate(-2px, 3px); }
-  75%      { transform: translate(4px, 2px); }
-}
-@keyframes mfJitterB {
-  0%, 100% { transform: translate(0, 0); }
-  30%      { transform: translate(-4px, -2px); }
-  60%      { transform: translate(2px, 4px); }
-  85%      { transform: translate(-3px, -3px); }
-}
-@keyframes mfJitterC {
-  0%, 100% { transform: translate(0, 0); }
-  20%      { transform: translate(3px, 3px); }
-  55%      { transform: translate(-4px, 1px); }
-  80%      { transform: translate(1px, -4px); }
-}
-/* Flow: prikker trukket fra venstre ind i maskinen, og ud til højre */
-@keyframes mfIntake {
+/* ── Automatiserings-pipeline (Hero): opgaver → automatisk eksekvering → færdigt ── */
+/* Token der flyder gennem pipelinen */
+@keyframes mfPipe {
   0%   { transform: translateX(0);     opacity: 0; }
-  20%  { opacity: 0.5; }
-  85%  { opacity: 0.5; }
-  100% { transform: translateX(122px); opacity: 0; }
+  7%   { opacity: 1; }
+  93%  { opacity: 1; }
+  100% { transform: translateX(306px); opacity: 0; }
 }
-@keyframes mfOutput {
-  0%   { transform: translateX(0);     opacity: 0; }
-  18%  { opacity: 0.5; }
-  85%  { opacity: 0.5; }
-  100% { transform: translateX(120px); opacity: 0; }
-}
-/* Maskinen: kaos bliver til takt - rolig koncentrisk rotation */
-@keyframes mfRotate {
-  to { transform: rotate(360deg); }
-}
-/* Resultat: gjort arbejde lander i ordnede rækker */
-@keyframes mfLand {
-  0%, 6%    { opacity: 0; }
-  15%       { opacity: 0.5; }
-  84%       { opacity: 0.5; }
-  93%, 100% { opacity: 0; }
-}
+.mf-pipe { animation: mfPipe 2.4s cubic-bezier(0.45,0,0.55,1) infinite; }
 
-.mf-chaos-a { animation: mfJitterA 3.1s ease-in-out infinite; }
-.mf-chaos-b { animation: mfJitterB 2.6s ease-in-out infinite; }
-.mf-chaos-c { animation: mfJitterC 3.5s ease-in-out infinite; }
-.mf-intake  { animation: mfIntake 3.2s linear infinite; }
-.mf-output  { animation: mfOutput 3.2s linear infinite; }
-.mf-ring    { animation: mfRotate 18s linear infinite; }
-.mf-ring-rev { animation: mfRotate 24s linear infinite reverse; }
-.mf-land    { animation: mfLand 8s ease-in-out infinite; }
-
-/* Emitterende puls-ringe fra maskinens kerne (dopamin-puls) */
-@keyframes mfEmit {
-  0%   { transform: scale(0.45); opacity: 0; }
-  14%  { opacity: 0.5; }
-  100% { transform: scale(2.9); opacity: 0; }
+/* Trin lyser op i sekvens når eksekveringen passerer */
+@keyframes mfNode {
+  0%, 64%, 100% { opacity: 0; }
+  12%, 40%      { opacity: 1; }
 }
-.mf-emit { animation: mfEmit 3s ease-out infinite; }
+.mf-node { animation: mfNode 2.4s ease-in-out infinite; }
 
-/* Lysende flow der rejser langs forbindelseslinjen (pathLength = 100) */
-@keyframes mfTravel {
+/* Eksekverings-energi der sweeper langs pipelinen (pathLength = 100) */
+@keyframes mfExec {
   0%   { stroke-dashoffset: 100; opacity: 0; }
-  12%  { opacity: 0.9; }
-  85%  { opacity: 0.9; }
+  10%  { opacity: 1; }
+  85%  { opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 0; }
 }
-.mf-travel { animation: mfTravel 2.6s linear infinite; }
+.mf-exec { animation: mfExec 2.4s cubic-bezier(0.45,0,0.55,1) infinite; }
 
-/* Vejrtrækkende kerne */
-@keyframes mfBreathe {
-  0%, 100% { transform: scale(1);   opacity: 0.9; }
-  50%      { transform: scale(1.55); opacity: 0.45; }
+/* Resultat der lyser når arbejde er gjort */
+@keyframes mfResult {
+  0%, 52%, 100% { opacity: 0.18; }
+  68%, 92%      { opacity: 1; }
 }
-.mf-breathe { animation: mfBreathe 2.8s ease-in-out infinite; }
+.mf-result { animation: mfResult 2.4s ease-in-out infinite; }
 
-/* Konvergerende indtag (rod trækkes ind i maskinen som en tragt) */
-@keyframes mfInA { 0% { transform: translate(0,0); opacity: 0; } 18% { opacity: 0.6; } 100% { transform: translate(128px, 24px);  opacity: 0; } }
-@keyframes mfInB { 0% { transform: translate(0,0); opacity: 0; } 18% { opacity: 0.6; } 100% { transform: translate(128px, 0);     opacity: 0; } }
-@keyframes mfInC { 0% { transform: translate(0,0); opacity: 0; } 18% { opacity: 0.6; } 100% { transform: translate(128px, -24px); opacity: 0; } }
-/* Divergerende output (orden vifter ud til resultat-rækkerne) */
-@keyframes mfOutA { 0% { transform: translate(0,0); opacity: 0; } 22% { opacity: 0.6; } 100% { transform: translate(128px, -16px); opacity: 0; } }
-@keyframes mfOutB { 0% { transform: translate(0,0); opacity: 0; } 22% { opacity: 0.6; } 100% { transform: translate(128px, 0);     opacity: 0; } }
-@keyframes mfOutC { 0% { transform: translate(0,0); opacity: 0; } 22% { opacity: 0.6; } 100% { transform: translate(128px, 16px);  opacity: 0; } }
-.mf-in-a { animation: mfInA 3s linear infinite; }
-.mf-in-b { animation: mfInB 3s linear infinite; }
-.mf-in-c { animation: mfInC 3s linear infinite; }
-.mf-out-a { animation: mfOutA 3s linear infinite; }
-.mf-out-b { animation: mfOutB 3s linear infinite; }
-.mf-out-c { animation: mfOutC 3s linear infinite; }
+/* Opgave trukket ind fra køen */
+@keyframes mfQueue {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.85; }
+}
+.mf-queue { animation: mfQueue 2.4s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mf-chaos-a, .mf-chaos-b, .mf-chaos-c,
-  .mf-ring, .mf-ring-rev, .mf-land,
-  .mf-emit, .mf-travel, .mf-breathe,
-  .mf-in-a, .mf-in-b, .mf-in-c, .mf-out-a, .mf-out-b, .mf-out-c { animation: none !important; }
-  .mf-flow { animation: none !important; opacity: 0 !important; }
-  .mf-emit { opacity: 0 !important; }
+  .mf-pipe, .mf-node, .mf-exec, .mf-result, .mf-queue { animation: none !important; }
+  .mf-pipe, .mf-exec { opacity: 0 !important; }
 }
 
 /* ── Proces-sektion (Services): rotation, puls og levende ECG ── */
