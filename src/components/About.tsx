@@ -22,22 +22,23 @@ export default function About() {
 
         <div>
           <h3 className="font-[300] text-[1.4rem] text-ink mb-5">
-            Maskiner, der skaber værdi. Bygget af én, der forstår forretningen.
+            Maskiner, der skaber værdi.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Jeg hedder Ali, og jeg bygger Alius. Agentic AI, automatisering og
-            systemer, der fjerner manuelt arbejde og skaber overblik i danske
-            virksomheder.
+            Jeg hedder Ali, og jeg bygger ALIUS. Jeg udvikler AI agenter,
+            automatiseringer og digitale systemer, der fjerner manuelt arbejde,
+            skaber overblik og frigør tid til det, der skaber værdi i din
+            forretning.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Baggrunden er ikke et bureau: bank, legal tech hos Karnov og Molt
-            Wengel, fødevarebranchen og dansk eksport for Udenrigsministeriet.
-            Derfor bygger jeg ikke teknologi for teknologiens skyld. Jeg taler
-            både bestyrelse og backend.
+            Min baggrund er ikke et klassisk bureau. Jeg har arbejdet med
+            strategi, finans, legal tech, fødevarebranchen og dansk eksport. Jeg
+            bygger ikke teknologi for teknologiens skyld. Jeg bygger løsninger,
+            der løser konkrete forretningsproblemer.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            <strong className="font-[400] text-ink">Alt herunder er bygget af mig.</strong>{" "}
-            Det meste af det kører lige nu.
+            <strong className="font-[400] text-ink">Alt, du ser herunder, er udviklet af mig.</strong>{" "}
+            Det meste er allerede i drift.
           </p>
 
           <div className="flex flex-col">
