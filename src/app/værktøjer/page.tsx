@@ -177,7 +177,7 @@ export default function VaerktoejerPage() {
 
         <footer className="mt-24 pt-8 border-t border-ink/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="text-[11px] text-stone opacity-50 tracking-[0.05em]">
-            Alius &middot; Strategi, brand og teknologi. Bygget som ét.
+            Alius &middot; Vi bygger det, jeres forretning kører på.
           </div>
           <div className="flex gap-6">
             <a href="https://www.linkedin.com/in/alialfarhan/" target="_blank" rel="noopener noreferrer"

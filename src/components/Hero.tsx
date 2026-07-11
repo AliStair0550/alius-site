@@ -15,15 +15,12 @@ const CHAOS = [
   { x: 66, y: 108, c: "mf-chaos-b", d: "-0.3s" },
   { x: 98, y: 78, c: "mf-chaos-c", d: "-2.1s" },
   { x: 56, y: 104, c: "mf-chaos-a", d: "-1.5s" },
+  { x: 82, y: 82, c: "mf-chaos-b", d: "-2.7s" },
+  { x: 62, y: 90, c: "mf-chaos-c", d: "-0.9s" },
 ];
 
-// Prikker trukket ind i maskinen (venstre -> midte)
-const INTAKE = [
-  { x: 108, d: "0s" },
-  { x: 108, d: "-0.8s" },
-  { x: 108, d: "-1.6s" },
-  { x: 108, d: "-2.4s" },
-];
+// Prikker trukket ind i maskinen (venstre -> midte), jævn strøm
+const INTAKE = ["0s", "-0.64s", "-1.28s", "-1.92s", "-2.56s"];
 
 // Maskinen: ordnet koncentrisk ring af prikker (radius 24 om 230,84)
 const RING = [
@@ -35,12 +32,10 @@ const RING_INNER = [
 ] as const;
 
 // Prikker forlader maskinen i jævn takt (midte -> højre)
-const OUTPUT = [
-  { x: 252, d: "0s" },
-  { x: 252, d: "-0.8s" },
-  { x: 252, d: "-1.6s" },
-  { x: 252, d: "-2.4s" },
-];
+const OUTPUT = ["0s", "-0.64s", "-1.28s", "-1.92s", "-2.56s"];
+
+// Forbindelseslinjens geometri (genbruges til de rejsende highlights)
+const LINE = { x1: 24, y1: 84, x2: 436, y2: 84 };
 
 // Resultat: gjort arbejde i ordnede rækker (korte streger)
 const RESULT: { x1: number; x2: number; y: number; d: string }[] = [];
@@ -63,12 +58,43 @@ function MachineFlow() {
     >
       <svg viewBox="0 0 460 200" className="w-full h-auto" role="presentation">
         {/* Forbindelseslinje gennem maskinen */}
-        <line x1="24" y1="84" x2="436" y2="84" stroke={INK} strokeWidth="1" opacity="0.1" />
+        <line {...LINE} stroke={INK} strokeWidth="1" opacity="0.1" />
+
+        {/* Lysende flow der rejser hele vejen: rod -> maskine -> resultat */}
+        {["0s", "-1.3s"].map((d) => (
+          <line
+            key={`tr${d}`}
+            {...LINE}
+            className="mf-travel"
+            style={{ animationDelay: d }}
+            pathLength={100}
+            stroke={MOSS}
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeDasharray="7 93"
+          />
+        ))}
 
         {/* Cirkel-omrids: venstre + højre i ink, midten i moss (eneste accent) */}
         <circle cx="72" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
         <circle cx="388" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
         <circle cx="230" cy="84" r="52" fill="none" stroke={MOSS} strokeWidth="1" opacity="0.55" />
+
+        {/* Emitterende puls-ringe fra kernen (dopamin) */}
+        {["0s", "-1.5s"].map((d) => (
+          <circle
+            key={`em${d}`}
+            className="mf-emit"
+            style={{ ...MID_ORIGIN, animationDelay: d }}
+            cx="230"
+            cy="84"
+            r="18"
+            fill="none"
+            stroke={MOSS}
+            strokeWidth="1"
+          />
+        ))}
+
         <circle
           className="mf-ring-rev"
           style={MID_ORIGIN}
@@ -97,14 +123,14 @@ function MachineFlow() {
         ))}
 
         {/* Flow ind i maskinen */}
-        {INTAKE.map((p, i) => (
+        {INTAKE.map((d, i) => (
           <circle
             key={`in${i}`}
             className="mf-flow mf-intake"
-            style={{ animationDelay: p.d }}
-            cx={p.x}
+            style={{ animationDelay: d }}
+            cx="108"
             cy="84"
-            r="2"
+            r="2.2"
             fill={INK}
           />
         ))}
@@ -121,15 +147,18 @@ function MachineFlow() {
           ))}
         </g>
 
+        {/* Vejrtrækkende kerne */}
+        <circle className="mf-breathe" style={MID_ORIGIN} cx="230" cy="84" r="3.2" fill={MOSS} />
+
         {/* Flow ud af maskinen */}
-        {OUTPUT.map((p, i) => (
+        {OUTPUT.map((d, i) => (
           <circle
             key={`out${i}`}
             className="mf-flow mf-output"
-            style={{ animationDelay: p.d }}
-            cx={p.x}
+            style={{ animationDelay: d }}
+            cx="252"
             cy="84"
-            r="2"
+            r="2.2"
             fill={INK}
           />
         ))}

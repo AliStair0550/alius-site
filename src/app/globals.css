@@ -200,18 +200,70 @@ body {
 .mf-ring-rev { animation: mfRotate 24s linear infinite reverse; }
 .mf-land    { animation: mfLand 8s ease-in-out infinite; }
 
+/* Emitterende puls-ringe fra maskinens kerne (dopamin-puls) */
+@keyframes mfEmit {
+  0%   { transform: scale(0.45); opacity: 0; }
+  14%  { opacity: 0.5; }
+  100% { transform: scale(2.9); opacity: 0; }
+}
+.mf-emit { animation: mfEmit 3s ease-out infinite; }
+
+/* Lysende flow der rejser langs forbindelseslinjen (pathLength = 100) */
+@keyframes mfTravel {
+  0%   { stroke-dashoffset: 100; opacity: 0; }
+  12%  { opacity: 0.9; }
+  85%  { opacity: 0.9; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.mf-travel { animation: mfTravel 2.6s linear infinite; }
+
+/* Vejrtrækkende kerne */
+@keyframes mfBreathe {
+  0%, 100% { transform: scale(1);   opacity: 0.9; }
+  50%      { transform: scale(1.55); opacity: 0.45; }
+}
+.mf-breathe { animation: mfBreathe 2.8s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .mf-chaos-a, .mf-chaos-b, .mf-chaos-c,
-  .mf-ring, .mf-ring-rev, .mf-land { animation: none !important; }
+  .mf-ring, .mf-ring-rev, .mf-land,
+  .mf-emit, .mf-travel, .mf-breathe { animation: none !important; }
   .mf-flow { animation: none !important; opacity: 0 !important; }
+  .mf-emit { opacity: 0 !important; }
 }
 
-/* ── Proces-sektion (Services): langsom rotation af yderste prik-ring ── */
+/* ── Proces-sektion (Services): rotation, puls og levende ECG ── */
 @keyframes svcRotate {
   to { transform: rotate(360deg); }
 }
 .svc-rotate { animation: svcRotate 60s linear infinite; }
+.svc-rotate-rev { animation: svcRotate 40s linear infinite reverse; }
+
+/* Puls-ring: "fundet" (01) og maskinens kerne (02) */
+@keyframes svcPulse {
+  0%   { transform: scale(0.5); opacity: 0; }
+  16%  { opacity: 0.6; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.svc-pulse { animation: svcPulse 3s ease-out infinite; }
+
+/* Levende puls der rejser langs ECG-linjen (03), pathLength = 100 */
+@keyframes svcTravel {
+  0%   { stroke-dashoffset: 100; opacity: 0; }
+  10%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.svc-travel { animation: svcTravel 2.8s cubic-bezier(0.4,0,0.2,1) infinite; }
+
+/* Blødt blink på moss-diagonalen (03) */
+@keyframes svcGlow {
+  0%, 100% { opacity: 0.9; }
+  50%      { opacity: 0.35; }
+}
+.svc-glow { animation: svcGlow 2.6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .svc-rotate { animation: none !important; }
+  .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow { animation: none !important; }
+  .svc-pulse { opacity: 0 !important; }
 }

@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ALIUS - Brand. Strategi. Teknologi.",
+  title: "ALIUS - Vi bygger det, jeres forretning kører på.",
   description:
-    "Vi bygger stærke løsninger for virksomheder, der vil vokse, skille sig ud og skabe kundeoplevelser, der huskes.",
+    "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.",
   metadataBase: new URL("https://alius.dk"),
   openGraph: {
-    title: "ALIUS - Brand. Strategi. Teknologi. Bygget som ét.",
+    title: "ALIUS - Vi bygger det, jeres forretning kører på.",
     description:
-      "Vi bygger stærke løsninger for virksomheder, der vil vokse, skille sig ud og skabe kundeoplevelser, der huskes.",
+      "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.",
     url: "https://alius.dk",
     siteName: "ALIUS",
     images: [
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "ALIUS - Brand. Strategi. Teknologi. Bygget som ét.",
+        alt: "ALIUS - Vi bygger det, jeres forretning kører på.",
       },
     ],
     locale: "da_DK",
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ALIUS - Brand. Strategi. Teknologi. Bygget som ét.",
+    title: "ALIUS - Vi bygger det, jeres forretning kører på.",
     description:
-      "Vi bygger stærke løsninger for virksomheder, der vil vokse, skille sig ud og skabe kundeoplevelser, der huskes.",
+      "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.",
     images: ["/og.png"],
   },
 };

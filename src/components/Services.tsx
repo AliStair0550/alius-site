@@ -21,7 +21,7 @@ function ringDots(cx: number, cy: number, r: number, n: number, startDeg = 0): [
   return out;
 }
 
-// ── 01 KORTLÆG: spredt rod, tre fundne prikker (dobbeltring) ────────────────
+// ── 01 KORTLÆG: spredt rod, tre fundne prikker der pulser ("fundet") ────────
 const KORTLAEG: { x: number; y: number; hi?: boolean }[] = [
   { x: 60, y: 55 }, { x: 120, y: 45, hi: true }, { x: 180, y: 62 }, { x: 250, y: 48 },
   { x: 320, y: 58 }, { x: 390, y: 50 }, { x: 432, y: 82 },
@@ -32,6 +32,7 @@ const KORTLAEG: { x: number; y: number; hi?: boolean }[] = [
   { x: 55, y: 208 }, { x: 150, y: 205 }, { x: 220, y: 214 }, { x: 300, y: 206 },
   { x: 365, y: 216, hi: true }, { x: 420, y: 224 },
 ];
+const FOUND = KORTLAEG.filter((p) => p.hi);
 
 function KortlaegViz() {
   return (
@@ -47,12 +48,26 @@ function KortlaegViz() {
             <circle key={i} cx={p.x} cy={p.y} r={3.6} fill={GRAY} />
           )
         )}
+        {/* Emitterende puls på de fundne - i sekvens */}
+        {FOUND.map((p, i) => (
+          <circle
+            key={`f${i}`}
+            className="svc-pulse"
+            style={{ transformBox: "view-box", transformOrigin: `${p.x}px ${p.y}px`, animationDelay: `${i}s` }}
+            cx={p.x}
+            cy={p.y}
+            r={9}
+            fill="none"
+            stroke={MOSS}
+            strokeWidth={1}
+          />
+        ))}
       </svg>
     </div>
   );
 }
 
-// ── 02 BYG: ordnede koncentriske ringe, midte med dobbeltring ───────────────
+// ── 02 BYG: koncentriske ringe der roterer lagdelt, kerne der pulser ────────
 const BYG_INNER = ringDots(240, 130, 42, 8, 0);
 const BYG_MID = ringDots(240, 130, 82, 14, 12);
 const BYG_OUTER = ringDots(240, 130, 118, 20, 0);
@@ -64,15 +79,34 @@ function BygViz() {
         {/* Ydre ring tegnet som tynd Moss-cirkel */}
         <circle cx={240} cy={130} r={118} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.4} />
 
-        {/* Indre og midterste prik-ringe */}
+        {/* Kerne-puls (dopamin) */}
+        {["0s", "-1.5s"].map((d) => (
+          <circle
+            key={d}
+            className="svc-pulse"
+            style={{ ...CENTER, animationDelay: d }}
+            cx={240}
+            cy={130}
+            r={16}
+            fill="none"
+            stroke={MOSS}
+            strokeWidth={1}
+          />
+        ))}
+
+        {/* Indre prik-ring (statisk) */}
         {BYG_INNER.map(([x, y], i) => (
           <circle key={`i${i}`} cx={x} cy={y} r={3.6} fill={GRAY} />
         ))}
-        {BYG_MID.map(([x, y], i) => (
-          <circle key={`m${i}`} cx={x} cy={y} r={3.4} fill={GRAY} />
-        ))}
 
-        {/* Yderste prik-ring: langsom rotation (slås fra ved reduced-motion) */}
+        {/* Midterring roterer modsat - lagdelt mekanisme */}
+        <g className="svc-rotate-rev" style={CENTER}>
+          {BYG_MID.map(([x, y], i) => (
+            <circle key={`m${i}`} cx={x} cy={y} r={3.4} fill={GRAY} />
+          ))}
+        </g>
+
+        {/* Yderste prik-ring roterer langsomt (slås fra ved reduced-motion) */}
         <g className="svc-rotate" style={CENTER}>
           {BYG_OUTER.map(([x, y], i) => (
             <circle key={`o${i}`} cx={x} cy={y} r={3.2} fill={GRAY} />
@@ -87,32 +121,40 @@ function BygViz() {
   );
 }
 
-// ── 03 DRIFT: jævne rækker, diagonal i Moss, rolig puls-linje ───────────────
+// ── 03 DRIFT: jævne rækker, glødende diagonal, levende puls-linje ───────────
 const DRIFT_COLS = [90, 140, 190, 240, 290, 340, 390];
 const DRIFT_ROWS = [108, 146, 184, 222];
+const ECG = "M 55,58 H 190 C 205,58 208,42 222,42 C 236,42 239,58 253,58 H 425";
 
 function DriftViz() {
   return (
     <div className="h-[172px] overflow-hidden select-none">
       <svg viewBox={VB} className="w-full h-full" aria-hidden="true" role="presentation">
-        {/* Rolig puls-linje over rækkerne */}
+        {/* Rolig ECG-linje (svag) over rækkerne */}
+        <path d={ECG} fill="none" stroke={MOSS} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" opacity={0.28} />
+
+        {/* Levende puls der rejser hen over linjen */}
         <path
-          d="M 55,58 H 190 C 205,58 208,42 222,42 C 236,42 239,58 253,58 H 425"
+          d={ECG}
+          className="svc-travel"
+          pathLength={100}
           fill="none"
           stroke={MOSS}
-          strokeWidth={1.4}
+          strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity={0.7}
+          strokeDasharray="9 91"
         />
 
-        {/* Ordnede rækker; diagonal i Moss */}
+        {/* Ordnede rækker; diagonal i Moss der gløder */}
         {DRIFT_ROWS.map((y, r) =>
           DRIFT_COLS.map((x, c) => {
             const moss = r === c;
             return (
               <circle
                 key={`${r}-${c}`}
+                className={moss ? "svc-glow" : undefined}
+                style={moss ? { animationDelay: `${c * 0.3}s` } : undefined}
                 cx={x}
                 cy={y}
                 r={moss ? 4.4 : 3.6}
