@@ -930,6 +930,226 @@ Alius Personlighedsprofil`;
 }
 
 // ============================================================
+// GEVINSTBEREGNER
+
+type BeregnerResultEmailData = {
+  employees: number;
+  hoursPerWeek: number;
+  monthlySalary: number;
+  annualCost: number; // afrundet til nærmeste 1.000
+  totalHours: number;
+  fte: number;
+  bookUrl: string;
+  calcUrl: string;
+};
+
+function dkk(n: number): string {
+  return Math.round(n).toLocaleString("da-DK");
+}
+
+export function beregnerResultEmailHtml(data: BeregnerResultEmailData): string {
+  const fteRow =
+    data.fte > 0.5
+      ? row("Svarer til", `${data.fte.toFixed(1).replace(".", ",")} fuldtidsstillinger`)
+      : "";
+
+  return `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeres beregning</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1A1A1A;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px;">
+
+            <tr>
+              <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #1A1A1A; font-weight: 500;">
+                  ALIUS &middot; GEVINSTBEREGNER
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px; padding-bottom: 36px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #2D5F4A; font-weight: 500; margin-bottom: 16px;">
+                  Jeres beregning
+                </div>
+                <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 48px; line-height: 1.0; margin: 0 0 12px 0; color: #1A1A1A; letter-spacing: -0.02em;">
+                  ${dkk(data.annualCost)} kr om året
+                </h1>
+                <p style="font-size: 16px; line-height: 1.6; color: #4A4A4A; margin: 0;">
+                  bruger I på arbejde, en maskine gør bedre.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 36px; padding-bottom: 8px;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                  ${row("Medarbejdere med manuelt arbejde", String(data.employees))}
+                  ${row("Timer om ugen pr. medarbejder", String(data.hoursPerWeek))}
+                  ${row("Gennemsnitlig månedsløn", `${dkk(data.monthlySalary)} kr`)}
+                  ${row("Timer om året i alt", dkk(data.totalHours))}
+                  ${fteRow}
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 36px; padding-bottom: 8px;">
+                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 28px 0;">
+                  Vil I vide, hvilke tre arbejdsgange tallet gemmer sig i? Det er præcis det, vores kortlægning finder.
+                </p>
+                <a href="${data.bookUrl}"
+                   style="display: inline-block; background-color: #2D5F4A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                  Book 20 minutter &rarr;
+                </a>
+                <div style="margin-top: 20px;">
+                  <a href="${data.calcUrl}" style="font-size: 13px; color: #2D5F4A; text-decoration: none;">
+                    Juster tallene igen &rarr;
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px; margin-top: 8px; font-size: 12px; color: rgba(26,26,26,0.45); line-height: 1.6;">
+                Beregningen bruger 46 arbejdsuger, 1.628 årlige timer og 8 pct. arbejdsgiveromkostninger. Konservativt sat.
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6; letter-spacing: 0.03em;">
+                Sendt automatisk fra alius.dk/beregner &middot; Spørgsmål? Skriv til hej@alius.dk
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function beregnerResultEmailText(data: BeregnerResultEmailData): string {
+  const fteLine =
+    data.fte > 0.5 ? `Svarer til: ${data.fte.toFixed(1).replace(".", ",")} fuldtidsstillinger\n` : "";
+  return `Jeres beregning fra Alius
+
+${dkk(data.annualCost)} KR OM ÅRET
+bruger I på arbejde, en maskine gør bedre.
+
+Medarbejdere med manuelt arbejde: ${data.employees}
+Timer om ugen pr. medarbejder: ${data.hoursPerWeek}
+Gennemsnitlig månedsløn: ${dkk(data.monthlySalary)} kr
+Timer om året i alt: ${dkk(data.totalHours)}
+${fteLine}
+Vil I vide, hvilke tre arbejdsgange tallet gemmer sig i? Det er præcis det, vores kortlægning finder.
+
+Book 20 minutter: ${data.bookUrl}
+Juster tallene igen: ${data.calcUrl}
+
+Beregningen bruger 46 arbejdsuger, 1.628 årlige timer og 8 pct. arbejdsgiveromkostninger. Konservativt sat.
+Spørgsmål? Skriv til hej@alius.dk`;
+}
+
+// ============================================================
+
+type BeregnerLeadEmailData = {
+  email: string;
+  employees: number;
+  hoursPerWeek: number;
+  monthlySalary: number;
+  annualCost: number;
+  totalHours: number;
+  fte: number;
+};
+
+export function beregnerLeadEmailHtml(data: BeregnerLeadEmailData): string {
+  return `<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ny beregner-lead</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1A1A1A;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px;">
+
+            <tr>
+              <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+                <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #1A1A1A; font-weight: 500;">
+                  ALIUS &middot; GEVINSTBEREGNER
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 40px;">
+                <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #2D5F4A; font-weight: 500; margin-bottom: 16px;">
+                  Ny beregner-lead
+                </div>
+                <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 36px; line-height: 1.1; margin: 0 0 32px 0; color: #1A1A1A; letter-spacing: -0.01em;">
+                  ${dkk(data.annualCost)} kr om året
+                </h1>
+
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                  ${row("Email", `<a href="mailto:${escapeHtml(data.email)}" style="color: #2D5F4A; text-decoration: none;">${escapeHtml(data.email)}</a>`)}
+                  ${row("Medarbejdere med manuelt arbejde", String(data.employees))}
+                  ${row("Timer om ugen pr. medarbejder", String(data.hoursPerWeek))}
+                  ${row("Gennemsnitlig månedsløn", `${dkk(data.monthlySalary)} kr`)}
+                  ${row("Timer om året i alt", dkk(data.totalHours))}
+                  ${row("Fuldtidsstillinger", data.fte.toFixed(1).replace(".", ","))}
+                </table>
+
+                <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(26,26,26,0.1);">
+                  <a href="mailto:${escapeHtml(data.email)}?subject=Jeres beregning fra Alius"
+                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                    Svar til ${escapeHtml(data.email)} &rarr;
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-top: 48px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6; letter-spacing: 0.03em;">
+                Sendt automatisk fra alius.dk/beregner
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function beregnerLeadEmailText(data: BeregnerLeadEmailData): string {
+  return `Ny beregner-lead fra alius.dk/beregner
+
+Årlig omkostning: ${dkk(data.annualCost)} kr
+
+Email: ${data.email}
+Medarbejdere med manuelt arbejde: ${data.employees}
+Timer om ugen pr. medarbejder: ${data.hoursPerWeek}
+Gennemsnitlig månedsløn: ${dkk(data.monthlySalary)} kr
+Timer om året i alt: ${dkk(data.totalHours)}
+Fuldtidsstillinger: ${data.fte.toFixed(1).replace(".", ",")}
+
+Svar til leadet: ${data.email}`;
+}
+
+// ============================================================
 // Helpers
 
 function escapeHtml(s: string): string {

@@ -108,21 +108,21 @@ export default function Hero() {
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8 relative z-10">
-        Vi bygger digitale løsninger til virksomheder, der vil vokse på et stærkt fundament.
+        Vi finder de arbejdsgange, der bremser jer, og bygger maskinerne, der fjerner det manuelle arbejde. Fast pris. Fast deadline. I ejer alt.
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap relative z-10">
         <a
-          href="#ydelser"
+          href="#kontakt"
           className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
         >
-          Se ydelser
+          Book 20 minutter
         </a>
         <a
-          href="#værktøjer"
+          href="/beregner"
           className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 border border-clay text-ink hover:border-moss hover:text-moss transition-all"
         >
-          Prøv vores værktøjer
+          Beregn jeres gevinst
         </a>
       </div>
     </section>
