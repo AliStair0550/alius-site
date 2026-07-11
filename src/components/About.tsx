@@ -1,7 +1,7 @@
 const values = [
-  { label: "Klarhed", desc: "Vi fjerner kompleksitet." },
-  { label: "Håndværk", desc: "Vi bygger færre ting, men bygger dem rigtigt." },
-  { label: "Handling", desc: "Vi stopper, når løsningen virker." },
+  "Vi fjerner kompleksitet.",
+  "Vi bygger færre ting, men bygger dem rigtigt.",
+  "Vi stopper, når løsningen virker.",
 ];
 
 export default function About() {
@@ -43,17 +43,12 @@ export default function About() {
 
           <div className="flex flex-col">
             {values.map((v, i) => (
-              <div key={v.label} className="py-4 border-t border-clay/40 flex gap-5 items-start">
+              <div key={v} className="py-4 border-t border-clay/40 flex gap-5 items-start">
                 <span className="text-[8px] tracking-[0.15em] text-clay font-[300] pt-[3px] shrink-0 tabular-nums">
                   0{i + 1}
                 </span>
-                <div>
-                  <div className="font-fraunces font-light italic text-[1.05rem] text-ink mb-1">
-                    {v.label}
-                  </div>
-                  <div className="font-[200] text-[0.8rem] text-stone leading-[1.65]">
-                    {v.desc}
-                  </div>
+                <div className="font-fraunces font-light italic text-[1.05rem] text-ink">
+                  {v}
                 </div>
               </div>
             ))}

@@ -76,21 +76,33 @@ function MachineFlow() {
           />
         ))}
 
-        {/* Trin-noder (moduler) der lyser op når de eksekverer */}
+        {/* Trin-noder som små maskiner: antenne, øjne der blinker, mund */}
         {NODES_X.map((x, i) => (
           <g key={`n${i}`}>
-            <rect x={x - 11} y={89} width={22} height={22} rx={5} fill={PARCHMENT} stroke={INK} strokeWidth={1} opacity={0.55} />
+            {/* Antenne */}
+            <line x1={x} y1={89} x2={x} y2={83} stroke={INK} strokeWidth={1} opacity={0.45} />
+            <circle cx={x} cy={81.5} r={1.6} fill={INK} opacity={0.45} />
+            {/* Krop */}
+            <rect x={x - 12} y={89} width={24} height={22} rx={6} fill={PARCHMENT} stroke={INK} strokeWidth={1} opacity={0.6} />
+            {/* Aktiv-glød når maskinen eksekverer */}
             <rect
               className="mf-node"
               style={{ animationDelay: NODE_DELAY[i] }}
-              x={x - 11}
+              x={x - 12}
               y={89}
-              width={22}
+              width={24}
               height={22}
-              rx={5}
+              rx={6}
               fill={MOSS}
               opacity={0}
             />
+            {/* Øjne der blinker */}
+            <g className="mf-blink" style={{ transformBox: "view-box", transformOrigin: `${x}px 98px`, animationDelay: `${i * 0.55}s` }}>
+              <circle cx={x - 4.5} cy={98} r={1.7} fill={INK} opacity={0.75} />
+              <circle cx={x + 4.5} cy={98} r={1.7} fill={INK} opacity={0.75} />
+            </g>
+            {/* Mund/slot hvor opgaven går ind */}
+            <line x1={x - 4} y1={105} x2={x + 4} y2={105} stroke={INK} strokeWidth={1} strokeLinecap="round" opacity={0.4} />
           </g>
         ))}
 

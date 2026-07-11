@@ -188,8 +188,15 @@ body {
 }
 .mf-mess { animation: mfMess 3.8s ease-in-out infinite; }
 
+/* Maskinerne blinker - små intelligente væsner */
+@keyframes mfBlink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+.mf-blink { animation: mfBlink 3.4s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .mf-pipe, .mf-node, .mf-exec, .mf-result, .mf-mess { animation: none !important; }
+  .mf-pipe, .mf-node, .mf-exec, .mf-result, .mf-mess, .mf-blink { animation: none !important; }
   .mf-pipe, .mf-exec { opacity: 0 !important; }
 }
 

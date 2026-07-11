@@ -233,7 +233,7 @@ export function BeregnerApp() {
         </section>
 
         {/* Konvertering */}
-        <Conversion employees={employees} hoursPerWeek={hoursPerWeek} monthlySalary={monthlySalary} />
+        <Conversion />
 
         {/* Metode */}
         <p className="mt-20 pt-8 border-t border-clay/60 font-[200] text-[0.72rem] text-slate/80 leading-[1.7] max-w-[620px]">
@@ -245,130 +245,19 @@ export function BeregnerApp() {
 }
 
 // ── Konverterings-sektion ───────────────────────────────────────────
-type SendState = "idle" | "sending" | "sent" | "error";
-
-function Conversion({
-  employees,
-  hoursPerWeek,
-  monthlySalary,
-}: {
-  employees: number;
-  hoursPerWeek: number;
-  monthlySalary: number;
-}) {
-  const [emailOpen, setEmailOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [hp, setHp] = useState(""); // honeypot
-  const [state, setState] = useState<SendState>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (emailOpen) inputRef.current?.focus();
-  }, [emailOpen]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (state === "sending") return;
-    const trimmed = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setState("error");
-      setErrorMsg("Skriv en gyldig e-mail.");
-      return;
-    }
-    setState("sending");
-    setErrorMsg("");
-    try {
-      const res = await fetch("/api/beregner/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, employees, hoursPerWeek, monthlySalary, _hp: hp }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Kunne ikke sende. Prøv igen.");
-      }
-      setState("sent");
-    } catch (err) {
-      setState("error");
-      setErrorMsg(err instanceof Error ? err.message : "Kunne ikke sende. Prøv igen.");
-    }
-  }
-
+function Conversion() {
   return (
     <section className="mt-20 md:mt-28 pt-14 md:pt-16 border-t border-clay/60">
       <p className="font-[300] text-[1.25rem] md:text-[1.5rem] text-ink leading-[1.5] max-w-[600px] mb-10">
         Vil I vide, hvilke tre arbejdsgange tallet gemmer sig i? Det er præcis det, vores kortlægning finder.
       </p>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
-        <a
-          href={BOOK_HREF}
-          className="inline-flex justify-center font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-8 py-4 bg-moss text-parchment border border-moss hover:bg-moss-light hover:border-moss-light transition-all"
-        >
-          Book 20 minutter
-        </a>
-        {!emailOpen && state !== "sent" && (
-          <button
-            type="button"
-            onClick={() => setEmailOpen(true)}
-            className="inline-flex justify-center font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-8 py-4 border border-clay text-ink hover:border-moss hover:text-moss transition-all"
-          >
-            Få beregningen på mail
-          </button>
-        )}
-      </div>
-
-      {emailOpen && state !== "sent" && (
-        <form onSubmit={handleSubmit} className="mt-8 max-w-[440px]" noValidate>
-          <label htmlFor="beregner-email" className="block font-[200] text-[0.82rem] tracking-[0.02em] text-slate mb-3">
-            Jeres e-mail
-          </label>
-          {/* Honeypot - skjult for mennesker */}
-          <div aria-hidden className="absolute w-px h-px overflow-hidden -m-px" style={{ clip: "rect(0 0 0 0)" }}>
-            <label htmlFor="beregner-company">Virksomhed</label>
-            <input
-              id="beregner-company"
-              type="text"
-              tabIndex={-1}
-              autoComplete="off"
-              value={hp}
-              onChange={(e) => setHp(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              ref={inputRef}
-              id="beregner-email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="navn@firma.dk"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 min-w-0 bg-parchment border border-clay px-4 py-[14px] font-[300] text-[0.95rem] text-ink placeholder:text-slate/50 focus:border-moss focus:outline-none transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={state === "sending"}
-              className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-[14px] bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all disabled:opacity-60"
-            >
-              {state === "sending" ? "Sender" : "Send"}
-            </button>
-          </div>
-          {state === "error" && (
-            <p role="alert" className="mt-3 font-[200] text-[0.82rem] text-moss">
-              {errorMsg}
-            </p>
-          )}
-        </form>
-      )}
-
-      {state === "sent" && (
-        <p className="mt-8 font-[300] text-[1rem] text-ink leading-[1.7] max-w-[440px]" role="status">
-          Sendt. Tjek også jeres spam, maskiner ender der nogle gange.
-        </p>
-      )}
+      <a
+        href={BOOK_HREF}
+        className="inline-flex justify-center font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-8 py-4 bg-moss text-parchment border border-moss hover:bg-moss-light hover:border-moss-light transition-all"
+      >
+        Book 20 minutter
+      </a>
     </section>
   );
 }
