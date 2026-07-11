@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 
 // ── Farver (aflæst fra de tidligere illustrationer) ─────────────────────────
 const MOSS = "#2D5F4A"; // eneste accent
@@ -205,7 +204,7 @@ const columns = [
   },
   {
     label: "02 Byg",
-    heading: "Maskinen bygges på det, I allerede har.",
+    heading: "Vi bygger på det, I allerede har.",
     desc: "Vi forbinder jeres systemer og automatiserer de tre arbejdsgange. AI, hvor det skaber værdi. Aldrig hvor det skaber risiko.",
     Viz: BygViz,
   },
@@ -270,20 +269,6 @@ export default function Services() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-14 md:mt-16 text-center">
-        <Link
-          href="/automatisering"
-          className="group inline-flex items-center gap-2 font-[300] text-[0.92rem] text-ink tracking-[0.02em]"
-        >
-          <span className="border-b border-transparent group-hover:border-moss group-hover:text-moss transition-colors">
-            Se hele 30-dages forløbet
-          </span>
-          <span aria-hidden className="transition-transform group-hover:translate-x-1">
-            →
-          </span>
-        </Link>
       </div>
     </section>
   );

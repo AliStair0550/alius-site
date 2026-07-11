@@ -22,7 +22,7 @@ export default function About() {
 
         <div>
           <h3 className="font-[300] text-[1.4rem] text-ink mb-5">
-            Maskiner, der skaber værdi.
+            Automatisering, der skaber værdi.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
             Jeg hedder Ali, og jeg bygger ALIUS. Jeg udvikler AI agenter,
