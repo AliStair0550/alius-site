@@ -145,3 +145,73 @@ body {
   -ms-overflow-style: none;
 }
 .portfolio-track::-webkit-scrollbar { display: none; }
+
+/* ── Machine flow (Hero): rod ind → maskine → orden ud ─────────────── */
+/* Venstre: uroligt manuelt rod */
+@keyframes mfJitterA {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(3px, -4px); }
+  50%      { transform: translate(-2px, 3px); }
+  75%      { transform: translate(4px, 2px); }
+}
+@keyframes mfJitterB {
+  0%, 100% { transform: translate(0, 0); }
+  30%      { transform: translate(-4px, -2px); }
+  60%      { transform: translate(2px, 4px); }
+  85%      { transform: translate(-3px, -3px); }
+}
+@keyframes mfJitterC {
+  0%, 100% { transform: translate(0, 0); }
+  20%      { transform: translate(3px, 3px); }
+  55%      { transform: translate(-4px, 1px); }
+  80%      { transform: translate(1px, -4px); }
+}
+/* Flow: prikker trukket fra venstre ind i maskinen, og ud til højre */
+@keyframes mfIntake {
+  0%   { transform: translateX(0);     opacity: 0; }
+  20%  { opacity: 0.5; }
+  85%  { opacity: 0.5; }
+  100% { transform: translateX(122px); opacity: 0; }
+}
+@keyframes mfOutput {
+  0%   { transform: translateX(0);     opacity: 0; }
+  18%  { opacity: 0.5; }
+  85%  { opacity: 0.5; }
+  100% { transform: translateX(120px); opacity: 0; }
+}
+/* Maskinen: kaos bliver til takt - rolig koncentrisk rotation */
+@keyframes mfRotate {
+  to { transform: rotate(360deg); }
+}
+/* Resultat: gjort arbejde lander i ordnede rækker */
+@keyframes mfLand {
+  0%, 6%    { opacity: 0; }
+  15%       { opacity: 0.5; }
+  84%       { opacity: 0.5; }
+  93%, 100% { opacity: 0; }
+}
+
+.mf-chaos-a { animation: mfJitterA 3.1s ease-in-out infinite; }
+.mf-chaos-b { animation: mfJitterB 2.6s ease-in-out infinite; }
+.mf-chaos-c { animation: mfJitterC 3.5s ease-in-out infinite; }
+.mf-intake  { animation: mfIntake 3.2s linear infinite; }
+.mf-output  { animation: mfOutput 3.2s linear infinite; }
+.mf-ring    { animation: mfRotate 18s linear infinite; }
+.mf-ring-rev { animation: mfRotate 24s linear infinite reverse; }
+.mf-land    { animation: mfLand 8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-chaos-a, .mf-chaos-b, .mf-chaos-c,
+  .mf-ring, .mf-ring-rev, .mf-land { animation: none !important; }
+  .mf-flow { animation: none !important; opacity: 0 !important; }
+}
+
+/* ── Proces-sektion (Services): langsom rotation af yderste prik-ring ── */
+@keyframes svcRotate {
+  to { transform: rotate(360deg); }
+}
+.svc-rotate { animation: svcRotate 60s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-rotate { animation: none !important; }
+}

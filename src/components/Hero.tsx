@@ -1,95 +1,176 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import AliusLogo from "./AliusLogo";
 
-function BouncingCircles() {
-  const circleRefs = [
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null),
-  ];
+const INK = "#1A1A1A";
+const MOSS = "#2D5F4A";
+const SLATE = "#6B7B75";
 
-  const states = useRef([
-    { x: 0, y: 0, dx: 0, dy: 0 },
-    { x: 0, y: 0, dx: 0, dy: 0 },
-    { x: 0, y: 0, dx: 0, dy: 0 },
-  ]);
+// Venstre cirkel: manuelt rod - urolige prikker
+const CHAOS = [
+  { x: 50, y: 70, c: "mf-chaos-a", d: "0s" },
+  { x: 78, y: 60, c: "mf-chaos-b", d: "-0.6s" },
+  { x: 44, y: 90, c: "mf-chaos-c", d: "-1.2s" },
+  { x: 92, y: 96, c: "mf-chaos-a", d: "-1.8s" },
+  { x: 66, y: 108, c: "mf-chaos-b", d: "-0.3s" },
+  { x: 98, y: 78, c: "mf-chaos-c", d: "-2.1s" },
+  { x: 56, y: 104, c: "mf-chaos-a", d: "-1.5s" },
+];
 
-  useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    const boxW = isMobile ? 200 : 400;
-    const boxH = isMobile ? 220 : 420;
-    const size = isMobile ? 60 : 90;
+// Prikker trukket ind i maskinen (venstre -> midte)
+const INTAKE = [
+  { x: 108, d: "0s" },
+  { x: 108, d: "-0.8s" },
+  { x: 108, d: "-1.6s" },
+  { x: 108, d: "-2.4s" },
+];
 
-    const speeds = [0.35, 0.45, 0.3];
+// Maskinen: ordnet koncentrisk ring af prikker (radius 24 om 230,84)
+const RING = [
+  [254, 84], [247, 67], [230, 60], [213, 67],
+  [206, 84], [213, 101], [230, 108], [247, 101],
+] as const;
+const RING_INNER = [
+  [242, 84], [230, 72], [218, 84], [230, 96],
+] as const;
 
-    states.current = speeds.map((speed) => {
-      const angle = Math.random() * Math.PI * 2;
-      return {
-        x: Math.random() * (boxW - size),
-        y: Math.random() * (boxH - size),
-        dx: Math.cos(angle) * speed,
-        dy: Math.sin(angle) * speed,
-      };
-    });
+// Prikker forlader maskinen i jævn takt (midte -> højre)
+const OUTPUT = [
+  { x: 252, d: "0s" },
+  { x: 252, d: "-0.8s" },
+  { x: 252, d: "-1.6s" },
+  { x: 252, d: "-2.4s" },
+];
 
-    circleRefs.forEach((ref) => {
-      if (ref.current) {
-        ref.current.style.width = `${size}px`;
-        ref.current.style.height = `${size}px`;
-      }
-    });
+// Resultat: gjort arbejde i ordnede rækker (korte streger)
+const RESULT: { x1: number; x2: number; y: number; d: string }[] = [];
+[72, 84, 96].forEach((y, r) => {
+  [
+    { x1: 372, x2: 386 },
+    { x1: 390, x2: 404 },
+  ].forEach((col, c) => {
+    RESULT.push({ ...col, y, d: `${(r * 2 + c) * 0.4}s` });
+  });
+});
 
-    let raf: number;
-    const tick = () => {
-      states.current.forEach((s, i) => {
-        s.x += s.dx;
-        s.y += s.dy;
+const MID_ORIGIN = { transformBox: "view-box", transformOrigin: "230px 84px" } as const;
 
-        if (s.x <= 0) { s.x = 0; s.dx = Math.abs(s.dx); }
-        if (s.x >= boxW - size) { s.x = boxW - size; s.dx = -Math.abs(s.dx); }
-        if (s.y <= 0) { s.y = 0; s.dy = Math.abs(s.dy); }
-        if (s.y >= boxH - size) { s.y = boxH - size; s.dy = -Math.abs(s.dy); }
-
-        if (circleRefs[i].current) {
-          circleRefs[i].current!.style.transform = `translate(${s.x}px, ${s.y}px)`;
-        }
-      });
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const labels = ["BRAND", "STRATEGI", "TEKNOLOGI"];
-
+function MachineFlow() {
   return (
-    <div className="absolute right-[10%] top-[55%] -translate-y-1/2 w-[200px] h-[200px] md:w-[400px] md:h-[400px] z-0">
-      {circleRefs.map((ref, i) => (
-        <div
-          key={i}
-          ref={ref}
-          className="absolute will-change-transform flex flex-col items-center"
-        >
-          <div
-            className="rounded-full"
-            style={{
-              background: "#2D5F4A",
-              opacity: 0.12,
-              width: "100%",
-              aspectRatio: "1",
-            }}
+    <div
+      aria-hidden
+      className="mt-16 md:mt-0 w-full max-w-[380px] md:max-w-[460px] md:w-[46%] md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 z-0"
+    >
+      <svg viewBox="0 0 460 200" className="w-full h-auto" role="presentation">
+        {/* Forbindelseslinje gennem maskinen */}
+        <line x1="24" y1="84" x2="436" y2="84" stroke={INK} strokeWidth="1" opacity="0.1" />
+
+        {/* Cirkel-omrids: venstre + højre i ink, midten i moss (eneste accent) */}
+        <circle cx="72" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
+        <circle cx="388" cy="84" r="52" fill="none" stroke={INK} strokeWidth="1" opacity="0.16" />
+        <circle cx="230" cy="84" r="52" fill="none" stroke={MOSS} strokeWidth="1" opacity="0.55" />
+        <circle
+          className="mf-ring-rev"
+          style={MID_ORIGIN}
+          cx="230"
+          cy="84"
+          r="45"
+          fill="none"
+          stroke={MOSS}
+          strokeWidth="1"
+          strokeDasharray="4 7"
+          opacity="0.5"
+        />
+
+        {/* Venstre: manuelt rod */}
+        {CHAOS.map((p, i) => (
+          <circle
+            key={`c${i}`}
+            className={p.c}
+            style={{ animationDelay: p.d }}
+            cx={p.x}
+            cy={p.y}
+            r="2"
+            fill={INK}
+            opacity="0.42"
           />
-          <span
-            className="font-[200] text-slate uppercase text-center mt-2"
-            style={{ fontSize: "10px", letterSpacing: "0.1em", opacity: 0.5 }}
+        ))}
+
+        {/* Flow ind i maskinen */}
+        {INTAKE.map((p, i) => (
+          <circle
+            key={`in${i}`}
+            className="mf-flow mf-intake"
+            style={{ animationDelay: p.d }}
+            cx={p.x}
+            cy="84"
+            r="2"
+            fill={INK}
+          />
+        ))}
+
+        {/* Maskinen: ordnet rotation */}
+        <g className="mf-ring" style={MID_ORIGIN}>
+          {RING.map(([x, y], i) => (
+            <circle key={`r${i}`} cx={x} cy={y} r="2" fill={INK} opacity="0.5" />
+          ))}
+        </g>
+        <g className="mf-ring-rev" style={MID_ORIGIN}>
+          {RING_INNER.map(([x, y], i) => (
+            <circle key={`ri${i}`} cx={x} cy={y} r="1.6" fill={INK} opacity="0.38" />
+          ))}
+        </g>
+
+        {/* Flow ud af maskinen */}
+        {OUTPUT.map((p, i) => (
+          <circle
+            key={`out${i}`}
+            className="mf-flow mf-output"
+            style={{ animationDelay: p.d }}
+            cx={p.x}
+            cy="84"
+            r="2"
+            fill={INK}
+          />
+        ))}
+
+        {/* Højre: resultatet - ordnede rækker */}
+        {RESULT.map((s, i) => (
+          <line
+            key={`res${i}`}
+            className="mf-land"
+            style={{ animationDelay: s.d }}
+            x1={s.x1}
+            y1={s.y}
+            x2={s.x2}
+            y2={s.y}
+            stroke={INK}
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0.5"
+          />
+        ))}
+
+        {/* Etiketter */}
+        {(
+          [
+            [72, "MANUELT"],
+            [230, "MASKINEN"],
+            [388, "RESULTAT"],
+          ] as const
+        ).map(([x, label]) => (
+          <text
+            key={label}
+            x={x}
+            y="168"
+            textAnchor="middle"
+            fill={SLATE}
+            style={{ fontSize: "9px", letterSpacing: "0.18em", fontWeight: 300, opacity: 0.6 }}
           >
-            {labels[i]}
-          </span>
-        </div>
-      ))}
+            {label}
+          </text>
+        ))}
+      </svg>
     </div>
   );
 }
@@ -97,8 +178,6 @@ function BouncingCircles() {
 export default function Hero() {
   return (
     <section className="min-h-screen flex flex-col justify-center items-start px-6 md:px-8 pt-32 pb-20 max-w-[1100px] mx-auto relative">
-      <BouncingCircles />
-
       <div className="animate-fade-up delay-200 mb-10 relative z-10">
         <AliusLogo width={220} />
       </div>
@@ -125,6 +204,8 @@ export default function Hero() {
           Beregn jeres gevinst
         </a>
       </div>
+
+      <MachineFlow />
     </section>
   );
 }
