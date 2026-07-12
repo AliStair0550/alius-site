@@ -199,7 +199,7 @@ export default async function ForbrugPage() {
               )}
             </div>
             <p className="text-[13px] leading-[1.7] text-stone max-w-[580px]">
-              Forbrugertillidsindikatoren er et nettotal: andel positive svar minus andel negative svar. En positiv værdi betyder at flere er optimistiske end pessimistiske — og omvendt.
+              Forbrugertillidsindikatoren er et nettotal: andel positive svar minus andel negative svar. En positiv værdi betyder at flere er optimistiske end pessimistiske, og omvendt.
             </p>
           </section>
         ) : (
@@ -360,7 +360,7 @@ export default async function ForbrugPage() {
                   Hvad fortæller tallene?
                 </h2>
                 <p className="text-stone text-[14px] leading-[1.6] max-w-[560px]">
-                  Automatisk beregnede mønstre i forbrugertillidsdata — streaks, vendepunkter, og årssammenligninger.
+                  Automatisk beregnede mønstre i forbrugertillidsdata: streaks, vendepunkter, og årssammenligninger.
                 </p>
               </div>
             </div>

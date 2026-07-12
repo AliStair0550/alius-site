@@ -59,7 +59,7 @@ export default function Tools() {
           <div className="font-[400] text-[0.9rem] text-ink">Frihedstænkere</div>
           <div className="font-[200] text-[0.7rem] text-slate">Idébibliotek · 38 tænkere</div>
           <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
-            Et bibliotek over tænkere der har formet vores forståelse af frihed, magt og civilisation — fra Platon til Byung-Chul Han.
+            Et bibliotek over tænkere der har formet vores forståelse af frihed, magt og civilisation, fra Platon til Byung-Chul Han.
           </div>
           <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
             Udforsk &rarr;

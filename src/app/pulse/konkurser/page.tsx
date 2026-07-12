@@ -120,7 +120,7 @@ function formatPeriodRange(start: Date, end: Date): string {
   ];
   const startStr = `${months[start.getUTCMonth()]} ${start.getUTCFullYear() % 100}`;
   const endStr = `${months[end.getUTCMonth()]} ${end.getUTCFullYear() % 100}`;
-  return `${startStr}–${endStr}`;
+  return `${startStr}-${endStr}`;
 }
 
 export default async function KonkursPulsPage() {

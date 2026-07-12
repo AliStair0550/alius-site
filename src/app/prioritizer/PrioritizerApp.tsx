@@ -33,7 +33,7 @@ const MATURITY_CATS: MaturityCat[] = [
 const TABS: { id: TabId; label: string; desc: string }[] = [
   { id: "initiatives", label: "Initiativer",   desc: "Opret og vurder initiativer" },
   { id: "matrix",      label: "Matrix",         desc: "Se prioriteringskortet" },
-  { id: "plan",        label: "Handlingsplan",  desc: "Hvad gør vi — og hvornår" },
+  { id: "plan",        label: "Handlingsplan",  desc: "Hvad gør vi - og hvornår" },
 ];
 
 const SCORE_LABELS = {
@@ -110,7 +110,7 @@ function generateInsights(items: Computed[]): Insight[] {
     headline: `${top.name} er porteføljens stærkeste initiativ med en score på ${top.score.toFixed(2)}.`,
     body: `Impact ${top.impact}/5 og strategisk relevans ${top.strategic}/5 placerer dette øverst. ${
       top.quadrant === "quick-win"
-        ? `Med lav indsats (${top.effort}/5) er gevinsten tilgængelig hurtigt — anbefales igangsat i indeværende kvartal.`
+        ? `Med lav indsats (${top.effort}/5) er gevinsten tilgængelig hurtigt og bør igangsættes i indeværende kvartal.`
         : `Det kræver betydelig indsats (${top.effort}/5), men den strategiske gevinst er proportional og bør planlægges nu.`
     }`,
   });
@@ -584,8 +584,8 @@ function MatrixTab({ items }: { items: Computed[] }) {
 
 const TIER_INFO: Record<Tier, { title: string; sub: string; bg: string; accent: string }> = {
   1: { title:"Gør nu",        sub:"Score ≥ 3.5", bg:"bg-moss/5",  accent:"border-l-moss"    },
-  2: { title:"Næste kvartal", sub:"2.5 – 3.5",   bg:"bg-sand/60", accent:"border-l-clay"    },
-  3: { title:"Afvent",        sub:"1.5 – 2.5",   bg:"bg-fog/30",  accent:"border-l-clay/50" },
+  2: { title:"Næste kvartal", sub:"2.5 - 3.5",   bg:"bg-sand/60", accent:"border-l-clay"    },
+  3: { title:"Afvent",        sub:"1.5 - 2.5",   bg:"bg-fog/30",  accent:"border-l-clay/50" },
   4: { title:"Fravælg",       sub:"< 1.5",        bg:"bg-fog/15",  accent:"border-l-clay/30" },
 };
 
@@ -597,7 +597,7 @@ function PlanTab({ items }: { items: Computed[] }) {
     const tiers = ([1,2,3,4] as Tier[]).map(t => {
       const ti = items.filter(i => i.tier === t).sort((a,b) => b.score - a.score);
       if (!ti.length) return "";
-      return `${TIER_INFO[t].title.toUpperCase()}\n${ti.map(i => `  ${i.name} (${i.score.toFixed(1)}) — ${Q_META[i.quadrant].label}`).join("\n")}`;
+      return `${TIER_INFO[t].title.toUpperCase()}\n${ti.map(i => `  ${i.name} (${i.score.toFixed(1)}) - ${Q_META[i.quadrant].label}`).join("\n")}`;
     }).filter(Boolean).join("\n\n");
     const text = `HANDLINGSPLAN\n${new Date().toLocaleDateString("da-DK",{day:"numeric",month:"long",year:"numeric"})}\n\n${tiers}`;
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });

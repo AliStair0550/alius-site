@@ -4,7 +4,7 @@ import { PrioritizerApp } from "./PrioritizerApp";
 export const metadata: Metadata = {
   title: "Prioriteringsværktøj · Alius",
   description:
-    "Prioritér initiativer og projekter med evidensbaseret scoring. Impact/Effort-matrix, prioriteret roadmap og ledelsesrapport — bygget til ledelser og konsulentholdene.",
+    "Prioritér initiativer og projekter med evidensbaseret scoring. Impact/Effort-matrix, prioriteret roadmap og ledelsesrapport, bygget til ledelser og konsulentholdene.",
 };
 
 export default function PrioritizerPage() {

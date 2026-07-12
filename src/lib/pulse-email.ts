@@ -32,7 +32,7 @@ export async function sendPulseUpdateEmail(data: PulseUpdateData) {
 
   return sendEmail({
     to: EMAIL_TO,
-    subject: `Pulse opdateret: ${data.sourceName} – ${data.newDataPeriod}`,
+    subject: `Pulse opdateret: ${data.sourceName} - ${data.newDataPeriod}`,
     html: `<!DOCTYPE html>
 <html lang="da">
 <head><meta charset="UTF-8"><title>Pulse opdateret</title></head>

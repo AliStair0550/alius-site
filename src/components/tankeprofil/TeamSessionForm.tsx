@@ -158,7 +158,7 @@ function SuccessPanel({ result }: { result: SessionResult }) {
           Hold-link
         </div>
         <p className="text-stone text-[14px] leading-[1.6] mb-5 max-w-[440px]">
-          Del dette link med dit hold. Alle der klikker kan tage testen — ingen konto nødvendig.
+          Del dette link med dit hold. Alle der klikker kan tage testen, ingen konto nødvendig.
         </p>
         <div className="border border-ink/15 bg-parchment p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <span className="text-[13px] text-moss break-all flex-1 leading-[1.5]">{result.joinUrl}</span>

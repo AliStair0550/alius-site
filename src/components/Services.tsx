@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 // ── Farver (aflæst fra de tidligere illustrationer) ─────────────────────────
 const MOSS = "#2D5F4A"; // eneste accent
 const GRAY = "rgba(26,26,26,0.22)"; // dæmpede prikker
-const CAPS = "rgba(26,26,26,0.2)"; // caps-etiket i illustration (jf. IDENTITET · UDTRYK · OPLEVELSE)
 
 // Ens felt for alle tre illustrationer, så de tre skridt hænger visuelt sammen
 const VB = "0 0 480 260";
@@ -28,33 +27,24 @@ function KortlaegViz() {
   return (
     <div className="h-[172px] overflow-hidden select-none">
       <svg viewBox={VB} className="w-full h-full" aria-hidden="true" role="presentation">
-        {KORTLAEG.map((p, i) =>
-          p.hi ? (
-            <g key={i}>
-              <circle cx={p.x} cy={p.y} r={5} fill={MOSS} />
-              <circle cx={p.x} cy={p.y} r={10} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.55} />
-            </g>
-          ) : (
-            <circle key={i} cx={p.x} cy={p.y} r={3.6} fill={GRAY} />
-          )
-        )}
+        {/* Alle arbejdsgange - rå, uanalyserede */}
+        {KORTLAEG.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={3.6} fill={GRAY} />
+        ))}
 
-        {/* Scanner der sweeper hen over feltet */}
+        {/* Scanner der analyserer feltet fra venstre mod højre */}
         <line className="svc-sweep" x1={20} y1={28} x2={20} y2={236} stroke={MOSS} strokeWidth={1.5} strokeLinecap="round" />
 
-        {/* Emitterende puls på de fundne - i sekvens */}
+        {/* De tre med størst gevinst - opdages præcis når scanneren rammer dem */}
         {FOUND.map((p, i) => (
-          <circle
+          <g
             key={`f${i}`}
-            className="svc-pulse"
-            style={{ transformBox: "view-box", transformOrigin: `${p.x}px ${p.y}px`, animationDelay: `${i}s` }}
-            cx={p.x}
-            cy={p.y}
-            r={9}
-            fill="none"
-            stroke={MOSS}
-            strokeWidth={1}
-          />
+            className={`svc-found-${i + 1}`}
+            style={{ transformBox: "view-box", transformOrigin: `${p.x}px ${p.y}px` }}
+          >
+            <circle cx={p.x} cy={p.y} r={10.5} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.5} />
+            <circle cx={p.x} cy={p.y} r={5} fill={MOSS} />
+          </g>
         ))}
       </svg>
     </div>
@@ -175,18 +165,6 @@ function DriftViz() {
           ))
         )}
 
-        {/* Caps-etiket under */}
-        <text
-          x={240}
-          y={250}
-          textAnchor="middle"
-          fill={CAPS}
-          fontFamily="Jost,sans-serif"
-          fontSize={9}
-          letterSpacing={3}
-        >
-          OPPETID · OVERBLIK · KONTROL
-        </text>
       </svg>
     </div>
   );

@@ -212,7 +212,7 @@ export function approvalEmailHtml(data: ApprovalEmailData): string {
 
                 <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
                   <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
-                    Hold-link — send til deltagerne
+                    Hold-link - send til deltagerne
                   </div>
                   <a href="${data.joinUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.joinUrl}</a>
                 </div>
@@ -270,7 +270,7 @@ Jeres hold-session hos ${data.company} er klar.
 HOLD-LINK (send til deltagerne):
 ${data.joinUrl}
 
-Tag testen selv ved at klikke samme link — du deltager på præcis samme måde som holdet.
+Tag testen selv ved at klikke samme link, du deltager på præcis samme måde som holdet.
 
 ADMIN-PANEL (gem til dig selv):
 ${data.adminUrl}

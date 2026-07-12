@@ -1558,7 +1558,7 @@ export const THINKERS: Thinker[] = [
     quotes: [
       {
         text: "Civilizations die from suicide, not by murder.",
-        source: "A Study of History, 1934–1961",
+        source: "A Study of History, 1934-1961",
       },
       {
         text: "The supreme accomplishment is to blur the line between work and play.",
@@ -1610,7 +1610,7 @@ export const THINKERS: Thinker[] = [
     quotes: [
       {
         text: "The crisis consists precisely in the fact that the old is dying and the new cannot be born.",
-        source: "Prison Notebooks, 1929–1935",
+        source: "Prison Notebooks, 1929-1935",
       },
       {
         text: "Pessimism of the intellect, optimism of the will.",

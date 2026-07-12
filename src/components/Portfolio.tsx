@@ -85,7 +85,8 @@ const projects = [
 
 // ── Stemplet: digitalt stempelkort der fyldes stempel for stempel ──────────
 const STAMP_CREAM = "#EFE7D8";
-const STAMP_BROWN = "#2B221C";
+const STAMP_CARD = "#40332B"; // kortets flade (lidt lysere)
+const STAMP_BROWN = "#2B221C"; // mørk til kaffekop-ikoner
 const STAMP_MOSS = "#2D5F4A";
 const STAMP_COLS = [68, 114, 160, 206, 252];
 const STAMP_ROWS = [118, 152];
@@ -122,9 +123,9 @@ function StempletViz() {
 
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <svg viewBox="0 0 320 200" className="card-float" style={{ width: "76%", height: "auto" }} role="img" aria-label="Stemplet digitalt stempelkort">
+      <svg viewBox="0 0 320 200" className="card-float" style={{ width: "86%", height: "auto" }} role="img" aria-label="Stemplet digitalt stempelkort">
         {/* Kort */}
-        <rect x="24" y="20" width="272" height="160" rx="16" fill={STAMP_BROWN} />
+        <rect x="24" y="20" width="272" height="160" rx="16" fill={STAMP_CARD} />
 
         {/* Header: forretningsnavn */}
         <text x="44" y="48" fill={STAMP_CREAM} style={{ fontSize: "8px", letterSpacing: "0.09em", fontWeight: 500, opacity: 0.92 }}>COPENHAGEN</text>

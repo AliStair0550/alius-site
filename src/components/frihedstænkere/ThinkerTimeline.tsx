@@ -316,7 +316,7 @@ export function ThinkerTimeline({ thinkers }: Props) {
                 </text>
                 <text x={tipX - tw / 2 + PW + 14} y={tipY + 38} fontSize={8.5}
                   fill="rgba(249,247,242,0.35)" fontFamily="Jost, sans-serif" letterSpacing={1}>
-                  {formatYear(hoveredT.born)}{hoveredT.died ? ` — ${formatYear(hoveredT.died)}` : ""} · {hoveredT.era}
+                  {formatYear(hoveredT.born)}{hoveredT.died ? ` - ${formatYear(hoveredT.died)}` : ""} · {hoveredT.era}
                 </text>
                 <text x={tipX - tw / 2 + PW + 14} y={tipY + 64} fontSize={10.5}
                   fill={hoveredT.moodColors[1]} fontFamily="Fraunces, Georgia, serif"

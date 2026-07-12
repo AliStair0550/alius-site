@@ -98,7 +98,7 @@ const DASHBOARDS: Dashboard[] = [
     name: "Kommuner",
     tagline: "Hvad sker der i din kommune?",
     description:
-      "Befolkning, indkomst, ledighed og boligværdi samlet for alle 98 kommuner. Sorterbart og klikbart — kommune for kommune.",
+      "Befolkning, indkomst, ledighed og boligværdi samlet for alle 98 kommuner. Sorterbart og klikbart, kommune for kommune.",
     accentLabel: "Profiler",
     href: "/pulse/kommuner",
     sourceSlug: "dst-folk1am",
@@ -294,7 +294,7 @@ export default async function PulseHubPage() {
                   Hvad rykker sig?
                 </h2>
                 <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
-                  De stærkeste mønstre på tværs af alle datakilder — beregnet automatisk fra seneste tal.
+                  De stærkeste mønstre på tværs af alle datakilder, beregnet automatisk fra seneste tal.
                 </p>
               </div>
             </div>

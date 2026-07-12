@@ -473,7 +473,7 @@ export default async function KommuneProfilPage({ params }: Props) {
             {huseBarPoints.length >= 3 && (
               <div className="bg-fog/40 p-6 md:p-8">
                 <div className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50 mb-4">
-                  Enfamiliehuse — historisk markedsværdi
+                  Enfamiliehuse - historisk markedsværdi
                 </div>
                 <IncomeBars points={huseBarPoints} />
               </div>
