@@ -12,7 +12,7 @@ const projects = [
   {
     name: "Arbejdernes Landsbank",
     type: "Strategi · Projektledelse · Bank",
-    desc: "Strategisk projektleder på bankens vigtigste udviklingsinitiativer på tværs af forretning og IT. Jeg byggede bankens Cash Management-område op fra bunden og arbejdede med integrationen af PenSam Bank som del af den store omstrukturering mellem Arbejdernes Landsbank, Sydbank og Vestjysk Bank.",
+    desc: "Strategisk projektleder på centrale udviklingsinitiativer på tværs af forretning og IT. Var med til at opbygge bankens Cash Management område og arbejdede med integrationen af PenSam Bank som en del af omstruktureringen mellem Arbejdernes Landsbank, Sydbank og Vestjysk Bank.",
     image: "/al.jpg",
     link: "https://www.al-bank.dk",
     layout: "image-left" as const,
@@ -52,6 +52,14 @@ const projects = [
     overlay: { title: "Markus Brandt" },
     link: "https://markusbrandt.dk",
     layout: "image-left" as const,
+  },
+  {
+    name: "Sens Food",
+    type: "Iværksætteri · Produkt · Brand",
+    desc: "Grundlagde og drev fødevarevirksomhed med fokus på dressinger. Stod for produktudvikling, brandopbygning, marketing og forhandling af distributionsaftaler med danske supermarkedskæder.",
+    image: "/sensfood.jpg",
+    link: "https://sensfood.dk",
+    layout: "image-right" as const,
   },
   {
     name: "folka",
