@@ -244,3 +244,15 @@ body {
   .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow, .svc-sweep { animation: none !important; }
   .svc-pulse, .svc-sweep { opacity: 0 !important; }
 }
+
+/* ── Stemplet (portefølje): stempel der presses ned på kortet ── */
+@keyframes stampPop {
+  0%   { transform: scale(1.7); opacity: 0; }
+  55%  { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.stamp-pop { animation: stampPop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp-pop { animation: none !important; }
+}

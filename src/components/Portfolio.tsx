@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 const projects = [
   {
     name: "Karnov Group",
@@ -62,6 +64,14 @@ const projects = [
     layout: "image-right" as const,
   },
   {
+    name: "Stemplet",
+    type: "Platform · SaaS · Loyalitet",
+    desc: "Det digitale stempelkort, der bor i kundens Apple Wallet. Ét scan, og loyaliteten kører. Ingen app, ingen tilmelding. Bygget fra bunden.",
+    Viz: StempletViz,
+    link: "https://stemplet.alius.dk",
+    layout: "image-left" as const,
+  },
+  {
     name: "folka",
     type: "Platform · SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
@@ -73,7 +83,95 @@ const projects = [
   },
 ];
 
+// ── Stemplet: digitalt stempelkort der fyldes stempel for stempel ──────────
+const STAMP_CREAM = "#EFE7D8";
+const STAMP_BROWN = "#2B221C";
+const STAMP_MOSS = "#2D5F4A";
+const STAMP_COLS = [68, 114, 160, 206, 252];
+const STAMP_ROWS = [118, 152];
+const STAMPS = STAMP_ROWS.flatMap((y) => STAMP_COLS.map((x) => ({ x, y })));
+
+function CoffeeCup({ x, y, color }: { x: number; y: number; color: string }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M -4.5 -3 h 9 v 2.4 a 4.5 4.5 0 0 1 -9 0 z" fill={color} />
+      <path d="M 4.6 -2 a 2.4 2.4 0 0 1 0 4" fill="none" stroke={color} strokeWidth={1.3} />
+    </g>
+  );
+}
+
+function StempletViz() {
+  const [filled, setFilled] = useState(0);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      timer = setTimeout(() => setFilled(7), 0);
+      return () => clearTimeout(timer);
+    }
+    let n = 0;
+    const step = () => {
+      setFilled(n);
+      const delay = n >= 10 ? 1700 : 600;
+      n = n >= 10 ? 0 : n + 1;
+      timer = setTimeout(step, delay);
+    };
+    step();
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: "#EDE9E1" }}>
+      <svg viewBox="0 0 320 200" className="w-full h-full" role="img" aria-label="Stemplet digitalt stempelkort">
+        {/* Kort */}
+        <rect x="24" y="20" width="272" height="160" rx="16" fill={STAMP_BROWN} />
+
+        {/* Header: forretningsnavn */}
+        <text x="44" y="48" fill={STAMP_CREAM} style={{ fontSize: "8px", letterSpacing: "0.09em", fontWeight: 500, opacity: 0.92 }}>COPENHAGEN</text>
+        <text x="44" y="59" fill={STAMP_CREAM} style={{ fontSize: "8px", letterSpacing: "0.09em", fontWeight: 500, opacity: 0.92 }}>COFFEE LAB</text>
+
+        {/* Tæller */}
+        <text x="276" y="45" textAnchor="end" fill={STAMP_CREAM} style={{ fontSize: "6px", letterSpacing: "0.16em", opacity: 0.55 }}>STEMPLER</text>
+        <text x="276" y="61" textAnchor="end" fill={filled >= 10 ? STAMP_MOSS : STAMP_CREAM} style={{ fontSize: "14px", fontWeight: 500 }}>{filled}/10</text>
+
+        {/* Undertekst */}
+        <text x="44" y="82" fill={STAMP_CREAM} style={{ fontSize: "8px", opacity: 0.6 }}>10. kop er gratis</text>
+
+        {/* Stempler */}
+        {STAMPS.map((s, i) => {
+          const isReward = i === 9;
+          const on = i < filled;
+          return (
+            <g key={i}>
+              <circle
+                cx={s.x}
+                cy={s.y}
+                r={13}
+                fill="none"
+                stroke={STAMP_CREAM}
+                strokeWidth={1}
+                opacity={0.22}
+                strokeDasharray={isReward ? "2 2.6" : undefined}
+              />
+              {on && (
+                <g className="stamp-pop" style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}>
+                  <circle cx={s.x} cy={s.y} r={13} fill={isReward ? STAMP_MOSS : STAMP_CREAM} />
+                  <CoffeeCup x={s.x} y={s.y} color={isReward ? STAMP_CREAM : STAMP_BROWN} />
+                </g>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 function ProjectImage({ p }: { p: (typeof projects)[number] }) {
+  if ("Viz" in p && p.Viz) {
+    const Viz = p.Viz;
+    return <Viz />;
+  }
   if ("image" in p && p.image) {
     return (
       <>
