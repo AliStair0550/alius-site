@@ -101,8 +101,8 @@ function MachineFlow() {
               <circle cx={x - 4.5} cy={98} r={1.7} fill={INK} opacity={0.75} />
               <circle cx={x + 4.5} cy={98} r={1.7} fill={INK} opacity={0.75} />
             </g>
-            {/* Mund/slot hvor opgaven går ind */}
-            <line x1={x - 4} y1={105} x2={x + 4} y2={105} stroke={INK} strokeWidth={1} strokeLinecap="round" opacity={0.4} />
+            {/* Glad mund - lille smil */}
+            <path d={`M ${x - 4.5} 103.5 Q ${x} 108 ${x + 4.5} 103.5`} fill="none" stroke={INK} strokeWidth={1} strokeLinecap="round" opacity={0.5} />
           </g>
         ))}
 
@@ -172,7 +172,7 @@ export default function Hero() {
       </div>
 
       <h1 className="animate-fade-up delay-500 font-[300] text-[1.8rem] md:text-[2.2rem] text-ink leading-[1.35] tracking-[0.01em] max-w-[600px] mb-5 relative z-10">
-        Vi bygger digitale maskiner.
+        Automatisering, der arbejder for jer.
       </h1>
 
       <p className="animate-fade-up delay-700 font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[480px] mb-8 relative z-10">
