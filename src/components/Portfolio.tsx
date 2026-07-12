@@ -3,24 +3,24 @@
 const projects = [
   {
     name: "Karnov Group",
-    type: "Projektledelse - Platform",
-    desc: "Projektledelse og lancering af digital platform skræddersyet til det danske marked.",
+    type: "Strategi · Portefølje · Automatisering",
+    desc: "Fire år i krydsfeltet mellem strategi, kommerciel udvikling og eksekvering: koncernstrategi for Danmark og Sverige, automatisering af finansielle processer og rapportering på hele projektporteføljen. Fra business cases og produktanalyse til lancering af en juridisk platform på det danske marked.",
     image: "/karnov.png",
     link: "https://www.karnovgroup.com",
     layout: "image-right" as const,
   },
   {
     name: "Arbejdernes Landsbank",
-    type: "Projektledelse - Strategi",
-    desc: "Strategisk projektledelse af bankens vigtigste udviklingsinitiativer og opbygning af Cash Management-området.",
+    type: "Strategi · Projektledelse · Bank",
+    desc: "Strategisk projektleder på bankens vigtigste udviklingsinitiativer på tværs af forretning og IT. Jeg byggede bankens Cash Management-område op fra bunden og arbejdede med integrationen af PenSam Bank som del af den store omstrukturering mellem Arbejdernes Landsbank, Sydbank og Vestjysk Bank.",
     image: "/al.jpg",
     link: "https://www.al-bank.dk",
     layout: "image-left" as const,
   },
   {
     name: "SSTUDIO",
-    type: "Branding - Hjemmeside",
-    desc: "Branding af skønhedssalon i Skive. Ny visuel identitet, hjemmeside og digital strategi.",
+    type: "Branding · Web · Automatisering",
+    desc: "Branding af skønhedssalon i Skive: ny visuel identitet, hjemmeside og digital strategi. Herudover automatisering af finansiel rapportering og andre driftsnære leverancer.",
     image: "/stylister.avif",
     cornerLogo: "/sstudio-logo.svg",
     link: "https://sstudio.dk",
@@ -28,7 +28,7 @@ const projects = [
   },
   {
     name: "Smashii",
-    type: "Branding - Hjemmeside",
+    type: "Branding · Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
     bg: "#F5F2F0",
     logo: "/logo_darkpurple.png",
@@ -37,7 +37,7 @@ const projects = [
   },
   {
     name: "Cafe Christian IX",
-    type: "Hjemmeside - Design",
+    type: "Hjemmeside · Design",
     desc: "Restaurant-hjemmeside med online menu og mobil-optimering.",
     bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
@@ -46,7 +46,7 @@ const projects = [
   },
   {
     name: "Markus Brandt",
-    type: "Brandidentitet - Hjemmeside",
+    type: "Brandidentitet · Hjemmeside",
     desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
     image: "https://markusbrandt.dk/assets/hero.avif",
     overlay: { title: "Markus Brandt" },
@@ -55,7 +55,7 @@ const projects = [
   },
   {
     name: "folka",
-    type: "Platform - SaaS",
+    type: "Platform · SaaS",
     desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
     image: "/folka.jpg",
     tint: "moss",
