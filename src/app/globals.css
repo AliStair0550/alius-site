@@ -240,19 +240,35 @@ body {
 }
 .svc-sweep { animation: svcSweep 4.2s ease-in-out infinite; }
 
+/* Aktivitets-bølge i drift-grid (03): systemet kører løbende */
+@keyframes svcWave {
+  0%, 100% { opacity: 0.2; }
+  50%      { opacity: 0.55; }
+}
+.svc-wave { animation: svcWave 2.6s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow, .svc-sweep { animation: none !important; }
+  .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow, .svc-sweep, .svc-wave { animation: none !important; }
   .svc-pulse, .svc-sweep { opacity: 0 !important; }
 }
 
-/* ── Stemplet (portefølje): stempel der presses ned på kortet ── */
-@keyframes stampPop {
-  0%   { transform: scale(1.7); opacity: 0; }
-  55%  { transform: scale(0.9); opacity: 1; }
-  100% { transform: scale(1);   opacity: 1; }
+/* ── Stemplet (portefølje): kort der svæver, stempler der flyver ind ── */
+@keyframes stampFly {
+  0%   { transform: translateY(-24px) scale(1.45); opacity: 0; }
+  45%  { opacity: 1; }
+  66%  { transform: translateY(4px) scale(0.93); }
+  84%  { transform: translateY(-2px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 }
-.stamp-pop { animation: stampPop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.stamp-fly { animation: stampFly 500ms cubic-bezier(0.5, 1.5, 0.55, 1) both; }
+
+/* Kortet svæver let - virker levende */
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+.card-float { animation: cardFloat 3.8s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .stamp-pop { animation: none !important; }
+  .stamp-fly, .card-float { animation: none !important; }
 }

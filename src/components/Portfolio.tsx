@@ -20,13 +20,21 @@ const projects = [
     layout: "image-left" as const,
   },
   {
+    name: "Stemplet",
+    type: "Platform · SaaS · Loyalitet",
+    desc: "Det digitale stempelkort, der bor i kundens Apple Wallet. Ét scan, og loyaliteten kører. Ingen app, ingen tilmelding. Bygget fra bunden.",
+    Viz: StempletViz,
+    link: "https://stemplet.alius.dk",
+    layout: "image-right" as const,
+  },
+  {
     name: "SSTUDIO",
     type: "Branding · Web · Automatisering",
     desc: "Branding af skønhedssalon i Skive: ny visuel identitet, hjemmeside og digital strategi. Herudover automatisering af finansiel rapportering og andre driftsnære leverancer.",
     image: "/stylister.avif",
     cornerLogo: "/sstudio-logo.svg",
     link: "https://sstudio.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
   {
     name: "Smashii",
@@ -35,7 +43,7 @@ const projects = [
     bg: "#F5F2F0",
     logo: "/logo_darkpurple.png",
     link: "https://smashii.dk",
-    layout: "image-left" as const,
+    layout: "image-right" as const,
   },
   {
     name: "Cafe Christian IX",
@@ -44,7 +52,7 @@ const projects = [
     bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
   {
     name: "Markus Brandt",
@@ -53,7 +61,7 @@ const projects = [
     image: "https://markusbrandt.dk/assets/hero.avif",
     overlay: { title: "Markus Brandt" },
     link: "https://markusbrandt.dk",
-    layout: "image-left" as const,
+    layout: "image-right" as const,
   },
   {
     name: "Sens Food",
@@ -61,14 +69,6 @@ const projects = [
     desc: "Grundlagde og drev fødevarevirksomhed med fokus på dressinger. Stod for produktudvikling, brandopbygning, marketing og forhandling af distributionsaftaler med danske supermarkedskæder.",
     image: "/sensfood.jpg",
     link: "https://sensfood.dk",
-    layout: "image-right" as const,
-  },
-  {
-    name: "Stemplet",
-    type: "Platform · SaaS · Loyalitet",
-    desc: "Det digitale stempelkort, der bor i kundens Apple Wallet. Ét scan, og loyaliteten kører. Ingen app, ingen tilmelding. Bygget fra bunden.",
-    Viz: StempletViz,
-    link: "https://stemplet.alius.dk",
     layout: "image-left" as const,
   },
   {
@@ -121,8 +121,8 @@ function StempletViz() {
   }, []);
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center" style={{ background: "#EDE9E1" }}>
-      <svg viewBox="0 0 320 200" className="w-full h-full" role="img" aria-label="Stemplet digitalt stempelkort">
+    <div className="absolute inset-0 flex items-center justify-center">
+      <svg viewBox="0 0 320 200" className="card-float" style={{ width: "76%", height: "auto" }} role="img" aria-label="Stemplet digitalt stempelkort">
         {/* Kort */}
         <rect x="24" y="20" width="272" height="160" rx="16" fill={STAMP_BROWN} />
 
@@ -154,7 +154,7 @@ function StempletViz() {
                 strokeDasharray={isReward ? "2 2.6" : undefined}
               />
               {on && (
-                <g className="stamp-pop" style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}>
+                <g className="stamp-fly" style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}>
                   <circle cx={s.x} cy={s.y} r={13} fill={isReward ? STAMP_MOSS : STAMP_CREAM} />
                   <CoffeeCup x={s.x} y={s.y} color={isReward ? STAMP_CREAM : STAMP_BROWN} />
                 </g>

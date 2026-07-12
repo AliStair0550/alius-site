@@ -9,8 +9,8 @@ const PARCHMENT = "#FAF8F4";
 
 // Pipeline-geometri
 const SPINE = { x1: 74, x2: 380, y: 100 };
-const NODES_X = [110, 190, 270, 350];       // fire proces-trin
-const NODE_DELAY = ["-0.15s", "0.7s", "1.55s", "2.4s"]; // trin lyser i sekvens (3.4s cyklus)
+const NODES_X = [130, 227, 324];             // tre proces-trin
+const NODE_DELAY = ["0.1s", "1.2s", "2.3s"]; // trin lyser i sekvens (3.4s cyklus)
 const TOKENS = ["0s", "-0.68s", "-1.36s", "-2.04s", "-2.72s"]; // jævn strøm
 
 // Rod: manuelle opgaver der ligger skævt og spredt
@@ -143,9 +143,9 @@ function MachineFlow() {
         {/* Etiketter */}
         {(
           [
-            [43, "MANUELT"],
-            [227, "AUTOMATISERING"],
-            [421, "FÆRDIGT"],
+            [43, "KAOS"],
+            [227, "AGENTER"],
+            [421, "KLARHED"],
           ] as const
         ).map(([x, label]) => (
           <text

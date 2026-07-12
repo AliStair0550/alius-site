@@ -133,20 +133,21 @@ function BygViz() {
 
 // ── 03 DRIFT: kørende system - ordnet grid, live-indikator og ECG-puls ──────
 const DRIFT_COLS = [90, 140, 190, 240, 290, 340, 390];
-const DRIFT_ROWS = [108, 146, 184, 222];
-const ECG = "M 55,58 H 190 C 205,58 208,42 222,42 C 236,42 239,58 253,58 H 425";
+const DRIFT_ROWS = [112, 150, 188, 226];
+// Hjerteslag-monitor: flad baseline med to beats
+const ECG = "M 48 62 H 152 L 160 42 L 168 84 L 176 62 H 300 L 308 42 L 316 84 L 324 62 H 432";
 
 function DriftViz() {
   return (
     <div className="h-[172px] overflow-hidden select-none">
       <svg viewBox={VB} className="w-full h-full" aria-hidden="true" role="presentation">
-        {/* Live-indikator ved linjens start */}
-        <circle className="svc-glow" cx={44} cy={58} r={3} fill={MOSS} />
+        {/* Live-status */}
+        <circle className="svc-glow" cx={50} cy={34} r={3} fill={MOSS} />
+        <text x={60} y={37.5} fill={MOSS} fontFamily="Jost,sans-serif" fontSize={8} letterSpacing={2} opacity={0.8}>LIVE</text>
 
-        {/* Rolig ECG-linje (svag) over rækkerne */}
+        {/* Hjerteslag-monitor (svag baseline) */}
         <path d={ECG} fill="none" stroke={MOSS} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" opacity={0.28} />
-
-        {/* Levende puls der rejser hen over linjen */}
+        {/* Puls-cursor der rejser hen over monitoren */}
         <path
           d={ECG}
           className="svc-travel"
@@ -156,28 +157,25 @@ function DriftViz() {
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeDasharray="9 91"
+          strokeDasharray="7 93"
         />
 
-        {/* Ordnede rækker; diagonal i Moss der gløder */}
+        {/* Kørende system: grid med aktivitets-bølge kolonne for kolonne */}
         {DRIFT_ROWS.map((y, r) =>
-          DRIFT_COLS.map((x, c) => {
-            const moss = r === c;
-            return (
-              <circle
-                key={`${r}-${c}`}
-                className={moss ? "svc-glow" : undefined}
-                style={moss ? { animationDelay: `${c * 0.3}s` } : undefined}
-                cx={x}
-                cy={y}
-                r={moss ? 4.4 : 3.6}
-                fill={moss ? MOSS : GRAY}
-              />
-            );
-          })
+          DRIFT_COLS.map((x, c) => (
+            <circle
+              key={`${r}-${c}`}
+              className="svc-wave"
+              style={{ animationDelay: `${c * 0.28}s` }}
+              cx={x}
+              cy={y}
+              r={3.6}
+              fill={GRAY}
+            />
+          ))
         )}
 
-        {/* Caps-etiket under, samme stil som den gamle sektion */}
+        {/* Caps-etiket under */}
         <text
           x={240}
           y={250}
@@ -187,7 +185,7 @@ function DriftViz() {
           fontSize={9}
           letterSpacing={3}
         >
-          IKKE AFHÆNGIGE AF OS · MEDMINDRE I VÆLGER DET
+          OPPETID · OVERBLIK · KONTROL
         </text>
       </svg>
     </div>
@@ -235,11 +233,11 @@ export default function Services() {
   return (
     <section
       id="ydelser"
-      aria-label="Fra manuelt arbejde til maskine i tre skridt"
+      aria-label="Fra manuelt arbejde til automatiseret maskine"
       className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto"
     >
       <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-2 leading-[1.3]">
-        Fra manuelt arbejde til automatiseret maskine. I tre skridt.
+        Fra manuelt arbejde til automatiseret maskine.
       </h2>
       <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12">
         Tre arbejdsgange. 30 dage. Fast pris.
