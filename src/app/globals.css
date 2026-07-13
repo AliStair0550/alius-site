@@ -365,7 +365,28 @@ body {
 }
 .stamp-sheen { animation: stampSheen 5.5s ease-in-out infinite; }
 
+/* Dopamin-fejring når det 8. stempel lander */
+@keyframes stampSpark {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.35); }
+}
+.stamp-spark { animation: stampSpark 1100ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* "Ding": tydelig ring der springer ud fra det optjente stempel */
+@keyframes stampRewardBurst {
+  0%   { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(2.7); }
+}
+.stamp-reward-burst { animation: stampRewardBurst 850ms ease-out both; }
+
+@keyframes stampCheer {
+  0%   { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.08); }
+}
+.stamp-cheer { animation: stampCheer 1000ms ease-out both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .card-float, .stamp-sheen, .stamp-reward-glow { animation: none !important; }
+  .card-float, .stamp-sheen, .stamp-reward-glow, .stamp-spark, .stamp-cheer, .stamp-reward-burst { animation: none !important; }
   .stamp-mark { transition: none !important; }
 }
