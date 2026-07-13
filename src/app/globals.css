@@ -119,6 +119,27 @@ body {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* Sektionens prik trækker vejret roligt - inviterer blidt */
+@keyframes matchBreathe {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.12); opacity: 0.82; }
+}
+.match-breathe { animation: matchBreathe 3.4s ease-in-out infinite; }
+/* Invitations-ring om hjertet i hvile */
+@keyframes matchInvite {
+  0%   { transform: scale(1);    opacity: 0.5; }
+  70%  { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+/* Elegante signal-ringe der breder sig ud ved match */
+@keyframes matchSignal {
+  0%   { transform: scale(0.5); opacity: 0.7; }
+  100% { transform: scale(3.4); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match-breathe { animation: none !important; }
+}
 
 .animate-fade-up {
   opacity: 0;
@@ -146,58 +167,71 @@ body {
 }
 .portfolio-track::-webkit-scrollbar { display: none; }
 
-/* ── Automatiserings-pipeline (Hero): rod → automatisk eksekvering → struktur ── */
-/* Token der flyder gennem pipelinen (roligt tempo) */
-@keyframes mfPipe {
-  0%   { transform: translateX(0);     opacity: 0; }
-  7%   { opacity: 1; }
-  93%  { opacity: 1; }
+/* ── Automatiserings-pipeline (Hero): kaos ind, intelligent proces, klarhed ud ── */
+/* Arbejdspakken bevæger sig og gør ophold ved hver agent (absorberes, processeres, sendes videre) */
+@keyframes mfPacket {
+  0%   { transform: translateX(0px);   opacity: 0; }
+  4%   { opacity: 1; }
+  15%  { transform: translateX(56px); }
+  23%  { transform: translateX(56px); }
+  42%  { transform: translateX(153px); }
+  50%  { transform: translateX(153px); }
+  73%  { transform: translateX(250px); }
+  81%  { transform: translateX(250px); }
+  96%  { opacity: 1; }
   100% { transform: translateX(306px); opacity: 0; }
 }
-.mf-pipe { animation: mfPipe 3.4s cubic-bezier(0.45,0,0.55,1) infinite; }
+.mf-packet { animation: mfPacket 4.6s cubic-bezier(0.65,0,0.35,1) infinite; }
 
-/* Trin lyser op i sekvens når eksekveringen passerer */
-@keyframes mfNode {
-  0%, 64%, 100% { opacity: 0; }
-  12%, 40%      { opacity: 1; }
-}
-.mf-node { animation: mfNode 3.4s ease-in-out infinite; }
+/* Hver agent lyser præcis når pakken gør ophold hos den (synkroniseret intelligens) */
+@keyframes mfAgent1 { 0%, 13% { opacity: 0; } 18%, 22% { opacity: 1; } 28%, 100% { opacity: 0; } }
+@keyframes mfAgent2 { 0%, 40% { opacity: 0; } 45%, 49% { opacity: 1; } 55%, 100% { opacity: 0; } }
+@keyframes mfAgent3 { 0%, 71% { opacity: 0; } 76%, 80% { opacity: 1; } 86%, 100% { opacity: 0; } }
+.mf-agent-1 { animation: mfAgent1 4.6s ease-in-out infinite; }
+.mf-agent-2 { animation: mfAgent2 4.6s ease-in-out infinite; }
+.mf-agent-3 { animation: mfAgent3 4.6s ease-in-out infinite; }
 
-/* Eksekverings-energi der sweeper langs pipelinen (pathLength = 100) */
-@keyframes mfExec {
-  0%   { stroke-dashoffset: 100; opacity: 0; }
-  10%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
-}
-.mf-exec { animation: mfExec 3.4s cubic-bezier(0.45,0,0.55,1) infinite; }
+/* Proces-ring der breder sig ud mens agenten arbejder */
+@keyframes mfRing1 { 0%, 14% { opacity: 0; transform: scale(0.55); } 18% { opacity: 0.5; } 30%, 100% { opacity: 0; transform: scale(1.9); } }
+@keyframes mfRing2 { 0%, 41% { opacity: 0; transform: scale(0.55); } 45% { opacity: 0.5; } 57%, 100% { opacity: 0; transform: scale(1.9); } }
+@keyframes mfRing3 { 0%, 72% { opacity: 0; transform: scale(0.55); } 76% { opacity: 0.5; } 88%, 100% { opacity: 0; transform: scale(1.9); } }
+.mf-ring-1 { animation: mfRing1 4.6s ease-out infinite; }
+.mf-ring-2 { animation: mfRing2 4.6s ease-out infinite; }
+.mf-ring-3 { animation: mfRing3 4.6s ease-out infinite; }
 
-/* Struktur: færdige resultater der lyser i takt (bliver stående som orden) */
-@keyframes mfResult {
-  0%, 52%, 100% { opacity: 0.4; }
-  68%, 92%      { opacity: 1; }
-}
-.mf-result { animation: mfResult 3.4s ease-in-out infinite; }
-
-/* Rod: manuelle opgaver der ligger uroligt */
-@keyframes mfMess {
+/* Rod: manuelle opgaver der driver roligt (premium, ikke nervøst) */
+@keyframes mfDrift {
   0%, 100% { transform: translate(0, 0); }
-  25%      { transform: translate(1.2px, -1.4px); }
-  50%      { transform: translate(-1.4px, 1px); }
-  75%      { transform: translate(1px, 1.2px); }
+  50%      { transform: translate(0.8px, -1.4px); }
 }
-.mf-mess { animation: mfMess 3.8s ease-in-out infinite; }
+.mf-drift { animation: mfDrift 6s ease-in-out infinite; }
 
-/* Maskinerne blinker - små intelligente væsner */
-@keyframes mfBlink {
-  0%, 90%, 100% { transform: scaleY(1); }
-  95%           { transform: scaleY(0.1); }
+/* Data trækkes ind i pipelinen / færdige resultater strømmer ud */
+@keyframes mfIntake { to { stroke-dashoffset: -24; } }
+.mf-intake { animation: mfIntake 1.4s linear infinite; }
+@keyframes mfOutflow { to { stroke-dashoffset: 24; } }
+.mf-outflow { animation: mfOutflow 1.6s linear infinite; }
+
+/* Struktur: færdige resultater lyser i sekvens efter processering */
+@keyframes mfResult {
+  0%, 80%  { opacity: 0.35; }
+  88%, 98% { opacity: 1; }
+  100%     { opacity: 0.35; }
 }
-.mf-blink { animation: mfBlink 3.4s ease-in-out infinite; }
+.mf-result { animation: mfResult 4.6s ease-in-out infinite; }
+
+/* Agenterne blinker - små intelligente væsner */
+@keyframes mfBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96%           { transform: scaleY(0.1); }
+}
+.mf-blink { animation: mfBlink 4.6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mf-pipe, .mf-node, .mf-exec, .mf-result, .mf-mess, .mf-blink { animation: none !important; }
-  .mf-pipe, .mf-exec { opacity: 0 !important; }
+  .mf-packet, .mf-agent-1, .mf-agent-2, .mf-agent-3,
+  .mf-ring-1, .mf-ring-2, .mf-ring-3,
+  .mf-drift, .mf-intake, .mf-outflow, .mf-result, .mf-blink { animation: none !important; }
+  .mf-packet, .mf-ring-1, .mf-ring-2, .mf-ring-3 { opacity: 0 !important; }
 }
 
 /* ── Proces-sektion (Services): rotation, puls og levende ECG ── */
@@ -240,28 +274,48 @@ body {
 }
 .svc-sweep { animation: svcSweep 4.2s linear infinite; }
 
-/* De tre arbejdsgange opdages præcis når scanneren passerer dem (01) */
+/* De tre arbejdsgange låses fast med et lille spring når scanneren rammer dem (01) */
 @keyframes svcFound1 {
-  0%, 20%  { opacity: 0; transform: scale(0.3); }
-  25%      { opacity: 1; transform: scale(1.25); }
-  30%, 93% { opacity: 1; transform: scale(1); }
+  0%, 20%  { opacity: 0; transform: scale(0.2); }
+  25%      { opacity: 1; transform: scale(1.35); }
+  30%      { transform: scale(0.92); }
+  35%, 93% { opacity: 1; transform: scale(1); }
   100%     { opacity: 0; transform: scale(1); }
 }
 @keyframes svcFound2 {
-  0%, 44%  { opacity: 0; transform: scale(0.3); }
-  49%      { opacity: 1; transform: scale(1.25); }
-  54%, 93% { opacity: 1; transform: scale(1); }
+  0%, 44%  { opacity: 0; transform: scale(0.2); }
+  49%      { opacity: 1; transform: scale(1.35); }
+  54%      { transform: scale(0.92); }
+  59%, 93% { opacity: 1; transform: scale(1); }
   100%     { opacity: 0; transform: scale(1); }
 }
 @keyframes svcFound3 {
-  0%, 77%  { opacity: 0; transform: scale(0.3); }
-  82%      { opacity: 1; transform: scale(1.25); }
-  87%, 93% { opacity: 1; transform: scale(1); }
+  0%, 77%  { opacity: 0; transform: scale(0.2); }
+  82%      { opacity: 1; transform: scale(1.35); }
+  87%      { transform: scale(0.92); }
+  90%, 96% { opacity: 1; transform: scale(1); }
   100%     { opacity: 0; transform: scale(1); }
 }
 .svc-found-1 { animation: svcFound1 4.2s linear infinite; }
 .svc-found-2 { animation: svcFound2 4.2s linear infinite; }
 .svc-found-3 { animation: svcFound3 4.2s linear infinite; }
+
+/* De tre fund forbindes til ét genkendt sæt (01) - mønster-genkendelse */
+@keyframes svcLink {
+  0%, 84%  { opacity: 0; stroke-dashoffset: 100; }
+  88%      { opacity: 0.5; }
+  95%      { stroke-dashoffset: 0; opacity: 0.5; }
+  100%     { opacity: 0; stroke-dashoffset: 0; }
+}
+.svc-link { animation: svcLink 4.2s ease-in-out infinite; }
+
+/* Levende forbindelser i netværket (02): systemerne udveksler data */
+@keyframes svcFlowIn { to { stroke-dashoffset: -20; } }
+.svc-flow-in { animation: svcFlowIn 1.6s linear infinite; }
+
+/* Maskinens kerne trækker vejret roligt (02) */
+@keyframes svcHubBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.svc-hub-breath { animation: svcHubBreath 3.4s ease-in-out infinite; }
 
 /* Aktivitets-bølge i drift-grid (03): systemet kører løbende */
 @keyframes svcWave {
@@ -272,27 +326,46 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .svc-rotate, .svc-rotate-rev, .svc-pulse, .svc-travel, .svc-glow, .svc-sweep, .svc-wave,
-  .svc-found-1, .svc-found-2, .svc-found-3 { animation: none !important; }
-  .svc-pulse, .svc-sweep { opacity: 0 !important; }
+  .svc-found-1, .svc-found-2, .svc-found-3, .svc-link, .svc-flow-in, .svc-hub-breath { animation: none !important; }
+  .svc-pulse, .svc-sweep, .svc-link { opacity: 0 !important; }
 }
 
-/* ── Stemplet (portefølje): kort der svæver, stempler der flyver ind ── */
-@keyframes stampFly {
-  0%   { transform: translateY(-24px) scale(1.45); opacity: 0; }
-  45%  { opacity: 1; }
-  66%  { transform: translateY(4px) scale(0.93); }
-  84%  { transform: translateY(-2px) scale(1.03); }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
-}
-.stamp-fly { animation: stampFly 500ms cubic-bezier(0.5, 1.5, 0.55, 1) both; }
-
-/* Kortet svæver let - virker levende */
+/* ── Stemplet (portefølje): premium wallet-kort med blødt materiale ── */
+/* Kortet svæver og vipper let - virker levende og premium */
 @keyframes cardFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
+  0%, 100% { transform: translateY(0) rotate(-0.5deg); }
+  50%      { transform: translateY(-6px) rotate(0.5deg); }
 }
-.card-float { animation: cardFloat 3.8s ease-in-out infinite; }
+.card-float { animation: cardFloat 5.5s ease-in-out infinite; }
+
+/* Stempler glider blødt ind og ud med et lille spring (fluid) */
+.stamp-mark {
+  opacity: 0;
+  transform: scale(0.3);
+  transition: opacity 300ms ease, transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.stamp-mark.is-on {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Belønnings-stempel: blød mosgrøn puls når kortet er fuldt */
+@keyframes stampReward {
+  0%   { opacity: 0.6; transform: scale(1); }
+  70%  { opacity: 0; transform: scale(1.7); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+.stamp-reward-glow { animation: stampReward 1.8s ease-out infinite; }
+
+/* Premium sheen der stryger hen over kortet en gang imellem */
+@keyframes stampSheen {
+  0%   { transform: translateX(0) skewX(-16deg); }
+  35%  { transform: translateX(410px) skewX(-16deg); }
+  100% { transform: translateX(410px) skewX(-16deg); }
+}
+.stamp-sheen { animation: stampSheen 5.5s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .stamp-fly, .card-float { animation: none !important; }
+  .card-float, .stamp-sheen, .stamp-reward-glow { animation: none !important; }
+  .stamp-mark { transition: none !important; }
 }

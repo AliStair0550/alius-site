@@ -113,7 +113,7 @@ function StempletViz() {
     let n = 0;
     const step = () => {
       setFilled(n);
-      const delay = n >= 10 ? 1700 : 600;
+      const delay = n >= 10 ? 2000 : n === 0 ? 900 : 600;
       n = n >= 10 ? 0 : n + 1;
       timer = setTimeout(step, delay);
     };
@@ -121,11 +121,32 @@ function StempletViz() {
     return () => clearTimeout(timer);
   }, []);
 
+  const full = filled >= 10;
+
   return (
     <div className="absolute inset-0 flex items-center justify-center">
       <svg viewBox="0 0 320 200" className="card-float" style={{ width: "86%", height: "auto" }} role="img" aria-label="Stemplet digitalt stempelkort">
+        <defs>
+          <clipPath id="stampCardClip">
+            <rect x="24" y="20" width="272" height="160" rx="20" />
+          </clipPath>
+          <linearGradient id="stampSheenGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#FFFFFF" stopOpacity="0" />
+            <stop offset="0.5" stopColor="#FFFFFF" stopOpacity="0.14" />
+            <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
         {/* Kort */}
-        <rect x="24" y="20" width="272" height="160" rx="16" fill={STAMP_CARD} />
+        <rect x="24" y="20" width="272" height="160" rx="20" fill={STAMP_CARD} />
+
+        {/* Premium sheen der stryger blødt hen over kortet */}
+        <g clipPath="url(#stampCardClip)">
+          <rect className="stamp-sheen" x="-70" y="10" width="70" height="180" fill="url(#stampSheenGrad)" style={{ transformBox: "view-box" }} />
+        </g>
+
+        {/* Fin lys kant langs toppen - glas-materiale */}
+        <path d="M 44 20.6 H 276" stroke={STAMP_CREAM} strokeWidth="1" opacity="0.16" strokeLinecap="round" />
 
         {/* Header: forretningsnavn */}
         <text x="44" y="48" fill={STAMP_CREAM} style={{ fontSize: "8px", letterSpacing: "0.09em", fontWeight: 500, opacity: 0.92 }}>COPENHAGEN</text>
@@ -133,10 +154,12 @@ function StempletViz() {
 
         {/* Tæller */}
         <text x="276" y="45" textAnchor="end" fill={STAMP_CREAM} style={{ fontSize: "6px", letterSpacing: "0.16em", opacity: 0.55 }}>STEMPLER</text>
-        <text x="276" y="61" textAnchor="end" fill={filled >= 10 ? STAMP_MOSS : STAMP_CREAM} style={{ fontSize: "14px", fontWeight: 500 }}>{filled}/10</text>
+        <text x="276" y="61" textAnchor="end" fill={full ? STAMP_MOSS : STAMP_CREAM} style={{ fontSize: "14px", fontWeight: 500, transition: "fill 400ms ease" }}>{filled}/10</text>
 
         {/* Undertekst */}
-        <text x="44" y="82" fill={STAMP_CREAM} style={{ fontSize: "8px", opacity: 0.6 }}>10. kop er gratis</text>
+        <text x="44" y="82" fill={full ? STAMP_MOSS : STAMP_CREAM} style={{ fontSize: "8px", opacity: full ? 0.95 : 0.6, transition: "fill 400ms ease, opacity 400ms ease" }}>
+          {full ? "Din kop er klar" : "10. kop er gratis"}
+        </text>
 
         {/* Stempler */}
         {STAMPS.map((s, i) => {
@@ -144,6 +167,7 @@ function StempletViz() {
           const on = i < filled;
           return (
             <g key={i}>
+              {/* Tom plads */}
               <circle
                 cx={s.x}
                 cy={s.y}
@@ -154,12 +178,26 @@ function StempletViz() {
                 opacity={0.22}
                 strokeDasharray={isReward ? "2 2.6" : undefined}
               />
-              {on && (
-                <g className="stamp-fly" style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}>
-                  <circle cx={s.x} cy={s.y} r={13} fill={isReward ? STAMP_MOSS : STAMP_CREAM} />
-                  <CoffeeCup x={s.x} y={s.y} color={isReward ? STAMP_CREAM : STAMP_BROWN} />
-                </g>
-              )}
+              {/* Fyldt stempel - glider blødt ind og ud med et lille spring */}
+              <g
+                className={`stamp-mark${on ? " is-on" : ""}`}
+                style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}
+              >
+                {isReward && (
+                  <circle
+                    className="stamp-reward-glow"
+                    cx={s.x}
+                    cy={s.y}
+                    r={13}
+                    fill="none"
+                    stroke={STAMP_MOSS}
+                    strokeWidth={1.5}
+                    style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}
+                  />
+                )}
+                <circle cx={s.x} cy={s.y} r={13} fill={isReward ? STAMP_MOSS : STAMP_CREAM} />
+                <CoffeeCup x={s.x} y={s.y} color={isReward ? STAMP_CREAM : STAMP_BROWN} />
+              </g>
             </g>
           );
         })}

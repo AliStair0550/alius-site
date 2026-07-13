@@ -2,39 +2,41 @@
 import { useState, useEffect, useRef } from "react";
 
 // ── Fixed particle burst positions (no Math.random → no hydration mismatch) ──
+// Kun paletten: mos, mos-lys, pergament og ler - elegant, ikke konfetti-kaos
 const PARTICLES: { dx: number; dy: number; color: string; size: number; delay: string }[] = [
-  { dx:  90, dy: -15, color:"#2D5F4A", size:8,  delay:"0ms"   },
+  { dx:  90, dy: -15, color:"#2D5F4A", size:7,  delay:"0ms"   },
   { dx:  76, dy: -55, color:"#4A7D68", size:5,  delay:"30ms"  },
-  { dx:  40, dy: -85, color:"#B8923A", size:7,  delay:"0ms"   },
+  { dx:  40, dy: -85, color:"#D4D0C8", size:6,  delay:"0ms"   },
   { dx:   0, dy: -95, color:"#2D5F4A", size:6,  delay:"50ms"  },
-  { dx: -40, dy: -85, color:"#FAF8F4", size:9,  delay:"20ms"  },
+  { dx: -40, dy: -85, color:"#FAF8F4", size:7,  delay:"20ms"  },
   { dx: -76, dy: -55, color:"#4A7D68", size:5,  delay:"40ms"  },
-  { dx: -90, dy: -15, color:"#2D5F4A", size:7,  delay:"10ms"  },
-  { dx: -85, dy:  30, color:"#B8923A", size:6,  delay:"60ms"  },
-  { dx: -60, dy:  75, color:"#D4D0C8", size:8,  delay:"0ms"   },
+  { dx: -90, dy: -15, color:"#2D5F4A", size:6,  delay:"10ms"  },
+  { dx: -85, dy:  30, color:"#D4D0C8", size:5,  delay:"60ms"  },
+  { dx: -60, dy:  75, color:"#4A7D68", size:6,  delay:"0ms"   },
   { dx: -20, dy:  95, color:"#2D5F4A", size:5,  delay:"30ms"  },
-  { dx:  20, dy:  95, color:"#4A7D68", size:7,  delay:"15ms"  },
-  { dx:  60, dy:  75, color:"#B8923A", size:6,  delay:"45ms"  },
-  { dx:  85, dy:  30, color:"#2D5F4A", size:9,  delay:"0ms"   },
-  { dx:  65, dy: -72, color:"#D4D0C8", size:5,  delay:"55ms"  },
+  { dx:  20, dy:  95, color:"#4A7D68", size:6,  delay:"15ms"  },
+  { dx:  60, dy:  75, color:"#D4D0C8", size:5,  delay:"45ms"  },
+  { dx:  85, dy:  30, color:"#2D5F4A", size:7,  delay:"0ms"   },
+  { dx:  65, dy: -72, color:"#FAF8F4", size:5,  delay:"55ms"  },
   { dx: -65, dy: -72, color:"#4A7D68", size:6,  delay:"25ms"  },
   { dx: 110, dy:  10, color:"#2D5F4A", size:4,  delay:"35ms"  },
-  { dx:-110, dy:  10, color:"#B8923A", size:4,  delay:"20ms"  },
+  { dx:-110, dy:  10, color:"#4A7D68", size:4,  delay:"20ms"  },
   { dx:  10, dy: 115, color:"#2D5F4A", size:5,  delay:"40ms"  },
   { dx: -10, dy: 115, color:"#4A7D68", size:5,  delay:"10ms"  },
-  { dx:  50, dy: -105,color:"#B8923A", size:4,  delay:"50ms"  },
+  { dx:  50, dy: -105,color:"#D4D0C8", size:4,  delay:"50ms"  },
 ];
 
-// ── Floating hearts (fixed positions) ──
+// ── Floating hearts (fixed positions) - alle i mos, elegant opstigning ──
 const FLOATERS: { x: number; rot: string; size: number; delay: string; dur: string }[] = [
-  { x: -80, rot:"-15deg", size:18, delay:"0ms",   dur:"800ms"  },
-  { x: -50, rot: "8deg",  size:12, delay:"80ms",  dur:"720ms"  },
-  { x: -18, rot:"-6deg",  size:22, delay:"40ms",  dur:"860ms"  },
-  { x:  18, rot: "12deg", size:14, delay:"120ms", dur:"780ms"  },
-  { x:  50, rot:"-10deg", size:20, delay:"20ms",  dur:"840ms"  },
-  { x:  80, rot: "6deg",  size:10, delay:"100ms", dur:"700ms"  },
-  { x:   0, rot:"-4deg",  size:26, delay:"60ms",  dur:"900ms"  },
+  { x: -70, rot:"-12deg", size:15, delay:"0ms",   dur:"900ms"  },
+  { x: -34, rot: "8deg",  size:11, delay:"90ms",  dur:"820ms"  },
+  { x:   0, rot:"-4deg",  size:20, delay:"40ms",  dur:"980ms"  },
+  { x:  34, rot: "10deg", size:12, delay:"130ms", dur:"860ms"  },
+  { x:  70, rot:"-8deg",  size:16, delay:"20ms",  dur:"940ms"  },
 ];
+
+// ── Elegante signal-ringe der breder sig ud ved match ──
+const SIGNAL_RINGS = ["0ms", "160ms", "320ms"];
 
 type Phase = "idle" | "swiping" | "matched";
 
@@ -68,7 +70,7 @@ export function CTA() {
       id="kontakt"
       className="bg-sand py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
     >
-      <div className="w-12 h-12 rounded-full bg-moss mb-7" />
+      <div className="match-breathe w-12 h-12 rounded-full bg-moss mb-7" />
       <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em]">
         Lad os finde ud af om vi er det rigtige match.
       </h2>
@@ -95,6 +97,11 @@ export function CTA() {
                   transform: phase === "swiping" ? "scale(1.25)" : "scale(1)",
                   transition: "transform 300ms cubic-bezier(0.34,1.56,0.64,1)",
                 }}>
+                {/* Blød invitations-ring i hvile - signalerer at man kan trykke */}
+                {phase === "idle" && (
+                  <div className="absolute inset-0 rounded-full pointer-events-none"
+                    style={{ animation: "matchInvite 2.6s ease-out infinite", border: "1.5px solid rgba(45,95,74,0.35)" }} />
+                )}
                 {/* Pulsering ved swiping */}
                 {phase === "swiping" && (
                   <div className="absolute inset-0 rounded-full"
@@ -138,6 +145,16 @@ export function CTA() {
               background: "radial-gradient(circle, rgba(45,95,74,0.28) 0%, transparent 68%)",
               animation: "matchFlash 700ms ease-out forwards",
             }} />
+
+            {/* Elegante signal-ringe der breder sig ud */}
+            {SIGNAL_RINGS.map((d, i) => (
+              <div key={`ring${i}`} className="absolute rounded-full pointer-events-none"
+                style={{
+                  width: 84, height: 84, left: "50%", top: "50%", marginLeft: -42, marginTop: -42,
+                  border: "1.5px solid #2D5F4A", opacity: 0,
+                  animation: `matchSignal 1000ms cubic-bezier(0.22,1,0.36,1) ${d} forwards`,
+                }} />
+            ))}
 
             {/* Burst particles */}
             {PARTICLES.map((p, i) => (

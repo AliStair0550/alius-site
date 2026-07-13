@@ -9,21 +9,19 @@ const PARCHMENT = "#FAF8F4";
 
 // Pipeline-geometri
 const SPINE = { x1: 74, x2: 380, y: 100 };
-const NODES_X = [130, 227, 324];             // tre proces-trin
-const NODE_DELAY = ["0.1s", "1.2s", "2.3s"]; // trin lyser i sekvens (3.4s cyklus)
-const TOKENS = ["0s", "-0.68s", "-1.36s", "-2.04s", "-2.72s"]; // jævn strøm
+const NODES = [130, 227, 324]; // tre agenter der processerer pakken i sekvens
 
-// Rod: manuelle opgaver der ligger skævt og spredt
+// Rod: manuelle opgaver der ligger skævt og driver roligt (kaos)
 const MESS = [
-  { x: 20, y: 48, w: 32, h: 10, rot: -8, d: "0s" },
-  { x: 31, y: 64, w: 25, h: 9, rot: 7, d: "-0.9s" },
-  { x: 17, y: 81, w: 34, h: 10, rot: -4, d: "-1.8s" },
-  { x: 33, y: 97, w: 23, h: 9, rot: 11, d: "-0.5s" },
-  { x: 22, y: 114, w: 31, h: 10, rot: -10, d: "-2.4s" },
-  { x: 30, y: 131, w: 26, h: 9, rot: 5, d: "-1.3s" },
+  { x: 20, y: 50, w: 32, h: 10, rot: -8, d: "0s" },
+  { x: 31, y: 66, w: 25, h: 9, rot: 7, d: "-1.4s" },
+  { x: 17, y: 83, w: 34, h: 10, rot: -4, d: "-2.7s" },
+  { x: 33, y: 99, w: 23, h: 9, rot: 11, d: "-0.7s" },
+  { x: 22, y: 116, w: 31, h: 10, rot: -10, d: "-3.4s" },
 ];
-// Struktur: de samme opgaver, nu ordnet i lige rækker
-const STRUCT_Y = [48, 66, 84, 102, 120, 138];
+// Struktur: de samme opgaver, nu i lige, ordnede rækker
+const STRUCT_Y = [50, 68, 86, 104, 122];
+const FEED_Y = [64, 92, 120];
 
 function MachineFlow() {
   return (
@@ -32,11 +30,11 @@ function MachineFlow() {
       className="mt-16 md:mt-0 w-full max-w-[400px] md:max-w-[480px] md:w-[48%] md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 z-0"
     >
       <svg viewBox="0 0 460 200" className="w-full h-auto" role="presentation">
-        {/* Rod: manuelle opgaver der ligger skævt og spredt */}
+        {/* Rod: manuelle opgaver der ligger skævt og driver roligt */}
         {MESS.map((m, i) => (
           <g key={`m${i}`} transform={`rotate(${m.rot} ${m.x + m.w / 2} ${m.y + m.h / 2})`}>
             <rect
-              className="mf-mess"
+              className="mf-drift"
               style={{ animationDelay: m.d }}
               x={m.x}
               y={m.y}
@@ -50,44 +48,95 @@ function MachineFlow() {
             />
           </g>
         ))}
-        {/* Feeders: rodet trækkes ind i pipelinen */}
-        {[60, 92, 124].map((y, i) => (
-          <line key={`fi${i}`} x1={58} y1={y} x2={SPINE.x1} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.09} />
+
+        {/* Intake: rodet trækkes ind i pipelinen */}
+        {FEED_Y.map((y, i) => (
+          <g key={`fi${i}`}>
+            <line x1={58} y1={y} x2={SPINE.x1} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.08} />
+            <line
+              className="mf-intake"
+              style={{ animationDelay: `${i * 0.3}s` }}
+              x1={58}
+              y1={y}
+              x2={SPINE.x1}
+              y2={SPINE.y}
+              stroke={MOSS}
+              strokeWidth={1}
+              strokeDasharray="3 9"
+              strokeLinecap="round"
+              opacity={0.5}
+            />
+          </g>
         ))}
 
         {/* Pipeline-spine */}
-        <line x1={SPINE.x1} y1={SPINE.y} x2={SPINE.x2} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.14} />
+        <line x1={SPINE.x1} y1={SPINE.y} x2={SPINE.x2} y2={SPINE.y} stroke={INK} strokeWidth={1} opacity={0.14} strokeLinecap="round" />
 
-        {/* Eksekverings-energi der sweeper gennem pipelinen */}
-        {["0s", "-1.2s"].map((d) => (
-          <line
-            key={`ex${d}`}
-            className="mf-exec"
-            style={{ animationDelay: d }}
-            x1={SPINE.x1}
-            y1={SPINE.y}
-            x2={SPINE.x2}
-            y2={SPINE.y}
-            pathLength={100}
-            stroke={MOSS}
-            strokeWidth={2.2}
-            strokeLinecap="round"
-            strokeDasharray="10 90"
+        {/* Arbejdspakken rejser gennem pipelinen og forsvinder ind i hver agent (processering) */}
+        <g className="mf-packet">
+          <circle cx={SPINE.x1} cy={SPINE.y} r={7} fill={MOSS} opacity={0.16} />
+          <circle cx={SPINE.x1} cy={SPINE.y} r={3.2} fill={MOSS} />
+        </g>
+
+        {/* Output-feeders ud til den ordnede struktur */}
+        {FEED_Y.map((y, i) => (
+          <g key={`fo${i}`}>
+            <line x1={SPINE.x2} y1={SPINE.y} x2={402} y2={y} stroke={INK} strokeWidth={1} opacity={0.08} />
+            <line
+              className="mf-outflow"
+              style={{ animationDelay: `${i * 0.3}s` }}
+              x1={SPINE.x2}
+              y1={SPINE.y}
+              x2={402}
+              y2={y}
+              stroke={MOSS}
+              strokeWidth={1}
+              strokeDasharray="3 9"
+              strokeLinecap="round"
+              opacity={0.28}
+            />
+          </g>
+        ))}
+
+        {/* Struktur: færdige resultater i lige rækker der lyser i sekvens */}
+        {STRUCT_Y.map((y, i) => (
+          <rect
+            key={`r${i}`}
+            className="mf-result"
+            style={{ animationDelay: `${i * 0.09}s` }}
+            x={402}
+            y={y}
+            width={40}
+            height={10}
+            rx={2}
+            fill={MOSS}
+            opacity={0.4}
           />
         ))}
 
-        {/* Trin-noder som små maskiner: antenne, øjne der blinker, mund */}
-        {NODES_X.map((x, i) => (
+        {/* Agenter: små intelligente enheder der processerer pakken */}
+        {NODES.map((x, i) => (
           <g key={`n${i}`}>
+            {/* Proces-ring der breder sig ud mens agenten arbejder */}
+            <circle
+              className={`mf-ring-${i + 1}`}
+              style={{ transformBox: "view-box", transformOrigin: `${x}px 100px` }}
+              cx={x}
+              cy={100}
+              r={15}
+              fill="none"
+              stroke={MOSS}
+              strokeWidth={1}
+              opacity={0}
+            />
             {/* Antenne */}
             <line x1={x} y1={89} x2={x} y2={83} stroke={INK} strokeWidth={1} opacity={0.45} />
             <circle cx={x} cy={81.5} r={1.6} fill={INK} opacity={0.45} />
             {/* Krop */}
             <rect x={x - 12} y={89} width={24} height={22} rx={6} fill={PARCHMENT} stroke={INK} strokeWidth={1} opacity={0.6} />
-            {/* Aktiv-glød når maskinen eksekverer */}
+            {/* Aktiv-glød når agenten processerer pakken */}
             <rect
-              className="mf-node"
-              style={{ animationDelay: NODE_DELAY[i] }}
+              className={`mf-agent-${i + 1}`}
               x={x - 12}
               y={89}
               width={24}
@@ -97,47 +146,13 @@ function MachineFlow() {
               opacity={0}
             />
             {/* Øjne der blinker */}
-            <g className="mf-blink" style={{ transformBox: "view-box", transformOrigin: `${x}px 98px`, animationDelay: `${i * 0.55}s` }}>
+            <g className="mf-blink" style={{ transformBox: "view-box", transformOrigin: `${x}px 98px`, animationDelay: `${i * 0.5}s` }}>
               <circle cx={x - 4.5} cy={98} r={1.7} fill={INK} opacity={0.75} />
               <circle cx={x + 4.5} cy={98} r={1.7} fill={INK} opacity={0.75} />
             </g>
             {/* Glad mund - lille smil */}
             <path d={`M ${x - 4.5} 103.5 Q ${x} 108 ${x + 4.5} 103.5`} fill="none" stroke={INK} strokeWidth={1} strokeLinecap="round" opacity={0.5} />
           </g>
-        ))}
-
-        {/* Tokens der flyder gennem pipelinen */}
-        {TOKENS.map((d, i) => (
-          <circle
-            key={`t${i}`}
-            className="mf-pipe"
-            style={{ animationDelay: d }}
-            cx={SPINE.x1}
-            cy={SPINE.y}
-            r={2.8}
-            fill={MOSS}
-          />
-        ))}
-
-        {/* Feeders ud til den ordnede struktur */}
-        {[60, 92, 124].map((y, i) => (
-          <line key={`fo${i}`} x1={SPINE.x2} y1={SPINE.y} x2={402} y2={y} stroke={INK} strokeWidth={1} opacity={0.09} />
-        ))}
-
-        {/* Struktur: færdige resultater i lige, ordnede rækker */}
-        {STRUCT_Y.map((y, i) => (
-          <rect
-            key={`r${i}`}
-            className="mf-result"
-            style={{ animationDelay: `${i * 0.28}s` }}
-            x={402}
-            y={y}
-            width={40}
-            height={10}
-            rx={2}
-            fill={MOSS}
-            opacity={0.4}
-          />
         ))}
 
         {/* Etiketter */}

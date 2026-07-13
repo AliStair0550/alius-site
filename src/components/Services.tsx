@@ -35,6 +35,20 @@ function KortlaegViz() {
         {/* Scanner der analyserer feltet fra venstre mod højre */}
         <line className="svc-sweep" x1={20} y1={28} x2={20} y2={236} stroke={MOSS} strokeWidth={1.5} strokeLinecap="round" />
 
+        {/* De tre fund forbindes til ét genkendt sæt (mønster-genkendelse) */}
+        <polyline
+          className="svc-link"
+          points={FOUND.map((p) => `${p.x},${p.y}`).join(" ")}
+          fill="none"
+          stroke={MOSS}
+          strokeWidth={1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          pathLength={100}
+          strokeDasharray="100 100"
+          opacity={0}
+        />
+
         {/* De tre med størst gevinst - opdages præcis når scanneren rammer dem */}
         {FOUND.map((p, i) => (
           <g
@@ -78,6 +92,17 @@ function BygViz() {
             stroke={GRAY} strokeWidth={0.8} opacity={0.55}
           />
         ))}
+        {/* Levende forbindelser: systemerne udveksler data */}
+        {NET_MESH.map(([a, b], i) => (
+          <line
+            key={`mf${i}`}
+            className="svc-flow-in"
+            style={{ animationDelay: `${i * 0.25}s` }}
+            x1={NET_NODES[a][0]} y1={NET_NODES[a][1]}
+            x2={NET_NODES[b][0]} y2={NET_NODES[b][1]}
+            stroke={MOSS} strokeWidth={0.8} strokeDasharray="2 8" strokeLinecap="round" opacity={0.3}
+          />
+        ))}
 
         {/* Data-puls der rejser ind mod hub (automatisering) */}
         {NET_PULSE.map((ni, i) => {
@@ -113,9 +138,11 @@ function BygViz() {
           />
         ))}
 
-        {/* Hub: den samlede maskine */}
-        <circle cx={hx} cy={hy} r={6} fill={MOSS} />
-        <circle cx={hx} cy={hy} r={12} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.55} />
+        {/* Hub: den samlede maskine - trækker vejret roligt */}
+        <g className="svc-hub-breath" style={CENTER}>
+          <circle cx={hx} cy={hy} r={6} fill={MOSS} />
+          <circle cx={hx} cy={hy} r={12} fill="none" stroke={MOSS} strokeWidth={1} opacity={0.55} />
+        </g>
       </svg>
     </div>
   );
@@ -156,7 +183,7 @@ function DriftViz() {
             <circle
               key={`${r}-${c}`}
               className="svc-wave"
-              style={{ animationDelay: `${c * 0.28}s` }}
+              style={{ animationDelay: `${(r + c) * 0.16}s` }}
               cx={x}
               cy={y}
               r={3.6}
