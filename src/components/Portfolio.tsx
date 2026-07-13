@@ -22,7 +22,7 @@ const projects = [
   {
     name: "Stemplet",
     type: "Platform · SaaS · Loyalitet",
-    desc: "Det digitale stempelkort, der bor i kundens Apple Wallet. Ét scan, og loyaliteten kører. Ingen app, ingen tilmelding. Bygget fra bunden.",
+    desc: "Digitalt loyalitetskort der bor i kundens Apple Wallet. Direkte leverancer: PassKit-passes der opdateres live efter hvert scan, QR-baseret stempling uden app eller signup, merchant-dashboard med realtidsstatistik og push ved optjent belønning. Fuld stack fra bunden - API, backend og infrastruktur.",
     Viz: StempletViz,
     link: "https://stemplet.alius.dk",
     layout: "image-right" as const,
@@ -73,8 +73,8 @@ const projects = [
   },
   {
     name: "folka",
-    type: "Platform · SaaS",
-    desc: "Community management platform bygget fra bunden. Next.js, Stripe Connect, Prisma.",
+    type: "Platform · SaaS · Community",
+    desc: "Community management platform bygget fra bunden. Direkte leverancer: Stripe Connect til betalinger og udbetalinger, abonnements- og medlemslogik, rollebaseret adgang og community-værktøjer. Next.js, Prisma og Postgres - fra arkitektur til produktion.",
     image: "/folka.jpg",
     tint: "moss",
     link: "https://folka.dk",
