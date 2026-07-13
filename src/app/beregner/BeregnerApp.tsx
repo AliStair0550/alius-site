@@ -154,7 +154,6 @@ export function BeregnerApp() {
 
         {/* Intro */}
         <section className="mb-16 md:mb-24 max-w-[720px]">
-          <div className="text-[0.68rem] tracking-[0.34em] uppercase text-moss mb-7">Gevinstberegner</div>
           <h1 className="font-fraunces font-light text-[clamp(34px,7vw,72px)] leading-[1.05] tracking-[-0.02em] text-ink mb-7">
             Hvad koster manuelt arbejde jer?
           </h1>
@@ -201,33 +200,45 @@ export function BeregnerApp() {
             />
           </div>
 
-          {/* Resultat */}
+          {/* Resultat - overblik */}
           <div className="md:sticky md:top-12">
             <div className="border-t-2 border-moss pt-8" aria-live="polite">
+              <div className="text-[0.66rem] tracking-[0.24em] uppercase text-slate/70 mb-4">
+                Manuelt arbejde koster jer
+              </div>
               <div className="font-fraunces font-light text-ink leading-[0.98] tracking-[-0.02em] text-[clamp(40px,10vw,68px)] tabular-nums">
                 {formatDKK(animatedRounded)} kr
               </div>
-              <div className="font-fraunces font-light italic text-ink/80 text-[1.4rem] md:text-[1.7rem] leading-[1.15] mt-1 mb-6">
+              <div className="font-fraunces font-light italic text-ink/80 text-[1.4rem] md:text-[1.7rem] leading-[1.15] mt-1">
                 om året
               </div>
-              <p className="font-[200] text-[0.98rem] text-stone leading-[1.7] max-w-[320px]">
+              <div className="mt-4 font-[200] text-[0.78rem] text-slate/80 tabular-nums leading-[1.6]">
+                {employees} medarbejdere · {hoursPerWeek} t/uge · {formatDKK(monthlySalary)} kr/md
+              </div>
+
+              {/* Nøgletal - hurtigt overblik */}
+              <dl className="grid grid-cols-2 gap-y-6 gap-x-5 mt-8 py-7 border-y border-clay/60">
+                <div>
+                  <dt className="font-[200] text-[0.72rem] tracking-[0.03em] text-slate mb-1.5">Om måneden</dt>
+                  <dd className="font-[300] text-[1.2rem] text-ink tabular-nums">{formatDKK(animatedRounded / 12)} kr</dd>
+                </div>
+                <div>
+                  <dt className="font-[200] text-[0.72rem] tracking-[0.03em] text-slate mb-1.5">Timer om året</dt>
+                  <dd className="font-[300] text-[1.2rem] text-ink tabular-nums">{formatDKK(totalHours)}</dd>
+                </div>
+                <div>
+                  <dt className="font-[200] text-[0.72rem] tracking-[0.03em] text-slate mb-1.5">Gns. timepris</dt>
+                  <dd className="font-[300] text-[1.2rem] text-ink tabular-nums">{formatDKK(hourlyCost(monthlySalary))} kr</dd>
+                </div>
+                <div>
+                  <dt className="font-[200] text-[0.72rem] tracking-[0.03em] text-slate mb-1.5">Svarer til</dt>
+                  <dd className="font-[300] text-[1.2rem] text-ink tabular-nums">{formatFte(fte)} årsværk</dd>
+                </div>
+              </dl>
+
+              <p className="mt-7 font-[200] text-[0.98rem] text-stone leading-[1.7] max-w-[320px]">
                 bruger I på arbejde, en maskine gør bedre.
               </p>
-
-              <dl className="mt-9 pt-7 border-t border-clay/60 space-y-4">
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="font-[200] text-[0.82rem] tracking-[0.02em] text-slate">Timer om året i alt</dt>
-                  <dd className="font-[300] text-[0.98rem] text-ink tabular-nums">{formatDKK(totalHours)}</dd>
-                </div>
-                {fte > 0.5 && (
-                  <div className="flex items-baseline justify-between gap-4">
-                    <dt className="font-[200] text-[0.82rem] tracking-[0.02em] text-slate">Svarer til</dt>
-                    <dd className="font-[300] text-[0.98rem] text-ink tabular-nums">
-                      {formatFte(fte)} fuldtidsstillinger
-                    </dd>
-                  </div>
-                )}
-              </dl>
             </div>
           </div>
         </section>
@@ -256,7 +267,7 @@ function Conversion() {
         href={BOOK_HREF}
         className="inline-flex justify-center font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-8 py-4 bg-moss text-parchment border border-moss hover:bg-moss-light hover:border-moss-light transition-all"
       >
-        Book 20 minutter
+        Start en samtale
       </a>
     </section>
   );

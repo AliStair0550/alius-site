@@ -199,7 +199,7 @@ export default function Hero() {
           href="#kontakt"
           className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
         >
-          Book 20 minutter
+          Tag en snak
         </a>
         <a
           href="/beregner"

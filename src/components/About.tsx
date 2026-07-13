@@ -1,7 +1,7 @@
 const values = [
-  "Vi fjerner kompleksitet.",
-  "Vi bygger færre ting, men bygger dem rigtigt.",
-  "Vi stopper, når løsningen virker.",
+  "Jeg fjerner kompleksitet.",
+  "Jeg bygger færre ting, men bygger dem rigtigt.",
+  "Jeg stopper, når løsningen virker.",
 ];
 
 export default function About() {
