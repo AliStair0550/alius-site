@@ -6,7 +6,7 @@ const projects = [
   {
     name: "Karnov Group",
     type: "Strategi · Kommerciel · Automatisering",
-    desc: "Fire år i krydsfeltet mellem strategi, kommerciel udvikling og eksekvering. Direkte leverancer: produktanalyser på tværs af platformen, forhandling og partnerskaber på trykprodukter, paketering af kommercielle produkter, automatisering af finansielle modeller samt rapportering og automatisering af CAPEX-projekter. Lead og facilitering på den nordiske strategi, og lancering af den juridiske platform DIB på det danske marked.",
+    desc: "Fire år i krydsfeltet mellem strategi, kommerciel udvikling og eksekvering. Direkte leverancer: produktanalyser på tværs af platformen, forhandling og partnerskaber på trykprodukter, rationalisering af kommercielle produkter, automatisering af finansielle modeller samt rapportering og automatisering af CAPEX-projekter. Lead og facilitering på den nordiske strategi og lancering af den juridiske platform DIB på det danske marked.",
     image: "/karnov.png",
     link: "https://www.karnovgroup.com",
     layout: "image-right" as const,
@@ -78,7 +78,7 @@ const projects = [
     image: "/folka.jpg",
     tint: "moss",
     link: "https://folka.dk",
-    layout: "full" as const,
+    layout: "image-right" as const,
     logoFont: true,
   },
 ];
@@ -355,7 +355,16 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
           {p.type}
         </div>
       </div>
-      <div className="font-[400] text-[1.3rem] text-parchment mb-2">
+      <div
+        className="text-parchment mb-2"
+        style={"logoFont" in p && p.logoFont ? {
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontStyle: "italic",
+          fontWeight: 500,
+          fontSize: "1.9rem",
+          letterSpacing: "-0.025em",
+        } : { fontWeight: 400, fontSize: "1.3rem" }}
+      >
         {p.name}
       </div>
       <div className="font-[200] text-[0.85rem] leading-[1.7]" style={{ color: "rgba(255,255,255,0.6)" }}>
@@ -403,49 +412,19 @@ export default function Portfolio() {
                 e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0.15) 100%)";
               }}
             >
-              {p.layout === "full" ? (
-                <div className="relative aspect-[16/10] overflow-hidden rounded-sm">
+              <div className={`grid grid-cols-1 md:grid-cols-[1fr_0.55fr] gap-8 md:gap-12 p-4 md:p-6 ${
+                p.layout === "image-right" ? "md:grid-cols-[0.55fr_1fr]" : ""
+              }`}>
+                {p.layout === "image-right" && (
+                  <ProjectInfo p={p} />
+                )}
+                <div className="aspect-[16/10] relative overflow-hidden rounded-sm">
                   <ProjectImage p={p} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.4)" }} />
-                      <div className="text-[0.6rem] tracking-[0.18em] uppercase font-[300]" style={{ color: "rgba(255,255,255,0.6)" }}>
-                        {p.type}
-                      </div>
-                    </div>
-                    <div
-                      className="text-parchment mb-2"
-                      style={"logoFont" in p && p.logoFont ? {
-                        fontFamily: "'Cormorant Garamond', Georgia, serif",
-                        fontStyle: "italic",
-                        fontWeight: 500,
-                        fontSize: "2rem",
-                        letterSpacing: "-0.025em",
-                      } : { fontWeight: 400, fontSize: "1.3rem" }}
-                    >
-                      {p.name}
-                    </div>
-                    <div className="font-[200] text-[0.85rem] leading-[1.7] max-w-[480px]" style={{ color: "rgba(255,255,255,0.6)" }}>
-                      {p.desc}
-                    </div>
-                  </div>
                 </div>
-              ) : (
-                <div className={`grid grid-cols-1 md:grid-cols-[1fr_0.55fr] gap-8 md:gap-12 p-4 md:p-6 ${
-                  p.layout === "image-right" ? "md:grid-cols-[0.55fr_1fr]" : ""
-                }`}>
-                  {p.layout === "image-right" && (
-                    <ProjectInfo p={p} />
-                  )}
-                  <div className="aspect-[16/10] relative overflow-hidden rounded-sm">
-                    <ProjectImage p={p} />
-                  </div>
-                  {p.layout === "image-left" && (
-                    <ProjectInfo p={p} />
-                  )}
-                </div>
-              )}
+                {p.layout === "image-left" && (
+                  <ProjectInfo p={p} />
+                )}
+              </div>
             </a>
 
             {i < projects.length - 1 && (
