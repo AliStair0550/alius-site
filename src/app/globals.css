@@ -349,10 +349,10 @@ body {
 
 /* Energi-gnist der rejser fra kilde til maskine */
 @keyframes pfSpark {
-  0%   { transform: translateX(0);     opacity: 0; }
+  0%   { transform: translateX(0);    opacity: 0; }
   12%  { opacity: 1; }
   86%  { opacity: 1; }
-  100% { transform: translateX(111px); opacity: 0; }
+  100% { transform: translateX(70px); opacity: 0; }
 }
 .pf-spark { animation: pfSpark 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 

@@ -37,13 +37,21 @@ const projects = [
     layout: "image-left" as const,
   },
   {
+    name: "cykelmov",
+    type: "Brand · Web · Booking",
+    desc: "Nyt brand, hjemmeside og bookingsystem, lanceret fra bunden. Direkte leverancer: visuel identitet, responsiv hjemmeside, online booking og SEO-optimering. Sanity som headless CMS, hostet på Cloudflare.",
+    image: "/cykelmov.jpg",
+    link: "https://cykelmov.dk",
+    layout: "image-right" as const,
+  },
+  {
     name: "Smashii",
     type: "Branding · Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
     bg: "#F5F2F0",
     logo: "/logo_darkpurple.png",
     link: "https://smashii.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
   {
     name: "Cafe Christian IX",
@@ -52,7 +60,7 @@ const projects = [
     bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
     logo: "https://www.cafe-cix.dk/assets/logo-white.png",
     link: "https://cafe-cix.dk",
-    layout: "image-left" as const,
+    layout: "image-right" as const,
   },
   {
     name: "Markus Brandt",
@@ -61,7 +69,7 @@ const projects = [
     image: "https://markusbrandt.dk/assets/hero.avif",
     overlay: { title: "Markus Brandt" },
     link: "https://markusbrandt.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
   {
     name: "Sens Food",
@@ -69,7 +77,7 @@ const projects = [
     desc: "Grundlagde og drev fødevarevirksomhed med fokus på dressinger. Stod for produktudvikling, brandopbygning, marketing og forhandling af distributionsaftaler med danske supermarkedskæder.",
     image: "/sensfood.jpg",
     link: "https://sensfood.dk",
-    layout: "image-left" as const,
+    layout: "image-right" as const,
   },
   {
     name: "folka",
@@ -78,7 +86,7 @@ const projects = [
     image: "/folka.jpg",
     tint: "moss",
     link: "https://folka.dk",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
     logoFont: true,
   },
 ];
