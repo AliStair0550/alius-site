@@ -49,7 +49,7 @@ function Gear({
 
 function PowerFlow() {
   return (
-    <div aria-hidden className="w-full max-w-[200px] mt-10 md:mt-12">
+    <div aria-hidden className="w-full max-w-[148px] mt-6 md:mt-7 opacity-90">
       <svg viewBox="0 5 176 66" className="w-full h-auto" role="presentation">
         {/* Strømkilde: lyn i en ring */}
         <circle cx={24} cy={38} r={15} fill="none" stroke={PF_MOSS} strokeWidth={1} opacity={0.3} />

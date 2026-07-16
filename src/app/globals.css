@@ -429,3 +429,26 @@ body {
   .card-float, .stamp-sheen, .stamp-reward-glow, .stamp-spark, .stamp-cheer, .stamp-reward-burst { animation: none !important; }
   .stamp-mark { transition: none !important; }
 }
+
+/* ── Cykelmov (portefølje): logo-hjul der kører ── */
+.cm-hjul {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #6E86FF;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.cm-hjul::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1.5px dashed #6E86FF;
+  animation: cmSpin 2.4s linear infinite;
+}
+@keyframes cmSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .cm-hjul::after { animation: none !important; }
+}

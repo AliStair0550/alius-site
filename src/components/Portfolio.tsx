@@ -38,9 +38,9 @@ const projects = [
   },
   {
     name: "cykelmov",
-    type: "Brand · Web · Booking",
-    desc: "Nyt brand, hjemmeside og bookingsystem, lanceret fra bunden. Direkte leverancer: visuel identitet, responsiv hjemmeside, online booking og SEO-optimering. Sanity som headless CMS, hostet på Cloudflare.",
-    image: "/cykelmov.jpg",
+    type: "Web · Booking · SEO",
+    desc: "Nørrebros cykelbutik, digitalt relanceret fra bunden. Direkte leverancer: nyt brand, hjemmeside med online booking og lokal SEO. Sanity som headless CMS, hostet på Cloudflare.",
+    Viz: CykelmovViz,
     link: "https://cykelmov.dk",
     layout: "image-right" as const,
   },
@@ -276,6 +276,44 @@ function StempletViz() {
         )}
       </svg>
     </div>
+  );
+}
+
+// ── Cykelmov: butiks-hero med logo (roterende hjul) og overskrift ───────────
+function CykelmovViz() {
+  return (
+    <>
+      <img
+        src="/cykelmov.jpg"
+        alt="Cykelmov cykelbutik på Nørrebrogade"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(to top, rgba(20,20,25,0.92) 0%, rgba(20,20,25,0.4) 42%, rgba(20,20,25,0.1) 100%)" }}
+      />
+
+      {/* Cykelmov-logo med hjul der kører */}
+      <div
+        className="absolute top-4 left-5 z-10 flex items-center gap-2"
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: "1.05rem", letterSpacing: "-0.02em", textTransform: "uppercase", color: "#F5F3ED" }}
+      >
+        <span className="cm-hjul" />
+        <span>
+          Cykel<span style={{ color: "#6E86FF" }}>mov</span>
+        </span>
+      </div>
+
+      {/* Hero-overskrift */}
+      <div className="absolute left-5 right-5 bottom-5 z-10">
+        <div
+          className="text-[1.5rem] md:text-[1.7rem]"
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.02, letterSpacing: "-0.01em", color: "#F5F3ED" }}
+        >
+          Nørrebro<br />kører på <span style={{ color: "#FFD02F" }}>Cykelmov</span>
+        </div>
+      </div>
+    </>
   );
 }
 
