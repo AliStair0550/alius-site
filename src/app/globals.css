@@ -347,14 +347,21 @@ body {
 @keyframes pfFlow { to { stroke-dashoffset: -20; } }
 .pf-flow { animation: pfFlow 0.9s linear infinite; }
 
-/* Energi-gnist der rejser fra kilde til maskine */
-@keyframes pfSpark {
+/* Energi-gnister der rejser fra begge kilder ind mod maskinen */
+@keyframes pfSparkL {
   0%   { transform: translateX(0);    opacity: 0; }
   12%  { opacity: 1; }
   86%  { opacity: 1; }
-  100% { transform: translateX(70px); opacity: 0; }
+  100% { transform: translateX(45px); opacity: 0; }
 }
-.pf-spark { animation: pfSpark 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes pfSparkR {
+  0%   { transform: translateX(0);     opacity: 0; }
+  12%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { transform: translateX(-45px); opacity: 0; }
+}
+.pf-spark-l { animation: pfSparkL 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.pf-spark-r { animation: pfSparkR 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 
 /* Maskinen får strøm - en blød puls når energien ankommer */
 @keyframes pfEnergize {
@@ -365,8 +372,8 @@ body {
 .pf-energize { animation: pfEnergize 1.6s ease-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pf-gear-cw, .pf-gear-ccw, .pf-bolt, .pf-flow, .pf-spark, .pf-energize { animation: none !important; }
-  .pf-spark, .pf-energize { opacity: 0 !important; }
+  .pf-gear-cw, .pf-gear-ccw, .pf-bolt, .pf-flow, .pf-spark-l, .pf-spark-r, .pf-energize { animation: none !important; }
+  .pf-spark-l, .pf-spark-r, .pf-energize { opacity: 0 !important; }
 }
 
 /* ── Stemplet (portefølje): premium wallet-kort med blødt materiale ── */

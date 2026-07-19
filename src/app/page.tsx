@@ -49,45 +49,44 @@ function Gear({
 
 function PowerFlow() {
   return (
-    <div aria-hidden className="w-full max-w-[148px] mt-6 md:mt-7 opacity-90">
-      <svg viewBox="0 5 176 66" className="w-full h-auto" role="presentation">
-        {/* Strømkilde: lyn i en ring */}
-        <circle cx={24} cy={38} r={15} fill="none" stroke={PF_MOSS} strokeWidth={1} opacity={0.3} />
-        <g className="pf-bolt" style={{ transformBox: "view-box", transformOrigin: "24px 38px" }}>
-          <path d="M 25 28 L 18 41 L 23 41 L 21 49 L 31 36 L 25 36 Z" fill={PF_MOSS} />
+    <div aria-hidden className="w-full max-w-[176px] mt-6 md:mt-7 opacity-90">
+      <svg viewBox="0 0 200 64" className="w-full h-auto" role="presentation">
+        {/* Venstre strømkilde: lyn i en ring */}
+        <circle cx={24} cy={36} r={13} fill="none" stroke={PF_MOSS} strokeWidth={1} opacity={0.3} />
+        <g className="pf-bolt" style={{ transformBox: "view-box", transformOrigin: "24px 36px" }}>
+          <path d="M 25 27 L 18 39 L 23 39 L 21 46 L 30 34 L 24 34 Z" fill={PF_MOSS} />
         </g>
+        {/* Venstre kabel + gnist ind mod maskinen */}
+        <line x1={38} y1={36} x2={83} y2={36} stroke={PF_INK} strokeWidth={1} opacity={0.14} strokeLinecap="round" />
+        <line className="pf-flow" x1={38} y1={36} x2={83} y2={36} stroke={PF_MOSS} strokeWidth={1.5} strokeDasharray="2 8" strokeLinecap="round" />
+        <circle className="pf-spark-l" cx={38} cy={36} r={2.4} fill={PF_MOSS} style={{ transformBox: "view-box" }} />
 
-        {/* Kabel med strøm der flyder mod maskinen */}
-        <line x1={40} y1={38} x2={110} y2={38} stroke={PF_INK} strokeWidth={1} opacity={0.14} strokeLinecap="round" />
-        <line
-          className="pf-flow"
-          x1={40}
-          y1={38}
-          x2={110}
-          y2={38}
-          stroke={PF_MOSS}
-          strokeWidth={1.5}
-          strokeDasharray="2 8"
-          strokeLinecap="round"
-        />
-        <circle className="pf-spark" cx={40} cy={38} r={2.4} fill={PF_MOSS} style={{ transformBox: "view-box" }} />
+        {/* Højre strømkilde: lyn i en ring */}
+        <circle cx={176} cy={36} r={13} fill="none" stroke={PF_MOSS} strokeWidth={1} opacity={0.3} />
+        <g className="pf-bolt" style={{ transformBox: "view-box", transformOrigin: "176px 36px" }}>
+          <path d="M 175 27 L 182 39 L 177 39 L 179 46 L 170 34 L 176 34 Z" fill={PF_MOSS} />
+        </g>
+        {/* Højre kabel + gnist ind mod maskinen */}
+        <line x1={162} y1={36} x2={117} y2={36} stroke={PF_INK} strokeWidth={1} opacity={0.14} strokeLinecap="round" />
+        <line className="pf-flow" x1={162} y1={36} x2={117} y2={36} stroke={PF_MOSS} strokeWidth={1.5} strokeDasharray="2 8" strokeLinecap="round" />
+        <circle className="pf-spark-r" cx={162} cy={36} r={2.4} fill={PF_MOSS} style={{ transformBox: "view-box" }} />
 
-        {/* Maskinen får strøm - en blød puls når energien ankommer */}
+        {/* Maskinen får strøm fra begge sider - blød puls når energien ankommer */}
         <circle
           className="pf-energize"
-          cx={130}
-          cy={38}
-          r={22}
+          cx={100}
+          cy={36}
+          r={20}
           fill="none"
           stroke={PF_MOSS}
           strokeWidth={1}
           opacity={0}
-          style={{ transformBox: "view-box", transformOrigin: "130px 38px" }}
+          style={{ transformBox: "view-box", transformOrigin: "100px 36px" }}
         />
 
-        {/* Maskine: to tandhjul der kører på automatik */}
-        <Gear cx={130} cy={38} r={20} teeth={9} dir="cw" />
-        <Gear cx={156} cy={20} r={11} teeth={7} dir="ccw" />
+        {/* Maskine i centrum: to tandhjul der kører på automatik */}
+        <Gear cx={100} cy={36} r={17} teeth={9} dir="cw" />
+        <Gear cx={100} cy={13} r={9} teeth={7} dir="ccw" />
       </svg>
     </div>
   );
