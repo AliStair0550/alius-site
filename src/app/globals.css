@@ -330,52 +330,6 @@ body {
   .svc-pulse, .svc-sweep, .svc-link { opacity: 0 !important; }
 }
 
-/* ── Manifesto: strøm til maskine der kører på automatik ── */
-/* Tandhjulene kører på automatik, i hver sin retning */
-@keyframes pfSpin { to { transform: rotate(360deg); } }
-.pf-gear-cw { animation: pfSpin 9s linear infinite; }
-.pf-gear-ccw { animation: pfSpin 6.5s linear infinite reverse; }
-
-/* Strømkilden pulser */
-@keyframes pfBolt {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50%      { opacity: 1; transform: scale(1.12); }
-}
-.pf-bolt { animation: pfBolt 1.8s ease-in-out infinite; }
-
-/* Strøm der flyder gennem kablet mod maskinen */
-@keyframes pfFlow { to { stroke-dashoffset: -20; } }
-.pf-flow { animation: pfFlow 0.9s linear infinite; }
-
-/* Energi-gnister der rejser fra begge kilder ind mod maskinen */
-@keyframes pfSparkL {
-  0%   { transform: translateX(0);    opacity: 0; }
-  12%  { opacity: 1; }
-  86%  { opacity: 1; }
-  100% { transform: translateX(45px); opacity: 0; }
-}
-@keyframes pfSparkR {
-  0%   { transform: translateX(0);     opacity: 0; }
-  12%  { opacity: 1; }
-  86%  { opacity: 1; }
-  100% { transform: translateX(-45px); opacity: 0; }
-}
-.pf-spark-l { animation: pfSparkL 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-.pf-spark-r { animation: pfSparkR 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-
-/* Maskinen får strøm - en blød puls når energien ankommer */
-@keyframes pfEnergize {
-  0%, 80% { opacity: 0; transform: scale(0.82); }
-  88%     { opacity: 0.35; }
-  100%    { opacity: 0; transform: scale(1.3); }
-}
-.pf-energize { animation: pfEnergize 1.6s ease-out infinite; }
-
-@media (prefers-reduced-motion: reduce) {
-  .pf-gear-cw, .pf-gear-ccw, .pf-bolt, .pf-flow, .pf-spark-l, .pf-spark-r, .pf-energize { animation: none !important; }
-  .pf-spark-l, .pf-spark-r, .pf-energize { opacity: 0 !important; }
-}
-
 /* ── Stemplet (portefølje): premium wallet-kort med blødt materiale ── */
 /* Kortet svæver og vipper let - virker levende og premium */
 @keyframes cardFloat {
