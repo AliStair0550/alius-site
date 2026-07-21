@@ -241,12 +241,9 @@ export default function Services() {
       aria-label="Fra manuelt arbejde til automatiseret maskine"
       className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto"
     >
-      <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-2 leading-[1.3]">
+      <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-12 leading-[1.3]">
         Fra manuelt arbejde til automatiseret maskine.
       </h2>
-      <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12">
-        Tre arbejdsgange. 30 dage. Fast pris.
-      </p>
 
       <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
         {columns.map(({ label, heading, desc, Viz }, i) => (

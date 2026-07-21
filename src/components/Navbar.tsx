@@ -5,9 +5,9 @@ import AliusLogo from "./AliusLogo";
 
 const links = [
   { href: "#ydelser", label: "Ydelser" },
+  { href: "#maskinrummet", label: "Maskinrummet" },
   { href: "#portfolio", label: "Portfolio" },
   { href: "#værktøjer", label: "Værktøjer" },
-  { href: "#om", label: "Om" },
   { href: "#kontakt", label: "Kontakt" },
 ];
 
