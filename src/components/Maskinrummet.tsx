@@ -32,39 +32,10 @@ const TABS: { label: string; cards: Card[] }[] = [
         stack: "Kobles på jeres nyhedsbrevssystem.",
       },
       {
-        title: "Rekrutteringssilen",
+        title: "Kandidatmaskinen",
         desc: "Læser ansøgninger, matcher mod jobkravene og laver en kort sammenfatning af hver kandidat.",
         result: "Shortlist på en time i stedet for en weekend.",
         stack: "Kobles på jeres indbakke.",
-      },
-    ],
-  },
-  {
-    label: "Overvågning",
-    cards: [
-      {
-        title: "Regelvagten",
-        desc: "Overvåger nye regler og krav for jeres branche og sender et kort resumé hver uge i klart sprog.",
-        result: "Ingen overraskelser ved kontrolbesøg.",
-        stack: "Leveres direkte i Outlook eller Gmail.",
-      },
-      {
-        title: "Omtalevagten",
-        desc: "Følger omtale af jer, jeres konkurrenter og jeres branche. Samlet i en ugentlig rapport.",
-        result: "I reagerer før alle andre.",
-        stack: "Leveres i jeres indbakke eller Teams.",
-      },
-      {
-        title: "Prisvagten",
-        desc: "Overvåger konkurrenternes priser og lagerstatus.",
-        result: "I ved altid hvor I ligger i markedet.",
-        stack: "Ugentlig rapport i jeres indbakke.",
-      },
-      {
-        title: "Udbudsvagten",
-        desc: "Overvåger offentlige udbud og matcher dem mod jeres profil.",
-        result: "Relevante udbud i indbakken. Ingen manuel søgning.",
-        stack: "Leveres i jeres indbakke.",
       },
     ],
   },
@@ -88,6 +59,35 @@ const TABS: { label: string; cards: Card[] }[] = [
         desc: "Fremskriver kassebeholdningen ud fra fakturaer, faste omkostninger og sæson.",
         result: "I ser pengeproblemer to måneder før de rammer.",
         stack: "Bygger på jeres regnskabsdata.",
+      },
+    ],
+  },
+  {
+    label: "Overvågning",
+    cards: [
+      {
+        title: "Compliance Agenten",
+        desc: "Overvåger nye regler og krav for jeres branche og sender et kort resumé hver uge i klart sprog.",
+        result: "Ingen overraskelser ved kontrolbesøg.",
+        stack: "Leveres direkte i Outlook eller Gmail.",
+      },
+      {
+        title: "Pulsmesteren",
+        desc: "Følger omtale af jer, jeres konkurrenter og jeres branche. Samlet i en ugentlig rapport.",
+        result: "I reagerer før alle andre.",
+        stack: "Leveres i jeres indbakke eller Teams.",
+      },
+      {
+        title: "Prisvagten",
+        desc: "Overvåger konkurrenternes priser og lagerstatus.",
+        result: "I ved altid hvor I ligger i markedet.",
+        stack: "Ugentlig rapport i jeres indbakke.",
+      },
+      {
+        title: "Udbudsvagten",
+        desc: "Overvåger offentlige udbud og matcher dem mod jeres profil.",
+        result: "Relevante udbud i indbakken. Ingen manuel søgning.",
+        stack: "Leveres i jeres indbakke.",
       },
     ],
   },

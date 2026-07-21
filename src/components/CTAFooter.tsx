@@ -1,29 +1,22 @@
 "use client";
 import { type CSSProperties, useState, useEffect, useRef } from "react";
 
-// ── Maskine-ikon (tandhjul) - erstatter hjertet ──
-function Cog({ className = "", style, spin = false }: { className?: string; style?: CSSProperties; spin?: boolean }) {
-  const teeth = 8;
-  const r = 9; // tandspids-radius
-  const ri = 6.7; // dalbund-radius
-  const cx = 12;
-  const cy = 12;
-  const slice = (Math.PI * 2) / teeth;
-  const g = slice * 0.3;
-  const pt = (a: number, rad: number) =>
-    `${(cx + Math.cos(a) * rad).toFixed(2)} ${(cy + Math.sin(a) * rad).toFixed(2)}`;
-  let d = "";
-  for (let i = 0; i < teeth; i++) {
-    const c = i * slice;
-    d += `${i === 0 ? "M" : "L"} ${pt(c - g, r)} L ${pt(c + g, r)} L ${pt(c + g, ri)} L ${pt(c + slice - g, ri)} `;
-  }
-  d += "Z";
+// ── Robot-ikon (samme lille robot som i hero) - erstatter hjertet ──
+function Robot({ className = "", style }: { className?: string; style?: CSSProperties }) {
   return (
     <svg viewBox="0 0 24 24" className={className} style={style} fill="none" aria-hidden="true">
-      <g className={spin ? "match-cog-spin" : undefined} style={{ transformOrigin: "12px 12px" } as CSSProperties}>
-        <path d={d} stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth="1.5" />
+      {/* Antenne */}
+      <line x1="12" y1="6.4" x2="12" y2="3.4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <circle cx="12" cy="2.5" r="1" fill="currentColor" />
+      {/* Krop */}
+      <rect x="5" y="6.4" width="14" height="13" rx="4" stroke="currentColor" strokeWidth="1.3" />
+      {/* Øjne der blinker */}
+      <g className="mf-blink" style={{ transformBox: "view-box", transformOrigin: "12px 12px" } as CSSProperties}>
+        <circle cx="9.3" cy="11.8" r="1.35" fill="currentColor" />
+        <circle cx="14.7" cy="11.8" r="1.35" fill="currentColor" />
       </g>
+      {/* Glad mund */}
+      <path d="M 9.3 15.2 Q 12 17.3 14.7 15.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -99,10 +92,10 @@ export function CTA() {
     >
       <div className="match-breathe w-12 h-12 rounded-full bg-moss mb-7" />
       <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em] max-w-[520px]">
-        Del jeres udfordring. Vi undersøger, om vi er det rette match.
+        Del jeres udfordring.
       </h2>
       <p className="font-[200] text-[0.95rem] text-slate mb-10 max-w-[400px] leading-[1.8]">
-        Lad os tage en åben snak om din virksomhed.
+        Vi undersøger, om vi er det rette match.
       </p>
 
       {/* ── Animation stage ── */}
@@ -139,7 +132,7 @@ export function CTA() {
                   flex items-center justify-center
                   group-hover:bg-moss/5 transition-all duration-200
                   group-active:scale-95">
-                  <Cog
+                  <Robot
                     className={`w-9 h-9 transition-colors ${
                       phase === "swiping" ? "text-moss" : "text-moss/50 group-hover:text-moss"
                     }`}
@@ -211,7 +204,7 @@ export function CTA() {
                   ["--rot" as string]: f.rot,
                   animation: `matchFloatHeart ${f.dur} ease-out ${f.delay} forwards`,
                 }}>
-                <Cog style={{ width: f.size, height: f.size }} />
+                <Robot style={{ width: f.size, height: f.size }} />
               </div>
             ))}
 
@@ -230,7 +223,7 @@ export function CTA() {
               <div className="w-14 h-14 rounded-full bg-moss flex items-center justify-center relative">
                 <div className="absolute inset-0 rounded-full"
                   style={{ animation: "matchPulseRing 1.8s ease-out 400ms infinite", border: "2px solid #2D5F4A" }} />
-                <Cog className="w-6 h-6 text-parchment" spin />
+                <Robot className="w-7 h-7 text-parchment" />
               </div>
             </div>
 

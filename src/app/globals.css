@@ -137,12 +137,8 @@ body {
   100% { transform: scale(3.4); opacity: 0; }
 }
 
-/* Maskinen kører når det er et match */
-@keyframes matchCogSpin { to { transform: rotate(360deg); } }
-.match-cog-spin { animation: matchCogSpin 4s linear infinite; }
-
 @media (prefers-reduced-motion: reduce) {
-  .match-breathe, .match-cog-spin { animation: none !important; }
+  .match-breathe { animation: none !important; }
 }
 
 .animate-fade-up {
