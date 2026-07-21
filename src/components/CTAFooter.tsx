@@ -1,5 +1,32 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { type CSSProperties, useState, useEffect, useRef } from "react";
+
+// ── Maskine-ikon (tandhjul) - erstatter hjertet ──
+function Cog({ className = "", style, spin = false }: { className?: string; style?: CSSProperties; spin?: boolean }) {
+  const teeth = 8;
+  const r = 9; // tandspids-radius
+  const ri = 6.7; // dalbund-radius
+  const cx = 12;
+  const cy = 12;
+  const slice = (Math.PI * 2) / teeth;
+  const g = slice * 0.3;
+  const pt = (a: number, rad: number) =>
+    `${(cx + Math.cos(a) * rad).toFixed(2)} ${(cy + Math.sin(a) * rad).toFixed(2)}`;
+  let d = "";
+  for (let i = 0; i < teeth; i++) {
+    const c = i * slice;
+    d += `${i === 0 ? "M" : "L"} ${pt(c - g, r)} L ${pt(c + g, r)} L ${pt(c + g, ri)} L ${pt(c + slice - g, ri)} `;
+  }
+  d += "Z";
+  return (
+    <svg viewBox="0 0 24 24" className={className} style={style} fill="none" aria-hidden="true">
+      <g className={spin ? "match-cog-spin" : undefined} style={{ transformOrigin: "12px 12px" } as CSSProperties}>
+        <path d={d} stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth="1.5" />
+      </g>
+    </svg>
+  );
+}
 
 // ── Fixed particle burst positions (no Math.random → no hydration mismatch) ──
 // Kun paletten: mos, mos-lys, pergament og ler - elegant, ikke konfetti-kaos
@@ -71,8 +98,8 @@ export function CTA() {
       className="bg-sand py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
     >
       <div className="match-breathe w-12 h-12 rounded-full bg-moss mb-7" />
-      <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em]">
-        Lad os finde ud af om vi er det rigtige match.
+      <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em] max-w-[520px]">
+        Del jeres udfordring. Vi undersøger, om vi er det rette match.
       </h2>
       <p className="font-[200] text-[0.95rem] text-slate mb-10 max-w-[400px] leading-[1.8]">
         Lad os tage en åben snak om din virksomhed.
@@ -112,17 +139,16 @@ export function CTA() {
                   flex items-center justify-center
                   group-hover:bg-moss/5 transition-all duration-200
                   group-active:scale-95">
-                  <span
-                    className={`text-[38px] leading-none transition-colors ${
+                  <Cog
+                    className={`w-9 h-9 transition-colors ${
                       phase === "swiping" ? "text-moss" : "text-moss/50 group-hover:text-moss"
                     }`}
                     style={{
                       animation: phase === "idle"
                         ? "matchHeartbeat 1.8s ease-in-out infinite"
                         : "matchHeartbeat 0.4s ease-in-out infinite",
-                    }}>
-                    {phase === "swiping" ? "♥" : "♡"}
-                  </span>
+                    }}
+                  />
                 </div>
               </div>
 
@@ -175,18 +201,17 @@ export function CTA() {
               />
             ))}
 
-            {/* Floating hearts */}
+            {/* Svævende maskiner (tandhjul) */}
             {FLOATERS.map((f, i) => (
               <div key={i} className="absolute pointer-events-none text-moss"
                 style={{
-                  fontSize:  f.size,
                   left:  `calc(50% + ${f.x}px)`,
                   bottom: 0,
                   opacity: 0,
                   ["--rot" as string]: f.rot,
                   animation: `matchFloatHeart ${f.dur} ease-out ${f.delay} forwards`,
                 }}>
-                ♥
+                <Cog style={{ width: f.size, height: f.size }} />
               </div>
             ))}
 
@@ -205,7 +230,7 @@ export function CTA() {
               <div className="w-14 h-14 rounded-full bg-moss flex items-center justify-center relative">
                 <div className="absolute inset-0 rounded-full"
                   style={{ animation: "matchPulseRing 1.8s ease-out 400ms infinite", border: "2px solid #2D5F4A" }} />
-                <span className="text-xl text-parchment leading-none">♥</span>
+                <Cog className="w-6 h-6 text-parchment" spin />
               </div>
             </div>
 
