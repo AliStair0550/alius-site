@@ -428,7 +428,7 @@ export default function Portfolio() {
           Fra idé til virkelighed.
         </h2>
         <p className="font-[200] text-[0.9rem] mt-4 leading-[1.7]" style={{ color: "rgba(255,255,255,0.5)" }}>
-          Udvalgte projekter.
+          Alt her er bygget og leveret. Det meste kører i drift i dag.
         </p>
       </div>
 
