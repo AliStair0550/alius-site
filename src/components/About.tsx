@@ -37,8 +37,8 @@ export default function About() {
             der løser konkrete forretningsproblemer.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            <strong className="font-[400] text-ink">Alt herunder har jeg bygget eller været med til.</strong>{" "}
-            Det meste kører allerede i drift.
+            <strong className="font-[400] text-ink">Bygger til virkeligheden.</strong>{" "}
+            Skaber værdi fra dag ét.
           </p>
 
           <div className="flex flex-col">

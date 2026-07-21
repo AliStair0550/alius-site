@@ -140,70 +140,39 @@ export default function Maskinrummet() {
   const [active, setActive] = useState(0);
 
   return (
-    <section id="maskinrummet" className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
-      {/* Header */}
-      <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-4 leading-[1.3]">
-        Maskinrummet
-      </h2>
-      <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12 max-w-[620px]">
-        Et indblik i de digitale maskiner, vi bygger. Skræddersyet til jeres forretning og integreret med de systemer, I allerede arbejder i.
-      </p>
+    <section id="maskinrummet" className="bg-sand">
+      <div className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
+        {/* Header */}
+        <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-4 leading-[1.3]">
+          Maskinrummet
+        </h2>
+        <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12 max-w-[620px]">
+          Et indblik i de digitale maskiner, vi bygger. Skræddersyet til jeres forretning og integreret med de systemer, I allerede arbejder i.
+        </p>
 
-      {/* Faner */}
-      <div className="flex gap-6 md:gap-8 border-b border-clay/60 mb-10 overflow-x-auto portfolio-track">
-        {TABS.map((tab, i) => (
-          <button
-            key={tab.label}
-            onClick={() => setActive(i)}
-            className={`pb-3 -mb-px whitespace-nowrap text-[0.7rem] tracking-[0.14em] uppercase font-[400] border-b-2 transition-colors ${
-              active === i ? "text-ink border-moss" : "text-slate border-transparent hover:text-ink"
-            }`}
-            aria-pressed={active === i}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        {/* Faner */}
+        <div className="flex gap-6 md:gap-8 border-b border-clay/60 mb-10 overflow-x-auto portfolio-track">
+          {TABS.map((tab, i) => (
+            <button
+              key={tab.label}
+              onClick={() => setActive(i)}
+              className={`pb-3 -mb-px whitespace-nowrap text-[0.7rem] tracking-[0.14em] uppercase font-[400] border-b-2 transition-colors ${
+                active === i ? "text-ink border-moss" : "text-slate border-transparent hover:text-ink"
+              }`}
+              aria-pressed={active === i}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      {/* Kort */}
-      <div key={active} className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 animate-fade-up">
-        {TABS[active].cards.map((card) => (
-          <ExampleCard key={card.title} card={card} />
-        ))}
-      </div>
-
-      {/* Afslutning: to-delt strategibjælke */}
-      <div className="mt-16 md:mt-24 bg-sand border border-clay/60 p-8 md:p-12">
-        <h3 className="font-[300] text-[1.4rem] text-ink tracking-[0.02em] mb-8">
-          Sådan kommer vi derhen
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          <div>
-            <div className="text-[0.65rem] tracking-[0.14em] uppercase text-moss font-[400] mb-3">
-              01 AI-strategien
-            </div>
-            <p className="font-[200] text-[0.88rem] text-stone leading-[1.8]">
-              Vi kortlægger hvor maskinerne skaber målbar værdi hos jer, og prioriterer efter gevinst og byggetid.
-            </p>
-          </div>
-          <div>
-            <div className="text-[0.65rem] tracking-[0.14em] uppercase text-moss font-[400] mb-3">
-              02 Implementeringen
-            </div>
-            <p className="font-[200] text-[0.88rem] text-stone leading-[1.8]">
-              Vi bygger, træner jeres medarbejdere og bliver til det kører.
-            </p>
-          </div>
+        {/* Kort */}
+        <div key={active} className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 animate-fade-up">
+          {TABS[active].cards.map((card) => (
+            <ExampleCard key={card.title} card={card} />
+          ))}
         </div>
       </div>
-
-      {/* Link til kontakt */}
-      <p className="mt-8 font-[200] text-[0.9rem] text-slate leading-[1.8]">
-        Jeres rutine er ikke her?{" "}
-        <a href="#kontakt" className="text-moss hover:text-ink transition-colors underline underline-offset-4 decoration-clay">
-          Fortæl om dit problem.
-        </a>
-      </p>
     </section>
   );
 }

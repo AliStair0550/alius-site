@@ -236,39 +236,40 @@ export default function Services() {
   }, []);
 
   return (
-    <section
-      id="ydelser"
-      aria-label="Fra manuelt arbejde til automatiseret maskine"
-      className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto"
-    >
-      <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-12 leading-[1.3]">
-        Fra manuelt arbejde til automatiseret maskine.
-      </h2>
+    <section id="ydelser" aria-label="Sæt strøm til jeres processer" className="bg-sand">
+      <div className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
+        <h2 className="font-[300] text-[2rem] text-ink tracking-[0.03em] mb-4 leading-[1.3]">
+          Sæt strøm til jeres processer.
+        </h2>
+        <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12 max-w-[620px]">
+          Fra manuelt arbejde til automatiserede maskiner, der skaber mere tid til forretningen.
+        </p>
 
-      <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
-        {columns.map(({ label, heading, desc, Viz }, i) => (
-          <div
-            key={label}
-            className={`py-8 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0
-              border-b md:border-b-0 md:border-r border-clay last:border-b-0 last:md:border-r-0
-              transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-            style={{ transitionDelay: `${i * 0.18}s` }}
-          >
-            <div className="text-[0.65rem] tracking-[0.12em] uppercase text-moss font-[400] mb-4">
-              {label}
-            </div>
-            <h3 className="font-[300] text-[1.15rem] text-ink mb-3 leading-[1.4]">
-              {heading}
-            </h3>
-            <p className="font-[200] text-[0.85rem] text-stone leading-[1.8] mb-7">
-              {desc}
-            </p>
+        <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
+          {columns.map(({ label, heading, desc, Viz }, i) => (
+            <div
+              key={label}
+              className={`py-8 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0
+                border-b md:border-b-0 md:border-r border-clay last:border-b-0 last:md:border-r-0
+                transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{ transitionDelay: `${i * 0.18}s` }}
+            >
+              <div className="text-[0.65rem] tracking-[0.12em] uppercase text-moss font-[400] mb-4">
+                {label}
+              </div>
+              <h3 className="font-[300] text-[1.15rem] text-ink mb-3 leading-[1.4]">
+                {heading}
+              </h3>
+              <p className="font-[200] text-[0.85rem] text-stone leading-[1.8] mb-7">
+                {desc}
+              </p>
 
-            <div aria-hidden="true">
-              <Viz />
+              <div aria-hidden="true">
+                <Viz />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
