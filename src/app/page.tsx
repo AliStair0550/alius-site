@@ -6,23 +6,30 @@ import Tools from "@/components/Tools";
 import About from "@/components/About";
 import Maskinrummet from "@/components/Maskinrummet";
 import { CTA, Footer } from "@/components/CTAFooter";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <Hero />
-      <div className="h-px bg-clay max-w-[1100px] mx-auto" />
-      <Services />
-      <div className="h-px bg-clay max-w-[1100px] mx-auto" />
-      <About />
-      <div className="h-px bg-clay max-w-[1100px] mx-auto" />
-      <Maskinrummet />
-      <Portfolio />
-      <div className="h-px bg-clay max-w-[1100px] mx-auto" />
-      <Tools />
-      <div className="h-px bg-clay max-w-[1100px] mx-auto" />
-      <CTA />
+      <main>
+        <Hero />
+        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <Services />
+        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <About />
+        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <Maskinrummet />
+        <Portfolio />
+        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <Tools />
+        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <CTA />
+      </main>
       <Footer />
     </>
   );

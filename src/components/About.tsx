@@ -13,7 +13,9 @@ export default function About() {
           <div className="relative overflow-hidden group h-full border border-clay/30">
             <img
               src="/ali-portrait.png"
-              alt="Ali"
+              alt="Ali Al-Farhan, grundlægger af ALIUS"
+              loading="lazy"
+              decoding="async"
               className="w-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
             />
             <div className="absolute bottom-0 left-0 right-0 h-[24px] bg-gradient-to-t from-parchment/60 to-transparent" />

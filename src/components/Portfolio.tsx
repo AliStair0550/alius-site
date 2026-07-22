@@ -286,6 +286,8 @@ function CykelmovViz() {
       <img
         src="/cykelmov.jpg"
         alt="Cykelmov cykelbutik på Nørrebrogade"
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
       />
       <div
@@ -328,6 +330,8 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
         <img
           src={p.image}
           alt={p.name}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         {"overlay" in p && p.overlay && (
@@ -347,6 +351,8 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.cornerLogo}
             alt={`${p.name} logo`}
+            loading="lazy"
+            decoding="async"
             className="absolute bottom-4 right-4 w-[100px] z-10 opacity-80"
           />
         )}
@@ -359,6 +365,8 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
         <img
           src={p.bgImage}
           alt={p.name}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-ink/50" />
@@ -366,6 +374,8 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.logo}
             alt={`${p.name} logo`}
+            loading="lazy"
+            decoding="async"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] z-10"
             style={{ filter: "brightness(0) saturate(100%) invert(68%) sepia(30%) saturate(600%) hue-rotate(5deg) brightness(0.9)" }}
           />
@@ -383,6 +393,8 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           <img
             src={p.logo}
             alt={`${p.name} logo`}
+            loading="lazy"
+            decoding="async"
             className="w-[300px] max-w-full"
           />
         )}
