@@ -299,7 +299,7 @@ function CykelmovViz() {
       {/* Cykelmov-logo med hjul der kører */}
       <div
         className="absolute top-4 left-5 z-10 flex items-center gap-2"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: "1.05rem", letterSpacing: "-0.02em", textTransform: "uppercase", color: "#F5F3ED" }}
+        style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: "1.05rem", letterSpacing: "-0.02em", textTransform: "uppercase", color: "#F5F3ED" }}
       >
         <span className="cm-hjul" />
         <span>
@@ -311,7 +311,7 @@ function CykelmovViz() {
       <div className="absolute left-5 right-5 bottom-5 z-10">
         <div
           className="text-[1.5rem] md:text-[1.7rem]"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.02, letterSpacing: "-0.01em", color: "#F5F3ED" }}
+          style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, textTransform: "uppercase", lineHeight: 1.02, letterSpacing: "-0.01em", color: "#F5F3ED" }}
         >
           Nørrebro<br />kører på <span style={{ color: "#FFD02F" }}>Cykelmov</span>
         </div>
@@ -417,7 +417,7 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
       <div
         className="text-parchment mb-2"
         style={"logoFont" in p && p.logoFont ? {
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontFamily: "var(--font-cormorant), Georgia, serif",
           fontStyle: "italic",
           fontWeight: 500,
           fontSize: "1.9rem",

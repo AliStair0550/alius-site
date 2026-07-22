@@ -1,5 +1,34 @@
 import type { Metadata } from "next";
+import { Jost, Fraunces, Cormorant_Garamond, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
+
+// Selv-hostede fonte (ingen render-blokerende Google-request, ingen layout shift)
+const jost = Jost({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500"],
+  variable: "--font-jost",
+  display: "swap",
+});
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["200", "300", "400"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces-google",
+  display: "swap",
+});
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500"],
+  style: ["italic"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  variable: "--font-bricolage",
+  display: "swap",
+});
 
 const DESC =
   "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.";
@@ -57,15 +86,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="da">
+    <html
+      lang="da"
+      className={`${jost.variable} ${fraunces.variable} ${cormorant.variable} ${bricolage.variable}`}
+    >
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500&family=Cormorant+Garamond:ital,wght@1,500&family=Fraunces:ital,wght@0,200;0,300;0,400;1,200;1,300;1,400&family=Bricolage+Grotesque:wght@700;800&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -11,8 +11,20 @@
   --color-slate: #6B7B75;
   --color-parchment: #FAF8F4;
   --color-forest: #1A2E24;
-  --font-sans: 'Jost', sans-serif;
-  --font-fraunces: 'Fraunces', serif;
+  --font-sans: var(--font-jost), sans-serif;
+  --font-fraunces: var(--font-fraunces-google), serif;
+}
+
+/* Remap eksisterende literal font-family-attributter (SVG-tekst) til de selv-hostede next/font-familier.
+   Præsentationsattributter taber til author-CSS, så ingen komponenter skal ændres. */
+[font-family="Jost,sans-serif"],
+[font-family="Jost, sans-serif"] {
+  font-family: var(--font-jost), sans-serif;
+}
+[font-family="Fraunces"],
+[font-family="Fraunces, serif"],
+[font-family="Fraunces, Georgia, serif"] {
+  font-family: var(--font-fraunces-google), Georgia, serif;
 }
 
 html {
