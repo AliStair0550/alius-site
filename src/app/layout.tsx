@@ -46,14 +46,6 @@ export const metadata: Metadata = {
     description: DESC,
     url: "https://alius.dk",
     siteName: "ALIUS",
-    images: [
-      {
-        url: "/og.png",
-        width: 1200,
-        height: 630,
-        alt: "ALIUS - digitale maskiner",
-      },
-    ],
     locale: "da_DK",
     type: "website",
   },
@@ -61,7 +53,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ALIUS - digitale maskiner",
     description: DESC,
-    images: ["/og.png"],
   },
 };
 
