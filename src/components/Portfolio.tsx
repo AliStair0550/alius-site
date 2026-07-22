@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const projects = [
   {
@@ -283,12 +284,12 @@ function StempletViz() {
 function CykelmovViz() {
   return (
     <>
-      <img
+      <Image
         src="/cykelmov.jpg"
         alt="Cykelmov cykelbutik på Nørrebrogade"
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+        fill
+        sizes="(max-width: 767px) 100vw, 640px"
+        className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
       />
       <div
         className="absolute inset-0"
@@ -327,12 +328,12 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("image" in p && p.image) {
     return (
       <>
-        <img
+        <Image
           src={p.image}
           alt={p.name}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+          fill
+          sizes="(max-width: 767px) 100vw, 640px"
+          className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         {"overlay" in p && p.overlay && (
           <>
@@ -362,12 +363,12 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("bgImage" in p && p.bgImage) {
     return (
       <>
-        <img
+        <Image
           src={p.bgImage}
           alt={p.name}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+          fill
+          sizes="(max-width: 767px) 100vw, 640px"
+          className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-ink/50" />
         {"logo" in p && p.logo && (
