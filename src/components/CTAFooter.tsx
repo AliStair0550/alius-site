@@ -107,7 +107,7 @@ export function CTA() {
             <button
               onClick={handleMatch}
               className="group flex flex-col items-center gap-3 select-none"
-              aria-label="Er vi et match?"
+              aria-label="Sæt strøm til forretningen"
               disabled={phase === "swiping"}
             >
               {/* Ydre mosgrøn ring */}
@@ -144,12 +144,6 @@ export function CTA() {
                   />
                 </div>
               </div>
-
-              {phase === "idle" && (
-                <span className="text-[10px] tracking-[0.2em] uppercase text-clay/60 font-[300] group-hover:text-moss transition-colors">
-                  Er vi et match?
-                </span>
-              )}
             </button>
           </div>
 
@@ -208,13 +202,10 @@ export function CTA() {
               </div>
             ))}
 
-            {/* MATCH text */}
+            {/* Reveal-tekst */}
             <div style={{ animation: "matchPopIn 550ms cubic-bezier(0.34,1.56,0.64,1) 120ms both" }}>
-              <div className="text-[10px] tracking-[0.45em] uppercase text-moss font-[400] mb-1">
-                Det er et
-              </div>
-              <div className="font-fraunces font-light italic text-[clamp(52px,9vw,88px)] text-ink leading-[0.9] tracking-[-0.02em]">
-                Match.
+              <div className="font-fraunces font-light italic text-[clamp(32px,6vw,58px)] text-ink leading-[1.08] tracking-[-0.02em] max-w-[540px]">
+                Sæt strøm til forretningen.
               </div>
             </div>
 
