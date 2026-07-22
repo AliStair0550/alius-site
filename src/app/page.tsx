@@ -18,16 +18,16 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <div className="h-px bg-clay" />
         <Services />
-        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <div className="h-px bg-clay" />
         <About />
-        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <div className="h-px bg-clay" />
         <Maskinrummet />
         <Portfolio />
-        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <div className="h-px bg-clay" />
         <Tools />
-        <div className="h-px bg-clay max-w-[1100px] mx-auto" />
+        <div className="h-px bg-clay" />
         <CTA />
       </main>
       <Footer />
