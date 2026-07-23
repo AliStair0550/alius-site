@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
+import { prisma, withDbRetry } from "@/lib/db";
 import {
   syncAus08,
   syncKonk3,
@@ -49,6 +49,38 @@ export async function GET(req: Request) {
 
   try {
     note("Starting Pulse cron run");
+
+    // ============================================================
+    // Step 0: Wake up / confirm DB connectivity before doing work.
+    // Neon skalerer til nul ved inaktivitet; det første kald efter en
+    // cold start kan fejle med "Can't reach database server". withDbRetry
+    // rider opvågningen af, så en forbigående blip ikke udløser fejlmails.
+    // ============================================================
+    note("Step 0: warming up database connection");
+    try {
+      await withDbRetry(() => prisma.$queryRaw`SELECT 1`);
+      note("Database reachable");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      note(`Database unreachable after retries: ${message}`);
+      // Én samlet infra-alarm i stedet for en identisk mail pr. datakilde
+      await sendPulseErrorEmail({
+        sourceName: "Database (Neon)",
+        sourceSlug: "infra-db",
+        step: "sync",
+        errorMessage: `Kan ikke nå databasen efter gentagne forsøg: ${message}`,
+        timestamp: new Date(),
+      });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "database_unreachable",
+          runtime_ms: Date.now() - startedAt.getTime(),
+          log,
+        },
+        { status: 503 }
+      );
+    }
 
     // ============================================================
     // Step 1: Sync both sources in parallel
