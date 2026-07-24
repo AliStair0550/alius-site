@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { getKommuneByCode } from "@/lib/areas";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/pulse" },
+export const metadata: Metadata = pageMetadata({
   title: "Pulse · Alius",
   description:
     "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
-};
+  path: "/pulse",
+});
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.

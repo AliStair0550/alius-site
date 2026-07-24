@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { IncomeBars } from "@/components/pulse/IncomeBars";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/pulse/kommuner/danmark" },
+export const metadata: Metadata = pageMetadata({
   title: "Danmark · Kommuneprofiler · Alius Pulse",
   description:
     "Danmark som helhed: befolkning, indkomst og ledighed. Det landsgennemsnit alle kommune-profiler sammenlignes med.",
-};
+  path: "/pulse/kommuner/danmark",
+});
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.

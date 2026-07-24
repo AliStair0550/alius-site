@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { TillidsChart } from "@/components/pulse/TillidsChart";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/pulse/forbrug" },
+export const metadata: Metadata = pageMetadata({
   title: "Forbrugerklimaet · Alius Pulse",
   description:
     "Forbrugertillid, detailomsætning og danskernes købelyst. Månedlige nøgletal fra Danmarks Statistik.",
-};
+  path: "/pulse/forbrug",
+});
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.

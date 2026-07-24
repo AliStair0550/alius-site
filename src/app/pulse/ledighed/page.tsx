@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -12,12 +13,12 @@ import { KommuneRankings } from "@/components/pulse/KommuneRankings";
 import { KommunePicker } from "@/components/pulse/KommunePicker";
 import { MapWithMobileFallback } from "@/components/pulse/MapWithMobileFallback";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/pulse/ledighed" },
+export const metadata: Metadata = pageMetadata({
   title: "Ledighedspuls · Alius Pulse",
   description:
     "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Opdateres månedligt med data fra Danmarks Statistik.",
-};
+  path: "/pulse/ledighed",
+});
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.

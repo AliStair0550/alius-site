@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,11 +22,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const full = `${thinker.tagline} ${thinker.centralIdea}`;
   const description =
     full.length <= 157 ? full : full.slice(0, 154).replace(/\s+\S*$/, "") + "...";
-  return {
+  return pageMetadata({
     title: `${thinker.name} · Frihedstænkere · Alius`,
     description,
-    alternates: { canonical: `/frihedstænkere/${thinker.slug}` },
-  };
+    path: `/frihedstænkere/${thinker.slug}`,
+    type: "article",
+  });
 }
 
 export default async function ThinkerPage({ params }: Props) {

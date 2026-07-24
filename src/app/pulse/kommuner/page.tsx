@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
 import { KommunerList, type KommuneRow } from "@/components/pulse/KommunerList";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/pulse/kommuner" },
+export const metadata: Metadata = pageMetadata({
   title: "Kommuneprofiler · Alius Pulse",
   description:
     "Befolkning, indkomst og ledighed for alle 98 danske kommuner. Data fra Danmarks Statistik opdateret månedligt.",
-};
+  path: "/pulse/kommuner",
+});
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.

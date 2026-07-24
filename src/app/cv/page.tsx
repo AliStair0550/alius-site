@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import { Footer } from "@/components/CTAFooter";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/cv" },
+export const metadata: Metadata = pageMetadata({
   title: "Ali Al-Farhan - CV | ALIUS",
   description:
     "CV for Ali Al-Farhan, grundlægger af ALIUS. Strategi, finans og digital udvikling med branchekendskab fra bank, legal tech, detail og dansk eksport.",
-};
+  path: "/cv",
+});
 
 const experience = [
   {

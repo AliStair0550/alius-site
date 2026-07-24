@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
@@ -7,12 +8,12 @@ import { KonkursHero } from "@/components/pulse/KonkursHero";
 import { KonkursHistoryChart } from "@/components/pulse/KonkursHistoryChart";
 import { BrancheRankings } from "@/components/pulse/BrancheRankings";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/pulse/konkurser" },
+export const metadata: Metadata = pageMetadata({
   title: "Konkurspuls · Alius Pulse",
   description:
     "Antallet af konkurser i danske virksomheder, måned for måned og branche for branche. Sæsonkorrigerede tal fra Danmarks Statistik.",
-};
+  path: "/pulse/konkurser",
+});
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.

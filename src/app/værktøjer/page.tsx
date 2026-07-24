@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/værktøjer" },
+export const metadata: Metadata = pageMetadata({
   title: "Værktøjer · Alius",
   description:
     "Værktøjer udviklet af Alius. Gratis at bruge. Designet til at give indsigt og fungere som lead magneter til konsulentydelser.",
-};
+  path: "/værktøjer",
+});
 
 type SubLink = {
   name: string;

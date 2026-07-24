@@ -1,23 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { ARCHETYPES } from "@/components/tankeprofil/data";
 
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/tankeprofil/teori" },
+export const metadata: Metadata = pageMetadata({
   title: "Teorien bag · Personlighedsprofil · Alius",
   description:
     "Hvorfor fire måder at tænke på, og hvad det betyder for samarbejde. En kort introduktion til tænkningen bag Alius' Personlighedsprofil.",
-  openGraph: {
-    title: "Teorien bag · Personlighedsprofil · Alius",
-    description:
-      "Hvorfor fire måder at tænke på, og hvad det betyder for samarbejde.",
-    type: "article",
-    locale: "da_DK",
-    siteName: "Alius",
-  },
-};
+  path: "/tankeprofil/teori",
+  type: "article",
+  image: "/tankeprofil/opengraph-image",
+});
 
 export default function TeoriPage() {
   return (

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -30,11 +31,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const k = getKommuneBySlug(slug);
   if (!k) return { title: "Kommune ikke fundet · Alius Pulse" };
-  return {
+  return pageMetadata({
     title: `${k.name} · Kommuneprofil · Alius Pulse`,
     description: `Befolkning, disponibel indkomst og ledighed i ${k.name} kommune. Data fra Danmarks Statistik.`,
-    alternates: { canonical: `/pulse/kommuner/${k.slug}` },
-  };
+    path: `/pulse/kommuner/${k.slug}`,
+  });
 }
 
 // Undgå at pre-rendere alle kommuner ved build (tømmer DB-kvoten).

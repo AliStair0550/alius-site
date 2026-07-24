@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { TeamSessionForm } from "@/components/tankeprofil/TeamSessionForm";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/tankeprofil/hold" },
+export const metadata: Metadata = pageMetadata({
   title: "Hold · Personlighedsprofil · Alius",
   description:
     "Styrk samarbejdet og kommunikationen i dit hold med en fælles personlighedsprofil. Se hvor I tænker ens, og hvor I supplerer hinanden.",
-};
+  path: "/tankeprofil/hold",
+  image: "/tankeprofil/opengraph-image",
+});
 
 export default function HoldPage() {
   return (

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { THINKERS, ALL_THEMES } from "@/lib/frihedstaenkere";
 import { ThinkersGrid } from "./ThinkersGrid";
 import { ThinkerTimeline } from "@/components/frihedstænkere/ThinkerTimeline";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/frihedstænkere" },
+export const metadata: Metadata = pageMetadata({
   title: "Frihedstænkere · Alius",
   description:
     "Et idébibliotek over tænkere der har formet vores forståelse af frihed, magt og civilisation. Fra Platon til Byung-Chul Han.",
-};
+  path: "/frihedstænkere",
+});
 
 export default function FrihedstaenkerePage() {
   return (
