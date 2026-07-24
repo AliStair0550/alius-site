@@ -34,7 +34,7 @@ const DESC =
   "Agentic AI, automatisering og systemer, der fjerner manuelt arbejde og skaber overblik i danske virksomheder.";
 
 export const metadata: Metadata = {
-  title: "ALIUS - digitale maskiner",
+  title: "ALIUS - Digitale Maskiner",
   description: DESC,
   metadataBase: new URL("https://alius.dk"),
   applicationName: "ALIUS",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   creator: "Ali Al-Farhan",
   robots: { index: true, follow: true },
   openGraph: {
-    title: "ALIUS - digitale maskiner",
+    title: "ALIUS - Digitale Maskiner",
     description: DESC,
     url: "https://alius.dk",
     siteName: "ALIUS",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ALIUS - digitale maskiner",
+    title: "ALIUS - Digitale Maskiner",
     description: DESC,
   },
 };

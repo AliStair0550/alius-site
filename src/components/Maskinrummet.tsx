@@ -50,14 +50,14 @@ const TABS: { label: string; cards: Card[] }[] = [
       },
       {
         title: "Rykkerrobotten",
-        desc: "Overvåger forfaldne fakturaer og sender venlige, eskalerende påmindelser i jeres tone.",
+        desc: "Overvåger forfaldne fakturaer og sender venlige påmindelser i jeres tone.",
         result: "Kortere betalingstid uden ubehagelige samtaler.",
         stack: "Kobles på Dinero, Billy eller e-conomic.",
       },
       {
-        title: "Nyhedsbrevsmotoren",
-        desc: "Skriver udkast til jeres nyhedsbrev ud fra måneden der gik: nye varer, omtale, sæson.",
-        result: "Konsistent udsendelse uden blank skærm.",
+        title: "Nyhedsagenten",
+        desc: "Skriver udkast til jeres nyhedsbrev i jeres tone ud fra måneden der gik: nye varer, omtale, sæson.",
+        result: "Hold kunderne opdateret hurtigt og intelligent.",
         stack: "Kobles på jeres nyhedsbrevssystem.",
       },
     ],
@@ -85,7 +85,7 @@ const TABS: { label: string; cards: Card[] }[] = [
       },
       {
         title: "Udbudsvagten",
-        desc: "Overvåger offentlige udbud og matcher dem mod jeres profil.",
+        desc: "Overvåger offentligt tilgængelige udbud og matcher relevante muligheder med jeres løsninger.",
         result: "Relevante udbud i indbakken. Ingen manuel søgning.",
         stack: "Leveres i jeres indbakke.",
       },
