@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Jost, Fraunces, Cormorant_Garamond, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
+import Analytics from "@/components/Analytics";
+
+// GA kører kun i produktion. VERCEL_ENV er "production" | "preview" og er slet
+// ikke sat lokalt, så preview-deployments og npm run dev sender ingen data.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const ANALYTICS_ENABLED =
+  process.env.VERCEL_ENV === "production" && !!GA_ID;
 
 // Selv-hostede fonte (ingen render-blokerende Google-request, ingen layout shift)
 const jost = Jost({
@@ -88,7 +95,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {ANALYTICS_ENABLED && <Analytics gaId={GA_ID!} />}
+      </body>
     </html>
   );
 }

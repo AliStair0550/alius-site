@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 export function TeamRequestForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -37,6 +38,7 @@ export function TeamRequestForm() {
       }
 
       setSubmitted(true);
+      trackEvent("kontakt_sendt");
     } catch (err) {
       console.error("[TeamRequestForm] Submit error:", err);
       setError("Kunne ikke sende anmodningen. Tjek din internetforbindelse og prøv igen.");

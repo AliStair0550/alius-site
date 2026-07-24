@@ -224,6 +224,7 @@ export function CTA() {
                 style={{ animation: "matchSlideIn 400ms ease-out both" }}>
                 <a
                   href="mailto:hej@alius.dk"
+                  data-analytics="kontakt_klik"
                   className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-9 py-3.5 bg-moss text-parchment hover:bg-moss-light transition-colors"
                 >
                   Tag en snak
