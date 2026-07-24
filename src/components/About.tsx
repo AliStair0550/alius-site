@@ -16,7 +16,7 @@ export default function About() {
               alt="Ali Al-Farhan, grundlægger af ALIUS"
               loading="lazy"
               decoding="async"
-              className="w-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
+              className="w-full h-full object-cover object-top transition-transform duration-[1000ms] ease-out group-hover:scale-[1.015]"
             />
             <div className="absolute bottom-0 left-0 right-0 h-[24px] bg-gradient-to-t from-parchment/60 to-transparent" />
           </div>
@@ -40,8 +40,8 @@ export default function About() {
             skaber målbar værdi.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
-            <strong className="font-[400] text-ink">Bygger til virkeligheden.</strong>{" "}
-            Skaber værdi fra dag ét.
+            <strong className="font-[400] text-ink">Automatiserer din hverdag</strong>{" "}
+            og skaber simplicitet.
           </p>
 
           <div className="flex flex-col">
