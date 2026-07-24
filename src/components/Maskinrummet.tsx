@@ -20,19 +20,19 @@ const TABS: { label: string; cards: Card[] }[] = [
         stack: "Bygger på jeres dokumenter i Microsoft 365 eller Google Drive.",
       },
       {
-        title: "Bestyrelsesbriefen",
+        title: "Ledelsesindsigten",
         desc: "Trækker tallene fra jeres regnskabssystem og skriver månedens status i klart sprog. Klar før mødet.",
         result: "Mødeforberedelse fra en dag til ti minutter.",
         stack: "Kobles direkte på Dinero, Billy eller e-conomic.",
       },
       {
-        title: "Cash Management",
+        title: "Cash Management Agenten",
         desc: "Fremskriver kassebeholdningen ud fra fakturaer, faste omkostninger og sæson.",
         result: "I ser pengeproblemer to måneder før de rammer.",
         stack: "Bygger på jeres regnskabsdata.",
       },
       {
-        title: "Kandidatmaskinen",
+        title: "Kandidatscanneren",
         desc: "Læser ansøgninger, matcher mod jobkravene og laver en kort sammenfatning af hver kandidat.",
         result: "Shortlist på en time i stedet for en weekend.",
         stack: "Kobles på jeres indbakke.",
@@ -101,7 +101,7 @@ const TABS: { label: string; cards: Card[] }[] = [
         stack: "Kobles på jeres annoncekonti.",
       },
       {
-        title: "SEO-vagten",
+        title: "SEO-radaren",
         desc: "Overvåger placeringer, tekniske fejl og konkurrenternes indhold. Månedlig prioriteret liste.",
         result: "I ved præcis hvad der skal fikses først.",
         stack: "Kobles på Google Search Console.",
