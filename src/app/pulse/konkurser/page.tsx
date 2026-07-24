@@ -14,7 +14,9 @@ export const metadata: Metadata = {
     "Antallet af konkurser i danske virksomheder, måned for måned og branche for branche. Sæsonkorrigerede tal fra Danmarks Statistik.",
 };
 
-export const dynamic = "force-dynamic";
+// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
+// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 

@@ -12,7 +12,9 @@ export const metadata: Metadata = {
     "Forbrugertillid, detailomsætning og danskernes købelyst. Månedlige nøgletal fra Danmarks Statistik.",
 };
 
-export const dynamic = "force-dynamic";
+// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
+// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+export const revalidate = 3600;
 
 const SUB_INDICATORS = [
   { code: "F2", label: "Familiens økonomi i dag", note: "vs. for et år siden" },

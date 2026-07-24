@@ -19,7 +19,9 @@ export const metadata: Metadata = {
     "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Opdateres månedligt med data fra Danmarks Statistik.",
 };
 
-export const dynamic = "force-dynamic";
+// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
+// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 

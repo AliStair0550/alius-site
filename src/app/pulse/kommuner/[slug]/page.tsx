@@ -22,7 +22,9 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export const dynamic = "force-dynamic";
+// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
+// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // Undgå at pre-rendere alle kommuner ved build (tømmer DB-kvoten).
-// Siderne renderes on-demand ved første besøg og caches derefter (revalidate=false).
+// Siderne renderes on-demand ved første besøg og caches derefter (se revalidate ovenfor).
 export async function generateStaticParams() {
   return [];
 }

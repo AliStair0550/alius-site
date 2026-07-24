@@ -11,7 +11,9 @@ export const metadata: Metadata = {
     "Danmark som helhed: befolkning, indkomst og ledighed. Det landsgennemsnit alle kommune-profiler sammenlignes med.",
 };
 
-export const dynamic = "force-dynamic";
+// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
+// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+export const revalidate = 3600;
 
 const NATIONAL_AREA_CODE = "000";
 

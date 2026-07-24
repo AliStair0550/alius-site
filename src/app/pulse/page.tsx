@@ -12,7 +12,9 @@ export const metadata: Metadata = {
     "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
 };
 
-export const dynamic = "force-dynamic";
+// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
+// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+export const revalidate = 3600;
 
 type Dashboard = {
   slug: string;
