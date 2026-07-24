@@ -159,7 +159,7 @@ function MachineFlow() {
         {(
           [
             [43, "KAOS"],
-            [227, "AGENTER"],
+            [227, "AUTOMATISERING"],
             [421, "KLARHED"],
           ] as const
         ).map(([x, label]) => (

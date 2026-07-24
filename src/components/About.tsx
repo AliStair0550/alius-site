@@ -24,7 +24,7 @@ export default function About() {
 
         <div>
           <h3 className="font-[300] text-[1.4rem] text-ink mb-5">
-            Automatisering, der skaber værdi.
+            Intelligente løsninger, der skaber værdi.
           </h3>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
             Jeg hedder Ali, og jeg bygger ALIUS. Jeg udvikler AI agenter,
@@ -33,10 +33,11 @@ export default function About() {
             forretning.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Min baggrund er ikke et klassisk bureau. Jeg har arbejdet med
-            strategi, finans, legal tech, fødevarebranchen og dansk eksport. Jeg
-            bygger ikke teknologi for teknologiens skyld. Jeg bygger løsninger,
-            der løser konkrete forretningsproblemer.
+            Min erfaring kombinerer strategi, finans og digital udvikling med
+            indgående branchekendskab fra bank, legal tech, detail og dansk
+            eksport. Det giver mig et stærkt forretningsperspektiv og evnen til
+            at omsætte komplekse udfordringer til intelligente løsninger, der
+            skaber målbar værdi.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-8">
             <strong className="font-[400] text-ink">Bygger til virkeligheden.</strong>{" "}

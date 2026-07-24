@@ -201,19 +201,19 @@ function DriftViz() {
 const columns = [
   {
     label: "01 Kortlæg",
-    heading: "Vi finder timerne, før vi bygger noget.",
-    desc: "Vi følger jeres arbejdsgange, hvor de foregår, og finder de tre med størst gevinst. I får planen med tallet i kroner, før vi skriver én linje kode.",
+    heading: "Find mulighederne først.",
+    desc: "Fortæl os om jeres konkrete udfordringer. Eller lad os følge jeres arbejdsgange fra start til slut og identificere de processer, der kan automatiseres eller optimeres.",
     Viz: KortlaegViz,
   },
   {
     label: "02 Byg",
     heading: "Vi bygger på det, I allerede har.",
-    desc: "Vi forbinder jeres systemer og automatiserer de tre arbejdsgange. AI, hvor det skaber værdi. Aldrig hvor det skaber risiko.",
+    desc: "Vi tager udgangspunkt i jeres forretning og bygger intelligente systemer, der arbejder sammen med jeres eksisterende processer.",
     Viz: BygViz,
   },
   {
     label: "03 Drift",
-    heading: "I ejer alt. Vi holder det kørende.",
+    heading: "Vi holder det kørende. I ejer alt.",
     desc: "Test med jeres egne folk, fuld dokumentation og overdragelse. Maskinen arbejder herefter hver dag, og I kan følge den i ét overblik.",
     Viz: DriftViz,
   },
@@ -242,7 +242,7 @@ export default function Services() {
           Sæt strøm til jeres processer.
         </h2>
         <p className="font-[200] text-[0.95rem] text-stone leading-[1.9] mb-12 max-w-[620px]">
-          Fra manuelt arbejde til automatiserede maskiner, der skaber mere tid til forretningen.
+          Fra manuelt arbejde til intelligente løsninger, der skaber mere tid til forretningen.
         </p>
 
         <div ref={sectionRef} className="grid grid-cols-1 md:grid-cols-3">
