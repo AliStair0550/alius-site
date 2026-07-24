@@ -6,6 +6,7 @@ import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { getKommuneByCode } from "@/lib/areas";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pulse" },
   title: "Pulse · Alius",
   description:
     "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",

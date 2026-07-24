@@ -6,6 +6,7 @@ import { TillidsChart } from "@/components/pulse/TillidsChart";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pulse/forbrug" },
   title: "Forbrugerklimaet · Alius Pulse",
   description:
     "Forbrugertillid, detailomsætning og danskernes købelyst. Månedlige nøgletal fra Danmarks Statistik.",

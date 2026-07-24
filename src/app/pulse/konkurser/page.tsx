@@ -8,6 +8,7 @@ import { KonkursHistoryChart } from "@/components/pulse/KonkursHistoryChart";
 import { BrancheRankings } from "@/components/pulse/BrancheRankings";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pulse/konkurser" },
   title: "Konkurspuls · Alius Pulse",
   description:
     "Antallet af konkurser i danske virksomheder, måned for måned og branche for branche. Sæsonkorrigerede tal fra Danmarks Statistik.",

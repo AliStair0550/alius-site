@@ -5,7 +5,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/tankeprofil/hold/admin", "/tankeprofil/min-profil", "/tankeprofil/join"],
+      disallow: [
+        "/api/",
+        "/tankeprofil/hold/admin",
+        "/tankeprofil/hold/rapport",
+        "/tankeprofil/min-profil",
+        "/tankeprofil/join",
+      ],
     },
     sitemap: "https://alius.dk/sitemap.xml",
     host: "https://alius.dk",

@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${k.name} · Kommuneprofil · Alius Pulse`,
     description: `Befolkning, disponibel indkomst og ledighed i ${k.name} kommune. Data fra Danmarks Statistik.`,
+    alternates: { canonical: `/pulse/kommuner/${k.slug}` },
   };
 }
 

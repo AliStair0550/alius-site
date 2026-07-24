@@ -739,7 +739,7 @@ export function PrioritizerApp() {
               ← Alius
             </Link>
             <span className="text-parchment/15 text-lg font-[100]">|</span>
-            <span className="text-parchment text-[11px] tracking-[0.22em] uppercase font-[300]">Prioriteringsværktøj</span>
+            <h1 className="text-parchment text-[11px] tracking-[0.22em] uppercase font-[300]">Prioriteringsværktøj</h1>
           </div>
           <div className="flex items-center gap-3">
             {computed.length > 0 && (

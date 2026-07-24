@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { TeamTestClient } from "@/components/tankeprofil/TeamTestClient";
+import type { Metadata } from "next";
+
+// Token-beskyttet side: må aldrig indekseres.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 
 export const dynamic = "force-dynamic";
 

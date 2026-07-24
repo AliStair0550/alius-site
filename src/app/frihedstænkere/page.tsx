@@ -5,6 +5,7 @@ import { ThinkersGrid } from "./ThinkersGrid";
 import { ThinkerTimeline } from "@/components/frihedstænkere/ThinkerTimeline";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/frihedstænkere" },
   title: "Frihedstænkere · Alius",
   description:
     "Et idébibliotek over tænkere der har formet vores forståelse af frihed, magt og civilisation. Fra Platon til Byung-Chul Han.",

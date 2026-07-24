@@ -5,6 +5,7 @@ import { humanizePeriod } from "@/lib/signals/types";
 import { IncomeBars } from "@/components/pulse/IncomeBars";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pulse/kommuner/danmark" },
   title: "Danmark · Kommuneprofiler · Alius Pulse",
   description:
     "Danmark som helhed: befolkning, indkomst og ledighed. Det landsgennemsnit alle kommune-profiler sammenlignes med.",

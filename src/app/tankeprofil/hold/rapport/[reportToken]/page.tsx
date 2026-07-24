@@ -3,6 +3,13 @@ import { prisma } from "@/lib/db";
 import { analyzeTeam, type Participant } from "@/lib/team-analysis";
 import { TeamReportReveal } from "@/components/tankeprofil/TeamReportReveal";
 import type { QuadrantKey } from "@/components/tankeprofil/data";
+import type { Metadata } from "next";
+
+// Token-beskyttet side: må aldrig indekseres.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 
 export const dynamic = "force-dynamic";
 

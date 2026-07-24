@@ -16,9 +16,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const thinker = getThinkerBySlug(slug);
   if (!thinker) return {};
+  // Taglinen alene blev for kort (ca. 35 tegn) til et brugbart søgeresultat.
+  // Suppler med den centrale idé og klip ved ordgrænse omkring 155 tegn.
+  const full = `${thinker.tagline} ${thinker.centralIdea}`;
+  const description =
+    full.length <= 157 ? full : full.slice(0, 154).replace(/\s+\S*$/, "") + "...";
   return {
     title: `${thinker.name} · Frihedstænkere · Alius`,
-    description: thinker.tagline,
+    description,
+    alternates: { canonical: `/frihedstænkere/${thinker.slug}` },
   };
 }
 

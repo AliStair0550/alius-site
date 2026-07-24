@@ -3,6 +3,7 @@ import Link from "next/link";
 import { TeamSessionForm } from "@/components/tankeprofil/TeamSessionForm";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/tankeprofil/hold" },
   title: "Hold · Personlighedsprofil · Alius",
   description:
     "Styrk samarbejdet og kommunikationen i dit hold med en fælles personlighedsprofil. Se hvor I tænker ens, og hvor I supplerer hinanden.",

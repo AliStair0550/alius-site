@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/CTAFooter";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/cv" },
   title: "Ali Al-Farhan - CV | ALIUS",
-  description: "Strategisk projektleder og forretningsudvikler.",
+  description:
+    "CV for Ali Al-Farhan, grundlægger af ALIUS. Strategi, finans og digital udvikling med branchekendskab fra bank, legal tech, detail og dansk eksport.",
 };
 
 const experience = [

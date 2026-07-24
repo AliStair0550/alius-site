@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/værktøjer" },
   title: "Værktøjer · Alius",
   description:
     "Værktøjer udviklet af Alius. Gratis at bruge. Designet til at give indsigt og fungere som lead magneter til konsulentydelser.",

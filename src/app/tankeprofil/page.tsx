@@ -4,6 +4,7 @@ import { TankeprofilClient } from "@/components/tankeprofil/TankeprofilClient";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/tankeprofil" },
   title: "Tankeprofil · Alius",
   description:
     "Lær dine præferencer at kende. Fire måder at tænke på, tre situationer at vælge imellem. En personlighedsprofil fra Alius.",

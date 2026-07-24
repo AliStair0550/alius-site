@@ -6,6 +6,7 @@ import { humanizePeriod } from "@/lib/signals/types";
 import { KommunerList, type KommuneRow } from "@/components/pulse/KommunerList";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pulse/kommuner" },
   title: "Kommuneprofiler · Alius Pulse",
   description:
     "Befolkning, indkomst og ledighed for alle 98 danske kommuner. Data fra Danmarks Statistik opdateret månedligt.",

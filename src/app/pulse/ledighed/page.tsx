@@ -13,6 +13,7 @@ import { KommunePicker } from "@/components/pulse/KommunePicker";
 import { MapWithMobileFallback } from "@/components/pulse/MapWithMobileFallback";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/pulse/ledighed" },
   title: "Ledighedspuls · Alius Pulse",
   description:
     "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Opdateres månedligt med data fra Danmarks Statistik.",
