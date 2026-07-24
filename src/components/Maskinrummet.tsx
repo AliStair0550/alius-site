@@ -40,29 +40,6 @@ const TABS: { label: string; cards: Card[] }[] = [
     ],
   },
   {
-    label: "Salg og kunder",
-    cards: [
-      {
-        title: "Leadmotoren",
-        desc: "Finder virksomheder der ligner jeres bedste kunder, researcher dem og skriver udkast til første henvendelse.",
-        result: "10 kvalificerede emner om ugen, klar til at sende.",
-        stack: "Bygger på CVR-data og jeres eget CRM eller regneark.",
-      },
-      {
-        title: "Rykkerrobotten",
-        desc: "Overvåger forfaldne fakturaer og sender venlige påmindelser i jeres tone.",
-        result: "Kortere betalingstid uden ubehagelige samtaler.",
-        stack: "Kobles på Dinero, Billy eller e-conomic.",
-      },
-      {
-        title: "Nyhedsagenten",
-        desc: "Skriver udkast til jeres nyhedsbrev i jeres tone ud fra måneden der gik: nye varer, omtale, sæson.",
-        result: "Hold kunderne opdateret hurtigt og intelligent.",
-        stack: "Kobles på jeres nyhedsbrevssystem.",
-      },
-    ],
-  },
-  {
     label: "Overvågning",
     cards: [
       {
@@ -88,6 +65,29 @@ const TABS: { label: string; cards: Card[] }[] = [
         desc: "Overvåger offentligt tilgængelige udbud og matcher relevante muligheder med jeres løsninger.",
         result: "Relevante udbud i indbakken. Ingen manuel søgning.",
         stack: "Leveres i jeres indbakke.",
+      },
+    ],
+  },
+  {
+    label: "Salg og kunder",
+    cards: [
+      {
+        title: "Leadmotoren",
+        desc: "Finder virksomheder der ligner jeres bedste kunder, researcher dem og skriver udkast til første henvendelse.",
+        result: "10 kvalificerede emner om ugen, klar til at sende.",
+        stack: "Bygger på CVR-data og jeres eget CRM eller regneark.",
+      },
+      {
+        title: "Rykkerrobotten",
+        desc: "Overvåger forfaldne fakturaer og sender venlige påmindelser i jeres tone.",
+        result: "Kortere betalingstid uden ubehagelige samtaler.",
+        stack: "Kobles på Dinero, Billy eller e-conomic.",
+      },
+      {
+        title: "Nyhedsagenten",
+        desc: "Skriver udkast til jeres nyhedsbrev i jeres tone ud fra måneden der gik: nye varer, omtale, sæson.",
+        result: "Hold kunderne opdateret hurtigt og intelligent.",
+        stack: "Kobles på jeres nyhedsbrevssystem.",
       },
     ],
   },
@@ -147,7 +147,7 @@ export default function Maskinrummet() {
           Maskinrummet
         </h2>
         <p className="font-[300] text-[1rem] text-stone leading-[1.9] mb-12 max-w-[620px]">
-          Et indblik i de digitale maskiner, vi bygger. Brug eksemplerne som inspiration til, hvordan vi kan automatisere, forbinde og styrke jeres forretning.
+          Et indblik i de digitale maskiner og agenter, vi bygger. Skræddersyet til jeres forretning og integreret med de systemer, I allerede arbejder i.
         </p>
 
         {/* Faner */}
