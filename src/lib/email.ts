@@ -522,24 +522,25 @@ export function inviteEmailHtml(data: InviteEmailData): string {
                 <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 36px; line-height: 1.1; margin: 0 0 24px 0; color: #1A1A1A; letter-spacing: -0.01em;">
                   ${escapeHtml(data.inviterName)} har inviteret dig.
                 </h1>
-                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 32px 0;">
+                <p style="font-size: 16px; line-height: 1.65; color: #4A4A4A; margin: 0 0 24px 0;">
                   ${escapeHtml(data.inviterName)} inviterer dig til at tage en personlighedsprofil som en del af
                   <strong style="color: #1A1A1A; font-weight: normal;">${escapeHtml(data.company)}</strong>.
-                  Det tager 4 minutter, og du ser dit resultat med det samme.
+                  Klik på knappen nedenfor, skriv dit navn, og svar på 21 korte spørgsmål.
+                  Det tager 3-4 minutter, og du ser dit eget resultat med det samme.
                 </p>
 
-                <div style="margin: 32px 0; padding: 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
-                  <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
-                    Klik for at begynde
-                  </div>
-                  <a href="${data.joinUrl}" style="font-size: 15px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.joinUrl}</a>
-                </div>
-
-                <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(26,26,26,0.1);">
+                <div style="margin-top: 8px; padding-top: 8px;">
                   <a href="${data.joinUrl}"
-                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                     style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 18px 32px; text-decoration: none; font-size: 13px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
                     Tag testen &rarr;
                   </a>
+                </div>
+
+                <div style="margin: 28px 0 0 0; padding: 20px 24px; background-color: #F9F7F2; border-left: 3px solid #2D5F4A;">
+                  <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 8px;">
+                    Virker knappen ikke? Åbn dette link
+                  </div>
+                  <a href="${data.joinUrl}" style="font-size: 14px; color: #2D5F4A; text-decoration: none; word-break: break-all;">${data.joinUrl}</a>
                 </div>
 
                 <div style="margin-top: 32px; font-size: 12px; color: rgba(26,26,26,0.5); line-height: 1.6;">
@@ -565,9 +566,10 @@ export function inviteEmailHtml(data: InviteEmailData): string {
 export function inviteEmailText(data: InviteEmailData): string {
   return `${data.inviterName} har inviteret dig til at tage en personlighedsprofil som en del af ${data.company}.
 
-Det tager 4 minutter og du ser dit resultat med det samme.
+Klik på linket, skriv dit navn, og svar på 21 korte spørgsmål.
+Det tager 3-4 minutter, og du ser dit eget resultat med det samme.
 
-Klik her for at begynde:
+Tag testen her:
 ${data.joinUrl}
 
 Spørgsmål? Skriv til hej@alius.dk

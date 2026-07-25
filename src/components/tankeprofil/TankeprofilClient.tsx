@@ -98,7 +98,7 @@ export function TankeprofilClient() {
               Teorien bag
             </Link>
             <div className="font-extralight text-xs tracking-[0.2em] uppercase text-stone opacity-60">
-              Et redskab i tre kort
+              Et redskab i tre områder
             </div>
           </div>
         </header>

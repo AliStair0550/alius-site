@@ -51,17 +51,11 @@ export const QUARTETS: Quartet[] = [
     id: "k0-q6",
     cardId: 0,
     theme: "udtryk og form",
-    words: { A: "Konkret", B: "Velordnet", C: "Åben", D: "Billedrig" },
-  },
-  {
-    id: "k0-q7",
-    cardId: 0,
-    theme: "kommunikationsstil",
-    words: { A: "Direkte", B: "Punktlig", C: "Personlig", D: "Metaforisk" },
+    words: { A: "Konkret", B: "Velovervejet", C: "Åben", D: "Billedrig" },
   },
 
   // ──────────────────────────────────────────
-  // Kort 1 · Problemløsning (8 quartets)
+  // Kort 1 · Problemløsning (7 quartets)
   // ──────────────────────────────────────────
   {
     id: "k1-q0",
@@ -138,17 +132,6 @@ export const QUARTETS: Quartet[] = [
       B: "Holder deadlines",
       C: "Spørger hvorfor det betyder noget",
       D: "Tør tage risici",
-    },
-  },
-  {
-    id: "k1-q7",
-    cardId: 1,
-    theme: "hvad du trækker på",
-    words: {
-      A: "Stiller kritiske spørgsmål",
-      B: "Tjekker detaljer",
-      C: "Værdsætter intuition",
-      D: "Forbinder fjerne idéer",
     },
   },
 

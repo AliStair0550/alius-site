@@ -217,7 +217,7 @@ export default function TeoriPage() {
             Find din egen <em className="italic text-moss">personlighedsprofil</em>.
           </h3>
           <p className="text-stone max-w-[480px] mx-auto mb-10 text-[16px] leading-[1.6]">
-            Fire minutter, tre kort, ét billede af hvordan du naturligt tænker. Resultatet kommer med det samme.
+            Tre områder, 21 korte spørgsmål, ét billede af hvordan du naturligt tænker. 3-4 minutter, og resultatet kommer med det samme.
           </p>
           <Link
             href="/tankeprofil"

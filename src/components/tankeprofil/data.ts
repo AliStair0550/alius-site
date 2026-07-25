@@ -10,6 +10,9 @@ export type Archetype = {
   name: string;
   color: string;
   short: string;
+  // Én skarp sætning der forklarer hvad typen betyder. Bruges der hvor der
+  // ikke er plads til hele beskrivelsen - fx lige efter en gruppetest.
+  essence: string;
   quote: string;
   room: string;
   description: string;
@@ -22,6 +25,7 @@ export const ARCHETYPES: Record<QuadrantKey, Archetype> = {
     name: "Analytiker",
     color: "#2D5F4A",
     short: "klar, rationel, faktaorienteret",
+    essence: "Du skaber klarhed gennem logik, fakta og skarpe spørgsmål.",
     quote: "Hvis det ikke kan måles, kan det ikke ledes.",
     room: "Et rum med store vinduer, et bord ryddet for unødvendigheder, og en notesbog hvor kun det vigtigste står tilbage. Du sidder her ofte, fordi det er her du tænker klarest.",
     description:
@@ -43,6 +47,7 @@ export const ARCHETYPES: Record<QuadrantKey, Archetype> = {
     name: "Bygmester",
     color: "#8B7355",
     short: "struktureret, disciplineret, detaljeret",
+    essence: "Du får ting gjort, struktureret og til at holde.",
     quote: "Gode systemer overlever dårlige dage.",
     room: "Et rum hvor lyset falder gennem fag på en reol. Der er styr på tingene, men ikke sterilt. En kalender på væggen, en blok med streger over det der er gjort. Du går ind her når noget skal igennem, ikke når noget skal opfindes.",
     description:
@@ -64,6 +69,7 @@ export const ARCHETYPES: Record<QuadrantKey, Archetype> = {
     name: "Forbinder",
     color: "#C8956D",
     short: "relationel, empatisk, kommunikerende",
+    essence: "Du får mennesker til at fungere sammen og turde tale åbent.",
     quote: "Det vi laver sammen, er det det handler om.",
     room: "Et rum der dufter af det andre mennesker har efterladt. To kopper på bordet, en stol der er trukket tæt på en anden. Folk taler langsomt her, fordi du har givet dem tid. Der bliver sagt det der ikke kunne siges på mødet før.",
     description:
@@ -85,6 +91,7 @@ export const ARCHETYPES: Record<QuadrantKey, Archetype> = {
     name: "Visionær",
     color: "#5B7C9D",
     short: "intuitiv, visionær, eksperimenterende",
+    essence: "Du åbner nye muligheder og ser retninger før andre.",
     quote: "Det interessante er altid lige rundt om hjørnet.",
     room: "Et rum med højt til loftet og et bord der er for stort til kun én. Skitser oven på skitser, en bog der er åben på den forkerte side. Tre projekter i gang, et fjerde der lige er begyndt at lyse. Du går herfra med en retning, sjældent med en plan.",
     description:
@@ -116,11 +123,11 @@ export const CARDS: Card[] = [
   {
     id: "kommunikation",
     title: "Kommunikation",
-    subtitle: "Kort 1 af 3",
+    subtitle: "Område 1 af 3",
     instruction: "Vælg de otte ord der bedst beskriver dig når du taler med andre.",
     words: {
       A: ["Præcis", "Saglig", "Faktabaseret", "Logisk", "Velbegrundet", "Spørgende", "Direkte", "Konkret"],
-      B: ["Forberedt", "Struktureret", "Punktlig", "Velordnet", "Detaljeret", "Pålidelig", "Metodisk", "Grundig"],
+      B: ["Forberedt", "Struktureret", "Punktlig", "Velovervejet", "Detaljeret", "Pålidelig", "Metodisk", "Grundig"],
       C: ["Lyttende", "Varm", "Inkluderende", "Empatisk", "Tålmodig", "Anerkendende", "Åben", "Personlig"],
       D: ["Visionær", "Billedrig", "Inspirerende", "Konceptuel", "Modig", "Strategisk", "Metaforisk", "Intuitiv"],
     },
@@ -128,7 +135,7 @@ export const CARDS: Card[] = [
   {
     id: "problemlosning",
     title: "Problemløsning",
-    subtitle: "Kort 2 af 3",
+    subtitle: "Område 2 af 3",
     instruction: "Vælg de otte ord der bedst beskriver dig når du løser et problem.",
     words: {
       A: ["Analyserer årsager", "Søger data", "Stiller kritiske spørgsmål", "Vejer fordele og ulemper", "Identificerer mønstre", "Tester antagelser", "Måler resultater", "Fokuserer på det vigtigste"],
@@ -140,7 +147,7 @@ export const CARDS: Card[] = [
   {
     id: "laering",
     title: "Læring",
-    subtitle: "Kort 3 af 3",
+    subtitle: "Område 3 af 3",
     instruction: "Vælg de otte ord der bedst beskriver dig når du skal lære noget nyt.",
     words: {
       A: ["Læser kilder grundigt", "Stiller spørgsmål til materialet", "Foretrækker at arbejde alene", "Skriver korte præcise noter", "Tester min forståelse", "Søger den underliggende logik", "Holder af klare definitioner", "Bygger viden lag for lag"],

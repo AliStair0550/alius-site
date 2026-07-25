@@ -132,49 +132,36 @@ function SuccessPanel({ result }: { result: SessionResult }) {
 
   return (
     <div className="animate-[fadeIn_0.5s_ease-out] space-y-8">
-      {/* Take the test yourself — first CTA */}
-      <div className="bg-ink text-parchment p-8 md:p-10">
-        <div className="text-[10px] tracking-[0.3em] uppercase text-parchment/50 mb-4">
-          Næste skridt for dig
+      {/* Bekræftelse */}
+      <div className="border-l-2 border-moss pl-5 py-1">
+        <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-2">
+          Hold-linket er klar
         </div>
-        <h3 className="font-fraunces font-light text-[26px] leading-[1.1] mb-3 tracking-[-0.01em]">
-          Tag testen selv nu.
-        </h3>
-        <p className="text-[14px] text-parchment/70 leading-[1.6] mb-6 max-w-[400px]">
-          Som opretter deltager du på præcis samme måde som alle andre. Klik nedenfor og udfyld din profil.
+        <p className="text-[15px] text-stone leading-[1.6] max-w-[440px]">
+          Gør to ting: send linket til holdet, og tag så testen selv. Begge links er også sendt til din email.
         </p>
-        <a
-          href={result.joinUrl}
-          className="inline-flex items-center gap-4 bg-parchment text-ink px-8 py-[18px] text-[12px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
-        >
-          Tag testen selv
-          <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
-        </a>
       </div>
 
-      {/* Join link to share */}
+      {/* Trin 1 · Send til holdet */}
       <div className="bg-sand p-8 md:p-10">
         <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-3">
-          Hold-link
+          Trin 1 · Send til holdet
         </div>
         <p className="text-stone text-[14px] leading-[1.6] mb-5 max-w-[440px]">
-          Del dette link med dit hold. Alle der klikker kan tage testen, ingen konto nødvendig.
+          Del dette link med holdet. Alle der klikker skriver deres navn og tager testen, ingen konto nødvendig.
         </p>
-        <div className="border border-ink/15 bg-parchment p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="border border-ink/15 bg-parchment p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-8">
           <span className="text-[13px] text-moss break-all flex-1 leading-[1.5]">{result.joinUrl}</span>
           <button
             onClick={handleCopy}
             className="text-[11px] tracking-[0.2em] uppercase border border-ink/25 px-4 py-2 hover:bg-ink hover:text-parchment hover:border-ink transition-colors cursor-pointer flex-shrink-0"
           >
-            {copied ? "Kopieret ✓" : "Kopier"}
+            {copied ? "Kopieret ✓" : "Kopier link"}
           </button>
         </div>
-      </div>
 
-      {/* Invite by email */}
-      <div>
-        <div className="text-[11px] tracking-[0.3em] uppercase text-moss mb-3">
-          Inviter direkte
+        <div className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-60 mb-3">
+          Eller inviter direkte på mail
         </div>
         <p className="text-[14px] text-stone leading-[1.6] mb-4 max-w-[440px]">
           Send invitationer direkte fra Alius. Skriv emailadresser adskilt af komma.
@@ -216,6 +203,26 @@ function SuccessPanel({ result }: { result: SessionResult }) {
             </button>
           </form>
         )}
+      </div>
+
+      {/* Trin 2 · Tag testen selv */}
+      <div className="bg-ink text-parchment p-8 md:p-10">
+        <div className="text-[11px] tracking-[0.3em] uppercase text-parchment/50 mb-3">
+          Trin 2 · Tag testen selv
+        </div>
+        <h3 className="font-fraunces font-light text-[26px] leading-[1.1] mb-3 tracking-[-0.01em]">
+          Nu er det din tur.
+        </h3>
+        <p className="text-[14px] text-parchment/70 leading-[1.6] mb-6 max-w-[400px]">
+          Som opretter deltager du på præcis samme måde som resten af holdet. Klik nedenfor, skriv dit navn, og tag testen.
+        </p>
+        <a
+          href={result.joinUrl}
+          className="inline-flex items-center gap-4 bg-parchment text-ink px-8 py-[18px] text-[12px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
+        >
+          Tag testen selv
+          <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+        </a>
       </div>
 
       {/* Admin panel — styled card */}

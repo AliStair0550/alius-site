@@ -114,7 +114,7 @@ export function TeamTestClient({
         )}
 
         {phase.type === "testing" && tp.stage === "intro" && (
-          <Intro onStart={() => tp.goToCard(0)} />
+          <Intro onStart={() => tp.goToCard(0)} showTeamOption={false} />
         )}
 
         {phase.type === "testing" && tp.stage === "card" && (
@@ -134,6 +134,8 @@ export function TeamTestClient({
           <TeamCompletion
             displayName={displayName}
             companyName={companyName}
+            primary={tp.ranking.primary}
+            secondary={tp.ranking.secondary}
             accessToken={phase.type === "done" ? phase.accessToken : null}
             reportToken={
               phase.type === "done"
@@ -184,8 +186,11 @@ function NameInput({
             Hvad er dit{" "}
             <em className="italic text-moss">navn</em>?
           </h1>
-          <p className="text-[17px] font-light leading-[1.55] text-stone max-w-[440px] mb-10">
+          <p className="text-[17px] font-light leading-[1.55] text-stone max-w-[440px] mb-4">
             Dit navn vises på holdets fælles rapport. Du behøver ikke oprette en konto.
+          </p>
+          <p className="text-[14px] font-light leading-[1.6] text-stone opacity-80 max-w-[440px] mb-10">
+            Bagefter kommer du gennem 3 områder og 21 korte spørgsmål. Det tager 3-4 minutter, og du ser dit eget resultat med det samme.
           </p>
           <form onSubmit={handleSubmit} className="space-y-6 max-w-[400px]">
             <label className="block">
@@ -222,9 +227,9 @@ function NameInput({
         </div>
         <div className="border-l-0 md:border-l border-t md:border-t-0 border-ink/10 pl-0 md:pl-12 pt-8 md:pt-0">
           {[
-            ["Varighed", "4 minutter"],
-            ["Kort", "Tre"],
-            ["Format", "Intuitivt valg"],
+            ["Områder", "3"],
+            ["Spørgsmål", "21"],
+            ["Varighed", "3-4 minutter"],
             ["Resultat", "Med det samme"],
           ].map(([label, value]) => (
             <div
