@@ -33,7 +33,7 @@ export default function About() {
             forretning.
           </p>
           <p className="font-[200] text-[0.92rem] text-stone leading-[1.9] mb-4">
-            Min erfaring kombinerer strategi, finans og digital udvikling med
+            Min erfaring kombinerer strategi, projektledelse og digital udvikling med
             indgående branchekendskab fra bank, legal tech, detail og dansk
             eksport. Det giver mig et stærkt forretningsperspektiv og evnen til
             at omsætte komplekse udfordringer til intelligente løsninger, der

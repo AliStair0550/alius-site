@@ -334,7 +334,7 @@ function KortlaegningStep({
       <div className="max-w-[640px]">
         {/* Overskrift */}
         <h2 className="font-fraunces font-light text-[clamp(28px,5vw,44px)] leading-[1.12] tracking-[-0.01em] text-ink mb-3">
-          Lad os kortlægge jeres manuelle processer?
+          Lad os kortlægge jeres manuelle processer sammen.
         </h2>
         <p className="font-[200] text-[1rem] text-stone leading-[1.7] mb-3">
           Vælg op til tre.
@@ -376,7 +376,7 @@ function KortlaegningStep({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Beskriv rutinen med jeres egne ord"
-            rows={2}
+            rows={4}
             disabled={status === "sent"}
             className="w-full px-4 py-3 bg-transparent border border-ink/20 text-[0.95rem] font-[200] text-ink outline-none placeholder:text-slate/50 focus:border-ink transition-colors resize-none disabled:opacity-50"
           />
@@ -395,7 +395,7 @@ function KortlaegningStep({
               <div className="kort-pop absolute inset-0 rounded-full bg-moss" />
             </div>
             <p className="kort-sent-in font-fraunces font-light italic text-[clamp(1.5rem,4vw,2rem)] text-ink leading-[1.15]">
-              Sendt. Vi vender retur.
+              Tak. Vi vender retur.
             </p>
           </div>
         ) : (
@@ -439,7 +439,7 @@ function KortlaegningStep({
                 status === "sending" ? "kort-sending" : ""
               }`}
             >
-              {status === "sending" ? "Sender..." : "Book kortlægningen"}
+              {status === "sending" ? "Sender..." : "Lad os tale sammen"}
             </button>
 
             {status === "error" && (
