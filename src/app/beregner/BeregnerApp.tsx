@@ -154,12 +154,9 @@ export function BeregnerApp() {
 
         {/* Intro */}
         <section className="mb-16 md:mb-24 max-w-[720px]">
-          <h1 className="font-fraunces font-light text-[clamp(34px,7vw,72px)] leading-[1.05] tracking-[-0.02em] text-ink mb-7">
+          <h1 className="font-fraunces font-light text-[clamp(34px,7vw,72px)] leading-[1.05] tracking-[-0.02em] text-ink">
             Hvad koster manuelt arbejde jer?
           </h1>
-          <p className="font-[200] text-[1.05rem] md:text-[1.15rem] text-stone leading-[1.75] max-w-[560px]">
-            Tre tal. Ét svar. Se med det samme, hvad gentaget manuelt arbejde koster jer om året.
-          </p>
         </section>
 
         {/* Beregner */}
@@ -236,9 +233,14 @@ export function BeregnerApp() {
                 </div>
               </dl>
 
-              <p className="mt-7 font-[200] text-[0.98rem] text-stone leading-[1.7] max-w-[320px]">
-                bruger I på arbejde, en maskine gør bedre.
-              </p>
+              <div className="mt-7 max-w-[340px]">
+                <p className="font-[300] text-[1.05rem] text-ink leading-[1.5] mb-2">
+                  Sæt strøm til jeres processer.
+                </p>
+                <p className="font-[200] text-[0.92rem] text-stone leading-[1.7]">
+                  Fra manuelt arbejde til intelligente løsninger, der skaber mere tid til forretningen.
+                </p>
+              </div>
             </div>
           </div>
         </section>
