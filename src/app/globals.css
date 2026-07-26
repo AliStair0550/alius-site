@@ -153,6 +153,17 @@ body {
   .match-breathe { animation: none !important; }
 }
 
+/* ── Kortlægning: dopamin-effekt ved afsendelse ────────────────────── */
+.kort-pop { animation: matchPopIn 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.kort-signal { animation: matchSignal 950ms ease-out forwards; }
+.kort-sent-in { animation: matchSlideIn 520ms cubic-bezier(0.22, 1, 0.36, 1) 140ms both; }
+/* Blødt grønt sweep hen over knappen mens der sendes */
+.kort-sending { animation: ctaReady 900ms ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kort-pop, .kort-signal, .kort-sent-in, .kort-sending { animation: none !important; }
+}
+
 .animate-fade-up {
   opacity: 0;
   animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;

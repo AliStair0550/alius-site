@@ -8,9 +8,6 @@ const WEEKS_PER_YEAR = 46;
 const ANNUAL_HOURS = 1628;
 const EMPLOYER_OVERHEAD = 1.08;
 
-// Book-linket peger samme sted som resten af sitet: kontakt-sektionen på forsiden.
-const BOOK_HREF = "/#kontakt";
-
 function hourlyCost(monthlySalary: number): number {
   return (monthlySalary * 12 * EMPLOYER_OVERHEAD) / ANNUAL_HOURS;
 }
@@ -245,8 +242,13 @@ export function BeregnerApp() {
           </div>
         </section>
 
-        {/* Konvertering */}
-        <Conversion />
+        {/* Kortlægning - interaktivt lead-trin, live-koblet til beregneren */}
+        <KortlaegningStep
+          employees={employees}
+          hoursPerWeek={hoursPerWeek}
+          monthlySalary={monthlySalary}
+          annualCost={rounded}
+        />
 
         {/* Metode */}
         <p className="mt-20 pt-8 border-t border-clay/60 font-[200] text-[0.72rem] text-slate/80 leading-[1.7] max-w-[620px]">
@@ -257,20 +259,201 @@ export function BeregnerApp() {
   );
 }
 
-// ── Konverterings-sektion ───────────────────────────────────────────
-function Conversion() {
+// ── Kortlægning: interaktivt lead-trin ──────────────────────────────
+const ROUTINES = [
+  "Fakturaer",
+  "Tilbud",
+  "Rapporter",
+  "Kundesvar",
+  "Rykkere",
+  "Dobbelttastning",
+  "Vagtplaner",
+  "Bogføring",
+  "Andet",
+] as const;
+
+const MAX_ROUTINES = 3;
+const CONTACT_EMAIL = "hej@alius.dk";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function KortlaegningStep({
+  employees,
+  hoursPerWeek,
+  monthlySalary,
+  annualCost,
+}: {
+  employees: number;
+  hoursPerWeek: number;
+  monthlySalary: number;
+  annualCost: number;
+}) {
+  const [selected, setSelected] = useState<string[]>([]);
+  const [note, setNote] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [touched, setTouched] = useState(false);
+
+  const emailValid = EMAIL_RE.test(email.trim());
+
+  function toggle(routine: string) {
+    setSelected((prev) => {
+      if (prev.includes(routine)) return prev.filter((r) => r !== routine);
+      if (prev.length >= MAX_ROUTINES) return prev; // fjerde valg ignoreres
+      return [...prev, routine];
+    });
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setTouched(true);
+    if (!emailValid || status === "sending") return;
+
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/beregner/kortlaegning", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          employees,
+          hoursPerWeek,
+          monthlySalary,
+          routines: selected,
+          note: note.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error("request failed");
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
+  }
+
   return (
     <section className="mt-20 md:mt-28 pt-14 md:pt-16 border-t border-clay/60">
-      <p className="font-[300] text-[1.25rem] md:text-[1.5rem] text-ink leading-[1.5] max-w-[600px] mb-10">
-        Vil I vide, hvilke tre arbejdsgange tallet gemmer sig i? Det er præcis det, vores kortlægning finder.
-      </p>
+      <div className="max-w-[640px]">
+        {/* Overskrift */}
+        <h2 className="font-fraunces font-light text-[clamp(28px,5vw,44px)] leading-[1.12] tracking-[-0.01em] text-ink mb-3">
+          Lad os kortlægge jeres manuelle processer?
+        </h2>
+        <p className="font-[200] text-[1rem] text-stone leading-[1.7] mb-3">
+          Vælg op til tre.
+        </p>
+        {/* Fordelingslinje - genberegnes live ud fra det aktuelle årstal */}
+        <p className="font-[200] text-[0.82rem] text-slate/80 leading-[1.6] mb-9 tabular-nums">
+          Jeres <span className="text-ink">{formatDKK(annualCost)} kr/år</span> gemmer sig i konkrete rutiner.
+        </p>
 
-      <a
-        href={BOOK_HREF}
-        className="inline-flex justify-center font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-8 py-4 bg-moss text-parchment border border-moss hover:bg-moss-light hover:border-moss-light transition-all"
-      >
-        Start en samtale
-      </a>
+        {/* Chips */}
+        <div className="flex flex-wrap gap-2.5 mb-9">
+          {ROUTINES.map((routine) => {
+            const on = selected.includes(routine);
+            const full = !on && selected.length >= MAX_ROUTINES;
+            return (
+              <button
+                key={routine}
+                type="button"
+                aria-pressed={on}
+                disabled={full}
+                onClick={() => toggle(routine)}
+                className={`text-[0.85rem] tracking-[0.01em] px-4 py-2.5 border transition-all duration-200 ${
+                  on
+                    ? "border-moss bg-moss/[0.1] text-moss font-[400]"
+                    : full
+                    ? "border-clay/60 text-slate/40 cursor-not-allowed"
+                    : "border-clay text-stone hover:border-moss hover:text-moss cursor-pointer"
+                }`}
+              >
+                {routine}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Valgfrit tekstfelt */}
+        <div className="mb-7">
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Beskriv rutinen med jeres egne ord"
+            rows={2}
+            disabled={status === "sent"}
+            className="w-full px-4 py-3 bg-transparent border border-ink/20 text-[0.95rem] font-[200] text-ink outline-none placeholder:text-slate/50 focus:border-ink transition-colors resize-none disabled:opacity-50"
+          />
+          <p className="mt-1.5 font-[200] text-[0.72rem] text-slate/70">Valgfrit</p>
+        </div>
+
+        {/* Mail + afsendelse / bekræftelse */}
+        {status === "sent" ? (
+          <div className="flex flex-col items-start gap-6 py-2">
+            <div className="relative w-11 h-11">
+              <span className="kort-signal absolute inset-0 rounded-full border border-moss" />
+              <span
+                className="kort-signal absolute inset-0 rounded-full border border-moss"
+                style={{ animationDelay: "200ms" }}
+              />
+              <div className="kort-pop absolute inset-0 rounded-full bg-moss" />
+            </div>
+            <p className="kort-sent-in font-fraunces font-light italic text-[clamp(1.5rem,4vw,2rem)] text-ink leading-[1.15]">
+              Sendt. Vi vender retur.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} noValidate>
+            {/* Honeypot */}
+            <input
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              value=""
+              onChange={() => {}}
+              className="absolute -left-[9999px] w-px h-px opacity-0"
+              aria-hidden="true"
+            />
+            <label htmlFor="kort-email" className="block font-[200] text-[0.82rem] tracking-[0.02em] text-slate mb-2">
+              Jeres email
+            </label>
+            <input
+              id="kort-email"
+              type="email"
+              inputMode="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setTouched(true)}
+              placeholder="navn@virksomhed.dk"
+              required
+              disabled={status === "sending"}
+              className="w-full px-0 py-3 bg-transparent border-0 border-b border-ink/25 text-[1.05rem] font-[300] text-ink outline-none placeholder:text-slate/40 focus:border-ink transition-colors disabled:opacity-50"
+            />
+            {touched && !emailValid && (
+              <p className="mt-2 font-[200] text-[0.8rem] text-stone">
+                Skriv en gyldig email, så vi kan vende retur.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === "sending"}
+              className={`w-full mt-7 inline-flex justify-center items-center font-[300] text-[0.82rem] tracking-[0.12em] uppercase px-8 py-[18px] bg-moss text-parchment border border-moss transition-all duration-300 hover:bg-moss-light hover:border-moss-light disabled:pointer-events-none ${
+                status === "sending" ? "kort-sending" : ""
+              }`}
+            >
+              {status === "sending" ? "Sender..." : "Book kortlægningen"}
+            </button>
+
+            {status === "error" && (
+              <p className="mt-4 font-[200] text-[0.9rem] text-stone leading-[1.6]">
+                Noget gik galt. Skriv direkte til{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-moss border-b border-moss/30 hover:border-moss">
+                  {CONTACT_EMAIL}
+                </a>
+                .
+              </p>
+            )}
+          </form>
+        )}
+      </div>
     </section>
   );
 }
