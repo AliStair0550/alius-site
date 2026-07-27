@@ -377,6 +377,23 @@ model Series {
   layer           SeriesLayer
   status          SeriesStatus    @default(ACTIVE)
 
+  /// Må serien konkurrere om en plads på ranglisten.
+  ///
+  /// Selvstændigt felt, ikke afledt af lag. STRUCTURAL og CLOSED sætter
+  /// det automatisk til false, men det kan sættes manuelt for enkelte
+  /// serier uden at flytte dem til et andet lag.
+  ///
+  /// EU27 er tilfældet der begrunder designet: den er referencelinje for
+  /// tysk erhvervstillid og skal ikke konkurrere med det den forklarer.
+  /// Men kollapser europæisk erhvervstillid selv, er det den vigtigste
+  /// besked på siden. Et lag ville låse den ude permanent. Et flag kan
+  /// omgøres.
+  ///
+  /// Rangeringen læser kun dette felt. Den udleder aldrig selv.
+  rankable       Boolean @default(true)
+  /// Hvorfor rankable er false. Tom når serien er rangerbar.
+  rankableReason String? @map("rankable_reason")
+
   /// Brud i serien: en dato hvor definitionen ændrede sig, så tal før og
   /// efter ikke måler det samme. Ikke en ændring i virkeligheden.
   ///
@@ -405,6 +422,7 @@ model Series {
   @@index([source])
   @@index([layer, status])
   @@index([status])
+  @@index([rankable, layer])
   @@index([legacySourceSlug])
   @@map("series")
 }

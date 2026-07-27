@@ -40,6 +40,15 @@ export type SeriesDef = {
   attribution: string;
   zTransform: ZTransform;
 
+  /**
+   * Manuelt fravalg fra ranglisten. Udeladt betyder "brug standarden",
+   * som sætter CLOSED og STRUCTURAL til false og alt andet til true.
+   * Sættes kun når en serie skal ud af rangeringen af en grund der ikke
+   * følger af lag eller status.
+   */
+  rankable?: boolean;
+  rankableReason?: string;
+
   /** Kildespecifikke parametre. Præcis én skal være sat. */
   dst?: DstParams;
   eds?: EdsParams;

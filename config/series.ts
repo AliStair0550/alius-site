@@ -297,23 +297,45 @@ export const SERIES: SeriesDef[] = [
   // ==========================================================
   // EXTERNAL
   // ==========================================================
-  {
-    id: "eurostat.de.tillid.industri",
-    nameDa: "Tysk erhvervstillid, industri",
-    source: "EUROSTAT",
-    sourceRef: "ei_bsin_m_r2",
-    unit: "nettotal",
-    frequency: "MONTHLY",
-    layer: "EXTERNAL",
-    revisionPolicy: "MINOR",
-    expectedLagDays: 2,
-    attribution: "Eurostat, ei_bsin_m_r2",
-    zTransform: "level",
-    eurostat: {
-      dataflow: "ei_bsin_m_r2",
-      params: { geo: "DE", indic: "BS-ICI", s_adj: "SA", unit: "BAL", freq: "M" },
-    },
-  },
+  // Tre serier fra samme dataflow. Marginal omkostning er ét HTTP-kald
+  // per serie. Norge, UK, USA og Kina findes ikke i Eurostats
+  // erhvervstillidsundersøgelse; fire af Danmarks ti største
+  // eksportmarkeder kan altså ikke dækkes herfra.
+  ...(
+    [
+      ["de", "DE", "Tysk erhvervstillid, industri", null],
+      ["se", "SE", "Svensk erhvervstillid, industri", null],
+      [
+        "eu27",
+        "EU27_2020",
+        "Erhvervstillid, EU27, industri",
+        // Referencelinjen. Uden den kan "tysk tillid faldt 8 point" ikke
+        // skelnes fra "europæisk tillid faldt 8 point", og det er to
+        // forskellige historier for en dansk eksportør.
+        "Referencelinje for DE og SE. En nævner skal ikke konkurrere med det den forklarer.",
+      ],
+    ] as const
+  ).map(
+    ([slug, geo, navn, ikkeRangerbar]): SeriesDef => ({
+      id: `eurostat.${slug}.tillid.industri`,
+      nameDa: navn,
+      source: "EUROSTAT",
+      sourceRef: "ei_bsin_m_r2",
+      unit: "nettotal",
+      frequency: "MONTHLY",
+      layer: "EXTERNAL",
+      revisionPolicy: "MINOR",
+      expectedLagDays: 2,
+      attribution: "Eurostat, ei_bsin_m_r2",
+      zTransform: "level",
+      rankable: ikkeRangerbar ? false : undefined,
+      rankableReason: ikkeRangerbar ?? undefined,
+      eurostat: {
+        dataflow: "ei_bsin_m_r2",
+        params: { geo, indic: "BS-ICI", s_adj: "SA", unit: "BAL", freq: "M" },
+      },
+    })
+  ),
 
   // ==========================================================
   // Udvidelse af eksisterende kilde: PRIS01 COICOP-hovedgrupper

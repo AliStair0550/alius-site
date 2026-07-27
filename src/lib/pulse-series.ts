@@ -12,6 +12,8 @@ export type AnalysableSeries = {
   id: string;
   layer: SeriesLayer;
   status: SeriesStatus;
+  rankable: boolean;
+  rankableReason?: string | null;
   breakAt: Date | null;
   breakReason?: string | null;
 };
@@ -46,23 +48,56 @@ export function withinAnalysisWindow<T extends { period: Date }>(
 }
 
 /**
- * Må serien overhovedet konkurrere om en plads på ranglisten.
+ * Må serien konkurrere om en plads på ranglisten.
  *
- * To grunde til nej:
- *
- *   - Lukket serie. Den opdateres aldrig igen, så dens seneste
- *     bevægelse er per definition gammel. KONK4's 20 brancheserier
- *     er sådan nogle: de bevares i fuld længde og må gerne vises,
- *     men de må ikke kunne udløse et signal.
- *   - STRUCTURAL. Bestandstal er kontekst på kommuneprofilen, ikke
- *     ugentligt signal. Ingen handler på et befolkningstal i dette
- *     kvartal, og hvis de får lov at konkurrere, fylder de pladser
- *     på forsiden.
+ * Læser KUN feltet. Den udleder ikke selv af lag eller status, fordi to
+ * steder der beregner det samme før eller siden er uenige. Feltet sættes
+ * ved indlæsning af defaultRankable() nedenfor, og kan derefter
+ * overskrives manuelt for enkelte serier.
  */
 export function isRankable(series: AnalysableSeries): boolean {
-  if (series.status === "CLOSED") return false;
-  if (series.layer === "STRUCTURAL") return false;
-  return true;
+  return series.rankable;
+}
+
+/**
+ * Standardværdien for rankable, sat når en serie skrives.
+ *
+ * To tilfælde sætter det automatisk til false:
+ *
+ *   - CLOSED. Serien opdateres aldrig igen, så dens seneste bevægelse er
+ *     per definition gammel. KONK4's 20 brancheserier og FORV1's F11 er
+ *     sådan nogle: bevaret i fuld længde, vises gerne, kan aldrig udløse
+ *     et signal.
+ *   - STRUCTURAL. Bestandstal er kontekst på kommuneprofilen, ikke
+ *     ugentligt signal. Ingen handler på et befolkningstal i dette
+ *     kvartal.
+ *
+ * Alt andet er rangerbart som udgangspunkt og kan slås fra manuelt.
+ */
+export function defaultRankable(
+  layer: SeriesLayer,
+  status: SeriesStatus
+): { rankable: boolean; reason: string | null } {
+  if (status === "CLOSED") {
+    return { rankable: false, reason: "Lukket serie. Opdateres aldrig igen." };
+  }
+  if (layer === "STRUCTURAL") {
+    return {
+      rankable: false,
+      reason: "Bestandstal. Kontekst på kommuneprofilen, ikke ugentligt signal.",
+    };
+  }
+  return { rankable: true, reason: null };
+}
+
+/**
+ * Værn mod at feltet og de to automatiske regler kommer i utakt.
+ * En lukket eller strukturel serie må aldrig være rangerbar, uanset hvad
+ * nogen har sat manuelt.
+ */
+export function rankableIsConsistent(series: AnalysableSeries): boolean {
+  if (!series.rankable) return true; // manuelt fravalg er altid lovligt
+  return series.status !== "CLOSED" && series.layer !== "STRUCTURAL";
 }
 
 /**

@@ -415,6 +415,131 @@ Kravet når linjerne bygges:
 
 ---
 
+## 3k. Vurdering: hvor mangler lagene en nævner
+
+Skrevet 27. juli 2026. **Intet er bygget.** Dette er en gennemgang til
+beslutning.
+
+EU27-argumentet gælder ikke kun Eurostat. Et enkelt tal kan aflæses, ikke
+fortolkes. "Elprisen er 420 kroner" og "udlånsrenten er 3,47 procent" er
+aflæsninger. De bliver først til fortolkninger når der er noget at holde dem
+op mod.
+
+En serie kan have tre slags nævner: **sin egen historik** (det er z-scoren,
+og den har alle serier), **en søsterserie i samme lag**, eller **en ekstern
+referencelinje**. Z-scoren svarer på "er det usædvanligt". Den svarer ikke på
+"hvorfor", og det er det der afgør hvad en direktør gør.
+
+### Sammenfatning
+
+| Lag | Har nævner? | Mangler | Billigste kilde |
+|---|---|---|---|
+| LEADING | Delvist | Forbrugertillid mangler ekstern reference | Eurostat, men koster to serier |
+| COST | Nej for elprisen | **Elprisen står helt alene** | EDS `PriceArea=DE` |
+| CAPITAL | Nej | **Udlånsrenten og valutaerne står alene** | DST, to serier, begge verificeret |
+| EXTERNAL | Ja | Løst med EU27 | - |
+| REALISED | Delvist | Konkurser mangler virksomhedsbestand | Ny DST-tabel, ikke gratis |
+| STRUCTURAL | Ikke rangeret | Mindre kritisk | - |
+
+### CAPITAL: den største mangel, og den billigste at lukke
+
+**Udlånsrenten til erhverv er 3,47 procent. Det tal betyder ingenting alene.**
+
+Er kreditten stram eller løs? Svaret er ikke renten, men **marginen over
+Nationalbankens udlånsrente**. Den er verificeret live:
+
+```
+DNRENTD  INSTRUMENT=OIRNAA  "Nationalbankens rente - Udlån"
+         1992M04D01 .. 2026M07D24   8.594 observationer   seneste 2,0 %
+```
+
+Med den bliver forskellen tydelig: 3,47 mod 2,0 er en margin på 1,47 point.
+Stiger udlånsrenten 0,3 point mens policy-renten stiger lige så meget, er
+det centralbanken, og der er intet at gøre. Stiger marginen alene, strammer
+bankerne, og så er det tid til at tale med sin egen bank. **To helt
+forskellige beslutninger, som det rå rentetal ikke kan skelne.**
+
+Pris: én serie, DST-adapteren, 34 års historik. Ingen ny protokol.
+
+**Valutaerne har samme problem.** USD/DKK steg. Er dollaren stærk eller er
+kronen svag? Et bilateralt kurspar kan ikke svare. Nævneren er den
+**nominelle effektive kronekurs**, som ligger i den tabel vi allerede
+henter:
+
+```
+DNVALD  VALUTA=DKK  KURTYP=INX  "Nominel effektiv kronekurs, indeks 1980=100"
+```
+
+Pris: én serie, samme tabel, samme adapter.
+
+### COST: elprisen står helt alene
+
+Elprisen er den serie i systemet med den svageste fortolkning. DK1 og DK2
+hjælper ikke hinanden: de er begge danske og følges ad.
+
+Nævneren der betyder noget er **den tyske pris**. DK1 og DK2 er koblet til
+det tyske marked, så spændet svarer på: er strømmen dyr på grund af Europa,
+eller på grund af en dansk flaskehals. Det første er en omkostning man må
+leve med. Det andet er noget der kan flyttes ved at flytte forbrug i tid.
+
+`DayAheadPrices` har `PriceArea=DE`. Verificeret.
+
+**Men prisen er høj.** Historikdybden for DE er ikke afklaret, og EDS er
+rate-limitet til cirka én side per fire minutter. Et backfill svarende til
+DK1 tager halvanden time. Det er den eneste af forslagene her der ikke er
+billigt.
+
+Producentpris mod lønindeks har allerede en indbygget nævner i
+`derived.margin.signal`. Forbrugerprisindekset har sine COICOP-grupper.
+De to er dækket.
+
+### REALISED: konkurstallet drifter med økonomiens størrelse
+
+153 konkurser. Ud af hvor mange virksomheder? Et absolut tal stiger når
+virksomhedsbestanden vokser, uden at noget er blevet værre. Nævneren er
+antallet af aktive virksomheder.
+
+Den findes hos DST i erhvervsdemografien, men den er **ikke gratis**: ny
+tabel, ny konfiguration, og frekvensen passer ikke. Konkurser er månedlige,
+virksomhedsbestanden årlig. Forholdstallet ville være en månedlig tæller
+over en årlig nævner, hvilket kræver en beslutning om interpolation.
+
+**Detailomsætningen har en gratis nævner vi allerede ejer.** DETA211A er et
+værdiindeks, altså nominelt. Deflateret med forbrugerprisindekset, som
+ligger i basen, bliver det et mængdeindeks. Forskellen er præcis spørgsmålet
+"solgte de mere, eller kostede det bare mere". Ingen ny kilde.
+
+Ledigheden er allerede en procent og normaliserer sig selv.
+
+### LEADING: den svageste sag
+
+Forbrugertilliden på −14,7 mangler en ekstern reference. Eurostats
+`ei_bsco_m` har forbrugertillid for DK og EU27.
+
+**Men det koster to serier, ikke én.** Vores danske forbrugertillid kommer
+fra FORV1 hos DST, og en differens mod Eurostats EU27 ville lide af præcis
+den metodeblanding vi netop rettede i `derived.tillid.diff`. En ren
+sammenligning kræver både Eurostats DK og Eurostats EU27, og så har vi to
+danske forbrugertillidsserier der er næsten men ikke helt ens.
+
+Det er den vurdering jeg er mest i tvivl om, og den bør ikke bygges før de
+billige er på plads.
+
+### Anbefalet rækkefølge
+
+1. **Nationalbankens udlånsrente.** Én serie, verificeret, 34 år, DST-adapter
+2. **Nominel effektiv kronekurs.** Én serie, tabel vi allerede henter
+3. **Detailomsætning deflateret med CPI.** Afledt, ingen ny kilde
+4. **Tysk elpris.** Én serie, men halvanden times backfill og uafklaret historik
+5. **Virksomhedsbestand.** Ny tabel, frekvensproblem, kræver en beslutning
+6. **Forbrugertillid mod Eurostat.** To serier, metodisk rodet, svagest begrundet
+
+De tre første er billige nok til at kunne bygges uden yderligere analyse.
+Alle tre skal formentlig være `rankable = false`, som EU27, fordi de er
+nævnere og ikke signaler. Men det er en beslutning per serie, ikke en regel.
+
+---
+
 ## 4. Beslutning 3: Signaler bliver ranglisten
 
 Det er den vigtigste ændring, og den er ikke et nyt komponent. Det er en omskrivning af den der findes.

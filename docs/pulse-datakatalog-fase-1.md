@@ -281,10 +281,29 @@ Rådata sælger ikke. Beregn disse ved indlæsning og gem dem som selvstændige 
 | `derived.margin.signal` | Producentprisindeks minus lønindeks, årlig ændring. Positivt betyder marginudvidelse |
 | `derived.el.uge` | Ugegennemsnit af DK1 og DK2, plus afvigelse fra samme uge sidste år |
 | `derived.rente.spread` | 30-årig realkredit minus CIBOR 3M. Hældningen på rentekurven |
-| `derived.tillid.diff` | Tysk erhvervstillid minus dansk. Fortæller om Danmark er foran eller bagud |
+| `derived.tillid.diff` | Tysk erhvervstillid minus EU27. Fortæller om et fald er tysk eller europæisk |
 | `derived.zscore.<serie>` | Standardafvigelser fra 10-års gennemsnit. Grundlaget for at afgøre om en bevægelse er værd at alarmere om |
 
 `derived.zscore` er den vigtigste. Uden den er alarmlogikken vilkårlig.
+
+**Rettelse 27. juli 2026: `derived.tillid.diff` var oprindeligt specificeret
+som tysk minus dansk erhvervstillid.** Det er ændret til tysk minus EU27.
+
+Grunden er metodisk. Vores danske erhvervstillid kommer fra DST's `ETILLID`,
+den tyske fra Eurostats `ei_bsin_m_r2`. De to opgørelser bruger forskellige
+spørgeskemaer, forskellige brancheafgrænsninger og forskellig
+sæsonkorrektion. En differens mellem dem måler delvis forskellen i metode,
+ikke kun forskellen i virkelighed, og ingen kan bagefter sige hvor meget der
+er hvad.
+
+DE minus EU27 kommer fra samme undersøgelse, samme metode, samme måned. Og
+den svarer på et bedre spørgsmål: **er faldet tysk eller europæisk.** Det
+første betyder at en dansk eksportør skal se på sit tyske marked. Det andet
+at han skal se på hele porteføljen. "Er Danmark foran eller bagud" er
+interessant, men det ændrer sjældnere en beslutning.
+
+EU27-serien er markeret `rankable = false`. Den er en nævner og skal ikke
+konkurrere med det den forklarer.
 
 ---
 

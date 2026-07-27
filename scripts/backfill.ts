@@ -22,6 +22,7 @@ import { EdsAdapter } from "../src/lib/adapters/eds";
 import { EurostatAdapter } from "../src/lib/adapters/eurostat";
 import type { SeriesDef, SourceAdapter } from "../src/lib/adapters/types";
 import { writeObservations } from "../src/lib/pulse-observations";
+import { defaultRankable } from "../src/lib/pulse-series";
 
 const prisma = new PrismaClient();
 
@@ -32,6 +33,15 @@ const ADAPTERS: Record<SeriesDef["source"], SourceAdapter> = {
 };
 
 async function upsertSeries(def: SeriesDef) {
+  // Standarden følger lag og status. Config kan overskrive den, men
+  // aldrig i retning af mere rangering: en CLOSED eller STRUCTURAL serie
+  // kan ikke gøres rangerbar ved et uheld.
+  const auto = defaultRankable(def.layer, "ACTIVE");
+  const rankable = def.rankable ?? auto.rankable;
+  const rankableReason = def.rankable === false
+    ? def.rankableReason ?? "Manuelt fravalgt."
+    : auto.reason;
+
   const data = {
     nameDa: def.nameDa,
     source: def.source,
@@ -43,6 +53,8 @@ async function upsertSeries(def: SeriesDef) {
     attribution: def.attribution,
     layer: def.layer,
     status: "ACTIVE" as const,
+    rankable,
+    rankableReason,
     meta: { zTransform: def.zTransform },
   };
   await prisma.series.upsert({
