@@ -53,14 +53,42 @@ async function upsertSeries(def: SeriesDef) {
     attribution: def.attribution,
     layer: def.layer,
     status: "ACTIVE" as const,
-    rankable,
-    rankableReason,
     meta: { zTransform: def.zTransform },
   };
+
+  // Korrelationsgruppen ejer rankable, ikke denne default.
+  //
+  // Ligger serien i en gruppe, er dens rankable afgjort af hvem der vandt
+  // gruppen, og det er en beslutning på tværs af kilder som config ikke
+  // kan se. defaultRankable() giver true til alt aktivt der ikke er
+  // STRUCTURAL, så uden det her ville en backfill tænde de tabere igen
+  // som scripts/set-rank-groups.ts har slukket.
+  //
+  // Det ville ikke fejle noget. Gruppen ville bare stille og roligt have
+  // to rangerbare igen, og ranglisten ville vise samme kendsgerning to
+  // gange uden at nogen havde besluttet det. Målt 28. juli 2026: tre af
+  // config's serier stod til at blive tændt sådan, alle i
+  // forbrugerpriser-gruppen.
+  const eksisterende = await prisma.series.findUnique({
+    where: { id: def.id },
+    select: { rankGroup: true, rankable: true },
+  });
+
+  if (eksisterende?.rankGroup) {
+    if (eksisterende.rankable !== rankable) {
+      console.log(
+        `      ${def.id}: rankable ikke rørt. Gruppen "${eksisterende.rankGroup}" ` +
+          `har sat ${eksisterende.rankable}, config ville have sat ${rankable}.`
+      );
+    }
+    await prisma.series.update({ where: { id: def.id }, data });
+    return;
+  }
+
   await prisma.series.upsert({
     where: { id: def.id },
-    create: { id: def.id, ...data },
-    update: data,
+    create: { id: def.id, ...data, rankable, rankableReason },
+    update: { ...data, rankable, rankableReason },
   });
 }
 

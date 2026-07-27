@@ -71,6 +71,13 @@ export type ZResult =
       monthsUsed: number;
       coverage: number;
       transform: ZTransform;
+      /**
+       * De værdier midten og spredningen faktisk er regnet på, i den
+       * transformerede skala. Ligger med i svaret, så en visning der
+       * vil sige "kun set to gange på ti år" regner på det samme som
+       * z gjorde, og ikke på noget der ligner.
+       */
+      values: number[];
     }
   | {
       rankable: false;
@@ -103,6 +110,31 @@ const monthKey = (d: Date) => d.getUTCFullYear() * 12 + d.getUTCMonth();
  * og dermed kunstigt lav dækning.
  */
 export function toMonthly(obs: Obs[]): Map<number, number> {
+  return toMonthlyMedKilde(obs).udfyldt;
+}
+
+/**
+ * Som toMonthly, men fortæller hvilke måneder der er ægte observationer
+ * og hvilke der er båret frem.
+ *
+ * Forskellen er ikke kosmetisk. En kvartalsserie båret frem til
+ * månedlig frekvens har to kopier for hver ægte værdi. Tages de med i
+ * spredningen, tæller de som selvstændige observationer der ikke
+ * bevægede sig, og MAD'en falder mod nul. Så bliver enhver ægte
+ * bevægelse til en enorm z.
+ *
+ * Målt 28. juli 2026 på BYGV33 per kommune: z = 10,3 på en ændring der
+ * i virkeligheden var almindelig. Tallet var ikke urimeligt at se på,
+ * det stod bare øverst på ranglisten uden grund.
+ *
+ * Udfyldningen skal blive, fordi dækningen ellers undervurderes for
+ * enhver serie der ikke er månedlig. Det er kun statistikken der skal
+ * regnes på de ægte.
+ */
+export function toMonthlyMedKilde(obs: Obs[]): {
+  udfyldt: Map<number, number>;
+  aegte: Set<number>;
+} {
   const buckets = new Map<number, { sum: number; n: number }>();
   for (const o of obs) {
     const k = monthKey(o.period);
@@ -114,6 +146,8 @@ export function toMonthly(obs: Obs[]): Map<number, number> {
   const monthly = new Map<number, number>();
   for (const [k, b] of buckets) monthly.set(k, b.sum / b.n);
 
+  const aegte = new Set(monthly.keys());
+
   // Bær frem over huller, men kun inden for et år. Længere huller er
   // ikke en lav frekvens, det er manglende data.
   //
@@ -121,7 +155,7 @@ export function toMonthly(obs: Obs[]): Map<number, number> {
   // seneste udfyldte. Ellers kaskaderer udfyldningen en måned ad gangen
   // og lukker et hul på seks år uden at nogen opdager det.
   const keys = [...monthly.keys()].sort((a, b) => a - b);
-  if (keys.length === 0) return monthly;
+  if (keys.length === 0) return { udfyldt: monthly, aegte };
   const filled = new Map(monthly);
   let lastRealKey: number | null = null;
   for (let k = keys[0]; k <= keys[keys.length - 1]; k++) {
@@ -130,7 +164,7 @@ export function toMonthly(obs: Obs[]): Map<number, number> {
       filled.set(k, monthly.get(lastRealKey)!);
     }
   }
-  return filled;
+  return { udfyldt: filled, aegte };
 }
 
 /** Årsændring i procent. Kræver samme måned året før. */
@@ -178,11 +212,20 @@ export function computeZ(
     return { rankable: false, reason: "ingen_observationer", coverage: 0, monthsUsed: 0 };
   }
 
-  const monthly = toMonthly(inWindow);
+  const { udfyldt: monthly, aegte } = toMonthlyMedKilde(inWindow);
   const series = transform === "yoy" ? toYoY(monthly) : monthly;
 
+  // Dækningen måles på den udfyldte serie. En kvartalsserie har ikke
+  // dårlig dækning, den har lav frekvens, og det er to forskellige ting.
   const coverage = series.size / Math.max(expectedMonths, 1);
-  const values = [...series.values()];
+
+  // Statistikken regnes kun på ægte observationer. For årsændring skal
+  // BEGGE ender være ægte; ellers måler ændringen en fremskrivning mod
+  // en anden fremskrivning.
+  const statKeys = [...series.keys()].filter((k) =>
+    transform === "yoy" ? aegte.has(k) && aegte.has(k - 12) : aegte.has(k)
+  );
+  const values = statKeys.map((k) => series.get(k)!);
 
   if (values.length < 12 || coverage < MIN_COVERAGE) {
     return {
@@ -203,7 +246,10 @@ export function computeZ(
     return { rankable: false, reason: "ingen_spredning", coverage, monthsUsed: values.length };
   }
 
-  const latestKey = Math.max(...series.keys());
+  // Seneste ægte observation, ikke seneste fremskrevne. Ellers ville en
+  // kvartalsserie rapportere den samme værdi tre gange og se ud som om
+  // den havde nye tal hver måned.
+  const latestKey = Math.max(...statKeys);
   const latest = series.get(latestKey)!;
   const latestPeriod = new Date(
     Date.UTC(Math.floor(latestKey / 12), latestKey % 12, 1)
@@ -219,5 +265,6 @@ export function computeZ(
     monthsUsed: values.length,
     coverage,
     transform,
+    values,
   };
 }

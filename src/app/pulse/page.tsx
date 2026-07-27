@@ -3,8 +3,8 @@ import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
-import { PulseSignalCard } from "@/components/pulse/SignalCard";
-import { getKommuneByCode } from "@/lib/areas";
+import { hentRangliste } from "@/lib/pulse-rangliste";
+import { RanglisteSektion } from "@/components/pulse/Rangliste";
 
 export const metadata: Metadata = pageMetadata({
   title: "Pulse · Alius",
@@ -27,52 +27,6 @@ type Dashboard = {
   sourceSlug: string | null;
   status: "live" | "coming";
 };
-
-const SIGNAL_SOURCE_SLUGS = [
-  "dst-aus08",
-  "dst-konk3",
-  "dst-forv1",
-  "dst-bygv33",
-  "dst-laby01-b11",
-];
-
-const SOURCE_LABELS: Record<string, string> = {
-  "dst-aus08": "Ledighed",
-  "dst-konk3": "Konkurser",
-  "dst-forv1": "Forbrugertillid",
-  "dst-bygv33": "Boligbyggeri",
-  "dst-laby01-b11": "Befolkning",
-};
-
-function getSignalHref(
-  areaCode: string | null,
-  sourceSlug: string
-): string | null {
-  const isKommune =
-    areaCode && areaCode !== "000" && /^\d{3}$/.test(areaCode);
-
-  if (sourceSlug === "dst-aus08") {
-    if (isKommune) {
-      const k = getKommuneByCode(areaCode!);
-      return k ? `/pulse/ledighed/${k.slug}` : "/pulse/ledighed";
-    }
-    return "/pulse/ledighed";
-  }
-  if (sourceSlug === "dst-konk3" || sourceSlug === "dst-konk4") {
-    return "/pulse/konkurser";
-  }
-  if (sourceSlug === "dst-forv1") {
-    return "/pulse/forbrug";
-  }
-  if (sourceSlug === "dst-bygv33" || sourceSlug.startsWith("dst-laby01")) {
-    if (isKommune) {
-      const k = getKommuneByCode(areaCode!);
-      return k ? `/pulse/kommuner/${k.slug}` : null;
-    }
-    return null;
-  }
-  return null;
-}
 
 const DASHBOARDS: Dashboard[] = [
   {
@@ -123,7 +77,11 @@ const DASHBOARDS: Dashboard[] = [
 
 
 export default async function PulseHubPage() {
-  const [sources, rawSignals] = await Promise.all([
+  // De fire dashboards står stadig på den gamle model. Ranglisten er
+  // det første der læser series og observations. To modeller side om
+  // side er med vilje: at skrive otte sider om før noget bliver
+  // synligt ville være den forkerte rækkefølge.
+  const [sources, rangliste] = await Promise.all([
     prisma.dataSource.findMany({
       where: {
         slug: { in: DASHBOARDS.filter((d) => d.sourceSlug).map((d) => d.sourceSlug!) },
@@ -139,12 +97,7 @@ export default async function PulseHubPage() {
         },
       },
     }),
-    prisma.signal.findMany({
-      where: { source: { slug: { in: SIGNAL_SOURCE_SLUGS } } },
-      include: { source: { select: { slug: true } } },
-      orderBy: { magnitude: "desc" },
-      take: 40,
-    }),
+    hentRangliste(prisma),
   ]);
 
   const dashboardsWithFreshness = DASHBOARDS.map((d) => {
@@ -157,15 +110,6 @@ export default async function PulseHubPage() {
       lastFetchedAt: source?.lastFetchedAt ?? null,
     };
   });
-
-  const severityRank: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const hubSignals = rawSignals
-    .sort(
-      (a, b) =>
-        (severityRank[b.severity] ?? 0) - (severityRank[a.severity] ?? 0) ||
-        (b.magnitude ?? 0) - (a.magnitude ?? 0)
-    )
-    .slice(0, 6);
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">
@@ -286,40 +230,7 @@ export default async function PulseHubPage() {
           </div>
         </section>
 
-        {/* Cross-source signal feed */}
-        {hubSignals.length > 0 && (
-          <section className="mt-4 mb-24">
-            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-12">
-              <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
-                Signaler
-              </div>
-              <div>
-                <h2 className="font-fraunces font-light text-[36px] md:text-[44px] leading-[1.1] tracking-[-0.01em] mb-4">
-                  Hvad rykker sig?
-                </h2>
-                <p className="text-stone text-[15px] leading-[1.6] max-w-[640px]">
-                  De stærkeste mønstre på tværs af alle datakilder, beregnet automatisk fra seneste tal.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {hubSignals.map((s) => (
-                <PulseSignalCard
-                  key={s.id}
-                  headline={s.headline}
-                  body={s.body}
-                  direction={s.direction as "UP" | "DOWN" | "STABLE" | null}
-                  severity={s.severity}
-                  areaName={s.areaName}
-                  areaCode={s.areaCode}
-                  sourceLabel={SOURCE_LABELS[s.source.slug] ?? undefined}
-                  href={getSignalHref(s.areaCode, s.source.slug)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+        <RanglisteSektion data={rangliste} />
 
         {/* Openness note */}
         <section className="mt-20 pt-10 border-t border-ink/10 mb-12">
