@@ -42,3 +42,13 @@
 ## Workflow
 - Push til main, Vercel deployer automatisk
 - git add . && git commit -m "beskrivelse" && git push
+
+
+## Pulse
+
+Specifikationen ligger i `docs/`. Læs `pulse-datakatalog-fase-1.md` og
+`pulse-fase-1-byggebrief.md` før du ændrer noget under `src/app/pulse/`
+eller i ingestion-laget.
+
+Tabel-ID'er må ikke hardcodes. `observations.value` må aldrig opdateres,
+kun tilføjes med ny `retrieved_at`.
