@@ -831,6 +831,140 @@ når som helst.
 
 ---
 
+## 9. Efterskrift: DST's omlægning fra DB07 til DB25
+
+Tilføjet 27. juli 2026, efter at stale-alarmen fandt to kilder.
+
+Begge fund viste sig at have samme rod: **Danmarks Statistik er gået fra
+brancheklassifikationen DB07 til DB25.** Det er ikke en omdøbning, og det er
+ikke noget der kan kodes udenom. Her er hvad der konkret er sket.
+
+### 9.1 KONK4 er lukket
+
+KONK4 står i DST's tabelregister med `active: false`:
+
+```json
+{
+  "id": "KONK4",
+  "text": "Erklærede konkurser",
+  "updated": "2026-01-07T08:00:00",
+  "firstPeriod": "2009M01",
+  "latestPeriod": "2025M12",
+  "active": false,
+  "variables": ["branche", "virksomhedstype", "tid"]
+}
+```
+
+Vores data stod på 2025M12, fordi DST's data står på 2025M12. Pipelinen
+fejlede ikke. Tabellen holdt op med at eksistere som levende serie den
+7. januar 2026.
+
+Afløseren er **KONK25**, med samme dimensioner, samme historik tilbage til
+2009M01, og data til 2026M06. Forskellen er `BRANCHE25` i stedet for
+`BRANCHE`, altså DB25 i stedet for DB07.
+
+### 9.2 Brancheomlægningen er ikke 1:1
+
+17 af KONK4's 20 grupper har en entydig efterfølger. Tre har ikke:
+
+| KONK4 (DB07) | KONK25 (DB25) | Bemærkning |
+|---|---|---|
+| `000` Konkurser i alt | **findes ikke** | KONK25 har ingen totalkode. Totalen tages fra KONK3, som allerede leverer hovedtallet |
+| `1` Landbrug, skovbrug og fiskeri | `A` | |
+| `2` Industri, råstofindvinding og forsyning | `BCDE` | |
+| `3` Bygge og anlæg | `F` Byggeri og anlæg | |
+| `4` Handel og transport mv. | `GHI` | |
+| `G` Handel | `G` Engroshandel og detailhandel | Indhold ændret, se nedenfor |
+| `G01` Handel med biler og motorcykler | **findes ikke** | Ingen G45 i DB25 |
+| `G02` Engroshandel | `G46` | |
+| `G03` Detailhandel | `G47` | |
+| `H` Transport | `H` | |
+| `I` Hoteller og restauranter | `I` Overnatning og restauranter | |
+| `101` Hoteller mv. | `I55` Overnatningsfaciliteter | |
+| `102` Restauranter | `I56` Servering | |
+| `5` Information og kommunikation | `JK` IT og medier | |
+| `6` Finansiering og forsikring | `L` | |
+| `7` Ejendomshandel og udlejning | `M` | |
+| `8` Erhvervsservice | `NO` Rådgivning og forretningsservice | |
+| `9` Offentlig adm., undervisning, sundhed | `PQR` | |
+| `10` Kultur, fritid og anden service | `STUV` Kultur, fritid, autoreparation og anden service | Indhold ændret, se nedenfor |
+| `11` Uoplyst aktivitet | **findes ikke** | Ingen restkategori i DB25 |
+
+**Indholdet flytter sig.** Sammenligning for december 2025, hvor begge
+tabeller har tal:
+
+| Gruppe | KONK4 (DB07) | KONK25 (DB25) | Forskel |
+|---|---|---|---|
+| Handel og transport mv. / `GHI` | 64 | 60 | −4 |
+| Handel / `G` | 28 | 24 | −4 |
+| Kultur, fritid mv. / `STUV` | 8 | 12 | **+4** |
+| Detailhandel / `G47` | 16 | 18 | +2 |
+| Ejendomme / `M` | 3 | 5 | +2 |
+| Bygge og anlæg / `F` | 29 | 27 | −2 |
+| Erhvervsservice / `NO` | 30 | 30 | 0 |
+| Transport / `H` | 14 | 14 | 0 |
+| Industri / `BCDE` | 14 | 14 | 0 |
+
+De fire konkurser der forsvinder fra `G` dukker op i `STUV`. Det er
+bilhandelen: DB25's `STUV` hedder "Kultur, fritid, **autoreparation** og anden
+service". Motorkøretøjer er flyttet fra handel til service. Det er også
+forklaringen på at `G01` ikke har nogen efterfølger.
+
+**Konsekvens for Pulse:** brancherækkerne på `/pulse/konkurser` er ikke
+sammenlignelige hen over årsskiftet 2025/2026 for `G`, `STUV` og de grupper
+der indeholder dem. Det er ikke en fejl der kan rettes, det er en
+klassifikationsændring. Den er noteret i kildelinjen på siden.
+
+### 9.3 DETA211A var en falsk alarm
+
+DETA211A er aktiv og opdateret 24. juni 2026. Dens nyeste periode hos DST er
+2026M04, altså præcis det vi har. Der manglede ingenting.
+
+Alarmen kom fra en for stram konstant i `pulse-stale.ts`: jeg havde sat
+forventet lag til 35 dage. Det faktiske lag er 55 dage, for 2026M04 blev
+publiceret 24. juni. Rettet til 62.
+
+Det er et argument for at kalibrere `EXPECTED_LAG_DAYS` mod målt
+publiceringshistorik frem for skøn, når stale-alarmen har kørt et par måneder.
+
+### 9.4 DETA211A's underbrancher havde aldrig virket
+
+Ved siden af den falske alarm lå en ægte fejl. `SYNC_BRANCHES` indeholdt syv
+koder:
+
+```ts
+const SYNC_BRANCHES = ["G47", "471", "472", "474", "475", "477", "479"];
+```
+
+Kun `G47` findes. Dimensionen hedder `BRANCHEDB25UDVALG` og bruger
+DB25-koder på seks cifre: `471110`, `471120`, `472100_472700`. De seks
+DB07-koder blev filtreret bort af `availableCodes.has(b)` uden en linje i
+loggen.
+
+Det havde ingen synlig effekt, fordi `/pulse/forbrug` kun læser `G47`. Config
+er reduceret til `G47`, og de seks er dokumenteret som fjernet.
+
+Skal underbrancher tilbage, er **DETA212A** den rigtige tabel: ni rene
+aggregater `G47001` til `G47009`, sæsonkorrigering via `INDEKSTYPE`, og den
+publicerer en måned foran DETA211A (2026M05 mod 2026M04).
+
+### 9.5 Hvad det betyder for datakataloget
+
+Datakatalogets afsnit 1 siger: "Tabel-ID'er må ikke hardcodes. Danmarks
+Statistik lukker tabeller med status afsluttet og opretter afløsere med nyt
+ID." KONK4 er det første konkrete tilfælde, og det ramte en side der er live.
+
+To ting bør følge med i fase 1:
+
+1. **Verifikationsscriptet fra datakatalogets afsnit 8, punkt 3, skal tjekke
+   `active`-flaget**, ikke kun at tabellen svarer. KONK4 svarede fint på API'et
+   hele tiden. Den var bare frosset.
+2. **`series.active` skal kunne sættes fra kilden.** Den nye model har feltet.
+   Indtil migrationen er kørt, bæres det i `DataSource.meta` som
+   `{ "retired": true, "successor": "..." }`, og stale-alarmen springer dem over.
+
+---
+
 ## Datagrundlag
 
 Alle tal er trukket 27. juli 2026 mod produktionsdatabasen på Neon
