@@ -327,12 +327,32 @@ enum RevisionPolicy {
   MAJOR
 }
 
+/// Lagene svarer på ét spørgsmål: hvad ville en direktør gøre anderledes,
+/// hvis tallet ændrede sig.
+///
+///   LEADING, COST, CAPITAL, EXTERNAL  -> handl nu
+///   REALISED                          -> nedskriv det
+///   STRUCTURAL                        -> ingenting i dette kvartal
+///
+/// REALISED og STRUCTURAL er adskilt med vilje. En konkursstigning hører
+/// hjemme på ranglisten. Et befolkningstal gør ikke. STRUCTURAL udelukkes
+/// fra rangordning som udgangspunkt, ellers fylder bestandstal pladser på
+/// forsiden med noget ingen handler på.
 enum SeriesLayer {
-  LEADING     // konjunktur, forventning, distress
+  LEADING     // konjunktur, forventning, byggetilladelser
   COST        // priser, løn, energi
   CAPITAL     // renter, valuta
   EXTERNAL    // udenlandske indikatorer
-  STRUCTURAL  // bestandstal: befolkning, indkomst, ejendomsværdi
+  REALISED    // det der allerede er sket: konkurser, ledighed, omsætning
+  STRUCTURAL  // bestandstal: befolkning, indkomst, demografi, ejendomsværdi
+}
+
+/// Aktiv eller lukket, som felt frem for i meta, så en forespørgsel kan
+/// filtrere uden at grave i JSON. En lukket serie bevares i fuld længde
+/// og vises gerne, men må aldrig kunne ende på ranglisten.
+enum SeriesStatus {
+  ACTIVE
+  CLOSED
 }
 
 enum IngestStatus {
@@ -355,7 +375,20 @@ model Series {
   revisionPolicy  RevisionPolicy  @map("revision_policy")
   attribution     String
   layer           SeriesLayer
-  active          Boolean         @default(true)
+  status          SeriesStatus    @default(ACTIVE)
+
+  /// Brud i serien: en dato hvor definitionen ændrede sig, så tal før og
+  /// efter ikke måler det samme. Ikke en ændring i virkeligheden.
+  ///
+  /// Z-score og alle afledte beregninger må ikke krydse den. Serien vises
+  /// i fuld længde, men mønstre beregnes kun på perioden fra og med
+  /// break_at. Uden reglen læser ranglisten en klassifikationsændring som
+  /// en usædvanlig bevægelse og sætter et falsk signal øverst.
+  ///
+  /// Brug analysisStart() i src/lib/pulse-series.ts frem for at læse
+  /// feltet direkte, så reglen kun findes ét sted.
+  breakAt     DateTime? @map("break_at") @db.Date
+  breakReason String?   @map("break_reason")
 
   // Sporbarhed tilbage til den gamle model, så migrationen kan
   // verificeres og rulles tilbage uden gætteri.
@@ -370,7 +403,8 @@ model Series {
   ingestRuns   IngestRun[]
 
   @@index([source])
-  @@index([layer, active])
+  @@index([layer, status])
+  @@index([status])
   @@index([legacySourceSlug])
   @@map("series")
 }

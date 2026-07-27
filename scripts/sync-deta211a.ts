@@ -63,9 +63,20 @@ async function main() {
       branchLabels[v.code] = v.label;
     }
 
-    // Only sync branches that exist in metadata
+    // En konfigureret kode der ikke findes hos kilden må ikke forsvinde
+    // lydløst. Det var præcis sådan seks DB07-koder blev kasseret her i
+    // månedsvis uden en linje i loggen, og det er samme fejlfamilie som
+    // continue-on-error: noget blev droppet uden at nogen fik besked.
     const availableCodes = new Set(brancheVar.values.map(v => v.code));
     const branchesToSync = SYNC_BRANCHES.filter(b => availableCodes.has(b));
+    const dropped = SYNC_BRANCHES.filter(b => !availableCodes.has(b));
+    if (dropped.length > 0) {
+      throw new Error(
+        `Disse konfigurerede branchekoder findes ikke i ${TABLE_ID}: ${dropped.join(", ")}. ` +
+          `Dimensionen ${brancheVar.code} har ${brancheVar.values.length} værdier. ` +
+          `DST har sandsynligvis omlagt klassifikationen. Ret SYNC_BRANCHES frem for at lade koderne falde bort.`
+      );
+    }
     console.log(`Syncing branches: ${branchesToSync.join(", ")}`);
 
     const filters: DSTFilter[] = [

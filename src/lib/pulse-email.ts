@@ -3,7 +3,12 @@
 // ============================================================
 
 import { sendEmail, EMAIL_TO } from "./email";
-import type { StaleReport, StaleKind } from "./pulse-stale";
+import {
+  ACTION_LABEL,
+  KIND_LABEL,
+  type StaleReport,
+  type StaleAction,
+} from "./pulse-stale";
 
 /**
  * Modtager af driftsalarmer.
@@ -133,7 +138,7 @@ Se siden: ${getAppUrl()}/pulse/ledighed`,
  */
 export async function sendPulseErrorEmail(data: PulseErrorData) {
   return sendEmail({
-    to: EMAIL_TO,
+    to: getAlertRecipient(),
     subject: `[FEJL] Pulse ${data.sourceSlug}: ${data.step}`,
     html: `<!DOCTYPE html>
 <html lang="da">
@@ -195,24 +200,54 @@ export async function sendPulseStaleEmail(report: StaleReport) {
   const n = report.findings.length;
   if (n === 0) return { ok: true, reason: "Ingen fund, ingen mail" };
 
-  const kindLabels: Record<StaleKind, string> = {
-    SYNC_INCOMPLETE: "Kørsel afbrudt",
-    SYNC_FAILED: "Kørsel fejlede",
-    NEVER_FETCHED: "Aldrig hentet",
-    DATA_STALE: "Data forældet",
+  const kindLabels = KIND_LABEL;
+
+  // Grupperet efter hvad fundet kræver. Tre fund kan have tre helt
+  // forskellige svar: en lukket tabel kræver en beslutning, en forkert
+  // tærskel kræver et talskifte, og en fejlet kørsel kræver at nogen
+  // kigger. Uden opdelingen behandles alt som samme hastesag.
+  const ACTION_COLOR: Record<StaleAction, string> = {
+    BESLUTNING: "#B45309",
+    UNDERSOEG: "#B45309",
+    JUSTER_TAERSKEL: "#6B7B75",
+  };
+  const ACTION_HINT: Record<StaleAction, string> = {
+    BESLUTNING:
+      "Der er ikke noget at reparere. Kilden findes ikke længere, og forsøg på at hente igen ændrer intet.",
+    UNDERSOEG: "Noget er gået galt i pipelinen.",
+    JUSTER_TAERSKEL:
+      "Pipelinen er rask. Forventningen til hvornår kilden publicerer er sat for stramt.",
   };
 
-  const rows = report.findings
-    .map((f) => {
-      const overdue =
-        f.daysOverdue !== null
-          ? `<span style="color: #B45309;">${f.daysOverdue} dage</span>`
-          : "&mdash;";
-      return `
+  const order: StaleAction[] = ["BESLUTNING", "UNDERSOEG", "JUSTER_TAERSKEL"];
+  const groups = order
+    .map((a) => ({ action: a, items: report.findings.filter((f) => f.action === a) }))
+    .filter((g) => g.items.length > 0);
+
+  const rows = groups
+    .map((g) => {
+      const header = `
         <tr>
-          <td style="padding: 16px 0; border-bottom: 1px solid rgba(26,26,26,0.08); vertical-align: top;">
-            <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #B45309; margin-bottom: 6px;">
-              ${kindLabels[f.kind]} &middot; ${overdue}
+          <td style="padding: 28px 0 10px 0;">
+            <div style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: ${ACTION_COLOR[g.action]}; font-weight: 500;">
+              ${ACTION_LABEL[g.action]} &middot; ${g.items.length}
+            </div>
+            <div style="font-size: 12px; color: rgba(26,26,26,0.5); margin-top: 6px; line-height: 1.5;">
+              ${ACTION_HINT[g.action]}
+            </div>
+          </td>
+        </tr>`;
+      const items = g.items
+        .map((f) => {
+          const overdue =
+            f.daysOverdue !== null
+              ? ` &middot; <span style="color: ${ACTION_COLOR[f.action]};">${f.daysOverdue} dage</span>`
+              : "";
+          return `
+        <tr>
+          <td style="padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.08); vertical-align: top;">
+            <div style="font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(26,26,26,0.5); margin-bottom: 6px;">
+              ${kindLabels[f.kind]}${overdue}
             </div>
             <div style="font-size: 15px; color: #1A1A1A; margin-bottom: 4px;">
               ${escapeHtml(f.name)}
@@ -225,6 +260,9 @@ export async function sendPulseStaleEmail(report: StaleReport) {
             </div>
           </td>
         </tr>`;
+        })
+        .join("");
+      return header + items;
     })
     .join("");
 
@@ -237,7 +275,16 @@ export async function sendPulseStaleEmail(report: StaleReport) {
 
   return sendEmail({
     to: getAlertRecipient(),
-    subject: `[PULSE] ${n} ${n === 1 ? "datasæt er" : "datasæt er"} ikke opdateret`,
+    subject: (() => {
+      const beslutning = report.findings.filter((f) => f.action === "BESLUTNING").length;
+      const undersoeg = report.findings.filter((f) => f.action === "UNDERSOEG").length;
+      const parts: string[] = [];
+      if (beslutning > 0) parts.push(`${beslutning} kræver beslutning`);
+      if (undersoeg > 0) parts.push(`${undersoeg} skal undersøges`);
+      const rest = n - beslutning - undersoeg;
+      if (rest > 0) parts.push(`${rest} tærskeljustering`);
+      return `[PULSE] ${parts.join(", ")}`;
+    })(),
     html: `<!DOCTYPE html>
 <html lang="da">
 <head><meta charset="UTF-8"><title>Pulse stale-alarm</title></head>
@@ -295,10 +342,16 @@ export async function sendPulseStaleEmail(report: StaleReport) {
 ${n} af ${report.sourcesChecked} datasæt er ikke opdateret.
 Kontrolleret ${report.checkedAt.toLocaleString("da-DK")}.
 
-${report.findings
+${groups
   .map(
-    (f) =>
-      `- [${kindLabels[f.kind]}${f.daysOverdue !== null ? `, ${f.daysOverdue} dage` : ""}] ${f.name} (${f.slug})\n  ${f.headline}. ${f.detail}`
+    (g) =>
+      `${ACTION_LABEL[g.action].toUpperCase()} (${g.items.length})\n${ACTION_HINT[g.action]}\n\n` +
+      g.items
+        .map(
+          (f) =>
+            `  - [${kindLabels[f.kind]}${f.daysOverdue !== null ? `, ${f.daysOverdue} dage` : ""}] ${f.name} (${f.slug})\n    ${f.headline}. ${f.detail}`
+        )
+        .join("\n\n")
   )
   .join("\n\n")}
 ${report.notInService.length > 0 ? `\nIkke i drift, ikke alarmeret: ${report.notInService.join(", ")}.` : ""}

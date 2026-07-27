@@ -44,7 +44,29 @@ export async function GET(req: Request) {
   try {
     await withDbRetry(() => prisma.$queryRaw`SELECT 1`);
 
-    const report = await findStaleSources(prisma);
+    // Hent DST's tabelregister og find de tabeller der er sat til
+    // active: false. Det er sådan KONK4 døde: den svarede fint på
+    // API'et hele tiden, den var bare frosset. Uden dette tjek opdages
+    // en lukket tabel først når nogen undrer sig over tallene.
+    let inactiveTableIds: Set<string> | undefined;
+    try {
+      const res = await fetch(
+        "https://api.statbank.dk/v1/tables?lang=da&format=JSON&includeInactive=true",
+        { signal: AbortSignal.timeout(20_000) }
+      );
+      if (res.ok) {
+        const tables = (await res.json()) as Array<{ id: string; active?: boolean }>;
+        inactiveTableIds = new Set(
+          tables.filter((t) => t.active === false).map((t) => t.id)
+        );
+      }
+    } catch {
+      // Registret er en ekstra kilde, ikke en forudsætning. Kan vi ikke
+      // nå det, kører de øvrige tjek videre.
+      inactiveTableIds = undefined;
+    }
+
+    const report = await findStaleSources(prisma, new Date(), { inactiveTableIds });
 
     let emailed = false;
     if (report.findings.length > 0 && !dryRun) {
@@ -59,9 +81,12 @@ export async function GET(req: Request) {
       sourcesChecked: report.sourcesChecked,
       staleCount: report.findings.length,
       notInService: report.notInService,
+      registryChecked: inactiveTableIds !== undefined,
+      retired: report.retired,
       findings: report.findings.map((f) => ({
         slug: f.slug,
         kind: f.kind,
+        action: f.action,
         headline: f.headline,
         detail: f.detail,
         latestPeriod: f.latestPeriod,

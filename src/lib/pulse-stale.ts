@@ -65,15 +65,47 @@ const DEFAULT_LAG_BY_FREQUENCY: Record<string, number> = {
 const INCOMPLETE_RUN_HOURS = 2;
 
 export type StaleKind =
+  | "SOURCE_CLOSED"
   | "DATA_STALE"
+  | "PUBLICATION_LATE"
   | "SYNC_FAILED"
   | "SYNC_INCOMPLETE"
   | "NEVER_FETCHED";
+
+/**
+ * Hvad fundet kræver af modtageren. Uden dette behandles alt som samme
+ * hastesag, og så bliver alarmen til støj.
+ *
+ *   BESLUTNING       Der er ikke noget at reparere. Kilden er væk, og
+ *                    nogen skal vælge en afløser eller lukke serien.
+ *                    Skal ikke prøves igen.
+ *   JUSTER_TAERSKEL  Vi har hentet, kilden svarer, og den har ikke
+ *                    nyere tal. Så er det forventningen der er forkert,
+ *                    ikke pipelinen. Ret expected_lag_days.
+ *   UNDERSOEG        Noget er faktisk gået galt.
+ */
+export type StaleAction = "BESLUTNING" | "JUSTER_TAERSKEL" | "UNDERSOEG";
+
+export const ACTION_LABEL: Record<StaleAction, string> = {
+  BESLUTNING: "Kræver en beslutning",
+  JUSTER_TAERSKEL: "Justér tærskel",
+  UNDERSOEG: "Undersøg",
+};
+
+export const KIND_LABEL: Record<StaleKind, string> = {
+  SOURCE_CLOSED: "Kilden er lukket hos DST",
+  DATA_STALE: "Data forældet",
+  PUBLICATION_LATE: "Publicering forsinket",
+  SYNC_FAILED: "Kørsel fejlede",
+  SYNC_INCOMPLETE: "Kørsel afbrudt",
+  NEVER_FETCHED: "Aldrig hentet",
+};
 
 export type StaleFinding = {
   slug: string;
   name: string;
   kind: StaleKind;
+  action: StaleAction;
   headline: string;
   detail: string;
   latestPeriod: string | null;
@@ -163,14 +195,17 @@ function formatDate(d: Date): string {
  */
 export async function findStaleSources(
   prisma: PrismaClient,
-  now: Date = new Date()
+  now: Date = new Date(),
+  opts: { inactiveTableIds?: Set<string> } = {}
 ): Promise<StaleReport> {
+  const inactive = opts.inactiveTableIds ?? new Set<string>();
   const sources = await prisma.dataSource.findMany({
     orderBy: { slug: "asc" },
     select: {
       id: true,
       slug: true,
       name: true,
+      tableId: true,
       updateFrequency: true,
       lastFetchedAt: true,
       meta: true,
@@ -200,13 +235,34 @@ export async function findStaleSources(
       notInService.push(source.slug);
       continue;
     }
-    // DST har lukket tabellen. Historikken står, men den bliver aldrig
-    // opdateret igen, så den kan pr. definition ikke være "forsinket".
+    // Allerede erkendt lukket: beslutningen er taget, afløseren noteret.
+    // Skal ikke alarmere igen.
     if (isRetired(source.meta)) {
       retired.push(source.slug);
       continue;
     }
     sourcesChecked++;
+
+    // ---- 0. DST har lukket tabellen, og vi behandler den stadig som levende ----
+    // Det er øjeblikket hvor det er værd at sige noget. Der er ikke
+    // noget at reparere, og der er ingen grund til at prøve igen.
+    if (inactive.has(source.tableId)) {
+      findings.push({
+        slug: source.slug,
+        name: source.name,
+        kind: "SOURCE_CLOSED",
+        action: "BESLUTNING",
+        headline: `DST har lukket tabel ${source.tableId}`,
+        detail:
+          `Tabellen står med active: false i DST's register. Den får aldrig nye tal. ` +
+          `Find afløseren, migrér til den, og markér denne som lukket. Indtil da vises forældede tal.`,
+        latestPeriod: null,
+        expectedBy: null,
+        daysOverdue: null,
+        lastFetchedAt: source.lastFetchedAt,
+      });
+      continue;
+    }
 
     const lastRun = source.fetchLogs[0] ?? null;
 
@@ -219,6 +275,7 @@ export async function findStaleSources(
           slug: source.slug,
           name: source.name,
           kind: "SYNC_INCOMPLETE",
+          action: "UNDERSOEG",
           headline: "Kørslen blev afbrudt",
           detail:
             `Sidste kørsel startede ${formatDate(lastRun.createdAt)} og blev aldrig afsluttet. ` +
@@ -238,6 +295,7 @@ export async function findStaleSources(
         slug: source.slug,
         name: source.name,
         kind: "SYNC_FAILED",
+        action: "UNDERSOEG",
         headline: "Sidste kørsel fejlede",
         detail:
           `Kørslen ${formatDate(lastRun.createdAt)} fejlede: ` +
@@ -256,6 +314,7 @@ export async function findStaleSources(
         slug: source.slug,
         name: source.name,
         kind: "NEVER_FETCHED",
+        action: "UNDERSOEG",
         headline: "Aldrig hentet",
         detail: "Kilden har datapunkter, men lastFetchedAt er tom.",
         latestPeriod: null,
@@ -285,14 +344,35 @@ export async function findStaleSources(
 
     const expectedBy = addDays(nextEnd, lag + GRACE_DAYS);
     if (now > expectedBy) {
+      // Skelnen der afgør hvad modtageren skal gøre:
+      //
+      // Har vi hentet for nylig, og gik hentningen godt, så har vi
+      // spurgt DST og fået at vide at der ikke er nyere tal. Så er
+      // pipelinen rask, og det er enten en forsinket publicering eller
+      // en for stram expected_lag_days. Det er præcis den fejl jeg selv
+      // lavede med DETA211A: 35 dage sat, 55 dage faktisk.
+      //
+      // Er hentningen derimod gammel, ved vi ikke om DST har noget.
+      // Det skal undersøges.
+      const hoursSinceFetch = source.lastFetchedAt
+        ? (now.getTime() - source.lastFetchedAt.getTime()) / (60 * 60 * 1000)
+        : Infinity;
+      const checkedRecently = hoursSinceFetch <= 48;
+
       findings.push({
         slug: source.slug,
         name: source.name,
-        kind: "DATA_STALE",
+        kind: checkedRecently ? "PUBLICATION_LATE" : "DATA_STALE",
+        action: checkedRecently ? "JUSTER_TAERSKEL" : "UNDERSOEG",
         headline: `Ingen nye tal siden ${newest.period}`,
-        detail:
-          `Næste periode sluttede ${formatDate(nextEnd)} og burde have været publiceret ` +
-          `senest ${formatDate(expectedBy)} (${lag} dages forventet lag plus ${GRACE_DAYS} dages nåde).`,
+        detail: checkedRecently
+          ? `Vi hentede for ${Math.round(hoursSinceFetch)} timer siden, og kørslen gik godt. ` +
+            `DST har ikke nyere tal end ${newest.period}. Enten er publiceringen forsinket, ` +
+            `eller også er expected_lag_days på ${lag} for lav. Tjek DST's udgivelseskalender ` +
+            `før du ændrer noget i pipelinen.`
+          : `Næste periode sluttede ${formatDate(nextEnd)} og burde have været publiceret ` +
+            `senest ${formatDate(expectedBy)} (${lag} dages forventet lag plus ${GRACE_DAYS} dages nåde). ` +
+            `Seneste hentning er ${source.lastFetchedAt ? formatDate(source.lastFetchedAt) : "ukendt"}.`,
         latestPeriod: newest.period,
         expectedBy,
         daysOverdue: daysBetween(now, expectedBy),
@@ -301,8 +381,19 @@ export async function findStaleSources(
     }
   }
 
-  // Værst først: flest dage over tiden.
-  findings.sort((a, b) => (b.daysOverdue ?? 0) - (a.daysOverdue ?? 0));
+  // Sortér efter hvad der kræves, ikke efter hvor gammelt det er.
+  // Et fund der kræver en beslutning skal ikke ligge under fem fund
+  // der bare betyder "justér en konstant".
+  const actionRank: Record<StaleAction, number> = {
+    BESLUTNING: 0,
+    UNDERSOEG: 1,
+    JUSTER_TAERSKEL: 2,
+  };
+  findings.sort(
+    (a, b) =>
+      actionRank[a.action] - actionRank[b.action] ||
+      (b.daysOverdue ?? 0) - (a.daysOverdue ?? 0)
+  );
 
   return { checkedAt: now, sourcesChecked, findings, notInService, retired };
 }
