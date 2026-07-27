@@ -77,12 +77,35 @@ describe("Enhedskonvertering", () => {
     assert.equal(3.471 * scale, 3.471);
   });
 
-  test("alle valutaserier har skalering, ingen glemt", () => {
-    const fx = SERIES.filter((s) => s.sourceRef === "DNVALD");
-    assert.equal(fx.length, 4, "fire valutaer, PLN udgår");
-    for (const s of fx) {
+  // DNVALD leverer to slags serier, og de skal behandles modsat.
+  // KURTYP=KBH er kurser i DKK pr. 100 enheder og skal skaleres.
+  // KURTYP=INX er et indeks med basis 1980=100 og må IKKE skaleres:
+  // ganges det med 0,01 bliver 104 til 1,04, og fejlen ville se ud som
+  // en plausibel valutakurs i stedet for at fejle højlydt.
+  test("bilaterale valutakurser skaleres, ingen glemt", () => {
+    const par = SERIES.filter((s) => s.dst?.filters.KURTYP?.includes("KBH"));
+    assert.equal(par.length, 4, "fire valutapar, PLN udgår");
+    for (const s of par) {
       assert.equal(s.dst?.valueScale, 0.01, `${s.id} mangler valueScale`);
       assert.equal(s.unit, "dkk_per_enhed");
+    }
+  });
+
+  test("den effektive kronekurs er et indeks og skaleres ikke", () => {
+    const inx = SERIES.filter((s) => s.dst?.filters.KURTYP?.includes("INX"));
+    assert.equal(inx.length, 1);
+    assert.equal(inx[0].dst?.valueScale, undefined, "et indeks må ikke skaleres");
+    assert.equal(inx[0].unit, "indeks_1980");
+  });
+
+  test("nævnere er ikke rangerbare uden begrundelse", () => {
+    for (const s of SERIES) {
+      if (s.rankable === false) {
+        assert.ok(
+          s.rankableReason && s.rankableReason.length > 20,
+          `${s.id} er fravalgt uden en brugbar begrundelse`
+        );
+      }
     }
   });
 });
