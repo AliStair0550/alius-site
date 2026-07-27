@@ -15,6 +15,7 @@
 // ============================================================
 
 import { PrismaClient } from "@prisma/client";
+import { withDbRetry } from "../src/lib/db";
 import { SERIES } from "../config/series";
 import { DstAdapter } from "../src/lib/adapters/dst";
 import { EdsAdapter } from "../src/lib/adapters/eds";
@@ -63,6 +64,12 @@ async function main() {
 
   console.log(`Backfill af ${defs.length} serier. Hele historikken, ingen afkortning.\n`);
 
+  // Neon skalerer til nul ved inaktivitet. En EDS-kørsel venter fire
+  // minutter mellem sider, så forbindelsen er kold hver gang der skal
+  // skrives. Uden opvågning fejler kørslen på en forbigående blip efter
+  // timers arbejde.
+  await withDbRetry(() => prisma.$queryRaw`SELECT 1`);
+
   const failures: Array<{ id: string; error: string }> = [];
   let totalInserted = 0;
   let totalRevised = 0;
@@ -103,7 +110,7 @@ async function main() {
       const points = await adapter.fetchSeries(def, {
         resumeFrom,
         onBatch: async (batch) => {
-          const r = await writeObservations(prisma, def.id, batch, started);
+          const r = await withDbRetry(() => writeObservations(prisma, def.id, batch, started));
           streamed += r.inserted;
         },
       });
@@ -117,7 +124,7 @@ async function main() {
           ? ((last.getTime() - first.getTime()) / (365.25 * 86_400_000)).toFixed(1)
           : "0";
 
-      const w = await writeObservations(prisma, def.id, points, started);
+      const w = await withDbRetry(() => writeObservations(prisma, def.id, points, started));
       totalInserted += w.inserted;
       totalRevised += w.revised;
 
