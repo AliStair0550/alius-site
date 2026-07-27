@@ -311,6 +311,16 @@ priser, arealer, antal).
 gemmer alt kilden har, fordi vi altid kan vælge et kortere vindue senere,
 men ikke kan hente historik der aldrig blev gemt.
 
+Konkret betyder det at elprisens 27 år og valutaernes 49 år ligger uden for
+det ti-årige beregningsvindue og ikke bruges til noget i dag. Det er
+accepteret af to grunde: vinduet kan ændre sig, og genhentning af elprisen
+koster tre en halv time mod en rate-limiteret kilde.
+
+**Det argument skal ikke genbruges.** "Vi gemmer det for en sikkerheds
+skyld" er ikke en begrundelse for at hente alt hvad en kilde tilbyder.
+Her holder det fordi genhentningen er dyr og engangs. Er en kilde billig at
+hente igen, skal der hentes det der bruges.
+
 **En serie der ikke kan rangeres siger hvorfor.** `for_lidt_daekning`,
 `ingen_spredning` eller `ingen_observationer`. Aldrig bare z = 0, som ville
 lade den se ud som en serie der er undersøgt og fundet normal.
@@ -318,6 +328,90 @@ lade den se ud som en serie der er undersøgt og fundet normal.
 Metoden er dækket af tests der beviser den centrale påstand: to serier med
 identisk forløb men 11 og 30 års historik giver samme z, og en daglig og en
 månedlig måling af samme forløb giver z inden for 0,3 af hinanden.
+
+---
+
+## 3h. Beslutning: hvornår uret til port 2 brydes
+
+Truffet 27. juli 2026.
+
+Stale-alarmen inddeler fund i tre handlinger. Kun én af dem er en fejl.
+
+| Handling | Betydning | Bryder uret? |
+|---|---|---|
+| `UNDERSOEG` | Noget er faktisk gået galt i pipelinen | **Ja** |
+| `JUSTER_TAERSKEL` | Pipelinen er rask. Vores forventning til kilden var for stram | Nej |
+| `BESLUTNING` | Kilden findes ikke længere. Der er intet at reparere | Nej |
+
+`JUSTER_TAERSKEL` og `BESLUTNING` er systemet der virker. Alarmen har
+opdaget noget om **omverdenen**, ikke om vores kode. At behandle dem som
+fejl ville betyde at et velfungerende overvågningssystem konstant stoppede
+arbejdet, og så ender det med at blive slukket.
+
+Kun `UNDERSOEG` betyder at noget hos os er i stykker.
+
+## 3i. Beslutning: FORV1's F11 lukkes, historikken bevares
+
+`dst.forbrug.forventning.f11`, "Anser det som fornuftigt at spare op i den
+nuværende økonomiske situation", har sidste værdi april 2025. De øvrige tolv
+FORV1-serier løber til juli 2026. DST har nedlagt delspørgsmålet.
+
+Samme familie som KONK4: kilden er væk, ikke pipelinen. Sat til `CLOSED`
+med årsag i `meta`. Den kan aldrig nå ranglisten, men den vises stadig.
+
+**Anbefaling: bevar historikken. Udgå ikke.**
+
+496 observationer tilbage til 1974. Tre gange i dette projekt har en kilde
+vist sig at forsvinde uden varsel: KONK4, `Elspotprices`, og `PRIS111` og
+`KBS1` i katalogets egne kandidater. Data vi allerede har er det eneste vi
+ved vi kan beholde. At slette er den ene handling der ikke kan gøres om, og
+den sparer kilobytes.
+
+**Generaliseret i koden.** Stale-tjekket klassificerer nu enhver serie der
+er mere end 180 dage over sit vindue som `BESLUTNING`, ikke som noget der
+skal undersøges. Så langt over tiden er det ikke en forsinkelse. Grænsen er
+sat over EJDFOE1's halvandet års publiceringslag, så en langsom serie ikke
+dømmes død.
+
+## 3j. Åben risiko: overvågningen dækker ikke fortolkningslaget
+
+**Skal løses når fortolkningslinjerne aktiveres. Ikke bagefter.**
+
+Overvågningen var blind for `series` og `observations` fra migrationen den
+27. juli til alarmen blev udvidet samme dag. I det vindue kunne enhver af de
+84 serier være holdt op med at blive opdateret uden at nogen fik besked.
+Den gamle model var dækket, den nye var ikke, og der var intet der sagde
+fra. Det blev opdaget fordi nogen spurgte, ikke fordi systemet meldte.
+
+**Det samme vil ske med fortolkningslaget.** En skabelon fra afsnit 5 kan
+holde op med at udløse uden at noget fejler:
+
+- Betingelsen `z <= -2 and consecutive_declines >= 3` rammer aldrig fordi
+  z-tærsklen blev kalibreret anderledes end skabelonen antog
+- Serien den peger på bliver `CLOSED`, og skabelonen bliver forældreløs
+- `break_at` sættes på serien, og vinduet bliver for kort til at betingelsen
+  kan opfyldes
+- Skabelonen refererer til en serie-id der er omdøbt
+
+I alle fire tilfælde er resultatet det samme: forsiden viser tal uden
+fortolkning, hvilket ser ud præcis som en rolig uge. **Stilhed fra
+fortolkningslaget kan ikke skelnes fra "der skete ikke noget."**
+
+Det er samme mønster som de seks tilfælde i `CLAUDE.md`: en tilstand
+oversat til en anden, hvor oversættelsen taber information.
+
+Kravet når linjerne bygges:
+
+1. Hver skabelon logger ved hver kørsel om den blev evalueret, og om den
+   udløste. Ikke kun når den udløser.
+2. En skabelon der ikke har udløst i N kørsler rapporteres. Enten er
+   betingelsen forkert, eller også er verden roligere end antaget, og de to
+   skal kunne skelnes.
+3. En skabelon der peger på en serie der er `CLOSED`, omdøbt eller har fået
+   `break_at`, skal fejle højlydt ved indlæsning af config, ikke stille ved
+   kørsel.
+4. Antallet af serier uden nogen gældende fortolkning er et tal der skal
+   kunne aflæses.
 
 ---
 

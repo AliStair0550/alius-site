@@ -64,6 +64,14 @@ const DEFAULT_LAG_BY_FREQUENCY: Record<string, number> = {
  */
 const INCOMPLETE_RUN_HOURS = 2;
 
+/**
+ * En serie der er så mange dage over sit forventede vindue regnes som
+ * nedlagt frem for forsinket. Grænsen er sat efter den længste rimelige
+ * publiceringsforsinkelse i porteføljen: EJDFOE1 udkommer halvandet år
+ * efter referenceåret, så noget under det ville give falske dødsdomme.
+ */
+const LIKELY_DISCONTINUED_DAYS = 180;
+
 export type StaleKind =
   | "SOURCE_CLOSED"
   | "DATA_STALE"
@@ -472,6 +480,31 @@ export async function findStaleSeries(
     const expectedBy = addDays(dueEnd, s.expectedLagDays + GRACE_DAYS);
 
     if (now <= expectedBy) continue;
+
+    const overdue = daysBetween(now, expectedBy);
+
+    // En serie der er et halvt år over tiden er ikke forsinket. Den er
+    // holdt op. F11 i FORV1 var sådan en: DST nedlagde delspørgsmålet i
+    // april 2025, og der er intet at reparere og ingen tærskel at rette.
+    // Det kræver en beslutning, præcis som KONK4 gjorde.
+    if (overdue > LIKELY_DISCONTINUED_DAYS) {
+      findings.push({
+        slug: s.id,
+        name: s.nameDa,
+        kind: "SOURCE_CLOSED",
+        action: "BESLUTNING",
+        headline: `Ingen nye tal i ${Math.floor(overdue / 30)} måneder`,
+        detail:
+          `Seneste værdi er ${formatDate(newest.period)}, ${overdue} dage efter det forventede. ` +
+          `Så langt over tiden er det ikke en forsinkelse. Kilden har sandsynligvis nedlagt serien. ` +
+          `Afgør om den skal sættes til CLOSED og bevares som historik, eller udgå.`,
+        latestPeriod: formatDate(newest.period),
+        expectedBy,
+        daysOverdue: overdue,
+        lastFetchedAt: newest.retrievedAt,
+      });
+      continue;
+    }
 
     const hoursSinceFetch =
       (now.getTime() - newest.retrievedAt.getTime()) / (60 * 60 * 1000);
