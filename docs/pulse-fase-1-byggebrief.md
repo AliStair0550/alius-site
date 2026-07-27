@@ -540,6 +540,95 @@ nævnere og ikke signaler. Men det er en beslutning per serie, ikke en regel.
 
 ---
 
+## 3l. Beslutning: tre nævnere bygget, og hvem der rangeres
+
+Truffet 27. juli 2026. Alle tre er i basen.
+
+| Serie | Historik | Rangerbar |
+|---|---|---|
+| `dst.rente.nationalbank.udlaan` | 34,3 år, 10.844 obs | **Nej** |
+| `dst.valuta.effektiv` | 49,2 år, 12.506 obs | **Ja** |
+| `derived.detail.maengde` | 11,2 år, 136 obs | **Ja** |
+
+Rangerbarhed er afgjort på **indholdet, ikke på rollen**. At en serie er
+nævner for en anden gør den ikke automatisk uegnet til forsiden. Det
+afhænger af om den selv besvarer et spørgsmål nogen handler på.
+
+### Policyrenten: nævner, ikke signal
+
+`dst.rente.nationalbank.udlaan` er sat til `rankable = false`.
+
+Nationalbankens rentebeslutninger står i avisen samme dag. En direktør
+kender dem. En plads på forsiden ville bruges på noget modtageren allerede
+ved. Dens værdi ligger udelukkende i marginen mod `dst.rente.erhverv.nye`.
+
+### Den effektive kronekurs: nævneren er det bedre signal
+
+Her er nævneren og signalet byttet om i forhold til hvad man skulle tro.
+
+`dst.valuta.effektiv` er **rangerbar**. De fire valutapar er sat til
+`rankable = false` og bliver kontekst på `priser-og-renter`.
+
+Begrundelsen har to dele.
+
+**Den effektive kurs besvarer det bedre spørgsmål.** "USD/DKK steg fire
+procent" er ikke fortolkeligt: det kan lige så godt være at dollaren er
+stærk som at kronen er svag, og de to fører til forskellige beslutninger.
+Den effektive kronekurs siger direkte om dansk konkurrenceevne har flyttet
+sig, og det er den beslutning en eksportør faktisk træffer.
+
+**Fire par giver fire chancer for et tilfælde.** USD, SEK, NOK og GBP er
+korrelerede men ikke identiske. Trækkes fire gange fra næsten samme
+fordeling, vil et af dem ofte have en høj z uden at noget er sket. Det er
+den samme mekanik som gjorde at boligbyggeri fyldte tre af seks pladser,
+bare mindre synlig. Én effektiv kurs er ét træk.
+
+**Prisen ved beslutningen** er en virksomhed med koncentreret eksponering
+mod ét marked, hvor det bilaterale par er det relevante tal. Den kan læse
+det på dashboardet. Ranglisten svarer på "hvad bør jeg vide i denne uge",
+og der er "kronens konkurrenceevne flyttede sig" den version af historien
+der er sand for alle.
+
+### Deflateret detailomsætning: mængden er signalet
+
+`derived.detail.maengde` er **rangerbar**.
+`dst.detail.omsaetning.g47` er sat til `rankable = false`.
+
+Det nominelle værdiindeks er en mellemregning. "Omsætningen steg tre
+procent" besvarer ikke om der blev solgt mere. I en inflationsperiode
+stiger værdiindekset selv når mængden falder, og det er ikke bare uskarpt,
+det er **systematisk misvisende i den ene retning**. Præcis samme fejltype
+som at boligbyggeri vandt rangeringen fordi boliger tælles i større enheder
+end procentpoint.
+
+Serien er den første afledte i systemet. `config/derived.ts` og
+`scripts/build-derived.ts` er strukturen datakatalogets afsnit 5 skal bruge
+til de øvrige fire.
+
+### Fravalgt: ekstern reference til forbrugertilliden
+
+Argumentet fra erhvervstillid overføres ikke.
+
+Erhvervstillid handler om **eksportmarkederne**, som er hvor handlingen
+ligger for en dansk virksomhed: falder tysk industritillid, er det en
+ordrebog der forsvinder. Forbrugertillid er **indenlandsk**. En dansk
+direktør gør ikke noget anderledes fordi europæiske forbrugere er
+mismodige; hans kunder er danske.
+
+Der er ingen beslutning der ændrer sig, og prisen ville være to serier og
+en metodeblanding. Fravalgt.
+
+### Udskudt til efter port 2
+
+| Kandidat | Prioritet | Hvorfor ikke nu |
+|---|---|---|
+| Tysk elpris (`DayAheadPrices`, `PriceArea=DE`) | **1** | Rigtig nævner, men halvanden times backfill mod en rate-limitet kilde, og DK1 kører stadig. Historikdybden for DE er uafklaret |
+| Virksomhedsbestand som nævner for konkurser | 2 | Ny DST-tabel, og månedlige konkurser over en årlig bestand kræver en beslutning om interpolation |
+
+Begge er rigtige. Ingen af dem er billige.
+
+---
+
 ## 4. Beslutning 3: Signaler bliver ranglisten
 
 Det er den vigtigste ændring, og den er ikke et nyt komponent. Det er en omskrivning af den der findes.

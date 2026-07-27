@@ -276,7 +276,51 @@ export const SERIES: SeriesDef[] = [
       filters: { DATA: ["AL51EFFR"], INDSEK: ["1400"], VALUTA: ["Z01"] },
     },
   },
+  {
+    // Nævner for dst.rente.erhverv.nye. Marginen mellem de to skiller
+    // "centralbanken flyttede sig" fra "din bank strammede".
+    id: "dst.rente.nationalbank.udlaan",
+    nameDa: "Nationalbankens udlånsrente",
+    source: "DST",
+    sourceRef: "DNRENTD",
+    unit: "pct",
+    frequency: "DAILY",
+    layer: "CAPITAL",
+    revisionPolicy: "NONE",
+    expectedLagDays: 1,
+    attribution: DST("DNRENTD") + ". Kilde: Danmarks Nationalbank",
+    zTransform: "level",
+    rankable: false,
+    rankableReason:
+      "Policyrente. En direktør kender den i forvejen fra pressen. " +
+      "Den er nævner for udlånsrenten til erhverv, ikke et selvstændigt signal.",
+    dst: {
+      filters: { INSTRUMENT: ["OIRNAA"], LAND: ["DK"], OPGOER: ["E"] },
+    },
+  },
+  {
+    // Nævner for de fire valutapar, og det bedre signal af de to.
+    // Et bilateralt par kan ikke skelne "dollaren er stærk" fra
+    // "kronen er svag". Den effektive kurs kan.
+    id: "dst.valuta.effektiv",
+    nameDa: "Nominel effektiv kronekurs",
+    source: "DST",
+    sourceRef: "DNVALD",
+    unit: "indeks_1980",
+    frequency: "DAILY",
+    layer: "CAPITAL",
+    revisionPolicy: "NONE",
+    expectedLagDays: 1,
+    attribution: DST("DNVALD") + ". Kilde: Danmarks Nationalbank",
+    zTransform: "level",
+    dst: { filters: { VALUTA: ["DKK"], KURTYP: ["INX"] } },
+  },
   // DNVALD leverer DKK pr. 100 enheder. valueScale gør det til DKK pr. 1.
+  //
+  // De fire par er sat til ikke-rangerbare. Se byggebriefens afsnit 3l:
+  // den effektive kurs er signalet, parrene er opdelingen der forklarer
+  // hvilken valuta der trak. Fire par på ranglisten ville desuden give
+  // fire chancer for at trække en høj z ud af næsten samme fordeling.
   ...(["USD", "SEK", "NOK", "GBP"] as const).map(
     (ccy): SeriesDef => ({
       id: `dst.valuta.${ccy.toLowerCase()}`,
@@ -290,6 +334,10 @@ export const SERIES: SeriesDef[] = [
       expectedLagDays: 1,
       attribution: DST("DNVALD") + ". Kilde: Danmarks Nationalbank",
       zTransform: "level",
+      rankable: false,
+      rankableReason:
+        "Opdeling af den effektive kronekurs. Vises på dashboardet, " +
+        "konkurrerer ikke på forsiden.",
       dst: { filters: { VALUTA: [ccy], KURTYP: ["KBH"] }, valueScale: 0.01 },
     })
   ),

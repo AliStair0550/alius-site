@@ -20,6 +20,30 @@ Formålet med dette dokument er at være entydigt nok til at en udvikler kan byg
 
 **Enheder normaliseres ved indlæsning.** Priser i DKK. Indeks som decimaltal. Renter i procent, ikke basispunkter. Konvertering sker i ingestion-laget, aldrig i visningslaget.
 
+**Ingen serie optages uden en nævner.** Et enkelt tal kan aflæses, ikke fortolkes.
+
+En serie skal ved optagelse kunne besvare: *hvad holdes dette tal op mod, og hvem leverer det.* Der er tre gyldige svar:
+
+| Nævner | Hvornår den er nok |
+|---|---|
+| Seriens egen historik | Kun når enheden i sig selv er fortolkelig: procent af arbejdsstyrken, nettotal med nulpunkt, indeks med fast basisår |
+| En søsterserie i samme lag | Når parret udgør en meningsfuld forskel: producentpris mod løn giver margin |
+| En ekstern referencelinje | Når niveauet kun betyder noget relativt: elpris, rente, valutakurs, tillidsindikator |
+
+Z-scoren er ikke en nævner. Den svarer på **om** noget er usædvanligt. Den svarer ikke på **hvorfor**, og det er hvorfor'et der afgør hvad nogen gør.
+
+Kan spørgsmålet ikke besvares, optages serien ikke. Nævneren hentes samtidig med serien, ikke bagefter.
+
+**Reglen er skrevet efter tre uafhængige tilfælde, ikke som en generalisering af ét:**
+
+- Tysk erhvervstillid faldt. Uden EU27 kan det ikke skelnes fra at europæisk erhvervstillid faldt. Det første er et tysk markedsproblem, det andet et porteføljeproblem.
+- Udlånsrenten til erhverv er 3,47 procent. Uden Nationalbankens udlånsrente kan "centralbanken flyttede sig" ikke skelnes fra "din bank strammede".
+- USD/DKK steg. Uden den effektive kronekurs kan "dollaren er stærk" ikke skelnes fra "kronen er svag".
+
+**Havde reglen stået her fra begyndelsen, var CIBOR aldrig kommet på listen.** Serie 9 og 10 blev specificeret som referencerenter, altså tal ingen betaler, og uden noget at holde dem op mod. Spørgsmålet "hvad er nævneren" ville have afsløret det før tabel-ID'et blev slået op, i stedet for efter at det viste sig at serien havde været død siden 2013.
+
+En nævner er ofte ikke selv et signal. Se `series.rankable`.
+
 ---
 
 ## 2. Datamodel
