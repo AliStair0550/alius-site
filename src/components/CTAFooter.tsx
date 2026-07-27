@@ -260,6 +260,12 @@ export function Footer() {
           LinkedIn
         </a>
         <a
+          href="/værksted"
+          className="font-[200] text-[0.7rem] text-stone tracking-[0.05em] hover:text-moss transition-colors"
+        >
+          Værksted
+        </a>
+        <a
           href="mailto:hej@alius.dk"
           className="font-[200] text-[0.7rem] text-stone tracking-[0.05em] hover:text-moss transition-colors"
         >

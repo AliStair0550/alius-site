@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllKommuner } from "@/lib/areas";
 import { THINKERS } from "@/lib/frihedstaenkere";
+import { ARTICLES } from "@/lib/vaerksted";
 
 const BASE = "https://alius.dk";
 
@@ -37,6 +38,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url("/tankeprofil/teori", 0.6),
     url("/tankeprofil/hold", 0.6),
     url("/cv", 0.6),
+
+    // Værkstedet - oversigt + artikler
+    url("/værksted", 0.7),
+    ...ARTICLES.map((a) => url(a.href, 0.6)),
 
     // Pulse-oversigter
     url("/pulse/ledighed", 0.8),
