@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.example indeholder ingen hemmeligheder og skal med i repoet,
+# fordi den dokumenterer hvorfor DATABASE_URL ikke må ligge i .env
+!.env.example
 
 # vercel
 .vercel

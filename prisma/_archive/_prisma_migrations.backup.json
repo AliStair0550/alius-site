@@ -1,0 +1,32 @@
+[
+  {
+    "id": "59b04952-93cb-4a9b-b11a-528c106a05f0",
+    "checksum": "393bc81187625146915dc23a029a331a7a76eacb12bf16edd9ba8eafd612e1f9",
+    "finished_at": "2026-05-11T11:17:23.763Z",
+    "migration_name": "20260511111723_init",
+    "logs": null,
+    "rolled_back_at": null,
+    "started_at": "2026-05-11T11:17:23.600Z",
+    "applied_steps_count": 1
+  },
+  {
+    "id": "3e02a3bc-eb57-4f51-b77b-a3aa8d212083",
+    "checksum": "6d3370d42a8c493bec4b76ed4b6efd003fce79cdfa41129e860f2b663fb1847e",
+    "finished_at": "2026-05-12T11:13:02.028Z",
+    "migration_name": "20260512111301_add_pulse_models",
+    "logs": null,
+    "rolled_back_at": null,
+    "started_at": "2026-05-12T11:13:01.859Z",
+    "applied_steps_count": 1
+  },
+  {
+    "id": "6d0eb338-b816-4b9b-b593-a142c2394e44",
+    "checksum": "afe782b75ed3b69bd4a7b402d1b5bff9f880b273237b5f4f47c42230f8f3136f",
+    "finished_at": "2026-07-27T18:15:46.244Z",
+    "migration_name": "20260727180000_add_series_observations_ingest_runs",
+    "logs": "",
+    "rolled_back_at": null,
+    "started_at": "2026-07-27T18:15:46.244Z",
+    "applied_steps_count": 0
+  }
+]

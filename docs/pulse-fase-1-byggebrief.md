@@ -54,6 +54,10 @@ Tolv nye serier må ikke blive tolv nye dashboards. "Vælg en vinkel" holder til
 
 Forbrugerprisindeks hører hjemme to steder. Læg serien i `forbrug` som visning, og referer til den fra `priser-og-renter`. Data må kun findes ét sted.
 
+**Fravalgt i fase 1: DETA212A.** Tabellen har ni rene underbrancher i detailhandlen (G47001 til G47009), sæsonkorrigering via `INDEKSTYPE`, og publicerer en måned foran DETA211A som vi bruger i dag. Den er alligevel ikke med. Underbrancher i detailhandlen er et brancheværktøj, ikke direktørorientering, og ni ekstra serier under samme kilde presser kildekvoten i afsnit 4 uden at tilføje en beslutning nogen træffer anderledes.
+
+Noteret som kandidat til en eventuel detailvertikal, ikke til fase 1.
+
 ---
 
 ## 4. Beslutning 3: Signaler bliver ranglisten
@@ -142,11 +146,11 @@ Tilføj Energinet, Danmarks Nationalbank og Eurostat. Hver serie bærer sit eget
 Kortlægningen viste at pipelinen var brudt: sync-workflowet blev afbrudt på timeout 25. juni og 25. juli, og signalerne for boligbyggeri, forbrugertillid og befolkning stod stille fra 13. maj til 27. juli uden at nogen fik besked. Derfor kommer driften før datamodellen. Der er ingen grund til at migrere data ind i et nyt skema, før man kan se om det holder op med at blive opdateret.
 
 1. **Batch skrivningerne i sync-scriptene.** Gjort 27. juli 2026. Kørslen gik fra over 30 minutter til under 3.
-2. **Stale-alarmen.** Gjort 27. juli 2026. Dagligt job kl. 07:00 UTC, én samlet mail. Den skal have kørt et par uger, så tærsklerne i `EXPECTED_LAG_DAYS` er kalibreret mod virkeligheden, før næste punkt begynder.
+2. **Stale-alarmen.** Gjort 27. juli 2026. Dagligt job kl. 07:00 UTC, én samlet mail, grupperet efter hvad fundet kræver.
 3. **Ret de to fund alarmen allerede har givet.** KONK4 har ikke haft nye tal siden 2025M12, og DETA211A står på 2026M04 selv om DST har opdateret tabellen. Begge skal afklares, for de indgår i dashboards der vises i dag.
 4. Migrer de eksisterende datasæt ind i `series` og `observations`, når spørgsmålet om områdedimensionen er afgjort. Se `pulse-kortlaegning-fase-1.md` afsnit 4.3.
 5. Byg adapterne og hent 10 års historik for alle tolv nye serier
-6. Beregn z-scores og kalibrer tærsklen mod historikken
+6. **Kalibrering.** Ét punkt, ikke to. `EXPECTED_LAG_DAYS` og z-tærsklen sættes i samme session, når pipelinen har kørt fire uger og der findes målt publiceringshistorik at sætte dem efter. At justere lag-tærsklen løbende på fornemmelse er det der gav den falske DETA211A-alarm i første omgang.
 7. Skriv de 30 fortolkningsskabeloner i hånden
 8. Skriv Signaler om til rangliste
 9. Byg de tre nye dashboards

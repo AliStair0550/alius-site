@@ -43,6 +43,31 @@
 - Push til main, Vercel deployer automatisk
 - git add . && git commit -m "beskrivelse" && git push
 
+## Databasen
+
+**Kør aldrig `prisma migrate dev` eller `prisma migrate reset` mod produktion.**
+Begge nulstiller databasen ved skemadrift. Der ligger 74.604 observationer
+og 64 serier i den.
+
+DATABASE_URL står i `.env.local`, ikke i `.env`. Prisma CLI indlæser `.env`
+automatisk, men ikke `.env.local`. Det er med vilje: en bar Prisma-kommando
+har derfor intet mål og fejler i stedet for at ramme produktion.
+`npm run db:migrate` og `npm run db:reset` går gennem `scripts/db-guard.ts`,
+som nægter mod produktionsværten.
+
+Skemaændringer i produktion sker sådan:
+
+1. Ret `prisma/schema.prisma`
+2. `npm run db:diff` viser SQL'en uden at køre den
+3. `npm run db:apply <fil>` kører den
+4. `npx prisma migrate resolve --applied <navn>` registrerer den
+5. `npm run db:status` skal sige "Database schema is up to date!"
+
+Migrationshistorikken er baselined 27. juli 2026. `prisma/migrations`
+indeholder én migration, `00000000000000_baseline`, som er genereret fra
+produktion og verificeret ved afspilning i en tom database. Den gamle
+historik ligger i `prisma/_archive/` og beskrev et skema der aldrig kom
+i produktion. Arkivet må ikke flyttes tilbage i `prisma/migrations`.
 
 ## Pulse
 
