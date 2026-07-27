@@ -6,7 +6,7 @@ import { ARTICLES } from "@/lib/vaerksted";
 export const metadata: Metadata = pageMetadata({
   title: "Værkstedet | Alius",
   description:
-    "Tanker, eksperimenter og læringer fra maskinrummet hos Alius. Her deler vi det arbejde vi laver, og de idéer vi bygger videre på.",
+    "Tanker, eksperimenter og læringer fra værkstedet hos Alius. Her deler vi det arbejde vi laver, og de idéer vi bygger videre på.",
   path: "/værksted",
 });
 
@@ -15,7 +15,7 @@ const jsonLd = {
   "@type": "Blog",
   name: "Værkstedet",
   description:
-    "Tanker, eksperimenter og læringer fra maskinrummet hos Alius.",
+    "Tanker, eksperimenter og læringer fra værkstedet hos Alius.",
   url: "https://alius.dk/værksted",
   publisher: {
     "@type": "Organization",
@@ -68,13 +68,13 @@ export default function VaerkstedPage() {
             Værkstedet
           </div>
           <h1 className="font-fraunces font-light text-[clamp(40px,6vw,80px)] leading-[1.0] tracking-[-0.02em] mb-10">
-            Tanker fra<br />
-            <em className="italic text-moss">maskinrummet</em>.
+            Vi bygger.<br />
+            <em className="italic text-moss">Og vi deler</em>.
           </h1>
           <p className="text-[19px] font-light leading-[1.6] text-stone max-w-[560px]">
-            Her deler vi det arbejde vi laver: eksperimenterne, idéerne og de
-            læringer der bliver til undervejs. Nogle bliver til maskiner. Andre
-            bliver til noget vi kan dele.
+            Værkstedet er stedet, hvor vi deler det arbejde vi laver:
+            eksperimenterne, idéerne og de læringer der bliver til undervejs.
+            Nogle bliver til maskiner. Andre bliver til noget vi kan dele.
           </p>
         </section>
 

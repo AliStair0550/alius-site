@@ -1,7 +1,7 @@
 // ============================================================
 // Værkstedet - artikler om vores arbejde, eksperimenter og læringer.
 // Tilføj en ny artikel ved at lægge et objekt her (nyeste øverst) og
-// oprette den tilhørende side under src/app/artikler/<slug>/page.tsx.
+// oprette den tilhørende side under src/app/værksted/<slug>/page.tsx.
 // ============================================================
 
 export type Article = {
@@ -17,7 +17,7 @@ export type Article = {
 export const ARTICLES: Article[] = [
   {
     slug: "stemplet",
-    href: "/artikler/stemplet",
+    href: "/værksted/stemplet",
     title: "Ingen downloader en app for en kop kaffe",
     excerpt:
       "Pap bliver smidt ud, og apps er for meget. Så vi byggede noget midt imellem.",

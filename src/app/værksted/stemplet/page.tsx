@@ -151,8 +151,7 @@ export default function StempletArticle() {
               >
                 stemplet.dk
               </a>
-              . Og følg med her i maskinrummet. Der er flere eksperimenter på
-              bordet.
+              . Der er flere eksperimenter på bordet.
             </p>
           </div>
 
