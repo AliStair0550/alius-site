@@ -60,6 +60,41 @@ Noteret som kandidat til en eventuel detailvertikal, ikke til fase 1.
 
 ---
 
+## 3b. Beslutning: ingestion bliver i GitHub Actions, alarmen på Vercel
+
+Truffet 27. juli 2026.
+
+**Ingestion bliver i GitHub Actions.** Efter batchingen kører hele workflowet
+på 1m43s, og der er tre grunde til ikke at flytte det:
+
+1. **Vercel-planen er ikke bekræftet.** På Hobby kan cron kun køre én gang i
+   døgnet med op til 59 minutters slør. Datakataloget kræver 07:00 dansk tid
+   og har fire daglige serier, hvoraf elprisen opdateres flere gange i døgnet.
+   Det kan ikke opfyldes.
+2. **Backfill er en engangskørsel på ti års historik for tolv serier.**
+   Vercel-funktioner har en udførelsesgrænse. Actions har ikke.
+3. **Adskillelse af skriveadgang.** Det afgørende argument. Ligger ingestion i
+   Actions, har det deployede site ikke skriveadgang til produktionsdatabasen
+   ud over det cron-endpointet selv gør. Efter at have opdaget at en standard
+   Prisma-kommando kunne nå produktion fra en hvilken som helst terminal i
+   projektmappen, er den adskillelse mere værd end delte typer.
+
+Argumentet for at flytte, nærhed til Prisma-klienten og fælles typer, er ægte
+men lille. Scriptene importerer allerede fra `src/lib/`.
+
+**Stale-alarmen bliver på Vercel. Med vilje.**
+
+Alarmen må ikke dele fejlkilde med det den overvåger. Ligger begge i Actions,
+og Actions er nede eller workflowet aldrig starter, så er der hverken
+opdatering eller besked om at opdateringen udeblev. Det var præcis det der
+skete 25. juni og 25. juli: workflowet blev afbrudt, og fordi alarmen ikke
+fandtes endnu, gik der to måneder.
+
+To platforme betyder to uafhængige måder at fejle på. Det er ikke
+dobbeltarbejde, det er hele pointen med en alarm.
+
+---
+
 ## 4. Beslutning 3: Signaler bliver ranglisten
 
 Det er den vigtigste ændring, og den er ikke et nyt komponent. Det er en omskrivning af den der findes.

@@ -965,6 +965,81 @@ To ting bør følge med i fase 1:
 
 ---
 
+## 10. Hvorfor DATABASE_URL ikke må ligge i .env
+
+Tilføjet 27. juli 2026.
+
+### 10.1 Anledningen og problemet var ikke det samme
+
+`prisma migrate dev` ville have nulstillet produktionsdatabasen med 74.604
+observationer i. Den blev stoppet af en advarsel, ikke af en spærring.
+
+**Anledningen** var skemadrift. Migrationshistorikken i repoet beskrev en
+`Signal`-tabel med `label`, `description`, `value`, `reference`, `delta`,
+`validFrom` og `validUntil`. Produktion har `headline`, `body`, `direction`,
+`magnitude`, `evidence` og `areaName`. Nogen havde ændret tabellen i hånden
+uden migration. Prisma så et skema den ikke kunne forklare ud fra historikken,
+og dens svar på det er at tilbyde en nulstilling.
+
+**Problemet** var noget andet: at kommandoen overhovedet kunne nå produktion.
+
+Det er den skelnen der er svær at genskabe bagefter, og den er vigtigere end
+selve driften. Driften var et engangstilfælde. Rækkevidden var en permanent
+tilstand.
+
+### 10.2 Mekanismen
+
+Prisma CLI indlæser `.env` automatisk. `DATABASE_URL` lå i `.env` og pegede på
+produktion. Enhver Prisma-kommando kørt i denne mappe ramte derfor produktion,
+uden flag, uden bekræftelse, uden at nogen havde valgt det.
+
+Det gælder ikke kun `migrate dev`. Det gælder `migrate reset`, `db push` og
+enhver anden destruktiv kommando. Og det gælder uanset hvem der skriver dem:
+en udvikler der følger Prisma-dokumentationen, et npm-script, eller en agent
+der har læst at `prisma migrate dev` er den normale måde at lave en migration.
+
+Kommandoen er standard. Det er hele pointen. En farlig kommando man skal huske
+at undgå, er en fælde der venter på en distraheret dag.
+
+### 10.3 Hvorfor rettelsen af driften ikke var nok
+
+Efter baselining vil `migrate dev` ikke længere *ville* nulstille, fordi
+historikken nu forklarer produktion. Det fjerner anledningen.
+
+Men næste gang nogen ændrer et skema i hånden, eller en migration bliver
+redigeret efter at være kørt, opstår driften igen. Og så står vi samme sted,
+bortset fra at ingen husker hvorfor det gik galt sidst.
+
+Derfor er rækkevidden fjernet uafhængigt af driften:
+
+- `DATABASE_URL` er flyttet til `.env.local`, som Next.js indlæser og Prisma
+  CLI ikke. En bar Prisma-kommando har nu intet mål og fejler med
+  `Environment variable not found` i stedet for at ramme produktion.
+- `scripts/db-guard.ts` nægter destruktive npm-scripts mod produktionsværten.
+- `.env.example` og afsnittet i `CLAUDE.md` er committet, så konventionen
+  overlever en frisk klon. `.env`-filerne selv er gitignorerede og følger
+  ikke med.
+
+### 10.4 Den generelle form
+
+Det er tredje gang samme mønster optræder i dette projekt:
+
+| Hvad | Hvordan det fejlede |
+|---|---|
+| `continue-on-error: true` | Fejlende sync-steps blev slugt. To måneders manglende opdateringer, nul mails |
+| DETA211A's seks DB07-koder | Ikke-eksisterende koder filtreret bort af `availableCodes.has()` uden en linje i loggen |
+| `DATABASE_URL` i `.env` | Produktion valgt som standardmål uden at nogen traf valget |
+
+Fællestrækket er ikke fejl. Det er **stiltiende standardvalg**: systemet
+traf en beslutning på vores vegne og sagde ikke noget. De to første kastede
+data væk. Den tredje kunne have kastet databasen væk.
+
+Reglen der følger: når noget bliver valgt fra, droppet eller antaget, skal
+det stå i loggen eller stoppe kørslen. Et lydløst standardvalg er en fejl der
+venter på at blive stor nok til at blive opdaget.
+
+---
+
 ## Datagrundlag
 
 Alle tal er trukket 27. juli 2026 mod produktionsdatabasen på Neon
