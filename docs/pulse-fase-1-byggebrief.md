@@ -95,6 +95,67 @@ dobbeltarbejde, det er hele pointen med en alarm.
 
 ---
 
+## 3c. Beslutning: BYGV88 ind, BYGV33 bliver
+
+Truffet 27. juli 2026.
+
+**BYGV88 kommer ind som katalogets serie 3.** Ikke primært på grund af
+enheden, men fordi den er **korrigeret for forsinkelser**.
+
+Datakataloget skriver om denne serie at revisionsprofilen er det største
+problem: efterindberetninger til BBR gør de seneste to kvartaler systematisk
+for lave, og "revisionsprofilen skal håndteres eksplicit, ellers viser Pulse
+et fald der ikke findes". Katalogets kandidat var den ukorrigerede variant.
+
+BYGV88 er DST's egen korrektion for netop det. Ved at vælge den rigtige tabel
+forsvinder katalogets største bekymring på serien, uden at vi selv skal
+modellere en revisionsprofil. Enheden, m² i stedet for antal boliger, er en
+bonus der matcher kataloget, ikke hovedargumentet.
+
+Bekræftet ved opslag: `BYGFASE=1` Tilladt byggeri og `BYGFASE=2` Påbegyndt
+byggeri løber begge 1998M01 til 2026M03, månedligt, med sæsonkorrigering.
+
+**BYGV33 bliver stående.** Den leverer boligbyggeri per kommune til
+`/pulse/kommuner` og til boligbyggeri-signalerne. De to tabeller måler
+forskellige ting og erstatter ikke hinanden.
+
+**Kildelinjen skal sige at de ikke er sammenlignelige.** BYGV33 er antal
+boliger, ukorrigeret, kvartalsvis, per kommune. BYGV88 er m² etageareal,
+korrigeret, månedligt, nationalt, og med erhvervsbyggeri i. Står de to på
+samme side uden en note, vil nogen sammenligne dem, og de tal går ikke i
+samme retning.
+
+## 3d. Beslutning: elprisen aggregeres til døgn ved indlæsning
+
+Truffet 27. juli 2026.
+
+`DayAheadPrices` går kun tilbage til 30. september 2025, hvor `Elspotprices`
+udgik. Under ét års historik, hvor kataloget kræver ti. De to har heller ikke
+samme opløsning: Elspotprices var timeværdier, DayAheadPrices leverer
+kvarter (`TimeUTC: ...T21:45:00`).
+
+**Beslutning:** begge datasæt hentes og sammenføjes, og der aggregeres til
+**døgngennemsnit ved indlæsning**. Rådata gemmes ikke. Der sættes ikke
+`break_at`, fordi aggregeringen fjerner forskellen i opløsning: et
+døgngennemsnit af 24 timeværdier og et døgngennemsnit af 96 kvarterværdier
+måler det samme.
+
+**Beslutningen er irreversibel, og det er med vilje noteret her.**
+
+Kasserer vi rådata, kan vi ikke få dem igen fra vores egen base. Vi har
+allerede set to kilder forsvinde i dette projekt: KONK4 blev lukket af DST med
+seks måneders forsinkelse før nogen opdagede det, og Elspotprices udgik uden
+at kataloget vidste hvor kort historik afløseren havde. En kilde der findes i
+dag er ikke et løfte om i morgen.
+
+Skal en energivertikal nogensinde bygges, hvor timeprofil eller
+kvarterprofil er selve produktet, skal denne beslutning **omgøres bevidst**,
+og rådata skal indsamles fra det tidspunkt og frem. Historikken før
+omgørelsen vil kun findes som døgntal. Det er prisen, og den er accepteret,
+fordi Pulse leverer direktørorientering og ikke handelsdata.
+
+---
+
 ## 4. Beslutning 3: Signaler bliver ranglisten
 
 Det er den vigtigste ændring, og den er ikke et nyt komponent. Det er en omskrivning af den der findes.
