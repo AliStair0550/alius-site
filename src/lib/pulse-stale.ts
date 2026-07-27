@@ -35,8 +35,11 @@ const EXPECTED_LAG_DAYS: Record<string, number> = {
   "dst-pris01": 12,        // den 10. eller førstkommende hverdag
   "dst-folk1am": 14,
   "dst-aus08": 35,         // ~4 uger
-  "dst-deta211a": 35,
-  "dst-konk4": 45,
+  // DETA211A publicerede 2026M04 den 24. juni 2026, altså 55 dage efter
+  // periodeslut. Den oprindelige værdi på 35 var for stram og gav en
+  // falsk alarm 27. juli. Målt lag plus margin.
+  "dst-deta211a": 62,
+  "dst-konk25": 12,        // som KONK3, første uge i måneden efter
   "dst-bygv33": 70,        // kvartalsvis, 6 til 8 uger
   "dst-laby01-b04": 60,    // årlig, publiceres i februar
   "dst-laby01-b07": 60,
@@ -85,7 +88,25 @@ export type StaleReport = {
   findings: StaleFinding[];
   /** Kilder uden et eneste datapunkt. Aldrig sat i drift, ikke en fejl. */
   notInService: string[];
+  /** Kilder DST har lukket. Historikken beholdes, men de opdateres aldrig igen. */
+  retired: string[];
 };
+
+/**
+ * En kilde er pensioneret når DST har sat tabellen til active: false.
+ * Markeres i DataSource.meta som { "retired": true, ... } af det script
+ * der opdager det. Pensionerede kilder alarmerer ikke, for de bliver
+ * aldrig opdateret igen, og en alarm der aldrig kan lukkes bliver
+ * ignoreret og tager de rigtige alarmer med sig.
+ */
+function isRetired(meta: unknown): boolean {
+  return (
+    !!meta &&
+    typeof meta === "object" &&
+    !Array.isArray(meta) &&
+    (meta as Record<string, unknown>).retired === true
+  );
+}
 
 // ----------------------------------------------------------------
 // Perioder
@@ -152,6 +173,7 @@ export async function findStaleSources(
       name: true,
       updateFrequency: true,
       lastFetchedAt: true,
+      meta: true,
       _count: { select: { dataPoints: true } },
       fetchLogs: {
         orderBy: { createdAt: "desc" },
@@ -168,6 +190,7 @@ export async function findStaleSources(
 
   const findings: StaleFinding[] = [];
   const notInService: string[] = [];
+  const retired: string[] = [];
   let sourcesChecked = 0;
 
   for (const source of sources) {
@@ -175,6 +198,12 @@ export async function findStaleSources(
     // DST afviser udtrækket. Den skal ikke alarmere hver dag.
     if (source._count.dataPoints === 0) {
       notInService.push(source.slug);
+      continue;
+    }
+    // DST har lukket tabellen. Historikken står, men den bliver aldrig
+    // opdateret igen, så den kan pr. definition ikke være "forsinket".
+    if (isRetired(source.meta)) {
+      retired.push(source.slug);
       continue;
     }
     sourcesChecked++;
@@ -275,7 +304,7 @@ export async function findStaleSources(
   // Værst først: flest dage over tiden.
   findings.sort((a, b) => (b.daysOverdue ?? 0) - (a.daysOverdue ?? 0));
 
-  return { checkedAt: now, sourcesChecked, findings, notInService };
+  return { checkedAt: now, sourcesChecked, findings, notInService, retired };
 }
 
 /** Slutdatoen for perioden efter den givne. */

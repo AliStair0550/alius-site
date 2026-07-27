@@ -15,8 +15,18 @@ const prisma = new PrismaClient();
 const TABLE_ID = "DETA211A";
 const SOURCE_SLUG = "dst-deta211a";
 
-// Key branches to sync: total + food + clothing + furniture + electronics + online
-const SYNC_BRANCHES = ["G47", "471", "472", "474", "475", "477", "479"];
+// Kun totalen. De seks underbrancher der stod her tidligere ("471",
+// "472", "474", "475", "477", "479") var DB07-koder. DETA211A's
+// branchedimension hedder BRANCHEDB25UDVALG og bruger DB25-koder på
+// seks cifre (471110, 471120, 472100_472700 ...), så de seks blev
+// filtreret bort af availableCodes-tjekket uden at nogen opdagede det.
+//
+// De blev aldrig vist: /pulse/forbrug læser kun areaCode "G47".
+//
+// Skal underbrancher tilbage, er DETA212A den rigtige tabel. Den har
+// ni rene aggregater (G47001 til G47009), sæsonkorrigering via
+// INDEKSTYPE, og publicerer en måned foran DETA211A.
+const SYNC_BRANCHES = ["G47"];
 
 async function main() {
   console.log(`Syncing ${TABLE_ID} — detailomsætningsindeks\n`);

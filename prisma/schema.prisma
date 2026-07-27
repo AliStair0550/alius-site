@@ -288,3 +288,139 @@ model FetchLog {
 
   @@index([sourceId, createdAt])
 }
+
+// ============================================================
+// PULSE v2 — series / observations / ingest_runs
+//
+// Datakatalog fase 1, afsnit 2. Additivt: DataSource, DataPoint,
+// Signal og FetchLog står urørt indtil den nye model er verificeret.
+//
+// Fire afvigelser fra datakataloget, alle bevidste:
+//
+//   1. observations har area_code. Geografi er en dimension ved
+//      observationen, ikke en del af seriens identitet. Uden den ville
+//      de fire geografiske dashboards kræve ~1.100 serier.
+//   2. area_code er NOT NULL med "DK" som national værdi. Den gamle
+//      models unique-nøgle bandt ikke, fordi Postgres regner NULL som
+//      forskellig fra NULL. Det gentages ikke.
+//   3. status på ingest_runs har en fjerde værdi, ABORTED, ud over
+//      datakatalogets ok/no_new_data/error. Den findes, fordi det var
+//      præcis den tilstand BYGV33 stod i den 25. juli: startet, aldrig
+//      afsluttet, ingen fejlbesked.
+//   4. Indekset på observations er et almindeligt sammensat indeks,
+//      ikke datakatalogets partielle "where is_current". Prisma kan
+//      ikke udtrykke partielle indeks, og et manuelt ville give
+//      permanent schema-drift.
+// ============================================================
+
+enum SeriesFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum RevisionPolicy {
+  NONE
+  MINOR
+  MAJOR
+}
+
+enum SeriesLayer {
+  LEADING     // konjunktur, forventning, distress
+  COST        // priser, løn, energi
+  CAPITAL     // renter, valuta
+  EXTERNAL    // udenlandske indikatorer
+  STRUCTURAL  // bestandstal: befolkning, indkomst, ejendomsværdi
+}
+
+enum IngestStatus {
+  OK
+  NO_NEW_DATA
+  ERROR
+  ABORTED
+}
+
+model Series {
+  id     String @id // fx "dst.konjunktur.sammensat"
+
+  nameDa    String @map("name_da")
+  source    String // "DST" | "EDS" | "NBDK" | "EUROSTAT"
+  sourceRef String @map("source_ref") // tabel-ID eller datasæt-navn
+  unit      String // "pct" | "antal" | "indeks_2015" | "nettotal" | "dkk"
+
+  frequency       SeriesFrequency
+  expectedLagDays Int             @map("expected_lag_days")
+  revisionPolicy  RevisionPolicy  @map("revision_policy")
+  attribution     String
+  layer           SeriesLayer
+  active          Boolean         @default(true)
+
+  // Sporbarhed tilbage til den gamle model, så migrationen kan
+  // verificeres og rulles tilbage uden gætteri.
+  legacySourceSlug String? @map("legacy_source_slug")
+  legacyAreaCode   String? @map("legacy_area_code")
+  meta             Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  observations Observation[]
+  ingestRuns   IngestRun[]
+
+  @@index([source])
+  @@index([layer, active])
+  @@index([legacySourceSlug])
+  @@map("series")
+}
+
+model Observation {
+  seriesId String @map("series_id")
+
+  // Udelukkende geografi. "DK" for nationale serier. Alt andet, som
+  // branche eller spørgsmålsnummer, indgår i serie-identiteten.
+  areaCode String @default("DK") @map("area_code")
+
+  period DateTime @db.Date // normaliseret til første dag i perioden
+
+  // null betyder "ikke publiceret endnu", ikke nul.
+  value Decimal? @db.Decimal(20, 6)
+
+  retrievedAt DateTime @default(now()) @map("retrieved_at") @db.Timestamptz(3)
+  isCurrent   Boolean  @default(true) @map("is_current")
+
+  series Series @relation(fields: [seriesId], references: [id])
+
+  // retrieved_at er en del af nøglen. Det er dét, der gør tabellen
+  // append-only: en ny hentning kan aldrig kollidere med en gammel.
+  @@id([seriesId, areaCode, period, retrievedAt])
+  @@index([seriesId, areaCode, period, isCurrent])
+  @@index([seriesId, isCurrent, period])
+  @@map("observations")
+}
+
+model IngestRun {
+  id BigInt @id @default(autoincrement())
+
+  // Nullable, fordi de migrerede FetchLog-rækker beskriver en kørsel
+  // på kilde-niveau, før serier fandtes. At fordele dem ud på hver
+  // serie ville opfinde kørsler der aldrig har fundet sted.
+  seriesId   String? @map("series_id")
+  sourceSlug String? @map("source_slug")
+
+  startedAt  DateTime  @map("started_at") @db.Timestamptz(3)
+  finishedAt DateTime? @map("finished_at") @db.Timestamptz(3)
+
+  status       IngestStatus
+  rowsWritten  Int?    @map("rows_written")
+  rowsRevised  Int?    @map("rows_revised")
+  errorMessage String? @map("error_message")
+
+  series Series? @relation(fields: [seriesId], references: [id])
+
+  @@index([seriesId, startedAt])
+  @@index([sourceSlug, startedAt])
+  @@index([status, startedAt])
+  @@map("ingest_runs")
+}

@@ -38,6 +38,7 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma client
+        id: setup
         run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -45,43 +46,45 @@ jobs:
       # ── Monthly sources ────────────────────────────────────────────
 
       - name: AUS08 — Ledighed
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-aus08.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: FOLK1AM — Befolkning
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-folk1am.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: KONK3 — Konkurser
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-konk3.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: KONK4 — Konkurser (branche)
-        if: ${{ inputs.dry_run != true }}
-        run: npx tsx scripts/sync-konk4.ts
+      # KONK4 blev lukket af DST 7. januar 2026 (active: false, sidste
+      # periode 2025M12). Afløst af KONK25 med DB25-brancher.
+      - name: KONK25 — Konkurser (branche)
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
+        run: npx tsx scripts/sync-konk25.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: FORV1 — Forbrugerforventninger
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-forv1.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: DETA211A — Detailomsætning
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-deta211a.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: PRIS01 — Forbrugerprisindeks
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-pris01.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -89,7 +92,7 @@ jobs:
       # ── Quarterly sources ──────────────────────────────────────────
 
       - name: BYGV33 — Nyopstartede boliger
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-bygv33.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -97,19 +100,19 @@ jobs:
       # ── Yearly sources ─────────────────────────────────────────────
 
       - name: INDKP101 — Disponibel indkomst
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-indkp101.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: EJDFOE1 — Ejendomsværdier
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-ejdfoe1.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: LABY01 — Befolkningstilvækst
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-laby01.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -117,31 +120,31 @@ jobs:
       # ── Signal generation (runs after all data syncs) ──────────────
 
       - name: Generer signaler — ledighed
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/generate-signals.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Generer signaler — konkurser
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/generate-konkurs-signals.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Generer signaler — forbrugertillid
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/generate-forv1-signals.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Generer signaler — boligbyggeri
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/generate-bygv33-signals.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Generer signaler — befolkningstilvækst
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/generate-laby01-signals.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

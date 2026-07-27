@@ -5,6 +5,19 @@
 import { sendEmail, EMAIL_TO } from "./email";
 import type { StaleReport, StaleKind } from "./pulse-stale";
 
+/**
+ * Modtager af driftsalarmer.
+ *
+ * Adskilt fra EMAIL_TO, som går til den almindelige postkasse. En
+ * stale-alarm er drift, ikke korrespondance, og skal kunne dirigeres
+ * til en anden adresse eller et alarmsystem uden at røre koden.
+ *
+ * Sæt PULSE_ALERT_EMAIL_TO i miljøet for at overstyre.
+ */
+export function getAlertRecipient(): string {
+  return process.env.PULSE_ALERT_EMAIL_TO ?? "drift@alius.dk";
+}
+
 type PulseUpdateData = {
   sourceName: string;
   sourceSlug: string;
@@ -223,7 +236,7 @@ export async function sendPulseStaleEmail(report: StaleReport) {
       : "";
 
   return sendEmail({
-    to: EMAIL_TO,
+    to: getAlertRecipient(),
     subject: `[PULSE] ${n} ${n === 1 ? "datasæt er" : "datasæt er"} ikke opdateret`,
     html: `<!DOCTYPE html>
 <html lang="da">

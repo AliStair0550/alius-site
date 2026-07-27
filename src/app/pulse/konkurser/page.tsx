@@ -133,8 +133,10 @@ export default async function KonkursPulsPage() {
   });
   if (!source) return <NoDataView />;
 
+  // KONK4 blev lukket af DST 7. januar 2026 med sidste periode 2025M12.
+  // KONK25 er afløseren, med DB25-brancher i stedet for DB07.
   const brancheSource = await prisma.dataSource.findUnique({
-    where: { slug: "dst-konk4" },
+    where: { slug: "dst-konk25" },
   });
 
   const fiveYearsAgo = new Date();
@@ -339,8 +341,9 @@ export default async function KonkursPulsPage() {
               Hovedtal og historik fra{" "}
               <a href={`https://www.statistikbanken.dk/${source.tableId}`} target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">KONK3</a>.
               {" "}Brancheopdeling fra{" "}
-              <a href="https://www.statistikbanken.dk/KONK4" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">KONK4</a>.
+              <a href="https://www.statistikbanken.dk/KONK25" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">KONK25</a>.
               {" "}Begge fra Danmarks Statistik, opdateres månedligt.
+              {" "}Brancher følger DB25. Tal før 2026 er omklassificeret fra DB07, da DST lukkede KONK4 i januar 2026.
             </p>
           </div>
           <div>
