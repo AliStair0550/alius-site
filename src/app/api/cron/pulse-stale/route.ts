@@ -11,7 +11,7 @@
 
 import { NextResponse } from "next/server";
 import { prisma, withDbRetry } from "@/lib/db";
-import { findStaleSources } from "@/lib/pulse-stale";
+import { findStaleSources, findStaleSeries } from "@/lib/pulse-stale";
 import { sendPulseStaleEmail, sendPulseErrorEmail } from "@/lib/pulse-email";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +66,18 @@ export async function GET(req: Request) {
       inactiveTableIds = undefined;
     }
 
-    const report = await findStaleSources(prisma, new Date(), { inactiveTableIds });
+    // To datamodeller kører side om side under overgangen. Begge skal
+    // overvåges, ellers er den ene usynlig indtil nogen undrer sig.
+    const now = new Date();
+    const legacy = await findStaleSources(prisma, now, { inactiveTableIds });
+    const modern = await findStaleSeries(prisma, now);
+
+    const report = {
+      ...legacy,
+      sourcesChecked: legacy.sourcesChecked + modern.sourcesChecked,
+      findings: [...legacy.findings, ...modern.findings],
+      notInService: [...legacy.notInService, ...modern.notInService],
+    };
 
     let emailed = false;
     if (report.findings.length > 0 && !dryRun) {

@@ -228,6 +228,26 @@ mærker og den del institutterne kan ændre uden at renten ændrer sig.
 `DNRUDDKS` har opdelingen for **beløb**, ikke for renter. Opdelingen udgår
 derfor af fase 1. Den kan ikke erstattes af noget der ligner.
 
+**Kandidat til fase 2: `DNRUURI`, `DATA=AL51BIDS`, bidragssatsen alene.**
+
+Serie 10 henter `AL51EFFR`, den effektive rente inklusive bidrag. Den samme
+tabel har bidragssatsen som selvstændig størrelse.
+
+Grunden til at den er interessant nok til fase 2, men ikke nødvendig i
+fase 1: bidraget er den eneste del af en dansk erhvervsdrivendes
+finansieringsomkostning som **institutterne selv fastsætter**.
+Obligationsrenten kommer fra markedet og kan ingen påvirke. Bidraget er en
+pris, ikke en kurs, og det ændrer sig i spring når institutterne beslutter
+det, ikke løbende. En stigning i bidrag mens obligationsrenten er uændret er
+et rent marginsignal fra realkreditsektoren, og det er en anden historie end
+"renten steg".
+
+Den udelades af fase 1 fordi den er en delkomponent af en serie vi allerede
+henter. To serier hvor den ene er indeholdt i den anden giver ranglisten to
+chancer for at rapportere samme bevægelse, og det er den fejl kildekvoten i
+afsnit 4 findes for at undgå. Skal den ind, bør den ind sammen med en
+fortolkningsskabelon der forklarer forskellen.
+
 Kapitallaget bliver altså: to renteserier plus fire valutaer. Seks serier,
 ikke tomt.
 
@@ -240,6 +260,64 @@ USD, SEK, NOK, GBP. **PLN udgår.** Fem valutaer ville lægge hele
 kildekvoten på én tabel, og zloty er den mindst relevante af de fem for
 dansk konkurrenceevne. EUR udelades fortsat, som kataloget foreskriver:
 fastkurspolitikken gør serien uinteressant som signal.
+
+---
+
+## 3g. Metode: sammenlignelige z-scores på tværs af historiklængde
+
+Truffet 27. juli 2026. Implementeret i `src/lib/pulse-zscore.ts`.
+
+Serierne har vidt forskellig historik. Elprisen har 27 år, tvangsauktioner
+33, realkreditrenten 23, byggetilladelser 28. Beregnes z mod hver series egen
+fulde historik, måler tallene ikke det samme, og ranglisten rangerer noget
+andet end den påstår.
+
+Det er samme fejl som at boligbyggeri vandt rangeringen fordi boliger tælles
+i større enheder end procentpoint. Dengang var det enheden. Her er det
+vinduet.
+
+**Tre ting gør vinduet skævt, og de skal alle tre lukkes.**
+
+1. **Regime.** Et langt vindue rummer flere kriser. Elprisens 27 år
+   indeholder 2022, hvor prisen tidobledes. Det gør spredningen enorm, og
+   enhver senere bevægelse ser lille ud. En serie med et roligt tiår får
+   omvendt store z-scores af små udsving.
+2. **Frekvens.** En daglig serie svinger mere per observation end en
+   kvartalsvis. Sammenlignes z beregnet på dagsdata med z beregnet på
+   kvartalsdata, vinder dagsdata altid.
+3. **Trend.** En indeksserie stiger over tid. z på niveau måler så hvor langt
+   fremme i tiden vi er, ikke om noget er usædvanligt. Det er et permanent
+   falsk signal.
+
+**Metoden:**
+
+| Regel | Hvad den lukker |
+|---|---|
+| Samme kalendervindue for alle serier, 10 år | Regime |
+| Alt resamples til månedlig frekvens før beregning | Frekvens |
+| Serier med trend beregnes på årsændring, ikke niveau | Trend |
+| Robust spredning: median og MAD frem for middel og standardafvigelse | Enkeltstående kriseår der døver alt bagefter |
+| Dækningskrav: mindst 80 procent af vinduet skal have data | Serier der konkurrerer på for tyndt grundlag |
+
+Vinduet er **ti kalenderår, ikke ti års observationer**. En kvartalsserie og
+en daglig serie får begge 120 månedspunkter. Det er forskellen der gør dem
+sammenlignelige.
+
+`zTransform` står i config per serie: `level` for middelsøgende serier
+(renter, nettotal, tillidsindikatorer), `yoy` for serier med trend (indeks,
+priser, arealer, antal).
+
+**Historikken afkortes ikke i basen.** Vinduet gælder kun beregningen. Vi
+gemmer alt kilden har, fordi vi altid kan vælge et kortere vindue senere,
+men ikke kan hente historik der aldrig blev gemt.
+
+**En serie der ikke kan rangeres siger hvorfor.** `for_lidt_daekning`,
+`ingen_spredning` eller `ingen_observationer`. Aldrig bare z = 0, som ville
+lade den se ud som en serie der er undersøgt og fundet normal.
+
+Metoden er dækket af tests der beviser den centrale påstand: to serier med
+identisk forløb men 11 og 30 års historik giver samme z, og en daglig og en
+månedlig måling af samme forløb giver z inden for 0,3 af hinanden.
 
 ---
 

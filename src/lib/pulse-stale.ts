@@ -398,6 +398,118 @@ export async function findStaleSources(
   return { checkedAt: now, sourcesChecked, findings, notInService, retired };
 }
 
+// ----------------------------------------------------------------
+// Den nye model: series / observations
+//
+// Fase 1-serierne har ingen DataSource-række og ville derfor være
+// usynlige for tjekket ovenfor. De har til gengæld expectedLagDays
+// på selve serien, så vinduet kan læses direkte i stedet for at slås
+// op i en tabel i kode.
+// ----------------------------------------------------------------
+
+/**
+ * Slutdatoen for perioden EFTER den givne.
+ *
+ * Lag måles fra periodeslut, ikke fra periodestart. Juni-tal publiceres
+ * ikke tolv dage efter 1. juni, men tolv dage efter 30. juni. Regnes der
+ * fra starten, ser hver eneste månedsserie forsinket ud med en måned,
+ * og alarmen bliver til støj præcis som den ikke må.
+ */
+function nextPeriodEndFromDate(periodStart: Date, frequency: string): Date {
+  const y = periodStart.getUTCFullYear();
+  const m = periodStart.getUTCMonth();
+  const d = periodStart.getUTCDate();
+  switch (frequency) {
+    case "DAILY":
+      return new Date(Date.UTC(y, m, d + 1));
+    case "WEEKLY":
+      return new Date(Date.UTC(y, m, d + 13));
+    case "QUARTERLY":
+      return new Date(Date.UTC(y, m + 6, 0));
+    case "YEARLY":
+      return new Date(Date.UTC(y + 2, 0, 0));
+    case "MONTHLY":
+    default:
+      return new Date(Date.UTC(y, m + 2, 0));
+  }
+}
+
+export async function findStaleSeries(
+  prisma: PrismaClient,
+  now: Date = new Date()
+): Promise<StaleReport> {
+  const series = await prisma.series.findMany({
+    where: { status: "ACTIVE" },
+    orderBy: { id: "asc" },
+    select: {
+      id: true,
+      nameDa: true,
+      frequency: true,
+      expectedLagDays: true,
+      sourceRef: true,
+    },
+  });
+
+  const findings: StaleFinding[] = [];
+  const notInService: string[] = [];
+  let sourcesChecked = 0;
+
+  for (const s of series) {
+    const newest = await prisma.observation.findFirst({
+      where: { seriesId: s.id, isCurrent: true, value: { not: null } },
+      orderBy: { period: "desc" },
+      select: { period: true, retrievedAt: true },
+    });
+
+    if (!newest) {
+      notInService.push(s.id);
+      continue;
+    }
+    sourcesChecked++;
+
+    // Næste periode skal være publiceret sit lag efter at den sluttede.
+    const dueEnd = nextPeriodEndFromDate(newest.period, s.frequency);
+    const expectedBy = addDays(dueEnd, s.expectedLagDays + GRACE_DAYS);
+
+    if (now <= expectedBy) continue;
+
+    const hoursSinceFetch =
+      (now.getTime() - newest.retrievedAt.getTime()) / (60 * 60 * 1000);
+    const checkedRecently = hoursSinceFetch <= 48;
+
+    findings.push({
+      slug: s.id,
+      name: s.nameDa,
+      kind: checkedRecently ? "PUBLICATION_LATE" : "DATA_STALE",
+      action: checkedRecently ? "JUSTER_TAERSKEL" : "UNDERSOEG",
+      headline: `Ingen nye tal siden ${formatDate(newest.period)}`,
+      detail: checkedRecently
+        ? `Hentet for ${Math.round(hoursSinceFetch)} timer siden uden nyere tal fra ${s.sourceRef}. ` +
+          `Enten er publiceringen forsinket, eller også er expected_lag_days på ${s.expectedLagDays} for lav.`
+        : `Næste periode sluttede ${formatDate(dueEnd)} og var forventet senest ` +
+          `${formatDate(expectedBy)} (${s.expectedLagDays} dages lag plus ${GRACE_DAYS} dages nåde). ` +
+          `Seneste hentning ${formatDate(newest.retrievedAt)}.`,
+      latestPeriod: formatDate(newest.period),
+      expectedBy,
+      daysOverdue: daysBetween(now, expectedBy),
+      lastFetchedAt: newest.retrievedAt,
+    });
+  }
+
+  const actionRank: Record<StaleAction, number> = {
+    BESLUTNING: 0,
+    UNDERSOEG: 1,
+    JUSTER_TAERSKEL: 2,
+  };
+  findings.sort(
+    (a, b) =>
+      actionRank[a.action] - actionRank[b.action] ||
+      (b.daysOverdue ?? 0) - (a.daysOverdue ?? 0)
+  );
+
+  return { checkedAt: now, sourcesChecked, findings, notInService, retired: [] };
+}
+
 /** Slutdatoen for perioden efter den givne. */
 function nextPeriodEnd(period: string, end: Date): Date | null {
   if (/^\d{4}M\d{2}$/.test(period)) {
