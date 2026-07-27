@@ -111,13 +111,24 @@ export function detectBygTopMovers(points: DataPoint[], maxSignals = 4): Signal[
 
   const signals: Signal[] = [];
 
-  for (const c of decreases.slice(0, Math.ceil(maxSignals / 2))) {
+  // "mest" må kun stå på det første kort i hver retning. Løkken kører
+  // flere gange, så superlativet skal afhænge af pladsen i rækkefølgen,
+  // ikke være hardkodet. To kort der begge hedder "faldt mest" er
+  // forkert uanset om tallene tilfældigvis er ens.
+  //
+  // De øvrige kort formuleres uden henvisning til det første ("også",
+  // "næstmest"), fordi rangeringen på /pulse ikke garanterer at de
+  // vises i samme rækkefølge som de genereres her.
+  for (const [i, c] of decreases.slice(0, Math.ceil(maxSignals / 2)).entries()) {
     if (Math.abs(c.change) < 10) break;
     signals.push({
       type: "top_mover",
       direction: "down",
       severity: Math.abs(c.change) >= 50 ? "important" : "note",
-      headline: `Boligbyggeriet faldt mest i ${c.areaName} (${formatCount(c.change)} boliger)`,
+      headline:
+        i === 0
+          ? `Boligbyggeriet faldt mest i ${c.areaName} (${formatCount(c.change)} boliger)`
+          : `Boligbyggeriet faldt kraftigt i ${c.areaName} (${formatCount(c.change)} boliger)`,
       body: `Fra ${humanizePeriod(previous)} til ${humanizePeriod(latest)} faldt antallet af nyopstartede boliger i ${c.areaName} med ${formatCount(Math.abs(c.change))} til ${formatCount(c.latestVal)}.`,
       period: latest,
       magnitude: Math.abs(c.change),
@@ -132,13 +143,16 @@ export function detectBygTopMovers(points: DataPoint[], maxSignals = 4): Signal[
     });
   }
 
-  for (const c of increases.slice(0, maxSignals - signals.length)) {
+  for (const [i, c] of increases.slice(0, maxSignals - signals.length).entries()) {
     if (c.change < 10) break;
     signals.push({
       type: "top_mover",
       direction: "up",
       severity: c.change >= 50 ? "important" : "note",
-      headline: `Boligbyggeriet steg mest i ${c.areaName} (+${formatCount(c.change)} boliger)`,
+      headline:
+        i === 0
+          ? `Boligbyggeriet steg mest i ${c.areaName} (+${formatCount(c.change)} boliger)`
+          : `Boligbyggeriet steg kraftigt i ${c.areaName} (+${formatCount(c.change)} boliger)`,
       body: `Fra ${humanizePeriod(previous)} til ${humanizePeriod(latest)} steg antallet af nyopstartede boliger i ${c.areaName} med ${formatCount(c.change)} til ${formatCount(c.latestVal)}.`,
       period: latest,
       magnitude: c.change,

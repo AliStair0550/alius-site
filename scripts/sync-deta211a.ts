@@ -9,6 +9,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
+import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
 const prisma = new PrismaClient();
 const TABLE_ID = "DETA211A";
@@ -65,7 +66,8 @@ async function main() {
     const datapoints = await getTableData(TABLE_ID, filters);
     console.log(`Received ${datapoints.length} datapoints`);
 
-    let inserted = 0, updated = 0, skipped = 0;
+    let skipped = 0;
+    const pending: PendingPoint[] = [];
 
     for (const dp of datapoints) {
       const period = dp.period;
@@ -76,54 +78,39 @@ async function main() {
 
       if (dp.value === null) { skipped++; continue; }
 
-      const areaCode = branchCode;
-      const areaName = branchLabels[branchCode] ?? branchCode;
-
-      try {
-        const existing = await prisma.dataPoint.findFirst({
-          where: { sourceId: source.id, period, areaCode },
-        });
-
-        if (existing) {
-          if (existing.value !== dp.value) {
-            await prisma.dataPoint.update({
-              where: { id: existing.id },
-              data: { value: dp.value },
-            });
-            updated++;
-          }
-        } else {
-          await prisma.dataPoint.create({
-            data: {
-              sourceId: source.id,
-              period,
-              periodDate: dp.periodDate,
-              periodType: "MONTH",
-              areaCode,
-              areaName,
-              areaType: "NATIONAL",
-              value: dp.value,
-              status: dp.status,
-            },
-          });
-          inserted++;
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "unknown";
-        console.error(`  Failed ${period}/${branchCode}: ${msg}`);
-        skipped++;
-      }
+      pending.push({
+        period,
+        periodDate: dp.periodDate,
+        periodType: "MONTH",
+        areaCode: branchCode,
+        areaType: "NATIONAL",
+        areaName: branchLabels[branchCode] ?? branchCode,
+        value: dp.value,
+        status: dp.status,
+      });
     }
 
-    console.log(`Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}`);
+    const { inserted, updated, unchanged, duplicates } = await writeDataPoints(
+      prisma,
+      source.id,
+      pending
+    );
+    skipped += duplicates;
+
+    console.log(
+      `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}`
+    );
 
     await prisma.fetchLog.update({
       where: { id: fetchLog.id },
       data: {
         completedAt: new Date(),
         success: true,
+        inserted,
+        updated,
+        skipped,
         rowsAffected: inserted + updated,
-        notes: `Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}`,
+        notes: `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}`,
       },
     });
 

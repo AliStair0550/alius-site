@@ -12,6 +12,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { classifyAreaCode } from "../src/lib/areas";
+import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
 const prisma = new PrismaClient();
 
@@ -127,9 +128,8 @@ async function main() {
     const datapoints = await getTableData(TABLE_ID, filters);
     console.log(`Received ${datapoints.length} datapoints from DST\n`);
 
-    let inserted = 0;
-    let updated = 0;
     let skipped = 0;
+    const pending: PendingPoint[] = [];
 
     for (const dp of datapoints) {
       const period = dp.period;
@@ -141,56 +141,40 @@ async function main() {
       const areaCode = omraadeVariable ? dp.dimensions[omraadeVariable.code] : null;
       if (!areaCode) { skipped++; continue; }
 
-      const areaName = areaLabels[areaCode] ?? areaCode;
-      const areaType = classifyAreaCode(areaCode);
-
-      try {
-        const existing = await prisma.dataPoint.findFirst({
-          where: { sourceId: source.id, period, areaCode },
-        });
-
-        if (existing) {
-          if (existing.value !== dp.value) {
-            await prisma.dataPoint.update({
-              where: { id: existing.id },
-              data: { value: dp.value, status: dp.status },
-            });
-            updated++;
-          }
-        } else {
-          await prisma.dataPoint.create({
-            data: {
-              sourceId: source.id,
-              period,
-              periodDate,
-              periodType: "YEAR",
-              areaCode,
-              areaName,
-              areaType,
-              value: dp.value,
-              status: dp.status,
-            },
-          });
-          inserted++;
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "unknown";
-        console.error(`  Failed datapoint ${period}/${areaCode}: ${msg}`);
-        skipped++;
-      }
+      pending.push({
+        period,
+        periodDate,
+        periodType: "YEAR",
+        areaCode,
+        areaType: classifyAreaCode(areaCode),
+        areaName: areaLabels[areaCode] ?? areaCode,
+        value: dp.value,
+        status: dp.status,
+      });
     }
 
-    console.log(`Inserted: ${inserted}`);
-    console.log(`Updated:  ${updated}`);
-    console.log(`Skipped:  ${skipped}`);
+    const { inserted, updated, unchanged, duplicates } = await writeDataPoints(
+      prisma,
+      source.id,
+      pending
+    );
+    skipped += duplicates;
+
+    console.log(`Inserted:  ${inserted}`);
+    console.log(`Updated:   ${updated}`);
+    console.log(`Unchanged: ${unchanged}`);
+    console.log(`Skipped:   ${skipped}`);
 
     await prisma.fetchLog.update({
       where: { id: fetchLog.id },
       data: {
         completedAt: new Date(),
         success: true,
+        inserted,
+        updated,
+        skipped,
         rowsAffected: inserted + updated,
-        notes: `Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}`,
+        notes: `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}`,
       },
     });
 

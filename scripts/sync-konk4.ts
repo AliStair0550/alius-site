@@ -15,6 +15,11 @@
 
 import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
+import {
+  writeDataPoints,
+  dimensionKey,
+  type PendingPoint,
+} from "../src/lib/pulse-batch";
 
 const prisma = new PrismaClient();
 
@@ -166,9 +171,8 @@ async function main() {
       }
     }
 
-    let inserted = 0;
-    let updated = 0;
     let skipped = 0;
+    const pending: PendingPoint[] = [];
 
     for (const dp of datapoints) {
       const period = dp.period;
@@ -196,50 +200,32 @@ async function main() {
       if (virkCode) extraDimensions.VIRKTYPE_CODE = virkCode;
       if (virkLabel) extraDimensions.VIRKTYPE_LABEL = virkLabel;
 
-      try {
-        const existing = await prisma.dataPoint.findFirst({
-          where: {
-            sourceId: source.id,
-            period,
-            areaCode: null,
-            dimensions: { equals: extraDimensions },
-          },
-        });
-
-        if (existing) {
-          if (existing.value !== dp.value) {
-            await prisma.dataPoint.update({
-              where: { id: existing.id },
-              data: { value: dp.value, status: dp.status },
-            });
-            updated++;
-          }
-        } else {
-          await prisma.dataPoint.create({
-            data: {
-              sourceId: source.id,
-              period,
-              periodDate,
-              periodType: parsePeriodType(period),
-              areaCode: null,
-              areaName: null,
-              areaType: "NATIONAL",
-              value: dp.value,
-              status: dp.status,
-              dimensions: extraDimensions,
-            },
-          });
-          inserted++;
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "unknown";
-        console.error(`  ✗ Failed datapoint ${period}/${brancheCode}: ${msg}`);
-        skipped++;
-      }
+      pending.push({
+        period,
+        periodDate,
+        periodType: parsePeriodType(period),
+        areaCode: null,
+        areaType: "NATIONAL",
+        areaName: null,
+        value: dp.value,
+        status: dp.status,
+        dimensions: extraDimensions,
+      });
     }
+
+    // KONK4 har 20 brancher per måned, alle med areaCode = NULL.
+    // (periode, område) er derfor ikke entydigt her.
+    const { inserted, updated, unchanged, duplicates } = await writeDataPoints(
+      prisma,
+      source.id,
+      pending,
+      dimensionKey("BRANCHE_CODE", "VIRKTYPE_CODE")
+    );
+    skipped += duplicates;
 
     console.log(`📥 Inserted: ${inserted}`);
     console.log(`🔄 Updated: ${updated}`);
+    console.log(`⏸️ Unchanged: ${unchanged}`);
     console.log(`⏭️ Skipped: ${skipped}`);
 
     await prisma.fetchLog.update({
@@ -247,8 +233,11 @@ async function main() {
       data: {
         completedAt: new Date(),
         success: true,
+        inserted,
+        updated,
+        skipped,
         rowsAffected: inserted + updated,
-        notes: `Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}`,
+        notes: `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}`,
       },
     });
 

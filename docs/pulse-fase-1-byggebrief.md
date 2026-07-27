@@ -68,7 +68,13 @@ Det er den vigtigste ændring, og den er ikke et nyt komponent. Det er en omskri
 4. Maks fire kort. Fylder færre kriteriet, vis færre
 5. Resten foldes sammen i en rolig liste med navn og seneste værdi
 
-**Kvoter mod støj.** Maks ét kommunesignal ad gangen. I dag optager boligbyggeri per kommune tre ud af seks pladser, og to af kortene viser det samme tal, minus 108 boliger, for Holbæk og Horsens. Det skal undersøges. Enten er beregningen forkert, eller også er der behov for en dedupliceringsregel når to kommuner leverer identisk delta i samme periode.
+**Kvoter mod støj.** Maks ét kommunesignal ad gangen. I dag optager boligbyggeri per kommune tre ud af seks pladser.
+
+De to kort med minus 108 boliger for Holbæk og Horsens er undersøgt. Se `pulse-kortlaegning-fase-1.md` afsnit 7. Tallene er ægte: Holbæk faldt fra 116 til 8, Horsens fra 129 til 21. Samme differens, forskellige niveauer, tilfældigt sammenfald i et tæt felt hvor nummer tre og fire lå på minus 106 og minus 102.
+
+Der skal derfor **ikke** laves en dedupliceringsregel på identisk delta. Den ville skjule et korrekt tal. Den virkelige fejl var at overskriften "faldt mest" var hardkodet i en løkke der udsender to kort, så begge påstod at være det største fald. Det samme gjaldt stigningsløkken. Det er rettet i `bygv33-detectors.ts`, og de øvrige kort formuleres nu uden henvisning til rangeringen, fordi visningsrækkefølgen ikke er garanteret.
+
+Kvoten på ét kommunesignal løser pladsproblemet. Z-scoren løser rangeringen: minus 108 er et fald på 93 procent i Holbæk og 84 procent i Horsens, så de er ikke lige usædvanlige, selv om deltaet er identisk.
 
 **Hvert kort indeholder:**
 
@@ -133,13 +139,18 @@ Tilføj Energinet, Danmarks Nationalbank og Eurostat. Hver serie bærer sit eget
 
 ## 8. Rækkefølge efter kortlægningen
 
-1. Migrer de fire eksisterende datasæt ind i `series` og `observations`
-2. Byg adapterne og hent 10 års historik for alle tolv nye serier
-3. Beregn z-scores og kalibrer tærsklen mod historikken
-4. Skriv de 30 fortolkningsskabeloner i hånden
-5. Skriv Signaler om til rangliste
-6. Byg de tre nye dashboards
-7. Fredagsmailen
-8. Ret kadencetekst og attribution
+Kortlægningen viste at pipelinen var brudt: sync-workflowet blev afbrudt på timeout 25. juni og 25. juli, og signalerne for boligbyggeri, forbrugertillid og befolkning stod stille fra 13. maj til 27. juli uden at nogen fik besked. Derfor kommer driften før datamodellen. Der er ingen grund til at migrere data ind i et nyt skema, før man kan se om det holder op med at blive opdateret.
 
-Punkt 3 skal give et konkret tal: hvor mange signaler ville have udløst alarm per uge de sidste fem år. Rammer det over fire, er tærsklen for lav.
+1. **Batch skrivningerne i sync-scriptene.** Gjort 27. juli 2026. Kørslen gik fra over 30 minutter til under 3.
+2. **Stale-alarmen.** Gjort 27. juli 2026. Dagligt job kl. 07:00 UTC, én samlet mail. Den skal have kørt et par uger, så tærsklerne i `EXPECTED_LAG_DAYS` er kalibreret mod virkeligheden, før næste punkt begynder.
+3. **Ret de to fund alarmen allerede har givet.** KONK4 har ikke haft nye tal siden 2025M12, og DETA211A står på 2026M04 selv om DST har opdateret tabellen. Begge skal afklares, for de indgår i dashboards der vises i dag.
+4. Migrer de eksisterende datasæt ind i `series` og `observations`, når spørgsmålet om områdedimensionen er afgjort. Se `pulse-kortlaegning-fase-1.md` afsnit 4.3.
+5. Byg adapterne og hent 10 års historik for alle tolv nye serier
+6. Beregn z-scores og kalibrer tærsklen mod historikken
+7. Skriv de 30 fortolkningsskabeloner i hånden
+8. Skriv Signaler om til rangliste
+9. Byg de tre nye dashboards
+10. Fredagsmailen
+11. Ret kadencetekst og attribution
+
+Punkt 6 skal give et konkret tal: hvor mange signaler ville have udløst alarm per uge de sidste fem år. Rammer det over fire, er tærsklen for lav.

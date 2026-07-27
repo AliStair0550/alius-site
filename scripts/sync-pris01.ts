@@ -9,6 +9,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
+import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
 const prisma = new PrismaClient();
 const TABLE_ID = "PRIS01";
@@ -50,7 +51,8 @@ async function main() {
     const datapoints = await getTableData(TABLE_ID, filters);
     console.log(`Received ${datapoints.length} datapoints`);
 
-    let inserted = 0, updated = 0, skipped = 0;
+    let skipped = 0;
+    const pending: PendingPoint[] = [];
 
     for (const dp of datapoints) {
       if (!dp.period || dp.value === null) { skipped++; continue; }
@@ -59,47 +61,34 @@ async function main() {
       if (!enhed) { skipped++; continue; }
 
       // areaCode encodes the unit: "100"=index, "300"=årsændring pct.
-      const areaCode = enhed;
-      const areaName = enhed === "100" ? "Indeks" : "Ændring år/år (pct.)";
-
-      try {
-        const existing = await prisma.dataPoint.findFirst({
-          where: { sourceId: source.id, period: dp.period, areaCode },
-        });
-        if (existing) {
-          if (existing.value !== dp.value) {
-            await prisma.dataPoint.update({ where: { id: existing.id }, data: { value: dp.value } });
-            updated++;
-          }
-        } else {
-          await prisma.dataPoint.create({
-            data: {
-              sourceId: source.id,
-              period: dp.period,
-              periodDate: dp.periodDate,
-              periodType: "MONTH",
-              areaCode,
-              areaName,
-              areaType: "NATIONAL",
-              value: dp.value,
-              status: dp.status,
-            },
-          });
-          inserted++;
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "unknown";
-        console.error(`  Failed ${dp.period}/${areaCode}: ${msg}`);
-        skipped++;
-      }
+      pending.push({
+        period: dp.period,
+        periodDate: dp.periodDate,
+        periodType: "MONTH",
+        areaCode: enhed,
+        areaType: "NATIONAL",
+        areaName: enhed === "100" ? "Indeks" : "Ændring år/år (pct.)",
+        value: dp.value,
+        status: dp.status,
+      });
     }
 
-    console.log(`Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}`);
+    const { inserted, updated, unchanged, duplicates } = await writeDataPoints(
+      prisma,
+      source.id,
+      pending
+    );
+    skipped += duplicates;
+
+    console.log(
+      `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}`
+    );
 
     await prisma.fetchLog.update({
       where: { id: fetchLog.id },
-      data: { completedAt: new Date(), success: true, rowsAffected: inserted + updated,
-        notes: `Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}` },
+      data: { completedAt: new Date(), success: true, inserted, updated, skipped,
+        rowsAffected: inserted + updated,
+        notes: `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}` },
     });
     await prisma.dataSource.update({ where: { id: source.id }, data: { lastFetchedAt: new Date() } });
     console.log("\nSync complete.");

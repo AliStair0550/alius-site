@@ -3,6 +3,7 @@
 // ============================================================
 
 import { sendEmail, EMAIL_TO } from "./email";
+import type { StaleReport, StaleKind } from "./pulse-stale";
 
 type PulseUpdateData = {
   sourceName: string;
@@ -167,6 +168,129 @@ ${data.errorMessage}
 Tid: ${data.timestamp.toLocaleString("da-DK")}
 
 Tjek /api/admin/pulse for detaljer.`,
+  });
+}
+
+/**
+ * Én samlet mail om alle forældede eller fejlende datasæt.
+ *
+ * Datakatalogets afsnit 4: "Sender én samlet mail til superadmin.
+ * Ikke én mail per serie." En mail per serie bliver til støj, og
+ * støj bliver filtreret væk.
+ */
+export async function sendPulseStaleEmail(report: StaleReport) {
+  const n = report.findings.length;
+  if (n === 0) return { ok: true, reason: "Ingen fund, ingen mail" };
+
+  const kindLabels: Record<StaleKind, string> = {
+    SYNC_INCOMPLETE: "Kørsel afbrudt",
+    SYNC_FAILED: "Kørsel fejlede",
+    NEVER_FETCHED: "Aldrig hentet",
+    DATA_STALE: "Data forældet",
+  };
+
+  const rows = report.findings
+    .map((f) => {
+      const overdue =
+        f.daysOverdue !== null
+          ? `<span style="color: #B45309;">${f.daysOverdue} dage</span>`
+          : "&mdash;";
+      return `
+        <tr>
+          <td style="padding: 16px 0; border-bottom: 1px solid rgba(26,26,26,0.08); vertical-align: top;">
+            <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #B45309; margin-bottom: 6px;">
+              ${kindLabels[f.kind]} &middot; ${overdue}
+            </div>
+            <div style="font-size: 15px; color: #1A1A1A; margin-bottom: 4px;">
+              ${escapeHtml(f.name)}
+            </div>
+            <div style="font-family: monospace; font-size: 12px; color: rgba(26,26,26,0.45); margin-bottom: 8px;">
+              ${escapeHtml(f.slug)}
+            </div>
+            <div style="font-size: 13px; color: rgba(26,26,26,0.65); line-height: 1.55;">
+              ${escapeHtml(f.headline)}. ${escapeHtml(f.detail)}
+            </div>
+          </td>
+        </tr>`;
+    })
+    .join("");
+
+  const notInService =
+    report.notInService.length > 0
+      ? `<p style="font-size: 12px; color: rgba(26,26,26,0.45); margin: 24px 0 0 0; line-height: 1.6;">
+           Ikke i drift, ikke alarmeret: ${report.notInService.map(escapeHtml).join(", ")}.
+         </p>`
+      : "";
+
+  return sendEmail({
+    to: EMAIL_TO,
+    subject: `[PULSE] ${n} ${n === 1 ? "datasæt er" : "datasæt er"} ikke opdateret`,
+    html: `<!DOCTYPE html>
+<html lang="da">
+<head><meta charset="UTF-8"><title>Pulse stale-alarm</title></head>
+<body style="margin: 0; padding: 0; background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #1A1A1A;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9F7F2; padding: 48px 24px;">
+    <tr>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #FFFFFF; padding: 48px; border-left: 4px solid #B45309;">
+          <tr>
+            <td style="padding-bottom: 32px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+              <div style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 500;">
+                ALIUS &middot; PULSE
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 40px;">
+              <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #B45309; font-weight: 500; margin-bottom: 16px;">
+                Stale-alarm
+              </div>
+              <h1 style="font-family: Georgia, serif; font-weight: 300; font-style: italic; font-size: 32px; line-height: 1.1; margin: 0 0 24px 0; letter-spacing: -0.01em;">
+                ${n} af ${report.sourcesChecked} datasæt er ikke opdateret
+              </h1>
+              <p style="font-size: 15px; line-height: 1.6; color: #2A2A2A; margin: 0 0 32px 0;">
+                Kontrolleret ${report.checkedAt.toLocaleString("da-DK")}.
+              </p>
+
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top: 1px solid rgba(26,26,26,0.08); border-collapse: collapse;">
+                ${rows}
+              </table>
+
+              ${notInService}
+
+              <div style="margin-top: 40px;">
+                <a href="${getAppUrl()}/api/admin/pulse/health"
+                   style="display: inline-block; background-color: #1A1A1A; color: #F9F7F2; padding: 16px 28px; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500;">
+                  Se health-endpoint &rarr;
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 48px; border-top: 1px solid rgba(26,26,26,0.1); font-size: 11px; color: rgba(26,26,26,0.4); line-height: 1.6;">
+              Sendt automatisk fra det daglige stale-tjek. Én mail per kørsel, uanset antal fund.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    text: `ALIUS PULSE: stale-alarm
+
+${n} af ${report.sourcesChecked} datasæt er ikke opdateret.
+Kontrolleret ${report.checkedAt.toLocaleString("da-DK")}.
+
+${report.findings
+  .map(
+    (f) =>
+      `- [${kindLabels[f.kind]}${f.daysOverdue !== null ? `, ${f.daysOverdue} dage` : ""}] ${f.name} (${f.slug})\n  ${f.headline}. ${f.detail}`
+  )
+  .join("\n\n")}
+${report.notInService.length > 0 ? `\nIkke i drift, ikke alarmeret: ${report.notInService.join(", ")}.` : ""}
+
+Health-endpoint: ${getAppUrl()}/api/admin/pulse/health`,
   });
 }
 

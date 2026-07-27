@@ -12,6 +12,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
+import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
 const prisma = new PrismaClient();
 
@@ -164,6 +165,8 @@ async function main() {
     let updated = 0;
     let skipped = 0;
 
+    const pending: PendingPoint[] = [];
+
     for (const dp of datapoints) {
       const period = dp.period;
       if (!period) {
@@ -181,51 +184,25 @@ async function main() {
         ...(dp.dimensions as Record<string, string>),
       };
 
-      try {
-        const existing = await prisma.dataPoint.findFirst({
-          where: {
-            sourceId: source.id,
-            period,
-            areaCode: null,
-          },
-        });
-
-        if (existing) {
-          if (existing.value !== dp.value) {
-            await prisma.dataPoint.update({
-              where: { id: existing.id },
-              data: { value: dp.value, status: dp.status },
-            });
-            updated++;
-          } else {
-            skipped++;
-          }
-        } else {
-          await prisma.dataPoint.create({
-            data: {
-              sourceId: source.id,
-              period,
-              periodDate,
-              periodType: parsePeriodType(period),
-              areaCode: null,
-              areaName: null,
-              areaType: "NATIONAL",
-              value: dp.value,
-              status: dp.status,
-              dimensions:
-                Object.keys(extraDimensions).length > 0
-                  ? extraDimensions
-                  : undefined,
-            },
-          });
-          inserted++;
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "unknown";
-        console.error(`  ✗ Failed datapoint ${period}: ${msg}`);
-        skipped++;
-      }
+      pending.push({
+        period,
+        periodDate,
+        periodType: parsePeriodType(period),
+        areaCode: null,
+        areaType: "NATIONAL",
+        areaName: null,
+        value: dp.value,
+        status: dp.status,
+        dimensions:
+          Object.keys(extraDimensions).length > 0 ? extraDimensions : null,
+      });
     }
+
+    // KONK3 er national: alle rækker har areaCode = NULL, én per periode.
+    const written = await writeDataPoints(prisma, source.id, pending);
+    inserted = written.inserted;
+    updated = written.updated;
+    skipped += written.unchanged + written.duplicates;
 
     console.log(`📥 Inserted: ${inserted}`);
     console.log(`🔄 Updated: ${updated}`);

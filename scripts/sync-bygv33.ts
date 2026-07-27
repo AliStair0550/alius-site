@@ -11,6 +11,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { classifyAreaCode } from "../src/lib/areas";
+import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
 const prisma = new PrismaClient();
 const TABLE_ID = "BYGV33";
@@ -82,12 +83,11 @@ async function main() {
 
     console.log(`Aggregated to ${totals.size} kommune×kvartal combinations`);
 
-    let inserted = 0, updated = 0, skipped = 0;
+    let skipped = 0;
+    const pending: PendingPoint[] = [];
 
     for (const [key, total] of totals) {
       const [areaCode, period] = key.split("||");
-      const areaType = classifyAreaCode(areaCode);
-      const areaName = areaLabels[areaCode] ?? areaCode;
 
       // Parse quarter period → periodDate (first day of quarter)
       const qMatch = period.match(/^(\d{4})K(\d)$/);
@@ -95,43 +95,33 @@ async function main() {
       const month = (parseInt(qMatch[2]) - 1) * 3 + 1;
       const periodDate = new Date(Date.UTC(parseInt(qMatch[1]), month - 1, 1));
 
-      try {
-        const existing = await prisma.dataPoint.findFirst({
-          where: { sourceId: source.id, period, areaCode },
-        });
-        if (existing) {
-          if (existing.value !== total) {
-            await prisma.dataPoint.update({ where: { id: existing.id }, data: { value: total } });
-            updated++;
-          }
-        } else {
-          await prisma.dataPoint.create({
-            data: {
-              sourceId: source.id,
-              period,
-              periodDate,
-              periodType: "QUARTER",
-              areaCode,
-              areaName,
-              areaType,
-              value: total,
-            },
-          });
-          inserted++;
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "unknown";
-        console.error(`  Failed ${period}/${areaCode}: ${msg}`);
-        skipped++;
-      }
+      pending.push({
+        period,
+        periodDate,
+        periodType: "QUARTER",
+        areaCode,
+        areaType: classifyAreaCode(areaCode),
+        areaName: areaLabels[areaCode] ?? areaCode,
+        value: total,
+      });
     }
 
-    console.log(`Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}`);
+    const { inserted, updated, unchanged, duplicates } = await writeDataPoints(
+      prisma,
+      source.id,
+      pending
+    );
+    skipped += duplicates;
+
+    console.log(
+      `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}`
+    );
 
     await prisma.fetchLog.update({
       where: { id: fetchLog.id },
-      data: { completedAt: new Date(), success: true, rowsAffected: inserted + updated,
-        notes: `Inserted: ${inserted}, Updated: ${updated}, Skipped: ${skipped}` },
+      data: { completedAt: new Date(), success: true, inserted, updated, skipped,
+        rowsAffected: inserted + updated,
+        notes: `Inserted: ${inserted}, Updated: ${updated}, Unchanged: ${unchanged}, Skipped: ${skipped}` },
     });
     await prisma.dataSource.update({ where: { id: source.id }, data: { lastFetchedAt: new Date() } });
     console.log("\nSync complete.");
