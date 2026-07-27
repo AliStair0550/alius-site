@@ -177,6 +177,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .kaffe-check { animation: none !important; stroke-dashoffset: 0 !important; }
   .kaffe-stamp-in, .kaffe-reward-in { animation: none !important; }
+  /* Bevar det skrå/svævende look, men uden animeret hover-bevægelse */
+  .kaffe-card { transition: none !important; }
+  .kaffe-card:hover { transform: rotate(-3.5deg) !important; }
 }
 
 .animate-fade-up {

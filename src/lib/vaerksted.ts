@@ -20,7 +20,7 @@ export const ARTICLES: Article[] = [
     href: "/værksted/stemplet",
     title: "Ingen downloader en app for en kop kaffe",
     excerpt:
-      "Pap bliver smidt ud, og apps er for meget. Så vi byggede noget midt imellem.",
+      "Pap bliver smidt ud, og apps er for meget. Så jeg byggede noget midt imellem.",
     category: "Eksperiment",
     date: "2026-07-27",
     dateLabel: "Juli 2026",

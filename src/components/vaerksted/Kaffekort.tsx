@@ -48,7 +48,7 @@ export function Kaffekort() {
         }
         onClick={() => !full && stamp()}
         onKeyDown={onKeyDown}
-        className={`w-full max-w-[380px] select-none rounded-[22px] border border-ink/15 bg-[#FCFBF8] p-7 md:p-8 outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-moss/50 ${
+        className={`kaffe-card w-full max-w-[360px] select-none rounded-[22px] border border-moss/25 bg-[#E9F1EB] p-7 md:p-8 outline-none -rotate-[3.5deg] hover:rotate-0 hover:-translate-y-1 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform shadow-[0_26px_52px_-22px_rgba(45,95,74,0.4),0_8px_18px_-10px_rgba(26,26,26,0.14)] focus-visible:ring-2 focus-visible:ring-moss/50 ${
           full ? "cursor-default" : "cursor-pointer"
         }`}
       >

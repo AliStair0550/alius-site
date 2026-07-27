@@ -67,15 +67,10 @@ export default function VaerkstedPage() {
           <div className="text-[11px] tracking-[0.3em] uppercase text-moss font-normal mb-8">
             Værkstedet
           </div>
-          <h1 className="font-fraunces font-light text-[clamp(40px,6vw,80px)] leading-[1.0] tracking-[-0.02em] mb-10">
+          <h1 className="font-fraunces font-light text-[clamp(40px,6vw,80px)] leading-[1.0] tracking-[-0.02em]">
             Vi bygger.<br />
             <em className="italic text-moss">Og vi deler</em>.
           </h1>
-          <p className="text-[19px] font-light leading-[1.6] text-stone max-w-[560px]">
-            Værkstedet er stedet, hvor vi deler det arbejde vi laver:
-            eksperimenterne, idéerne og de læringer der bliver til undervejs.
-            Nogle bliver til maskiner. Andre bliver til noget vi kan dele.
-          </p>
         </section>
 
         {/* Artikler */}
