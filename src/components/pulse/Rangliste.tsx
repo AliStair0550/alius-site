@@ -16,7 +16,12 @@
 // ============================================================
 
 import { getKommuneByCode } from "@/lib/areas";
-import { kildeUrl, type Kandidat, type Rangliste } from "@/lib/pulse-rangliste";
+import {
+  kildeUrl,
+  NATIONALE_OMRAADER,
+  type Kandidat,
+  type Rangliste,
+} from "@/lib/pulse-rangliste";
 
 const MAANEDER = [
   "januar", "februar", "marts", "april", "maj", "juni",
@@ -86,8 +91,17 @@ function sjaeldenhedTekst(k: Kandidat, aar: number): string {
   return opad ? "Over det normale" : "Under det normale";
 }
 
+/**
+ * De to modeller koder "hele landet" forskelligt. Serier bygget fra
+ * config bruger "DK", serier fra migreringen bruger DST's egen kode
+ * "000". Begge er nationale, og læseren skal ikke se forskellen.
+ */
+function erNational(areaCode: string): boolean {
+  return NATIONALE_OMRAADER.has(areaCode);
+}
+
 function omraadeTekst(areaCode: string): string {
-  if (areaCode === "DK") return "Hele landet";
+  if (erNational(areaCode)) return "Hele landet";
   const k = getKommuneByCode(areaCode);
   return k ? k.name : areaCode;
 }
@@ -278,7 +292,7 @@ function RoligListe({ rolige }: { rolige: Kandidat[] }) {
           >
             <span className="text-[15px] text-ink leading-[1.4] basis-full md:basis-auto md:flex-1">
               {k.navn}
-              {k.areaCode !== "DK" && (
+              {!erNational(k.areaCode) && (
                 <span className="text-stone opacity-50">
                   {" "}
                   &middot; {omraadeTekst(k.areaCode)}
