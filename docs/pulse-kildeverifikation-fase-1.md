@@ -104,12 +104,9 @@ usikret, CIBOR er tre måneder og indeholder en kreditpræmie. Men den er den
 eneste live danske pengemarkedsrente i en offentlig API, og den bevæger sig
 med det samme underliggende.
 
-**Anbefaling:** erstat katalogets serie 9 med DESTR, og noter i seriens navn
-at det ikke er CIBOR. Serie 10 har ingen offentlig erstatning og bør
-udskydes til fase 2, hvor et abonnement hos Finans Danmark eller Nasdaq
-Copenhagen kan vurderes. Kataloget begrunder serie 10 med at det er "den ene
-rente en dansk erhvervsdrivende faktisk kender". Det argument holder, men
-det gør kilden ikke tilgængelig.
+**DESTR blev fravalgt.** Se afsnit 7. Kataloget spurgte forkert: CIBOR er en
+referencerente, ikke en pris nogen betaler. MFI-rentestatistikken leverer
+det kataloget burde have bedt om, og den er live.
 
 ---
 
@@ -123,8 +120,8 @@ det gør kilden ikke tilgængelig.
 | 7. Producentpriser | `PRIS4221` | OK | aktiv, 2026M06, unit Indeks |
 | 8. Lønindeks | `SBLON1` | OK | aktiv, 2026K1 |
 | 12. Tysk erhvervstillid | Eurostat `ei_bsin_m_r2` | OK | HTTP 200, seneste 2026-06 |
-| 5. Elpris, aktuel | EDS `DayAheadPrices` | **0,8 år historik** | 2025-09-30 .. 2026-07-28 |
-| 5. Elpris, historik | EDS `Elspotprices` | **ikke afgjort** | rate-limitet, HTTP 429 |
+| 5. Elpris, aktuel | EDS `DayAheadPrices` | OK | 2025-09-30 .. 2026-07-28 (0,8 år) |
+| 5. Elpris, historik | EDS `Elspotprices` | OK | 1999-06-30 .. 2025-09-30 (26,3 år). Se afsnit 7 |
 
 ### ETILLID, verificeret pr. indikator
 
@@ -150,12 +147,15 @@ Bundet på `ANVENDELSE` i {10100 beboelse, 10200 erhverv}, `BYGHERRE=TOT`,
 
 ### Elprisen: rate limiting, ikke fravær
 
-`Elspotprices` svarede HTTP 429 ved verifikationen. Et tidligere opslag samme
-dag bekræftede at datasættet findes og har data til `2025-09-30T21:00`, men
-historikdybden er **ikke afgjort**.
+`Elspotprices` svarede HTTP 429 ved første verifikation og blev derfor
+rapporteret som **ikke afgjort**, ikke som tom. Det var det rigtige svar på
+det tidspunkt: vi vidste det ikke.
 
-Det skal afgøres før backfill planlægges, og et backfill-script skal
-håndtere 429 med ventetid, ikke kun eksponentiel backoff på fejl.
+Afgjort siden med backoff. Se afsnit 7. Datasættet går tilbage til
+1999-06-30, altså 26,3 år.
+
+Et backfill-script skal håndtere 429 med ventetid, ikke kun eksponentiel
+backoff på fejl.
 
 ---
 
@@ -224,12 +224,12 @@ katalogets serienavn, "Byggetilladelser", bedre end `Påbegyndt` gør.
 |---|---|
 | ETILLID | 3 |
 | BYGV88 | 2 |
-| DNVALD | 5 (USD, SEK, NOK, GBP, PLN) |
+| DNVALD | 4 (USD, SEK, NOK, GBP). PLN udgår |
 | PRIS01 | 2 i dag + 3 COICOP-grupper = 5 |
 | FORV1 | 13 i dag, ingen nye |
 | KONK25 | 17 i dag, ingen nye |
 
-`DNVALD` med fem valutaer rammer præcis loftet. FORV1 og KONK25 ligger langt
+`DNVALD` med fire valutaer ligger under loftet. FORV1 og KONK25 ligger langt
 over, men det er eksisterende serier, og kildekvoten i afsnit 4 løser
 visningsproblemet uden at kræve at de fjernes.
 
@@ -239,15 +239,120 @@ visningsproblemet uden at kræve at de fjernes.
 
 Ud over de fem rettelser i overlapsanalysen:
 
-6. **Serie 9 omskrives til DESTR** eller markeres som udskudt. CIBOR 3M er
-   ikke tilgængelig i en offentlig API.
-7. **Serie 10 udskydes til fase 2.** Ingen offentlig kilde. Kræver
-   kommerciel aftale.
+6. **Serie 9 omskrives til MFI-udlånsrenten** (`DNRUGPI`). CIBOR 3M er ikke
+   tilgængelig i en offentlig API, og spørgsmålet var forkert stillet:
+   CIBOR er en referencerente, ikke en pris nogen betaler.
+7. **Serie 10 omskrives til realkreditrenten inkl. bidrag** (`DNRUURI`).
+   Opdelingen på fast og variabel udgår, den findes ikke live for renter.
 8. **Afsnittet om Nationalbankens PX-Web-API slettes.** Der er ingen API.
    Erstat med DST-tabellerne `DNVALD` og `DNRENTD`.
 9. **Serie 11's enhed præciseres:** DST leverer DKK pr. 100 enheder
    (`KURTYP=KBH`). Normaliseringen til DKK pr. 1 enhed er bekræftet
    nødvendig.
 
-Efter det: ni serier at bygge, ikke tolv. Én udvides. To udskudt eller
-erstattet.
+Efter det: elleve serier at bygge, ikke tolv. Én udvides (PRIS01). Ingen
+udskudt. Kapitallaget er fuldt dækket.
+
+---
+
+## 7. Efterskrift: kapitalsporet afklaret
+
+Tilføjet 27. juli 2026, efter målrettet verifikation af MFI-rentestatistikken.
+
+Katalogets serie 9 og 10 var forkert stillet. CIBOR er en referencerente
+mellem banker, ikke en pris en virksomhed betaler. Det relevante spørgsmål er
+hvad banken faktisk tager, og det ligger i MFI-rentestatistikken.
+
+Verificeret med faktiske tal, ikke metadata:
+
+### Serie 9: pengeinstitutters udlånsrente, nye forretninger. LIVE
+
+```
+DNRUGPI  INSTRNAT=AL00ALLERENTENF   "Effektiv rentesats (pct.) på udlån i alt
+                                     - nye forretninger"
+         INSTITYPE=ALLE  INDSEK=1100 (ikke-finansielle selskaber)
+         VALUTA=Z01  FORMÅL=ALLE
+         2003M01 .. 2026M06   282 obs
+         seneste: 2026M04=3,133   2026M05=2,95   2026M06=3,471
+```
+
+23 års historik. Månedlig. Det er prisen på ny driftskredit til danske
+virksomheder, målt på hvad der faktisk blev aftalt.
+
+### Serie 10: realkreditinstitutters udlånsrente inkl. bidrag. LIVE
+
+```
+DNRUURI  DATA=AL51EFFR   "Effektiv rentesats inkl. bidrag (pct.)
+                          (kun nominallån)"
+         VALUTA=Z01
+         INDSEK=1100 erhverv:      2003M01 .. 2026M06  282 obs
+                                   seneste: 2026M06=2,814
+         INDSEK=1400 husholdninger: 2003M01 .. 2026M06  282 obs
+                                   seneste: 2026M06=3,414
+```
+
+Inkl. bidrag er det væsentlige. Bidragssatsen er den del låntager mærker, og
+den del institutterne kan ændre uden at obligationsrenten rører sig. Tabellen
+har desuden `AL51BIDS`, bidragssatsen alene, som kandidat senere.
+
+Bemærk at dette er **udestående** forretninger, ikke nye. Det er et bevidst
+valg: for realkredit er det udestående lån der binder økonomien, og
+bestanden reagerer på bidragsændringer uden at nogen optager nyt lån.
+
+### Den ønskede opdeling på fast og variabel: DØD
+
+```
+DNRNUM   RENTFIX1=M1A  (variabel, op til 1 år)   2013M10 .. 2024M12   DØD
+         RENTFIX1=S10A (fast, over 10 år)        2013M10 .. 2024M12   DØD
+```
+
+Tabellen `DNRNUM` er aktiv med `latestPeriod: 2026M06`, men netop
+rentefikserings-opdelingen holdt op i december 2024. Samme fælde som MPK3.
+
+`DNRUDDKS` har `RENTEFIX1` med fin opdeling, men dens `DATA`-værdier er
+balancebeløb i mio. kr., ikke rentesatser. Opdelingen findes altså for
+**beløb**, ikke for **renter**.
+
+**Opdelingen udgår af fase 1.** Der bygges ikke en erstatning der ligner
+uden at være det.
+
+### Elprisens historik: afgjort
+
+Tidligere rapporteret som "ikke afgjort" på grund af HTTP 429. Løst med
+backoff:
+
+```
+Elspotprices DK1   ældste 1999-06-30T22:00   nyeste 2025-09-30T21:00
+                   26,3 år
+DayAheadPrices DK1 ældste 2025-09-30T22:00   nyeste 2026-07-28T21:45
+                   0,8 år
+                   ---------------------------------------------
+                   samlet ca. 27,1 år
+```
+
+Katalogets krav om ti års historik er dermed opfyldt med god margin, forudsat
+at begge datasæt hentes og sammenføjes som besluttet i byggebriefens afsnit 3d.
+
+Feltnavnene er forskellige og skal håndteres i adapteren:
+
+| | Elspotprices | DayAheadPrices |
+|---|---|---|
+| Tid | `HourUTC`, `HourDK` | `TimeUTC`, `TimeDK` |
+| Pris | `SpotPriceDKK`, `SpotPriceEUR` | `DayAheadPriceDKK`, `DayAheadPriceEUR` |
+| Opløsning | time | kvarter |
+
+EDS rate-limiter hårdt. Et backfill over 27 år skal have ventelogik på 429,
+ikke kun backoff på fejl.
+
+### Status for kapitallaget
+
+Seks serier, ikke tomt:
+
+| Serie | Kilde | Historik |
+|---|---|---|
+| Udlånsrente, erhverv, nye forretninger | `DNRUGPI` | 23 år |
+| Realkreditrente inkl. bidrag, erhverv | `DNRUURI` 1100 | 23 år |
+| Realkreditrente inkl. bidrag, husholdninger | `DNRUURI` 1400 | 23 år |
+| USD, SEK, NOK, GBP | `DNVALD` | 46 år |
+
+PLN udgår. Fem valutaer ville lægge hele kildekvoten på én tabel.

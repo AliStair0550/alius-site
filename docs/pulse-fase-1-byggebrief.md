@@ -115,6 +115,39 @@ bonus der matcher kataloget, ikke hovedargumentet.
 Bekræftet ved opslag: `BYGFASE=1` Tilladt byggeri og `BYGFASE=2` Påbegyndt
 byggeri løber begge 1998M01 til 2026M03, månedligt, med sæsonkorrigering.
 
+**Udvalg: `BYGFASE=1` Tilladt, for både beboelse og erhverv.**
+`BYGHERRE=TOT`, `SÆSON=SÆSON`. To serier.
+
+| | |
+|---|---|
+| `ANVENDELSE=10100` | Beboelsesbygninger, tilladt, m², sæsonkorrigeret |
+| `ANVENDELSE=10200` | Erhvervsbygninger, tilladt, m², sæsonkorrigeret |
+
+**Afvigelsen fra katalogets "Påbegyndt" er bevidst.** Katalogets serienavn
+er "Byggetilladelser, påbegyndt etageareal", hvilket rummer to forskellige
+byggefaser i samme sætning. Tilladelsen er myndighedens godkendelse.
+Påbegyndelsen er spadestikket. Der går typisk et par kvartaler imellem.
+
+Vi vælger tilladelsen af tre grunde:
+
+1. **Den er mere ledende.** Hele pointen med serien er at ligge før
+   ordrebøgerne. Påbegyndt byggeri er allerede besluttet og finansieret;
+   tilladelsen er det tidligste offentlige spor af en investeringsbeslutning.
+2. **Den matcher serienavnet.** Kataloget kalder serien "Byggetilladelser".
+   Vælger vi `Påbegyndt`, hedder serien noget den ikke måler, og det er
+   præcis den slags mismatch mellem navn og målestok der gjorde BYGV33
+   forvekslelig med denne serie i første omgang.
+3. **Påbegyndt er redundant.** Den følger tilladt med nogle kvartalers
+   forsinkelse. To serier der måler samme beslutning på to tidspunkter giver
+   ranglisten to chancer for at rapportere den samme kendsgerning.
+
+`Fuldført` og `Under opførelse` fravælges også: de er realiseret byggeri og
+hører til REALISED-laget, mens kataloget beder om en ledende serie.
+
+**Erhvervsbyggeriet er den vigtigste af de to.** Det er den bedste
+enkeltindikator for virksomheders investeringslyst, og det findes slet ikke
+i BYGV33, som kun dækker boliger.
+
 **BYGV33 bliver stående.** Den leverer boligbyggeri per kommune til
 `/pulse/kommuner` og til boligbyggeri-signalerne. De to tabeller måler
 forskellige ting og erstatter ikke hinanden.
@@ -153,6 +186,60 @@ kvarterprofil er selve produktet, skal denne beslutning **omgøres bevidst**,
 og rådata skal indsamles fra det tidspunkt og frem. Historikken før
 omgørelsen vil kun findes som døgntal. Det er prisen, og den er accepteret,
 fordi Pulse leverer direktørorientering og ikke handelsdata.
+
+---
+
+## 3e. Beslutning: kapitallaget bliver renter nogen betaler, ikke referencerenter
+
+Truffet 27. juli 2026.
+
+Katalogets serie 9 og 10 var CIBOR 3M og effektiv rente på 30-årig
+realkreditobligation. Begge er verificeret døde som offentlig kilde: CIBOR
+sidst i `MPK3` med værdi i 2019M08, realkreditobligationsrenten i 2014M08.
+CIBOR administreres af Finans Danmark og republiceres ikke længere.
+
+**DESTR blev overvejet og fravalgt.** Den er live og daglig, men den er reelt
+Nationalbankens policy-rente. En direktør ved allerede hvad Nationalbanken
+har sat renten til; det står i avisen. En serie der gentager en oplysning
+modtageren har i forvejen, optager en plads uden at flytte noget.
+
+**Kataloget spurgte forkert.** CIBOR er en referencerente, ikke en pris nogen
+betaler. Det relevante for en virksomhed er hvad banken faktisk tager.
+
+**Erstatning, begge verificeret live med faktiske tal:**
+
+| Katalogets serie | Erstattes af | Spænd |
+|---|---|---|
+| 9. CIBOR 3M | `DNRUGPI`, `INSTRNAT=AL00ALLERENTENF`, `INDSEK=1100` | 2003M01 .. 2026M06, 282 obs |
+| 10. Realkredit 30 år | `DNRUURI`, `DATA=AL51EFFR`, `INDSEK` 1100 og 1400 | 2003M01 .. 2026M06, 282 obs |
+
+Serie 9 bliver **"Pengeinstitutternes effektive udlånsrente til
+ikke-finansielle selskaber, nye forretninger"**. Det er prisen på ny
+driftskredit, målt på det der faktisk blev aftalt i måneden.
+
+Serie 10 bliver **"Realkreditinstitutternes effektive udlånsrente inkl.
+bidrag, udestående"**, i to varianter: erhverv (`1100`) og husholdninger
+(`1400`). Inkl. bidrag er afgørende. Bidragssatsen er den del låntager
+mærker og den del institutterne kan ændre uden at renten ændrer sig.
+`DNRUURI` har desuden `AL51BIDS`, bidragssatsen alene, som kandidat senere.
+
+**Den ønskede opdeling på fast og variabel findes ikke live.** `DNRNUM` har
+`RENTFIX1` med rentefikseringsperioder, men serien døde 2024M12.
+`DNRUDDKS` har opdelingen for **beløb**, ikke for renter. Opdelingen udgår
+derfor af fase 1. Den kan ikke erstattes af noget der ligner.
+
+Kapitallaget bliver altså: to renteserier plus fire valutaer. Seks serier,
+ikke tomt.
+
+## 3f. Beslutning: fire valutaer, ikke fem
+
+`DNVALD` med `KURTYP=KBH`, som er DKK pr. 100 enheder og skal normaliseres
+til DKK pr. 1 enhed ved indlæsning.
+
+USD, SEK, NOK, GBP. **PLN udgår.** Fem valutaer ville lægge hele
+kildekvoten på én tabel, og zloty er den mindst relevante af de fem for
+dansk konkurrenceevne. EUR udelades fortsat, som kataloget foreskriver:
+fastkurspolitikken gør serien uinteressant som signal.
 
 ---
 

@@ -43,6 +43,50 @@
 - Push til main, Vercel deployer automatisk
 - git add . && git commit -m "beskrivelse" && git push
 
+## Tilstande oversættes ikke
+
+Gælder al kode i dette repo.
+
+**Enhver tilstand der ikke er "jeg fik data" rapporteres som sin egen
+tilstand. Den bliver aldrig til fravær.**
+
+Fravær er et svar. "Jeg spurgte ikke", "jeg fik afslag", "jeg blev afbrudt"
+og "jeg forstod ikke svaret" er fire andre svar. Skrives de om til fravær,
+ser koden ud til at have undersøgt noget den ikke har undersøgt, og
+oversættelsen kan ikke gøres om bagefter.
+
+Disse par er ikke det samme, og må aldrig ende samme sted:
+
+| Den faktiske tilstand | Må ikke blive til |
+|---|---|
+| Kilden afviste os (429, 403, timeout) | "ingen data" |
+| Den konfigurerede kode findes ikke hos kilden | "koden gav nul rækker" |
+| Kørslen blev afbrudt undervejs | "kørslen fandt intet" |
+| Tabellen er i live | "serien i tabellen er i live" |
+| Værdien er ikke publiceret endnu | "værdien er nul" |
+| Vi har ikke tjekket | "der er ikke noget" |
+
+I praksis:
+
+- Fang aldrig en fejl for at returnere `[]`, `null` eller `0` uden at logge
+  eller kaste. En tom liste betyder "jeg så efter, der var intet".
+- Filtrér aldrig en konfigureret værdi bort uden at sige hvilken. Hvis den
+  skulle være der og ikke er, så stop.
+- Lad aldrig en default stå som resultat af noget der ikke kørte. Et felt
+  der er `false` fordi det er default, ligner et felt der er `false` fordi
+  noget fejlede.
+- Et flag på ét niveau siger intet om niveauet under. Tjek det niveau du
+  faktisk bruger.
+- Skriv aldrig "ingen" hvor du mener "ved ikke".
+
+**Prøven:** kan en der læser outputtet om tre måneder skelne "der var
+intet" fra "vi nåede ikke at finde ud af det"? Kan de ikke, er tilstanden
+oversat, og oversættelsen har tabt information der ikke kan genskabes.
+
+Reglen er skrevet fordi mønsteret har kostet tid seks gange i dette
+projekt, hver gang på en ny måde. Det er billigere at rapportere en
+mærkelig tilstand end at opdage tre måneder senere at den blev skjult.
+
 ## Databasen
 
 **Kør aldrig `prisma migrate dev` eller `prisma migrate reset` mod produktion.**
