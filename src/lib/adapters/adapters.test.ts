@@ -10,11 +10,13 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  assertUnitRange,
   dstPeriodToDate,
   eurostatPeriodToDate,
   toUtcMidnight,
 } from "./types";
 import { computeZ, toMonthly, WINDOW_YEARS } from "../pulse-zscore";
+import { UNIT_RANGES } from "./types";
 import { SERIES } from "../../../config/series";
 
 const iso = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
@@ -107,6 +109,58 @@ describe("Enhedskonvertering", () => {
         );
       }
     }
+  });
+});
+
+// ----------------------------------------------------------------
+describe("Værn mod plausible forkerte værdier", () => {
+  test("den fejl der næsten skete: indeks ganget med 0,01", () => {
+    // Effektiv kronekurs omkring 104. Ganges den fejlagtigt med 0,01
+    // bliver den 1,04, hvilket ligner en plausibel valutakurs.
+    assert.throws(
+      () => assertUnitRange("dst.valuta.effektiv", "indeks_1980", [1.04]),
+      /uden for hvad enheden/,
+      "1,04 skal afvises som indeks, uanset at det ligner en kurs"
+    );
+    // Og den rigtige værdi skal slippe igennem
+    assert.doesNotThrow(() => assertUnitRange("dst.valuta.effektiv", "indeks_1980", [104.2]));
+  });
+
+  test("den modsatte fejl: kurs uden skalering", () => {
+    // DNVALD leverer 640,25 DKK pr. 100 USD. Glemmes skaleringen,
+    // står der 640 kroner per dollar.
+    assert.throws(
+      () => assertUnitRange("dst.valuta.usd", "dkk_per_enhed", [640.25]),
+      /uden for hvad enheden/
+    );
+    assert.doesNotThrow(() => assertUnitRange("dst.valuta.usd", "dkk_per_enhed", [6.4025]));
+  });
+
+  test("rente i basispunkter i stedet for procent", () => {
+    assert.throws(() => assertUnitRange("dst.rente.erhverv.nye", "pct", [347]), /uden for/);
+    assert.doesNotThrow(() => assertUnitRange("dst.rente.erhverv.nye", "pct", [3.47]));
+  });
+
+  test("negative værdier er lovlige hvor de giver mening", () => {
+    assert.doesNotThrow(() => assertUnitRange("x", "nettotal", [-18.6]));
+    assert.doesNotThrow(() => assertUnitRange("x", "pct", [-0.47]));
+    assert.doesNotThrow(() => assertUnitRange("x", "dkk_mwh", [-120]));
+  });
+
+  test("null og NaN springes over frem for at fejle", () => {
+    assert.doesNotThrow(() => assertUnitRange("x", "pct", [null, NaN, 3.1]));
+  });
+
+  test("ukendt enhed giver intet værn, men heller ingen falsk tryghed", () => {
+    assert.doesNotThrow(() => assertUnitRange("x", "en_enhed_der_ikke_findes", [1e12]));
+  });
+
+  test("alle enheder i config har et interval", () => {
+    const uden: string[] = [];
+    for (const s of SERIES) {
+      if (!(s.unit in UNIT_RANGES)) uden.push(`${s.id} (${s.unit})`);
+    }
+    assert.deepEqual(uden, [], "enheder uden interval har intet værn");
   });
 });
 

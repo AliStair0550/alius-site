@@ -313,7 +313,7 @@ export const SERIES: SeriesDef[] = [
     expectedLagDays: 1,
     attribution: DST("DNVALD") + ". Kilde: Danmarks Nationalbank",
     zTransform: "level",
-    dst: { filters: { VALUTA: ["DKK"], KURTYP: ["INX"] } },
+    dst: { filters: { VALUTA: ["DKK"], KURTYP: ["INX"] }, zeroIsMissing: true },
   },
   // DNVALD leverer DKK pr. 100 enheder. valueScale gør det til DKK pr. 1.
   //
@@ -338,7 +338,7 @@ export const SERIES: SeriesDef[] = [
       rankableReason:
         "Opdeling af den effektive kronekurs. Vises på dashboardet, " +
         "konkurrerer ikke på forsiden.",
-      dst: { filters: { VALUTA: [ccy], KURTYP: ["KBH"] }, valueScale: 0.01 },
+      dst: { filters: { VALUTA: [ccy], KURTYP: ["KBH"] }, valueScale: 0.01, zeroIsMissing: true },
     })
   ),
 

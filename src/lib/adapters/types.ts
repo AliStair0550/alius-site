@@ -67,6 +67,17 @@ export type DstParams = {
    * så den skal have 0.01 for at blive DKK pr. 1 enhed.
    */
   valueScale?: number;
+  /**
+   * Kilden koder "ingen notering i dag" som 0 i stedet for som tomt.
+   * DNVALD gør det på bankhelligdage: 1977-05-20, skærtorsdag 2007 og
+   * 318 andre dage står med kurs 0.
+   *
+   * Et nul der betyder "ingen kurs" er ikke en kurs. Lader man det stå,
+   * trækker det medianen ned og puster MAD op, så z-scoren for hele
+   * vinduet bliver forkert. Sættes dette, oversættes 0 til null, som er
+   * det tilstanden faktisk er.
+   */
+  zeroIsMissing?: boolean;
 };
 
 export type EdsParams = {
@@ -166,6 +177,52 @@ export function eurostatPeriodToDate(period: string): Date | null {
   m = period.match(/^(\d{4})$/);
   if (m) return new Date(Date.UTC(+m[1], 0, 1));
   return null;
+}
+
+/**
+ * Rimeligt interval per enhed, brugt EFTER omregning.
+ *
+ * Værnet mod plausible forkerte værdier. Se CLAUDE.md. En valutakurs der
+ * er blevet ganget med 0,01 ved en fejl lander på 0,064 i stedet for 6,4
+ * og ser stadig ud som et tal. Intervallet fanger den; øjnene gør ikke.
+ *
+ * Grænserne er med vilje brede. De skal fange en faktor 100, ikke en
+ * usædvanlig måned.
+ */
+export const UNIT_RANGES: Record<string, { min: number; max: number }> = {
+  pct: { min: -25, max: 50 },
+  nettotal: { min: -100, max: 100 },
+  indeks: { min: 5, max: 5000 },
+  indeks_1980: { min: 5, max: 5000 },
+  dkk_per_enhed: { min: 0.01, max: 100 },
+  dkk_mwh: { min: -5000, max: 50000 },
+  m2: { min: 0, max: 100_000_000 },
+  antal: { min: 0, max: 100_000_000 },
+  per_1000: { min: -500, max: 500 },
+  dkk: { min: 0, max: 100_000_000 },
+};
+
+/**
+ * Kaster hvis en omregnet værdi ligger uden for hvad enheden tillader.
+ * Kaldes af adapterne efter skalering, før noget skrives.
+ */
+export function assertUnitRange(
+  seriesId: string,
+  unit: string,
+  values: Array<number | null>
+): void {
+  const range = UNIT_RANGES[unit];
+  if (!range) return; // ukendt enhed: intet værn, men heller ingen falsk tryghed
+  for (const v of values) {
+    if (v === null || !Number.isFinite(v)) continue;
+    if (v < range.min || v > range.max) {
+      throw new Error(
+        `${seriesId}: værdien ${v} ligger uden for hvad enheden "${unit}" tillader ` +
+          `(${range.min} til ${range.max}). Sandsynligvis en forkert anvendt ` +
+          `omregningsfaktor. Se CLAUDE.md om plausible forkerte værdier.`
+      );
+    }
+  }
 }
 
 /** ISO-tidsstempel til UTC-midnat samme dag. Til døgnaggregering. */

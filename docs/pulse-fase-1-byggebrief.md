@@ -629,6 +629,108 @@ Begge er rigtige. Ingen af dem er billige.
 
 ---
 
+## 3m. Korrelationsgrupperne, og hvem der vinder når en afledt serie
+## og dens komponent udløses af samme bevægelse
+
+Truffet 27. juli 2026. Reglen står i datakatalogets afsnit 1.
+
+Fem grupper er tildelt. 63 af 89 serier ligger i en gruppe, og der er fem
+rangerbare blandt dem.
+
+| Gruppe | Medlemmer | Vinder |
+|---|---|---|
+| `konkurser` | 38 | `dst.konkurs.total` |
+| `forbrugertillid` | 13 | `dst.forbrug.forventning.f1` |
+| `valuta` | 5 | `dst.valuta.effektiv` |
+| `forbrugerpriser` | 5 | `dst.pris.forbruger.aarsaendring` |
+| `detailomsaetning` | 2 | `derived.detail.maengde` |
+
+Ranglisten gik fra 53 til **25 rangerbare serier**.
+
+### To rettelser af tidligere beslutninger
+
+**F10 er ikke længere rangerbar.** Jeg anbefalede tidligere F1 og F10 som de
+to rangerbare i FORV1, og det blev godkendt. Reglen ophæver det: F10 er en
+af de fem komponenter i F1, og de kan ikke begge konkurrere.
+
+F1 vinder frem for F10, fordi Pulse skriver til direktører på tværs af
+brancher. F1 bevæger sig når stemningen blandt danske forbrugere skifter, og
+det rører de fleste forbrugsnære virksomheder. F10 bevæger sig når planer om
+større indkøb skifter, hvilket er skarpere for detail og varige goder, men
+smallere. Katalogets krav om at F10 "skal trækkes ud separat, ikke gemmes
+inde i den sammensatte indikator" er stadig opfyldt: den findes som
+selvstændig serie og vises på forbrug-dashboardet. Kravet handlede om at
+have tallet, ikke om at det skulle på forsiden.
+
+**Forbrugerprisindekset er ikke længere rangerbart, årsændringen er.**
+Med `zTransform: "yoy"` beregnede indeksserien i praksis det samme tal som
+årsændringsserien. To serier der bogstaveligt talt regner det samme.
+
+### Når en afledt serie og dens komponent udløses samtidig
+
+Din formodning var at den afledte vinder, fordi den er mest informativ.
+**Det holder ikke som generel regel.** Det afhænger af om den afledte
+størrelse selv er det tal nogen handler på, eller om den er en analytikers
+konstruktion.
+
+Reglen bliver derfor: **den serie der er tættest på beslutningen vinder.**
+Afgjort per afledt serie:
+
+| Afledt serie | Vinder | Begrundelse |
+|---|---|---|
+| `derived.detail.maengde` | **Den afledte** | "Blev der solgt mere" er spørgsmålet. Det nominelle indeks er aritmetikken, og det er systematisk misvisende under inflation |
+| `derived.margin.signal` (producentpris minus løn) | **Den afledte** | Marginen er beslutningen: kan jeg hæve priserne hurtigere end lønnen stiger. De to indeks er mellemregninger en direktør ellers selv ville lave i hovedet |
+| `derived.tillid.diff` (DE minus EU27) | **Den afledte** | Hele pointen med EU27. Er faldet tysk eller europæisk. Nævneren er allerede ikke rangerbar, så kun DE og differensen konkurrerer, og differensen er den fortolkede version |
+| `derived.rente.spread` | **Komponenterne** | Se nedenfor |
+| `derived.el.uge` | **Komponenten** | Se nedenfor |
+
+**`derived.rente.spread` bør ikke være rangerbar.**
+
+Katalogets definition var 30-årig realkredit minus CIBOR 3M, altså
+rentekurvens hældning. Det er et markedsstruktursignal, ikke en beslutning.
+En direktør handler på **niveauet**: "realkreditrenten er 3,8 procent" fører
+til en omlægningsbeslutning eller et afkastkrav. "Spændet steg 0,3 point"
+fører ikke til noget uden en analytiker imellem.
+
+Serien bør bygges, fordi den er en god nævner og en god fortolkningslinje,
+men med `rankable = false` og `rankGroup = "rente"` sammen med sine
+komponenter, hvor `dst.rente.realkredit.erhverv` vinder.
+
+Bemærk at problemet delvist løser sig selv: den ene komponent kataloget
+foreslog, CIBOR, findes ikke. Bygges spændet mod
+`dst.rente.nationalbank.udlaan`, som allerede er `rankable = false`, er der
+kun én rangerbar komponent tilbage at være i konflikt med.
+
+**`derived.el.uge` bør ikke bygges som selvstændig serie.**
+
+Katalogets `derived.el.uge` er et ugegennemsnit af DK1 og DK2. Det er ikke
+en ny størrelse, det er en udglatning af en serie vi allerede har. En
+udglatning hører til i visningen eller i z-beregningens resampling, ikke i
+en tabel. Vi resampler i forvejen alt til månedlig frekvens før z beregnes,
+så ugegennemsnittet ville ikke ændre en eneste rangering.
+
+Katalogets afsnit 5 bør rettes på dette punkt.
+
+### Åben vurdering: byggeserierne
+
+`dst.byg.paabegyndt` (BYGV33, antal boliger, kvartalsvis, kommune) og
+`dst.byg.tilladt.bolig` (BYGV88, m², månedlig, national) er begge
+rangerbare og er ikke grupperet.
+
+Argumentet for at gruppere dem: begge falder når byggekonjunkturen vender,
+og to kort om at byggeriet falder er redundans.
+
+Argumentet imod: tilladelse og påbegyndelse er forskudt med et par
+kvartaler, så de rammer på forskellige tidspunkter, og forskydningen er i
+sig selv information. Og byggebriefens afsnit 3c fastslår eksplicit at de
+to ikke er sammenlignelige.
+
+Jeg har ikke grupperet dem, fordi jeg ikke er sikker, og en forkert gruppe
+fjerner information permanent uden at nogen opdager det. Det er en
+beslutning til dig.
+
+---
+
 ## 4. Beslutning 3: Signaler bliver ranglisten
 
 Det er den vigtigste ændring, og den er ikke et nyt komponent. Det er en omskrivning af den der findes.

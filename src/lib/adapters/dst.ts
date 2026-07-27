@@ -8,6 +8,7 @@
 
 import { getTableMetadata, getTableData, type DSTFilter } from "../dst";
 import {
+  assertUnitRange,
   dstPeriodToDate,
   type FetchedPoint,
   type SeriesDef,
@@ -58,15 +59,21 @@ export class DstAdapter implements SourceAdapter {
     const scale = p.valueScale ?? 1;
     const points: FetchedPoint[] = [];
     const badPeriods: string[] = [];
+    let zeroAsMissing = 0;
 
     for (const r of raw) {
       const period = dstPeriodToDate(r.period);
       if (!period) { badPeriods.push(r.period); continue; }
-      points.push({
-        period,
-        areaCode: "DK",
-        value: r.value === null ? null : r.value * scale,
-      });
+      let value = r.value === null ? null : r.value * scale;
+      if (p.zeroIsMissing && value === 0) { value = null; zeroAsMissing++; }
+      points.push({ period, areaCode: "DK", value });
+    }
+
+    if (zeroAsMissing > 0) {
+      console.log(
+        `      ${def.id}: ${zeroAsMissing} nulværdier oversat til "ingen observation" ` +
+          `(kilden koder manglende notering som 0)`
+      );
     }
 
     if (badPeriods.length > 0) {
@@ -85,6 +92,10 @@ export class DstAdapter implements SourceAdapter {
           `men ingen af dem har en værdi. Serien er sandsynligvis udgået.`
       );
     }
+
+    // Værn mod plausible forkerte værdier. Skaleringen er allerede
+    // anvendt; her tjekkes at resultatet overhovedet kan være enheden.
+    assertUnitRange(def.id, def.unit, points.map((p) => p.value));
 
     return points.sort((a, b) => a.period.getTime() - b.period.getTime());
   }

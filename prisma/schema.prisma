@@ -394,6 +394,17 @@ model Series {
   /// Hvorfor rankable er false. Tom når serien er rangerbar.
   rankableReason String? @map("rankable_reason")
 
+  /// Gruppe af serier der bevæger sig sammen, enten af konstruktion
+  /// eller af natur. Højst én serie i en gruppe må være rankable.
+  ///
+  /// Kildekvoten i byggebriefens afsnit 4 fanger korrelation INDEN FOR
+  /// en kilde. Dette felt fanger den PÅ TVÆRS af kilder, hvor kvoten
+  /// ikke ser den: nominelt detailindeks fra DETA211A mod deflateret
+  /// mængdeindeks fra DERIVED er samme kendsgerning fra to kilder.
+  ///
+  /// Null betyder at serien ikke er korreleret med nogen anden.
+  rankGroup String? @map("rank_group")
+
   /// Brud i serien: en dato hvor definitionen ændrede sig, så tal før og
   /// efter ikke måler det samme. Ikke en ændring i virkeligheden.
   ///
@@ -423,6 +434,7 @@ model Series {
   @@index([layer, status])
   @@index([status])
   @@index([rankable, layer])
+  @@index([rankGroup])
   @@index([legacySourceSlug])
   @@map("series")
 }

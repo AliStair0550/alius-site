@@ -44,6 +44,21 @@ Kan spørgsmålet ikke besvares, optages serien ikke. Nævneren hentes samtidig 
 
 En nævner er ofte ikke selv et signal. Se `series.rankable`.
 
+**Korrelerede serier konkurrerer ikke hver for sig.** Enten den bedste enkeltserie, eller den sammensatte. Ikke begge.
+
+Ved optagelse skal en serie erklære hvilke eksisterende serier den bevæger sig sammen med, enten af konstruktion eller af natur. Findes en sådan gruppe, sættes `series.rankGroup`, og **højst ét medlem må have `rankable = true`.** Reglen håndhæves af `scripts/set-rank-groups.ts`, som fejler hvis en gruppe har to.
+
+To grunde, og den anden er den vigtigste:
+
+1. **Redaktionelt.** N kort om samme kendsgerning fortrænger N-1 andre kendsgerninger.
+2. **Statistisk.** N korrelerede serier er N træk fra næsten samme fordeling. Ét af dem vil ofte have en høj z-score uden at noget er sket. Jo flere varianter af samme tal der optages, jo oftere lyver ranglisten.
+
+Vinderen vælges på **hvilken serie der er tættest på beslutningen**, ikke på hvilken der er mest aggregeret eller mest detaljeret. Nogle gange er det den sammensatte (forbrugertillid), nogle gange den afledte (detailmængde), nogle gange nævneren (effektiv kronekurs).
+
+Kildekvoten i byggebriefens afsnit 4 løser korrelation **inden for** én kilde. `rankGroup` løser den **på tværs** af kilder, hvor kvoten ikke kan se den: nominelt detailindeks fra DETA211A og deflateret mængdeindeks fra den afledte tabel er samme kendsgerning fra to kilder.
+
+Reglen er skrevet efter fem tilfælde: boligbyggeri per kommune, KONK4's tyve brancher, FORV1's tretten spørgsmål, fire valutapar, og nominelt mod deflateret detailindeks.
+
 ---
 
 ## 2. Datamodel
