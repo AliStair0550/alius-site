@@ -24,10 +24,6 @@ function formatDKK(n: number): string {
   return Math.round(n).toLocaleString("da-DK");
 }
 
-function formatFte(fte: number): string {
-  return fte.toFixed(1).replace(".", ",");
-}
-
 // ── Count-up ────────────────────────────────────────────────────────
 // Animerer blødt op til target ved ændringer. Respekterer reduced-motion.
 function useCountUp(target: number, duration = 400): number {
@@ -130,7 +126,6 @@ export function BeregnerApp() {
   const rawAnnual = annualCost(employees, hoursPerWeek, monthlySalary);
   const rounded = roundTo1000(rawAnnual);
   const totalHours = employees * hoursPerWeek * WEEKS_PER_YEAR;
-  const fte = totalHours / ANNUAL_HOURS;
 
   const animated = useCountUp(rounded);
   const animatedRounded = roundTo1000(animated);
@@ -223,10 +218,6 @@ export function BeregnerApp() {
                 <div>
                   <dt className="font-[200] text-[0.72rem] tracking-[0.03em] text-slate mb-1.5">Gns. timepris</dt>
                   <dd className="font-[300] text-[1.2rem] text-ink tabular-nums">{formatDKK(hourlyCost(monthlySalary))} kr</dd>
-                </div>
-                <div>
-                  <dt className="font-[200] text-[0.72rem] tracking-[0.03em] text-slate mb-1.5">Svarer til</dt>
-                  <dd className="font-[300] text-[1.2rem] text-ink tabular-nums">{formatFte(fte)} årsværk</dd>
                 </div>
               </dl>
 
@@ -334,7 +325,7 @@ function KortlaegningStep({
       <div className="max-w-[640px]">
         {/* Overskrift */}
         <h2 className="font-fraunces font-light text-[clamp(28px,5vw,44px)] leading-[1.12] tracking-[-0.01em] text-ink mb-3">
-          Lad os kortlægge jeres manuelle processer sammen.
+          Lad os kortlægge de manuelle processer sammen.
         </h2>
         <p className="font-[200] text-[1rem] text-stone leading-[1.7] mb-3">
           Vælg op til tre.
