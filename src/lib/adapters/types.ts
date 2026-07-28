@@ -235,8 +235,30 @@ export function assertUnitRange(
   }
 }
 
-/** ISO-tidsstempel til UTC-midnat samme dag. Til døgnaggregering. */
+/**
+ * ISO-tidsstempel til UTC-midnat samme dag. Til døgnaggregering.
+ *
+ * EDS leverer feltet TimeUTC som "2026-07-27T21:45:00", uden Z og uden
+ * offset. `new Date()` tolker en streng uden tidszone som LOKAL tid.
+ * På en maskine i København blev de første to sommertimer af hvert
+ * UTC-døgn derfor lagt i døgnet før.
+ *
+ * Fejlen var usynlig fordi den kun flyttede to timer ud af fireogtyve:
+ * døgngennemsnittet blev forskudt med fem til femten procent, og
+ * resultatet lignede stadig en elpris. Målt 28. juli 2026 stod
+ * 2026-07-27 for DK1 til 613,26 kr. per MWh; det rigtige er 565,46.
+ *
+ * Værre endnu gav den SAMME kode to forskellige svar: kørt i GitHub
+ * Actions, som er UTC, var tallene rigtige, kørt lokalt forkerte. To
+ * kørsler skiftedes til at "revidere" hinanden frem og tilbage.
+ *
+ * Mangler tidszonen, antages UTC. Feltet hedder TimeUTC.
+ */
 export function toUtcMidnight(iso: string): Date {
-  const d = new Date(iso);
+  const harTidszone = /(?:Z|[+-]\d{2}:?\d{2})$/.test(iso);
+  const d = new Date(harTidszone ? iso : `${iso}Z`);
+  if (Number.isNaN(d.getTime())) {
+    throw new Error(`toUtcMidnight: "${iso}" er ikke et tidsstempel der kan læses`);
+  }
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }

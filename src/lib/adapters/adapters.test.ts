@@ -60,6 +60,32 @@ describe("EDS: tidsstempel til døgn", () => {
     assert.equal(iso(toUtcMidnight("2025-09-30T21:00:00")), "2025-09-30");
     assert.equal(iso(toUtcMidnight("2026-07-28T21:45:00")), "2026-07-28");
   });
+
+  test("døgnets første timer bliver i døgnet, uanset maskinens tidszone", () => {
+    // Den her fejlede lydløst indtil 28. juli 2026. EDS' TimeUTC har
+    // hverken Z eller offset, og new Date() på sådan en streng tolker
+    // den som lokal tid. På en maskine i København røg de to første
+    // timer af hvert UTC-døgn over i døgnet før, og døgngennemsnittet
+    // blev fem til femten procent forkert.
+    //
+    // De to gamle prøver ovenfor lå 21:00 og 21:45 og overlevede
+    // forskydningen. Fejlen viser sig kun her.
+    assert.equal(iso(toUtcMidnight("2026-07-27T00:00:00")), "2026-07-27");
+    assert.equal(iso(toUtcMidnight("2026-07-27T00:15:00")), "2026-07-27");
+    assert.equal(iso(toUtcMidnight("2026-07-27T01:45:00")), "2026-07-27");
+    // Vintertid: én times forskydning i stedet for to.
+    assert.equal(iso(toUtcMidnight("2026-01-15T00:30:00")), "2026-01-15");
+  });
+
+  test("eksplicit tidszone respekteres frem for at blive overskrevet", () => {
+    assert.equal(iso(toUtcMidnight("2026-07-27T00:15:00Z")), "2026-07-27");
+    // 00:15 i UTC+2 er 22:15 UTC dagen før, og så ER det døgnet før.
+    assert.equal(iso(toUtcMidnight("2026-07-27T00:15:00+02:00")), "2026-07-26");
+  });
+
+  test("et tidsstempel der ikke kan læses kaster frem for at give et døgn", () => {
+    assert.throws(() => toUtcMidnight("ikke en dato"), /kan læses/);
+  });
 });
 
 // ----------------------------------------------------------------

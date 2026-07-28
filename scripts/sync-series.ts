@@ -43,6 +43,23 @@ import { hentFra, tilbageblikDage, forventetFriskhedDage } from "../src/lib/puls
 const prisma = new PrismaClient();
 const DRY = process.argv.includes("--dry");
 
+/**
+ * Overstyrer tilbageblikket for denne kørsel.
+ *
+ * Til reparation. Et døgn der blev skrevet forkert af en tidligere
+ * fejl ligger stille i basen: værdien er plausibel, ingen alarm går.
+ * Med et bredere vindue hentes det igen ad den normale vej, og
+ * writeObservations logger rettelsen som den revision det er.
+ *
+ * Bruges ikke i det daglige job. Se --dage i loggen når den er sat.
+ */
+const DAGE_ARG = process.argv.find((a) => a.startsWith("--dage="));
+const DAGE = DAGE_ARG ? Number(DAGE_ARG.slice("--dage=".length)) : null;
+if (DAGE !== null && (!Number.isFinite(DAGE) || DAGE < 1)) {
+  console.error(`--dage skal være et positivt heltal, ikke "${DAGE_ARG}"`);
+  process.exit(1);
+}
+
 const ADAPTERS: Record<SeriesDef["source"], SourceAdapter> = {
   DST: new DstAdapter(),
   EDS: new EdsAdapter(),
@@ -72,7 +89,10 @@ async function synkroniser(def: SeriesDef, nu: Date): Promise<Udfald> {
   // tal", det er en serie der aldrig er blevet backfillet.
   if (!raekke) return { slags: "ukendt_serie" };
 
-  const since = hentFra(raekke.frequency, raekke.revisionPolicy, nu);
+  const since =
+    DAGE !== null
+      ? new Date(nu.getTime() - DAGE * 86_400_000)
+      : hentFra(raekke.frequency, raekke.revisionPolicy, nu);
   const adapter = ADAPTERS[def.source];
   const points = await adapter.fetchSeries(def, { since });
 
@@ -168,7 +188,8 @@ async function main() {
 
   console.log(
     `${DRY ? "TØRLØB. " : ""}Inkrementel hentning af ${defs.length} serier, ` +
-      `${nu.toISOString()}\n`
+      `${nu.toISOString()}` +
+      `${DAGE !== null ? `\nTilbageblik overstyret til ${DAGE} dage for alle serier.` : ""}\n`
   );
 
   await withDbRetry(() => prisma.$queryRaw`SELECT 1`);
@@ -192,9 +213,12 @@ async function main() {
       where: { id: def.id },
       select: { frequency: true, revisionPolicy: true },
     });
-    const vindue = raekke
-      ? `${tilbageblikDage(raekke.frequency, raekke.revisionPolicy)}d`
-      : "-";
+    const vindue =
+      DAGE !== null
+        ? `${DAGE}d overstyret`
+        : raekke
+          ? `${tilbageblikDage(raekke.frequency, raekke.revisionPolicy)}d`
+          : "-";
 
     switch (udfald.slags) {
       case "nye":

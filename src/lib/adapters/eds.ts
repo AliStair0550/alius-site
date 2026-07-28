@@ -89,9 +89,33 @@ export class EdsAdapter implements SourceAdapter {
     // 23 sider med fire minutters pause imellem og én side: et fuldt
     // backfill af DK1 tager halvanden time, et tresdages vindue tager
     // sekunder. Uden det kan jobbet ikke køre dagligt.
+    //
+    // Der bedes om et DØGN MERE end vi vil bruge, og grunden er en
+    // fælde: EDS filtrerer "start" på TimeDK, mens vi spander på
+    // TimeUTC. Om sommeren er der to timers forskel, så det første
+    // UTC-døgn i svaret kun får otte kvarter ud af seksioghalvfems.
+    // Skrives det, står der et døgngennemsnit regnet på to timer, og
+    // det ser ud som en almindelig elpris.
+    const graenseMs = opts.since
+      ? Date.UTC(
+          opts.since.getUTCFullYear(),
+          opts.since.getUTCMonth(),
+          opts.since.getUTCDate()
+        )
+      : -Infinity;
     const startParam = opts.since
-      ? `&start=${opts.since.toISOString().slice(0, 10)}T00:00`
+      ? `&start=${new Date(graenseMs - 86_400_000).toISOString().slice(0, 10)}T00:00`
       : "";
+
+    // Døgnet vi står i er ikke færdigt. Et gennemsnit af de kvarter der
+    // er nået at komme er et rigtigt regnestykke på et forkert grundlag.
+    // Adapteren må kun sende FÆRDIGE perioder; se BatchSink i types.ts.
+    const nu = new Date();
+    const foersteUfaerdigeDoegn = Date.UTC(
+      nu.getUTCFullYear(),
+      nu.getUTCMonth(),
+      nu.getUTCDate()
+    );
 
     for (const ds of p.datasets) {
       // Et datasæt der slutter før vinduet begynder har intet at give.
@@ -153,10 +177,24 @@ export class EdsAdapter implements SourceAdapter {
         offset += records.length;
         const done = records.length < PAGE;
 
+        const days = [...daily.keys()].sort((a, b) => a - b);
+
+        // Døgn under grænsen er det ekstra døgn vi bad om for at få det
+        // første rigtige døgn helt med. Det er selv afkortet af EDS'
+        // start-filter og må aldrig skrives. Ud af kortet med det samme,
+        // ellers vurderes det igen ved hver side.
+        for (const ms of days) {
+          if (ms < graenseMs) daily.delete(ms);
+        }
+
         // Flush alle døgn på nær det seneste, som stadig kan få flere
         // timer i næste side. Ved sidste side flushes også det seneste.
-        const days = [...daily.keys()].sort((a, b) => a - b);
-        const flushable = done ? days : days.slice(0, -1);
+        // Døgnet vi står i holdes tilbage uanset: det er ikke slut.
+        const tilbage = [...daily.keys()].sort((a, b) => a - b);
+        const flushable = (done ? tilbage : tilbage.slice(0, -1)).filter(
+          (ms) => ms < foersteUfaerdigeDoegn
+        );
+
         if (flushable.length > 0) {
           const batch: FetchedPoint[] = flushable.map((ms) => {
             const acc = daily.get(ms)!;
