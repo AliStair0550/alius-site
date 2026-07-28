@@ -1,5 +1,6 @@
 "use client";
 import { type CSSProperties, useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 // ── Robot-ikon (samme lille robot som i hero) - erstatter hjertet ──
 function Robot({ className = "", style }: { className?: string; style?: CSSProperties }) {
@@ -222,13 +223,13 @@ export function CTA() {
             {showCTA && (
               <div className="flex flex-col items-center gap-3 mt-2"
                 style={{ animation: "matchSlideIn 400ms ease-out both" }}>
-                <a
-                  href="mailto:hej@alius.dk"
+                <Link
+                  href="/kontakt"
                   data-analytics="kontakt_klik"
                   className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-9 py-3.5 bg-moss text-parchment hover:bg-moss-light transition-colors"
                 >
                   Tag en snak
-                </a>
+                </Link>
                 <button
                   onClick={handleReset}
                   className="text-[9px] tracking-[0.15em] uppercase text-clay/60 hover:text-stone transition-colors font-[300]"

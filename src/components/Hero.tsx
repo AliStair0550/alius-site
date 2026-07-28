@@ -1,6 +1,7 @@
 "use client";
 
 import AliusLogo from "./AliusLogo";
+import Link from "next/link";
 
 const INK = "#1A1A1A";
 const MOSS = "#2D5F4A";
@@ -195,18 +196,19 @@ export default function Hero() {
       </p>
 
       <div className="animate-fade-up delay-900 flex gap-4 flex-wrap relative z-10">
-        <a
-          href="#kontakt"
+        <Link
+          href="/kontakt"
+          data-analytics="kontakt_klik"
           className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
         >
           Tag en snak
-        </a>
-        <a
+        </Link>
+        <Link
           href="/beregner"
           className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 border border-clay text-ink hover:border-moss hover:text-moss transition-all"
         >
           Find jeres gevinster
-        </a>
+        </Link>
       </div>
 
       <MachineFlow />
