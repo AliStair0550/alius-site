@@ -19,8 +19,8 @@ type Props = {
   params: Promise<{ kommune: string }>;
 };
 
-// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
-// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+// Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
+// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 const SERIE = "dst.ledighed.sasonkorrigeret";
 
 export const revalidate = 3600;
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   return pageMetadata({
     title: `Ledighed i ${k.name} · Alius Pulse`,
-    description: `Den seneste ledighedsudvikling i ${k.name} kommune. Opdateres månedligt med data fra Danmarks Statistik.`,
+    description: `Den seneste ledighedsudvikling i ${k.name} kommune. Tjekkes for nye tal hver dag, med data fra Danmarks Statistik.`,
     path: `/pulse/ledighed/${k.slug}`,
   });
 }

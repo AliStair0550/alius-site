@@ -10,12 +10,12 @@ import { KommunerList, type KommuneRow } from "@/components/pulse/KommunerList";
 export const metadata: Metadata = pageMetadata({
   title: "Kommuneprofiler · Alius Pulse",
   description:
-    "Befolkning, indkomst og ledighed for alle 98 danske kommuner. Data fra Danmarks Statistik opdateret månedligt.",
+    "Befolkning, indkomst og ledighed for alle 98 danske kommuner. Tallene tjekkes for nye tal hver dag.",
   path: "/pulse/kommuner",
 });
 
-// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
-// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+// Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
+// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 const LEDIGHED = "dst.ledighed.sasonkorrigeret";
 const BEFOLKNING = "dst.befolkning.antal";
 const INDKOMST = "dst.indkomst.disponibel";

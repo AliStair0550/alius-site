@@ -11,12 +11,12 @@ import { PulseSignalCard } from "@/components/pulse/SignalCard";
 export const metadata: Metadata = pageMetadata({
   title: "Forbrugerklimaet · Alius Pulse",
   description:
-    "Forbrugertillid, detailomsætning og danskernes købelyst. Månedlige nøgletal fra Danmarks Statistik.",
+    "Forbrugertillid, detailomsætning og danskernes købelyst. Nøgletal fra Danmarks Statistik, tjekket hver dag.",
   path: "/pulse/forbrug",
 });
 
-// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
-// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+// Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
+// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 export const revalidate = 3600;
 
 const F1 = "dst.forbrug.forventning.f1";

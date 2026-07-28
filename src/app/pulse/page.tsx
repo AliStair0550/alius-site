@@ -4,17 +4,24 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
 import { hentRangliste } from "@/lib/pulse-rangliste";
+import {
+  hentSerieInfoFlere,
+  hentNyestePeriode,
+  datoTilPeriode,
+  kildeOrganisationer,
+  opremsning,
+} from "@/lib/pulse-model";
 import { RanglisteSektion } from "@/components/pulse/Rangliste";
 
 export const metadata: Metadata = pageMetadata({
   title: "Pulse · Alius",
   description:
-    "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og opdateret månedligt.",
+    "Et levende billede af Danmark gennem data. Ledighed, konkurser og mere, fortolket og tjekket for nye tal hver dag.",
   path: "/pulse",
 });
 
-// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
-// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+// Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
+// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 export const revalidate = 3600;
 
 type Dashboard = {
@@ -24,7 +31,7 @@ type Dashboard = {
   description: string;
   accentLabel: string;
   href: string;
-  sourceSlug: string | null;
+  serieId: string | null;
   status: "live" | "coming";
 };
 
@@ -37,7 +44,7 @@ const DASHBOARDS: Dashboard[] = [
       "Sæsonkorrigeret ledighed på landsplan og for alle 98 kommuner. Interaktivt kort, historik, og signaler om hvor det rykker.",
     accentLabel: "Arbejdsmarked",
     href: "/pulse/ledighed",
-    sourceSlug: "dst-aus08",
+    serieId: "dst.ledighed.sasonkorrigeret",
     status: "live" as const,
   },
   {
@@ -48,7 +55,7 @@ const DASHBOARDS: Dashboard[] = [
       "Antal erklærede konkurser i danske virksomheder, måned for måned. Sæsonkorrigeret med historik over 5 år.",
     accentLabel: "Erhverv",
     href: "/pulse/konkurser",
-    sourceSlug: "dst-konk3",
+    serieId: "dst.konkurs.total",
     status: "live" as const,
   },
   {
@@ -59,7 +66,7 @@ const DASHBOARDS: Dashboard[] = [
       "Befolkning, indkomst, ledighed og boligværdi samlet for alle 98 kommuner. Sorterbart og klikbart, kommune for kommune.",
     accentLabel: "Profiler",
     href: "/pulse/kommuner",
-    sourceSlug: "dst-folk1am",
+    serieId: "dst.befolkning.antal",
     status: "live" as const,
   },
   {
@@ -70,46 +77,58 @@ const DASHBOARDS: Dashboard[] = [
       "Forbrugertillid, detailomsætning og købelyst: det danske forbrugsbillede måned for måned.",
     accentLabel: "Privatøkonomi",
     href: "/pulse/forbrug",
-    sourceSlug: "dst-forv1",
+    serieId: "dst.forbrug.forventning.f1",
     status: "live" as const,
   },
 ];
 
 
 export default async function PulseHubPage() {
-  // De fire dashboards står stadig på den gamle model. Ranglisten er
-  // det første der læser series og observations. To modeller side om
-  // side er med vilje: at skrive otte sider om før noget bliver
-  // synligt ville være den forkerte rækkefølge.
-  const [sources, rangliste] = await Promise.all([
-    prisma.dataSource.findMany({
-      where: {
-        slug: { in: DASHBOARDS.filter((d) => d.sourceSlug).map((d) => d.sourceSlug!) },
-      },
-      select: {
-        slug: true,
-        lastFetchedAt: true,
-        dataPoints: {
-          where: { value: { not: null } },
-          orderBy: { periodDate: "desc" },
-          take: 1,
-          select: { period: true },
-        },
-      },
-    }),
+  // Alt på siden læser series og observations. DataSource og DataPoint
+  // røres ikke længere fra nogen side.
+  const dashboardSerier = DASHBOARDS.map((d) => d.serieId).filter(
+    (id): id is string => id !== null
+  );
+
+  const [serier, rangliste] = await Promise.all([
+    hentSerieInfoFlere(prisma, dashboardSerier),
     hentRangliste(prisma),
   ]);
 
-  const dashboardsWithFreshness = DASHBOARDS.map((d) => {
-    const source = d.sourceSlug
-      ? sources.find((s) => s.slug === d.sourceSlug)
-      : null;
-    return {
-      ...d,
-      latestPeriod: source?.dataPoints[0]?.period ?? null,
-      lastFetchedAt: source?.lastFetchedAt ?? null,
-    };
-  });
+  // Nyeste periode per dashboard. Hentes fra observations, ikke fra
+  // DataPoint, som ingen side læser længere.
+  const nyeste = new Map<string, string>();
+  await Promise.all(
+    dashboardSerier.map(async (id) => {
+      const s = serier.get(id);
+      if (!s) return;
+      const d = await hentNyestePeriode(prisma, id);
+      if (d) nyeste.set(id, datoTilPeriode(d, s.frequency));
+    })
+  );
+
+  const dashboardsWithFreshness = DASHBOARDS.map((d) => ({
+    ...d,
+    latestPeriod: d.serieId ? nyeste.get(d.serieId) ?? null : null,
+    lastFetchedAt: d.serieId ? serier.get(d.serieId)?.hentet ?? null : null,
+  }));
+
+  // Kilderne skrives ud fra de serier siden faktisk viser, ikke fra en
+  // fast tekst. Se byggebriefens afsnit 6.
+  const organisationer = kildeOrganisationer([
+    ...serier.values(),
+    ...[...rangliste.kort, ...rangliste.rolige].map((k) => ({
+      id: k.seriesId,
+      nameDa: k.navn,
+      unit: k.enhed,
+      frequency: "MONTHLY" as const,
+      attribution: k.attribution,
+      source: k.kilde,
+      sourceRef: k.kildeRef,
+      hentet: k.hentet,
+    })),
+  ]);
+  const kilder = opremsning(organisationer);
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">
@@ -147,7 +166,7 @@ export default async function PulseHubPage() {
           </h1>
 
           <p className="text-[18px] md:text-[20px] leading-[1.55] text-ink/75 max-w-[680px]">
-            Pulse henter de seneste tal fra Danmarks Statistik og andre åbne kilder. Forvandler dem til signaler du kan handle på. Opdaterer sig selv hver måned.
+            Pulse henter de seneste tal fra {kilder}. Forvandler dem til signaler du kan handle på. Tjekker for nye tal hver dag.
           </p>
         </section>
 
@@ -240,7 +259,7 @@ export default async function PulseHubPage() {
             </div>
             <div className="max-w-[640px]">
               <p className="text-[15px] leading-[1.6] text-ink/80 mb-4">
-                Pulse er gratis at bruge. Vi krediterer altid kilden. Alle tal stammer fra offentlige datasæt og benyttes under licens CC 4.0 BY.
+                Pulse er gratis at bruge. Vi krediterer altid kilden. Alle tal stammer fra offentlige datasæt hos {kilder} og benyttes under licens CC 4.0 BY.
               </p>
               <p className="text-[15px] leading-[1.6] text-ink/80">
                 Har I brug for data tilpasset jeres marked, eller skal vi kombinere Pulse med jeres egne tal, så taler vi gerne.
@@ -272,7 +291,7 @@ export default async function PulseHubPage() {
         </section>
 
         <footer className="mt-24 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra {kilder}. Tal benyttes under licens CC 4.0 BY.
         </footer>
       </div>
     </div>

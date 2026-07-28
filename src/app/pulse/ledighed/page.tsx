@@ -25,12 +25,12 @@ import { MapWithMobileFallback } from "@/components/pulse/MapWithMobileFallback"
 export const metadata: Metadata = pageMetadata({
   title: "Ledighedspuls · Alius Pulse",
   description:
-    "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Opdateres månedligt med data fra Danmarks Statistik.",
+    "Et opdateret billede af ledigheden i Danmark, kommune for kommune. Tjekkes for nye tal hver dag, med data fra Danmarks Statistik.",
   path: "/pulse/ledighed",
 });
 
-// DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
-// tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+// Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
+// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";

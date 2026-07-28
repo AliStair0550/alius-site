@@ -293,3 +293,41 @@ export function kildelinje(serier: Array<SerieInfo | null | undefined>): string 
   for (const s of serier) if (s) set.add(s.attribution);
   return [...set].sort().join(" ");
 }
+
+/**
+ * Hvilke organisationer der faktisk står bag de viste serier.
+ *
+ * Udledes af data, ikke skrevet i hånden. En fast liste i bunden af
+ * siden bliver forkert den dag en kilde kommer til eller falder fra, og
+ * ingen opdager det, fordi teksten ser rigtig ud.
+ *
+ * Nationalbanken er et særtilfælde: DNVALD, DNRUGPI og DNRUURI ligger i
+ * DST's statistikbank, men tallene er Nationalbankens. Det står i
+ * seriens attribution, og derfor læses det derfra.
+ */
+export function kildeOrganisationer(serier: Array<SerieInfo | null | undefined>): string[] {
+  const navne: Record<string, string> = {
+    DST: "Danmarks Statistik",
+    EDS: "Energinet",
+    EUROSTAT: "Eurostat",
+  };
+  const set = new Set<string>();
+  for (const s of serier) {
+    if (!s) continue;
+    // DERIVED har ingen egen kilde. Bestanddelene har, og de er med i
+    // listen i forvejen.
+    const n = navne[s.source];
+    if (n) set.add(n);
+    if (s.attribution.includes("Danmarks Nationalbank")) {
+      set.add("Danmarks Nationalbank");
+    }
+  }
+  return [...set].sort((a, b) => a.localeCompare(b, "da"));
+}
+
+/** "A, B, C og D". Tom liste giver tom streng, ikke "og". */
+export function opremsning(dele: string[]): string {
+  if (dele.length === 0) return "";
+  if (dele.length === 1) return dele[0];
+  return `${dele.slice(0, -1).join(", ")} og ${dele[dele.length - 1]}`;
+}
