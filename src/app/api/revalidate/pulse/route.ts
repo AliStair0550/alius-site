@@ -32,10 +32,33 @@ function isAuthorized(req: Request): boolean {
   return key !== null && secrets.includes(key);
 }
 
+/**
+ * Alle sider under /pulse, ikke kun forsiden.
+ *
+ * `layout` på /pulse rammer forsiden og alt der ligger under den, fordi
+ * de deler layout. De to dynamiske ruter skal nævnes for sig: en
+ * rutemønster med [param] i kræver typen eksplicit, og uden dem ville
+ * de 98 kommunesider blive stående med gamle tal.
+ *
+ * Kun forsiden blev genskabt indtil 28. juli 2026. Det var rigtigt da
+ * ranglisten var det eneste der læste den nye model. Nu læser alle otte
+ * sider den, og en enhedsrettelse nåede frem til forsiden mens
+ * /pulse/priser stod med det gamle i op til en time.
+ */
+const STIER: Array<[string, "page" | "layout"]> = [
+  ["/pulse", "layout"],
+  ["/pulse/kommuner/[slug]", "page"],
+  ["/pulse/ledighed/[kommune]", "page"],
+];
+
 export async function POST(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  revalidatePath("/pulse");
-  return NextResponse.json({ ok: true, revalidated: "/pulse", at: new Date().toISOString() });
+  for (const [sti, type] of STIER) revalidatePath(sti, type);
+  return NextResponse.json({
+    ok: true,
+    revalidated: STIER.map(([s]) => s),
+    at: new Date().toISOString(),
+  });
 }
