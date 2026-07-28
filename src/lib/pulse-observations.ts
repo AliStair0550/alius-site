@@ -41,13 +41,83 @@ const key = (areaCode: string, period: Date) =>
   `${areaCode}::${period.toISOString().slice(0, 10)}`;
 
 /**
- * Sammenligner på seks decimaler, som er kolonnens præcision.
- * Uden det ville en float-repræsentation kunne se ud som en revision.
+ * Hvor stor en forskel der skal til, før noget er en revision.
+ *
+ * RELATIV, ikke absolut. Fejlen den skal filtrere fra er proportional
+ * med tallets størrelse: et døgngennemsnit lægger fireogtyve til
+ * seksoghalvfems flydende tal sammen, og akkumuleringsfejlen vokser
+ * med niveauet. En absolut tolerance ville være for stram på en
+ * valutakurs og for løs på en ejendomsværdi.
+ *
+ * HVORFOR DEN BLEV LØSNET
+ *
+ * Sammenligningen lå på seks decimaler, som er kolonnens præcision.
+ * Elprisen for DK1 den 26. august 2022 har den eksakte middelværdi
+ *
+ *     5246,2895914999999907498
+ *
+ * altså ni milliardtedele UNDER afrundingsgrænsen. Om den lander på
+ * ...591 eller ...592 afhænger af i hvilken rækkefølge de fireogtyve
+ * timepriser blev lagt sammen. To kørsler kunne derfor skiftes til at
+ * "revidere" hinanden frem og tilbage på et tal der ikke havde ændret
+ * sig.
+ *
+ * Seks decimaler på et døgngennemsnit i kroner er mere præcision end
+ * tallet bærer. Revisionsloggen skal kun indeholde ændringer nogen
+ * mener noget med; fyldes den med vipper, holder man op med at læse
+ * den, og så er den ingenting værd.
+ *
+ * HVORFOR 1e-7
+ *
+ * Den skal ligge højt over float-støjen og lavt under enhver ægte
+ * revision. Efterprøvet mod hver enhed i kataloget:
+ *
+ *   enhed           niveau      tolerance   mindste ægte ændring
+ *   pct             3,47        3,5e-7      0,01     (2 decimaler)
+ *   nettotal        14,7        1,5e-6      0,1      (1 decimal)
+ *   indeks          105,4       1,1e-5      0,1      (1 decimal)
+ *   antal           153         1,5e-5      1        (heltal)
+ *   m2              165.037     1,7e-2      1        (heltal)
+ *   dkk             2.662.528   0,27        1        (hele kroner)
+ *   dkk_per_enhed   6,5601      6,6e-7      0,0001   (4 decimaler)
+ *   dkk_mwh         5.246       5,2e-4      0,01
+ *
+ * Mindst tre størrelsesordener luft i begge retninger overalt. Den
+ * afrundingsvippe der begrundede ændringen er 1e-6 på et niveau af
+ * 5.246, altså langt inde i tolerancen. Den mindste ægte revision vi
+ * har set, EDS' otte en halv procent, ligger seks størrelsesordener
+ * over.
+ *
+ * Den absolutte bund gælder tal på eller nær nul, hvor en relativ
+ * tolerance falder sammen til ingenting. Nettotal kan lovligt være 0.
+ */
+export const REVISION_RELATIV = 1e-7;
+export const REVISION_ABSOLUT = 1e-9;
+
+/**
+ * Er forskellen stor nok til at være en revision.
+ *
+ * Ren funktion på tal, så reglen kan prøves uden en database.
+ */
+export function erRevision(a: number, b: number): boolean {
+  const graense = Math.max(
+    REVISION_ABSOLUT,
+    REVISION_RELATIV * Math.max(Math.abs(a), Math.abs(b))
+  );
+  return Math.abs(a - b) > graense;
+}
+
+/**
+ * Som erRevision, men på de typer basen leverer.
+ *
+ * null mod et tal er ALTID en revision. "Ikke publiceret endnu" og "et
+ * tal" er to forskellige tilstande, uanset hvor lille tallet er, og de
+ * må ikke smelte sammen.
  */
 function differs(a: Prisma.Decimal | null, b: number | null): boolean {
   if (a === null && b === null) return false;
   if (a === null || b === null) return true;
-  return a.toDecimalPlaces(6).toString() !== new Prisma.Decimal(b).toDecimalPlaces(6).toString();
+  return erRevision(a.toNumber(), b);
 }
 
 export async function writeObservations(

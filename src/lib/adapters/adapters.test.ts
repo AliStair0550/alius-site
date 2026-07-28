@@ -16,6 +16,7 @@ import {
   toUtcMidnight,
 } from "./types";
 import { computeZ, toMonthly, WINDOW_YEARS } from "../pulse-zscore";
+import { erRevision } from "../pulse-observations";
 import { UNIT_RANGES } from "./types";
 import { SERIES } from "../../../config/series";
 
@@ -226,23 +227,71 @@ describe("Config: integritet", () => {
 });
 
 // ----------------------------------------------------------------
-describe("Revisionshåndtering: sammenligning på seks decimaler", () => {
-  // writeObservations sammenligner på kolonnens præcision. Testen her
-  // dækker reglen, ikke databasekaldet.
-  const differs = (a: number, b: number) => a.toFixed(6) !== b.toFixed(6);
+describe("Revisionshåndtering: kun ændringer nogen mener noget med", () => {
+  // Den ægte funktion, ikke en kopi af reglen. Testen lå tidligere med
+  // sin egen (a.toFixed(6) !== b.toFixed(6)), og to steder der regner
+  // det samme er før eller siden uenige.
 
-  test("float-støj under sjette decimal er ikke en revision", () => {
-    assert.equal(differs(3.1, 3.1000000000000005), false);
-    assert.equal(differs(0.1 + 0.2, 0.3), false);
+  test("float-støj er ikke en revision", () => {
+    assert.equal(erRevision(3.1, 3.1000000000000005), false);
+    assert.equal(erRevision(0.1 + 0.2, 0.3), false);
+  });
+
+  test("den afrundingsvippe der begrundede tolerancen", () => {
+    // Elprisen for DK1 den 26. august 2022. Den eksakte middelværdi er
+    // 5246,28959149999999, ni milliardtedele under afrundingsgrænsen,
+    // så de to lovlige afrundinger afviger med 1e-6. To kørsler måtte
+    // ikke skiftes til at revidere hinanden på den.
+    assert.equal(erRevision(5246.289591, 5246.289592), false);
   });
 
   test("en ægte ændring er en revision", () => {
-    assert.equal(differs(3.1, 3.2), true);
-    assert.equal(differs(1464, 1470), true);
+    assert.equal(erRevision(3.1, 3.2), true);
+    assert.equal(erRevision(1464, 1470), true);
+    // EDS' otte en halv procent, den mindste ægte revision vi har set.
+    assert.equal(erRevision(917.264769, 994.926492), true);
   });
 
-  test("ændring på syvende decimal ignoreres bevidst", () => {
-    assert.equal(differs(2.8140001, 2.8140002), false);
+  test("tolerancen følger niveauet, ikke et fast tal", () => {
+    // Samme absolutte forskel: støj på en ejendomsværdi, revision på
+    // en valutakurs.
+    assert.equal(erRevision(2662528, 2662528.2), false);
+    assert.equal(erRevision(6.5601, 6.5603), true);
+  });
+
+  test("hver enhed har luft i begge retninger", () => {
+    // Niveau, og den mindste ændring kilden overhovedet kan publicere.
+    const tilfaelde: Array<[string, number, number]> = [
+      ["pct", 3.47, 0.01],
+      ["nettotal", 14.7, 0.1],
+      ["indeks", 105.4, 0.1],
+      ["antal", 153, 1],
+      ["m2", 165037, 1],
+      ["dkk", 2662528, 1],
+      ["dkk_per_enhed", 6.5601, 0.0001],
+      ["dkk_mwh", 5246, 0.01],
+    ];
+    for (const [navn, niveau, mindste] of tilfaelde) {
+      assert.equal(
+        erRevision(niveau, niveau + mindste),
+        true,
+        `${navn}: den mindste ægte ændring skal fanges`
+      );
+      // Float-akkumulering over hundrede led ligger langt under det her.
+      assert.equal(
+        erRevision(niveau, niveau + niveau * 1e-10),
+        false,
+        `${navn}: float-støj må ikke tælle`
+      );
+    }
+  });
+
+  test("nul mod nul er ingen revision, men nul mod noget er", () => {
+    // Nettotal kan lovligt være nul, og der falder en relativ tolerance
+    // sammen. Den absolutte bund holder den fra at sluge alt.
+    assert.equal(erRevision(0, 0), false);
+    assert.equal(erRevision(0, 0.1), true);
+    assert.equal(erRevision(0, 1e-12), false);
   });
 });
 
