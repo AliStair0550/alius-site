@@ -5,6 +5,15 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
+import { generateAllSignals } from "@/lib/signals/detectors";
+import {
+  hentSerieInfo,
+  hentPunkter,
+  hentNationale,
+  hentNyestePeriode,
+  hentKommuner,
+  NATIONALE_KODER,
+} from "@/lib/pulse-model";
 import { getAllKommuner } from "@/lib/areas";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { PulseHero } from "@/components/pulse/Hero";
@@ -26,10 +35,18 @@ export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
+/**
+ * Detektorerne skriver retningen med små bogstaver, den gamle
+ * Signal-tabel med store. Kortet forventer store.
+ */
 function toDirection(s: string | null): Direction | null {
-  if (s === "UP" || s === "DOWN" || s === "STABLE") return s;
+  const v = s?.toUpperCase();
+  if (v === "UP" || v === "DOWN" || v === "STABLE") return v;
   return null;
 }
+
+/** Ledigheden ligger i den nye model som én serie med 117 områder. */
+const SERIE = "dst.ledighed.sasonkorrigeret";
 
 async function loadGeoData() {
   const filePath = path.join(process.cwd(), "public", "data", "kommuner.geojson");
@@ -42,54 +59,34 @@ async function loadGeoData() {
 }
 
 export default async function LedighedsPulsPage() {
-  const source = await prisma.dataSource.findUnique({
-    where: { slug: "dst-aus08" },
-  });
-
-  if (!source) {
+  // Læser series og observations. Den gamle DataSource/DataPoint-model
+  // røres ikke længere herfra.
+  const serie = await hentSerieInfo(prisma, SERIE);
+  if (!serie) {
+    // Serien findes ikke i basen. Det er ikke det samme som at den er
+    // tom, og siden skal ikke lade som om der bare ikke er tal endnu.
     return <NoDataView />;
   }
 
-  const latestNational = await prisma.dataPoint.findFirst({
-    where: {
-      sourceId: source.id,
-      areaCode: "000",
-      value: { not: null },
-    },
-    orderBy: { periodDate: "desc" },
-  });
+  const senestePeriode = await hentNyestePeriode(prisma, SERIE, [...NATIONALE_KODER]);
+  if (!senestePeriode) return <NoDataView />;
 
-  const fiveYearsAgo = new Date();
-  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
-  const nationalHistory = await prisma.dataPoint.findMany({
-    where: {
-      sourceId: source.id,
-      areaCode: "000",
-      value: { not: null },
-      periodDate: { gte: fiveYearsAgo },
-    },
-    orderBy: { periodDate: "asc" },
-    select: { period: true, periodDate: true, value: true },
-  });
+  const femAarSiden = new Date();
+  femAarSiden.setFullYear(femAarSiden.getFullYear() - 5);
 
-  const latestPeriod = latestNational?.period;
-  const allKommuner = latestPeriod
-    ? await prisma.dataPoint.findMany({
-        where: {
-          sourceId: source.id,
-          areaType: "KOMMUNE",
-          period: latestPeriod,
-          value: { not: null },
-        },
-        orderBy: { value: "desc" },
-        select: { areaCode: true, areaName: true, value: true },
-      })
-    : [];
+  const [nationalHistory, kommuneRaekker, alleTilSignaler] = await Promise.all([
+    hentNationale(prisma, SERIE, serie.frequency, { fra: femAarSiden }),
+    hentKommuner(prisma, SERIE, senestePeriode),
+    // Detektorerne skal se hele billedet, både land og kommuner.
+    hentPunkter(prisma, SERIE, serie.frequency),
+  ]);
 
-  const kommuneData = allKommuner.map((k) => ({
-    areaCode: k.areaCode!,
-    areaName: k.areaName!,
-    value: k.value!,
+  const latestNational = nationalHistory[nationalHistory.length - 1] ?? null;
+
+  const kommuneData = kommuneRaekker.map((k) => ({
+    areaCode: k.areaCode,
+    areaName: k.areaName,
+    value: k.value,
   }));
 
   const topHighest = kommuneData.slice(0, 5);
@@ -97,10 +94,15 @@ export default async function LedighedsPulsPage() {
 
   const geoData = await loadGeoData();
 
-  const allSignals = await prisma.signal.findMany({
-    where: { sourceId: source.id },
-    orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
-  });
+  // Signalerne regnes her frem for at ligge i Signal-tabellen, som
+  // pegede på DataSource. Detektorerne er rene funktioner, så tallet
+  // og fortolkningen kommer nu fra samme kilde.
+  const rang: Record<string, number> = { important: 2, note: 1, info: 0 };
+  const allSignals = [...generateAllSignals(alleTilSignaler)].sort(
+    (a, b) =>
+      (rang[b.severity] ?? 0) - (rang[a.severity] ?? 0) ||
+      (b.magnitude ?? 0) - (a.magnitude ?? 0)
+  );
 
   const importantSignals = allSignals.filter((s) => s.severity === "important");
   const noteSignals = allSignals.filter((s) => s.severity === "note");
@@ -228,7 +230,7 @@ export default async function LedighedsPulsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {otherSignals.map((s) => (
                 <PulseSignalCard
-                  key={s.id}
+                  key={`${s.type}:${s.areaCode ?? "dk"}:${s.period}:${s.headline}`}
                   headline={s.headline}
                   body={s.body}
                   direction={toDirection(s.direction)}
@@ -276,12 +278,11 @@ export default async function LedighedsPulsPage() {
               Kilde
             </div>
             <p className="text-[14px] leading-[1.6] text-stone mb-3">
-              Tallene er hentet fra Danmarks Statistik, tabel AUS08
-              (Fuldtidsledige sæsonkorrigeret). Kortet bygger på åbne
-              kommunegrænser. Begge opdateres månedligt.
+              {serie.attribution}. Serien er {serie.nameDa.toLowerCase()}.
+              Kortet bygger på åbne kommunegrænser. Tallene tjekkes dagligt.
             </p>
             <a
-              href={`https://www.statistikbanken.dk/${source.tableId}`}
+              href={`https://www.statistikbanken.dk/${serie.sourceRef}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-[12px] tracking-[0.2em] uppercase text-moss hover:text-ink transition-colors"
@@ -298,10 +299,10 @@ export default async function LedighedsPulsPage() {
                 ? `Seneste datapunkt: ${humanizePeriod(latestNational.period)}.`
                 : "Ingen data tilgængelig endnu."}
             </p>
-            {source.lastFetchedAt && (
+            {serie.hentet && (
               <p className="text-[14px] leading-[1.6] text-stone mt-2">
                 Sidst hentet:{" "}
-                {new Date(source.lastFetchedAt).toLocaleDateString("da-DK", {
+                {serie.hentet.toLocaleDateString("da-DK", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",

@@ -36,7 +36,12 @@ export type DataPoint = {
   periodDate: Date;
   areaCode: string | null;
   areaName: string | null;
-  areaType: "NATIONAL" | "REGION" | "LANDSDEL" | "KOMMUNE";
+  // OTHER dækker koder der hverken er land, region, landsdel eller
+  // kommune. AUS08 har 997 og 998, som er DST's egne restkategorier, og
+  // LABY01 koder sine regioner 1-5 i stedet for 081-085. De skal med i
+  // datasættet, men må aldrig tælle som kommuner i en rangering.
+  // filterByAreaType matcher eksakt, så de falder af sig selv ud.
+  areaType: "NATIONAL" | "REGION" | "LANDSDEL" | "KOMMUNE" | "OTHER";
   value: number | null;
 };
 

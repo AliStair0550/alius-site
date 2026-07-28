@@ -3,6 +3,13 @@ import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { generateAllSignals } from "@/lib/signals/detectors";
+import {
+  hentSerieInfo,
+  hentPunkter,
+  hentNationale,
+  hentKommuner,
+} from "@/lib/pulse-model";
 import { getKommuneBySlug, getAllKommuner } from "@/lib/areas";
 import { humanizePeriod, formatPercent, formatPercentagePoints } from "@/lib/signals/types";
 import { ComparisonChart } from "@/components/pulse/ComparisonChart";
@@ -14,12 +21,20 @@ type Props = {
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+const SERIE = "dst.ledighed.sasonkorrigeret";
+
 export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
+/**
+ * Detektorerne skriver retningen med små bogstaver, den gamle
+ * Signal-tabel med store. Uden oversættelsen forsvinder pilen på hvert
+ * kort uden at noget fejler.
+ */
 function toDirection(s: string | null): Direction | null {
-  if (s === "UP" || s === "DOWN" || s === "STABLE") return s;
+  const v = s?.toUpperCase();
+  if (v === "UP" || v === "DOWN" || v === "STABLE") return v;
   return null;
 }
 
@@ -47,80 +62,41 @@ export default async function KommunePage({ params }: Props) {
   const kommune = getKommuneBySlug(slug);
   if (!kommune) notFound();
 
-  const source = await prisma.dataSource.findUnique({
-    where: { slug: "dst-aus08" },
-  });
-  if (!source) notFound();
+  const serie = await hentSerieInfo(prisma, SERIE);
+  if (!serie) notFound();
 
-  // Get latest kommune datapoint
-  const latestKommune = await prisma.dataPoint.findFirst({
-    where: {
-      sourceId: source.id,
-      areaCode: kommune.code,
-      value: { not: null },
-    },
-    orderBy: { periodDate: "desc" },
-  });
+  const femAarSiden = new Date();
+  femAarSiden.setFullYear(femAarSiden.getFullYear() - 5);
 
+  // Hele kommunens historik, ikke kun fem år: seneste og forrige måling
+  // skal findes uanset hvor langt tilbage de ligger, og et hul på fem
+  // år ville ellers se ud som en kommune uden tal.
+  const kommuneAlle = await hentPunkter(prisma, SERIE, serie.frequency, {
+    areaCode: kommune.code,
+  });
+  const latestKommune = kommuneAlle[kommuneAlle.length - 1] ?? null;
   if (!latestKommune) notFound();
+  const previousKommune = kommuneAlle[kommuneAlle.length - 2] ?? null;
 
-  // Get previous month value (for change calculation)
-  const previousKommune = await prisma.dataPoint.findFirst({
-    where: {
-      sourceId: source.id,
-      areaCode: kommune.code,
-      value: { not: null },
-      periodDate: { lt: latestKommune.periodDate },
-    },
-    orderBy: { periodDate: "desc" },
-  });
+  const nationalAlle = await hentNationale(prisma, SERIE, serie.frequency);
+  const latestNational =
+    nationalAlle.find((p) => p.period === latestKommune.period) ?? null;
 
-  // Get latest national value for comparison
-  const latestNational = await prisma.dataPoint.findFirst({
-    where: {
-      sourceId: source.id,
-      areaCode: "000",
-      period: latestKommune.period,
-      value: { not: null },
-    },
-  });
+  const kommuneHistory = kommuneAlle.filter((p) => p.periodDate >= femAarSiden);
+  const nationalHistory = nationalAlle.filter((p) => p.periodDate >= femAarSiden);
 
-  // 5-year history for both kommune and national
-  const fiveYearsAgo = new Date();
-  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+  // Signaler om netop denne kommune. Regnes af detektorerne frem for at
+  // blive slået op i Signal-tabellen, som hørte til den gamle model.
+  const alleTilSignaler = await hentPunkter(prisma, SERIE, serie.frequency);
+  const rang: Record<string, number> = { important: 2, note: 1, info: 0 };
+  const kommuneSignals = generateAllSignals(alleTilSignaler)
+    .filter((sig) => sig.areaCode === kommune.code)
+    .sort(
+      (a, b) =>
+        (rang[b.severity] ?? 0) - (rang[a.severity] ?? 0) ||
+        (b.magnitude ?? 0) - (a.magnitude ?? 0)
+    );
 
-  const kommuneHistory = await prisma.dataPoint.findMany({
-    where: {
-      sourceId: source.id,
-      areaCode: kommune.code,
-      value: { not: null },
-      periodDate: { gte: fiveYearsAgo },
-    },
-    orderBy: { periodDate: "asc" },
-    select: { period: true, periodDate: true, value: true },
-  });
-
-  const nationalHistory = await prisma.dataPoint.findMany({
-    where: {
-      sourceId: source.id,
-      areaCode: "000",
-      value: { not: null },
-      periodDate: { gte: fiveYearsAgo },
-    },
-    orderBy: { periodDate: "asc" },
-    select: { period: true, periodDate: true, value: true },
-  });
-
-  // Get all signals about this specific kommune
-  const kommuneSignals = await prisma.signal.findMany({
-    where: {
-      sourceId: source.id,
-      areaCode: kommune.code,
-    },
-    orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
-  });
-
-  // Calculate insights
   const change = previousKommune
     ? latestKommune.value! - previousKommune.value!
     : null;
@@ -128,17 +104,11 @@ export default async function KommunePage({ params }: Props) {
     ? latestKommune.value! - latestNational.value!
     : null;
 
-  // National ranking
-  const allKommunerInLatestPeriod = await prisma.dataPoint.findMany({
-    where: {
-      sourceId: source.id,
-      areaType: "KOMMUNE",
-      period: latestKommune.period,
-      value: { not: null },
-    },
-    orderBy: { value: "desc" },
-    select: { areaCode: true, value: true },
-  });
+  const allKommunerInLatestPeriod = await hentKommuner(
+    prisma,
+    SERIE,
+    latestKommune.periodDate
+  );
   const rank = allKommunerInLatestPeriod.findIndex(
     (k) => k.areaCode === kommune.code
   );
@@ -262,7 +232,7 @@ export default async function KommunePage({ params }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {kommuneSignals.map((s) => (
                 <PulseSignalCard
-                  key={s.id}
+                  key={`${s.type}:${s.period}:${s.headline}`}
                   headline={s.headline}
                   body={s.body}
                   direction={toDirection(s.direction)}
