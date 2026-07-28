@@ -318,17 +318,15 @@ export function kildeOrganisationer(serier: Array<SerieInfo | null | undefined>)
     // listen i forvejen.
     const n = navne[s.source];
     if (n) set.add(n);
-    // Nationalbanken nævnes ALTID med "via Danmarks Statistik".
+    // Nationalbanken står IKKE i listen over kilder vi henter fra.
+    // Vi henter ikke fra dem: DNVALD, DNRUGPI, DNRUURI og DNRENTD
+    // kommer fra DST's statistikbank, som republicerer dem, og
+    // Nationalbanken har ingen egen REST-API.
     //
-    // Vi henter ikke fra dem. DNVALD, DNRUGPI, DNRUURI og DNRENTD
-    // kommer fra DST's statistikbank, som republicerer dem;
-    // Nationalbanken har ingen egen REST-API. En kildelinje der
-    // antyder et direkte forhold vi ikke har, er samme fejlklasse som
-    // CC-påstanden, bare mildere. Og netop det forhold er det
-    // uafklarede spørgsmål i byggebriefens 6a.
-    if (s.attribution.includes("Danmarks Nationalbank")) {
-      set.add("Danmarks Nationalbank via Danmarks Statistik");
-    }
+    // De krediteres i en sætning for sig i kildeOgLicens(). En
+    // kildelinje der antyder et direkte forhold vi ikke har, er samme
+    // fejlklasse som CC-påstanden, bare mildere, og netop det forhold
+    // er det uafklarede spørgsmål i byggebriefens 6a.
   }
   return [...set].sort((a, b) => a.localeCompare(b, "da"));
 }
@@ -370,13 +368,28 @@ export function kildeOgLicens(serier: Array<SerieInfo | null | undefined>): stri
   const orgs = kildeOrganisationer(serier);
   if (orgs.length === 0) return "";
 
-  const medLicens = orgs.filter((o) => DOKUMENTEREDE_LICENSER[o]);
-  const linje = `Alius Pulse er udviklet af Alius og bygger på åbne data fra ${opremsning(orgs)}.`;
-  if (medLicens.length === 0) return linje;
+  const dele = [
+    `Alius Pulse er udviklet af Alius og bygger på åbne data fra ${opremsning(orgs)}.`,
+  ];
+
+  // Nationalbanken i en sætning for sig. Ellers ville "Danmarks
+  // Nationalbank via Danmarks Statistik, Danmarks Statistik, ..."
+  // nævne DST to gange i samme opremsning.
+  const harNationalbank = serier.some((s) =>
+    s?.attribution.includes("Danmarks Nationalbank")
+  );
+  if (harNationalbank) {
+    dele.push("Nationalbankens tal hentes via Danmarks Statistik.");
+  }
 
   // Licenserne er de samme i dag, men listen skal kunne bære to
   // forskellige uden at blive omskrevet.
-  const unikke = [...new Set(medLicens.map((o) => DOKUMENTEREDE_LICENSER[o]))];
-  const navn = unikke.length === 1 ? unikke[0] : unikke.join(" henholdsvis ");
-  return `${linje} ${opremsning(medLicens)} under ${navn}.`;
+  const medLicens = orgs.filter((o) => DOKUMENTEREDE_LICENSER[o]);
+  if (medLicens.length > 0) {
+    const unikke = [...new Set(medLicens.map((o) => DOKUMENTEREDE_LICENSER[o]))];
+    const navn = unikke.length === 1 ? unikke[0] : unikke.join(" henholdsvis ");
+    dele.push(`${opremsning(medLicens)} under ${navn}.`);
+  }
+
+  return dele.join(" ");
 }

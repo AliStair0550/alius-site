@@ -11,6 +11,7 @@ import { ENHEDER, enhed, formatVaerdi, formatAendring } from "./pulse-enheder";
 import { ugeNummer } from "../components/pulse/Forside";
 import { UNIT_RANGES } from "./adapters/types";
 import { SERIES } from "../../config/series";
+import { kildeOgLicens, type SerieInfo } from "./pulse-model";
 import { CONFIG, enhedFor } from "../../scripts/legacy-mapping";
 
 describe("Enheder: ingen falder igennem", () => {
@@ -138,5 +139,30 @@ describe("Forsiden: ugenummer", () => {
     const a = ugeNummer(new Date("2026-07-28T23:30:00Z"));
     const b = ugeNummer(new Date(Date.UTC(2026, 6, 28, 23, 30)));
     assert.equal(a, b);
+  });
+});
+
+describe("Licens: kildelinjen", () => {
+  const s = (over: Partial<SerieInfo>): SerieInfo => ({
+    id: "x", nameDa: "x", unit: "pct", frequency: "MONTHLY",
+    attribution: "", source: "DST", sourceRef: "X", hentet: null, ...over,
+  });
+
+  test("Nationalbanken naevnes for sig, saa DST ikke staar to gange", () => {
+    const linje = kildeOgLicens([
+      s({ attribution: "Danmarks Statistik, tabel DNVALD. Kilde: Danmarks Nationalbank" }),
+      s({ source: "EDS", attribution: "Energinet, Energi Data Service. CC BY 4.0" }),
+    ]);
+    assert.equal((linje.match(/Danmarks Statistik/g) ?? []).length, 2,
+      "een gang i opremsningen, een gang i via-saetningen");
+    assert.match(linje, /Nationalbankens tal hentes via Danmarks Statistik/);
+    assert.ok(!linje.includes("Nationalbank via Danmarks Statistik,"),
+      "maa ikke staa inde i opremsningen");
+  });
+
+  test("uden Nationalbanken naevnes den ikke", () => {
+    const linje = kildeOgLicens([s({ attribution: "Danmarks Statistik, tabel AUS08" })]);
+    assert.ok(!linje.includes("Nationalbank"), linje);
+    assert.ok(!linje.includes("CC BY"), "DST har ingen dokumenteret licens");
   });
 });
