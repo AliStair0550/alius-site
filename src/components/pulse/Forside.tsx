@@ -122,39 +122,76 @@ export function Signalkort({ kort }: { kort: Kandidat[] }) {
 
 function Signal({ k }: { k: Kandidat }) {
   const opad = k.vaerdi >= k.normal;
-  const url = kildeUrl(k.kilde, k.kildeRef);
 
   return (
-    <article className="p-5 md:p-6 bg-white">
+    <Link
+      href={`/pulse/serie/${encodeURIComponent(k.seriesId)}`}
+      // flex-col + mt-auto: kortene strækkes til samme højde af
+      // gitteret, og tallet skubbes ned, så det står på linje på tværs
+      // uanset om navnet fylder én eller tre linjer.
+      className="group relative flex flex-col p-5 md:p-6 bg-white border border-ink/15 no-underline hover:border-ink/35 transition-colors"
+    >
       <p className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-60 mb-3 leading-[1.4]">
         {k.navn}
       </p>
 
-      <div className="flex items-end justify-between gap-4 mb-3">
-        <p className="text-[26px] font-light leading-[1] text-ink">
-          {formatVaerdi(k.raaVaerdi, k.enhed)}
+      <div className="mt-auto">
+        <div className="flex items-end justify-between gap-4 mb-3">
+          <p className="text-[26px] font-light leading-[1] text-ink">
+            {formatVaerdi(k.raaVaerdi, k.enhed)}
+          </p>
+          <Minikurve punkter={k.kurve} />
+        </div>
+
+        <p className="text-[12px] leading-[1.5] text-stone">
+          <span className="text-moss" aria-hidden>
+            {opad ? "▲" : "▼"}
+          </span>{" "}
+          {sjaeldenhed(k)} &#183; {periode(k.periode)}
         </p>
-        <Minikurve punkter={k.kurve} />
       </div>
 
-      <p className="text-[12px] leading-[1.5] text-stone">
-        <span className="text-moss" aria-hidden>
-          {opad ? "▲" : "▼"}
-        </span>{" "}
-        {sjaeldenhed(k)} &#183; {periode(k.periode)}
-      </p>
+      <Forklaring>
+        {sjaeldenhedForklaring(k)} Klik for hele historikken.
+      </Forklaring>
+    </Link>
+  );
+}
 
-      {url && (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="sr-only focus:not-sr-only text-[11px] text-moss"
-        >
-          Se kilden
-        </a>
-      )}
-    </article>
+/**
+ * Forklaringen bag badgen, i almindelige ord.
+ *
+ * Ranglisten måler mod seriens egne seneste ti år. Det står ikke på
+ * kortet, fordi kortet skal kunne scannes, men en læser der undrer sig
+ * skal kunne få svaret uden at lede.
+ */
+function sjaeldenhedForklaring(k: Kandidat): string {
+  const opad = k.vaerdi >= k.normal;
+  const retning = opad ? "over" : "under";
+  if (k.sjaeldenhed <= 1) {
+    return `Ingen måned i de seneste ti år har ligget ${opad ? "højere" : "lavere"}.`;
+  }
+  if (k.sjaeldenhed <= 3) {
+    return `Kun ${k.sjaeldenhed} af ${k.maaneder} måneder i de seneste ti år har ligget lige så ${opad ? "højt" : "lavt"}.`;
+  }
+  return `Ligger ${retning} det normale for de seneste ti år, målt på ${k.maaneder} måneder.`;
+}
+
+/**
+ * Boble ved hover og ved tastaturfokus.
+ *
+ * Ren CSS. Hover findes ikke på mobil, og derfor er den en tilføjelse,
+ * ikke vejen ind: hele kortet er et link, og det virker med en
+ * tommelfinger.
+ */
+function Forklaring({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute left-4 right-4 bottom-full mb-2 z-20 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0 transition-all duration-150 bg-ink text-parchment text-[12px] leading-[1.55] p-3"
+    >
+      {children}
+    </span>
   );
 }
 
@@ -194,7 +231,22 @@ function Minikurve({ punkter }: { punkter: Kandidat["kurve"] }) {
   );
 }
 
-export type Gitterraekke = { navn: string; tal: Noegletal };
+export type Gitterraekke = {
+  navn: string;
+  tal: Noegletal;
+  /** Én sætning om hvad serien måler. Vises ved hover og fokus. */
+  forklaring: string;
+};
+
+/** Retningen i ord til forklaringsboblen. */
+function gitterRetning(t: Noegletal): string {
+  const enhed = t.serie.frequency === "QUARTERLY" ? "kvartaler" : "måneder";
+  if (t.retning === "flad") return "Uændret siden sidste måling.";
+  const ord = t.retning === "op" ? "Steget" : "Faldet";
+  return t.stribe <= 1
+    ? `${ord} siden sidste måling.`
+    : `${ord} ${t.stribe} ${enhed} i træk.`;
+}
 
 /**
  * Perioden i kort form: "jul 26", "1. kvt 26", "2024".
@@ -223,12 +275,13 @@ export function Noegletalsgitter({ raekker }: { raekker: Gitterraekke[] }) {
   return (
     <section className="mb-12 md:mb-16">
       <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-12">
-        {raekker.map(({ navn, tal }) => (
-          <div
+        {raekker.map(({ navn, tal, forklaring }) => (
+          <Link
             key={tal.serie.id}
-            className="flex items-baseline justify-between gap-4 py-3 border-b border-ink/10"
+            href={`/pulse/serie/${encodeURIComponent(tal.serie.id)}`}
+            className="group relative flex items-baseline justify-between gap-4 py-3 border-b border-ink/10 no-underline hover:bg-fog/40 transition-colors -mx-2 px-2"
           >
-            <span className="text-[14px] leading-[1.4] text-stone">
+            <span className="text-[14px] leading-[1.4] text-stone group-hover:text-ink transition-colors">
               {navn}
               <span className="text-[11px] text-stone opacity-45 ml-2 whitespace-nowrap">
                 {kortPeriode(tal.periode, tal.serie.frequency)}
@@ -249,7 +302,10 @@ export function Noegletalsgitter({ raekker }: { raekker: Gitterraekke[] }) {
                     : "uændret"}
               </span>
             </span>
-          </div>
+            <Forklaring>
+              {forklaring} {gitterRetning(tal)} Klik for hele historikken.
+            </Forklaring>
+          </Link>
         ))}
       </div>
     </section>
@@ -268,7 +324,7 @@ export type Vej = { navn: string; href: string };
  */
 export function Dashboardlinks({ veje }: { veje: Vej[] }) {
   return (
-    <nav className="mb-14 md:mb-16 flex flex-wrap gap-2">
+    <nav className="mb-14 md:mb-16 flex flex-wrap justify-center gap-2">
       {veje.map((v) => (
         <Link
           key={v.href}

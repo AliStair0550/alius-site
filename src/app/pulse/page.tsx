@@ -32,17 +32,64 @@ export const revalidate = 3600;
  * Forbrugertillidsindikatoren" fylder to linjer og siger ikke mere end
  * "Forbrugertillid" gør i den sammenhæng.
  */
-const GITTER: Array<{ id: string; navn: string }> = [
-  { id: "dst.konjunktur.tillid.samlet", navn: "Erhvervstillid" },
-  { id: "dst.forbrug.forventning.f1", navn: "Forbrugertillid" },
-  { id: "dst.pris.forbruger.aarsaendring", navn: "Inflation" },
-  { id: "dst.rente.realkredit.husholdning", navn: "Realkreditrente" },
-  { id: "dst.ledighed.sasonkorrigeret", navn: "Ledighed" },
-  { id: "dst.konkurs.total", navn: "Konkurser" },
-  { id: "eds.el.dk1", navn: "Elpris DK1" },
-  { id: "dst.valuta.effektiv", navn: "Kronekurs" },
-  { id: "dst.byg.tilladt.bolig", navn: "Byggetilladelser" },
-  { id: "dst.loen.privat", navn: "Løn, privat" },
+const GITTER: Array<{ id: string; navn: string; forklaring: string }> = [
+  {
+    id: "dst.konjunktur.tillid.samlet",
+    navn: "Erhvervstillid",
+    forklaring:
+      "Hvor mange virksomheder der ser lyst på det, minus hvor mange der ser mørkt.",
+  },
+  {
+    id: "dst.forbrug.forventning.f1",
+    navn: "Forbrugertillid",
+    forklaring:
+      "Samme spørgsmål stillet til forbrugerne. Bevæger sig typisk før forbruget gør.",
+  },
+  {
+    id: "dst.pris.forbruger.aarsaendring",
+    navn: "Inflation",
+    forklaring: "Hvor meget dyrere forbrugerpriserne er end for et år siden.",
+  },
+  {
+    id: "dst.rente.realkredit.husholdning",
+    navn: "Realkreditrente",
+    forklaring:
+      "Den rente husholdninger faktisk betaler på deres udestående lån, bidrag medregnet.",
+  },
+  {
+    id: "dst.ledighed.sasonkorrigeret",
+    navn: "Ledighed",
+    forklaring:
+      "Fuldtidsledige som andel af arbejdsstyrken, renset for de sæsonudsving der gentager sig hvert år.",
+  },
+  {
+    id: "dst.konkurs.total",
+    navn: "Konkurser",
+    forklaring: "Erklærede konkurser om måneden, renset for sæson.",
+  },
+  {
+    id: "eds.el.dk1",
+    navn: "Elpris DK1",
+    forklaring:
+      "Døgngennemsnit på elmarkedet vest for Storebælt, sat dagen før levering.",
+  },
+  {
+    id: "dst.valuta.effektiv",
+    navn: "Kronekurs",
+    forklaring:
+      "Kronen vejet mod Danmarks handelspartnere. Et fald gør dansk eksport billigere.",
+  },
+  {
+    id: "dst.byg.tilladt.bolig",
+    navn: "Byggetilladelser",
+    forklaring:
+      "Etageareal der er givet tilladelse til. Byggeri der er besluttet, men ikke udført.",
+  },
+  {
+    id: "dst.loen.privat",
+    navn: "Løn, privat",
+    forklaring: "Lønudviklingen i private virksomheder og organisationer.",
+  },
 ];
 
 const VEJE = [
@@ -89,7 +136,7 @@ export default async function PulseHubPage() {
 
   const raekker: Gitterraekke[] = GITTER.map((g) => {
     const tal = gitter.tal.find((t) => t.serie.id === g.id);
-    return tal ? { navn: g.navn, tal } : null;
+    return tal ? { navn: g.navn, tal, forklaring: g.forklaring } : null;
   }).filter((r): r is Gitterraekke => r !== null);
 
   // Kilderne skrives ud fra det siden faktisk viser. Licensen nævnes
@@ -145,7 +192,7 @@ export default async function PulseHubPage() {
           to sider der er stødt sammen ved et uheld.
         */}
         <section className="mt-4">
-          <div className="p-7 md:p-10 bg-ink text-parchment">
+          <div className="p-7 md:p-10 bg-forest text-parchment">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
               <div className="max-w-[560px]">
                 <h2 className="font-fraunces font-light text-[24px] md:text-[30px] leading-[1.2] mb-3">
