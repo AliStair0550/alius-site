@@ -146,11 +146,18 @@ async function synkroniser(def: SeriesDef, nu: Date): Promise<Udfald> {
 /**
  * Beder siden om at genskabe /pulse.
  *
- * Uden det opdaterer siden sig alligevel, fordi den er ISR med en times
- * vindue. Kaldet gør det bare med det samme.
+ * Kaldes HVER kørsel, også når der ikke var nye tal.
  *
- * Mangler hemmeligheden, siges det højt. En sprunget genskabelse der
- * ikke bliver nævnt ser bagefter ud som en genskabelse der virkede.
+ * Grunden er ikke at siden har brug for det. Uden nye tal ændrer
+ * genskabelsen ingenting, og ISR-vinduet på en time ville klare det
+ * alligevel. Grunden er at kaldet er den eneste måde at vide om
+ * vejen virker.
+ *
+ * Sprang vi det over på stille dage, ville loggen på en stille dag se
+ * ud præcis som en log hvor hemmeligheden manglede eller var forkert.
+ * Så ville vi opdage det den dag der endelig kom nye tal, og det er
+ * den dag det gør mest ondt. Ét HTTP-kald om dagen er billigere end
+ * den overraskelse.
  */
 async function genskabForsiden(): Promise<string> {
   const secret =
@@ -294,11 +301,18 @@ async function main() {
     }
   }
 
-  if (nye.length > 0 && !DRY) {
+  if (!DRY) {
     const svar = await genskabForsiden();
-    console.log(`\nGenskabelse af /pulse: ${svar}`);
-  } else if (!DRY) {
-    console.log("\nIngen nye tal, /pulse ikke genskabt.");
+    const hvorfor =
+      nye.length > 0
+        ? `${nye.length} serier fik nye tal`
+        : "ingen nye tal, kaldet er en kontrol af at vejen virker";
+    console.log(`\nGenskabelse af /pulse: ${svar} (${hvorfor})`);
+
+    // En genskabelse der ikke lykkedes er ikke en detalje. Siden ville
+    // stadig opdatere sig inden for en time, men vi ville ikke vide at
+    // vejen var brudt før den dag den skulle bruges.
+    if (svar !== "ok") process.exitCode = 1;
   }
 
   if (fejl.length > 0) {
