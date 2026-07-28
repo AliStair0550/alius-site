@@ -80,6 +80,39 @@ const DASHBOARDS: Dashboard[] = [
     serieId: "dst.forbrug.forventning.f1",
     status: "live" as const,
   },
+  {
+    slug: "konjunktur",
+    name: "Konjunktur",
+    tagline: "Hvor er økonomien på vej hen?",
+    description:
+      "Erhvervstillid, byggetilladelser, konkurser og stemningen i Tyskland og Sverige. Retningen, ikke kun niveauet.",
+    accentLabel: "Retning",
+    href: "/pulse/konjunktur",
+    serieId: "dst.konjunktur.tillid.samlet",
+    status: "live" as const,
+  },
+  {
+    slug: "priser",
+    name: "Priser og renter",
+    tagline: "Hvad koster varer og penge?",
+    description:
+      "Inflation fordelt på fødevarer, bolig og transport. Producentpriser, løn, de renter der faktisk betales, og kronekursen.",
+    accentLabel: "Omkostninger",
+    href: "/pulse/priser",
+    serieId: "dst.pris.forbruger.aarsaendring",
+    status: "live" as const,
+  },
+  {
+    slug: "energi",
+    name: "Energi",
+    tagline: "Hvad koster strømmen?",
+    description:
+      "Elprisen øst og vest for Storebælt, døgn for døgn tilbage til 1999. Månedsgennemsnit, så et enkelt døgn ikke ligner en udvikling.",
+    accentLabel: "Energi",
+    href: "/pulse/energi",
+    serieId: "eds.el.dk1",
+    status: "live" as const,
+  },
 ];
 
 
