@@ -141,9 +141,20 @@ async function main() {
         orderBy: { period: "desc" },
         select: { period: true },
       });
-      const resumeFrom = def.source === "EDS" ? newest?.period ?? null : null;
+      // --paany slår genoptagelsen fra.
+      //
+      // Genoptagelse springer alt til og med nyeste observation over,
+      // hvilket er rigtigt når en kørsel blev afbrudt og forkert når
+      // historikken skal REGNES OM. Tidszonefejlen i toUtcMidnight
+      // gjorde hvert eneste døgngennemsnit i elserierne forkert, og en
+      // genoptagende kørsel ville have sprunget dem alle sammen over og
+      // meldt "færdig" uden at have rettet noget.
+      const paany = process.argv.includes("--paany");
+      const resumeFrom = def.source === "EDS" && !paany ? newest?.period ?? null : null;
       if (resumeFrom) {
         console.log(`   genoptager efter ${resumeFrom.toISOString().slice(0, 10)}`);
+      } else if (paany && def.source === "EDS") {
+        console.log(`   --paany: henter hele historikken igen og regner den om`);
       }
 
       let streamed = 0;
