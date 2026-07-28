@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { generateKonkursSignals } from "@/lib/signals/konkurs-detectors";
+import { hentSerieInfo, hentNationale } from "@/lib/pulse-model";
 import { humanizePeriod } from "@/lib/signals/types";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { KonkursHero } from "@/components/pulse/KonkursHero";
@@ -17,12 +19,20 @@ export const metadata: Metadata = pageMetadata({
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+const TOTAL_SERIE = "dst.konkurs.total";
+
 export const revalidate = 3600;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
+/**
+ * Detektorerne skriver retningen med små bogstaver, den gamle
+ * Signal-tabel med store. Uden oversættelsen forsvinder pilen på hvert
+ * kort uden at noget fejler.
+ */
 function toDirection(s: string | null): Direction | null {
-  if (s === "UP" || s === "DOWN" || s === "STABLE") return s;
+  const v = s?.toUpperCase();
+  if (v === "UP" || v === "DOWN" || v === "STABLE") return v;
   return null;
 }
 
@@ -128,53 +138,84 @@ function formatPeriodRange(start: Date, end: Date): string {
 }
 
 export default async function KonkursPulsPage() {
-  const source = await prisma.dataSource.findUnique({
-    where: { slug: "dst-konk3" },
-  });
-  if (!source) return <NoDataView />;
+  // Læser series og observations. KONK3 er totalen, KONK25's sytten
+  // brancher ligger som sytten selvstændige serier, fordi branche ikke
+  // er geografi og derfor hører til i serieidentiteten.
+  const totalSerie = await hentSerieInfo(prisma, TOTAL_SERIE);
+  if (!totalSerie) return <NoDataView />;
 
-  // KONK4 blev lukket af DST 7. januar 2026 med sidste periode 2025M12.
-  // KONK25 er afløseren, med DB25-brancher i stedet for DB07.
-  const brancheSource = await prisma.dataSource.findUnique({
-    where: { slug: "dst-konk25" },
-  });
+  const femAarSiden = new Date();
+  femAarSiden.setFullYear(femAarSiden.getFullYear() - 5);
 
-  const fiveYearsAgo = new Date();
-  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+  const [seasonal, alleTilSignaler] = await Promise.all([
+    hentNationale(prisma, TOTAL_SERIE, totalSerie.frequency, { fra: femAarSiden }),
+    hentNationale(prisma, TOTAL_SERIE, totalSerie.frequency),
+  ]);
 
-  const seasonal = await prisma.dataPoint.findMany({
-    where: { sourceId: source.id, value: { not: null }, periodDate: { gte: fiveYearsAgo } },
-    orderBy: { periodDate: "asc" },
-    select: { period: true, periodDate: true, value: true, dimensions: true },
-  });
+  // Den gamle side havde en tom "actual"-serie ved siden af den
+  // sæsonkorrigerede. Den blev aldrig fyldt, og komponenterne
+  // behandler den som fravær.
   const actual: typeof seasonal = [];
 
   const latestSeasonal = seasonal[seasonal.length - 1] ?? null;
   const seasonalHistory = seasonal;
   const actualHistory = actual;
 
-  // Load branche data — needs 24 months for comparison (12 current + 12 previous)
+  // Brancherne. Hver serie bærer sin kode i legacyAreaCode og sit navn
+  // i nameDa, så dimensions-formen aggregateBranches kender kan bygges
+  // uden at røre aggregeringen.
   let brancheAggregation = null;
-  if (brancheSource && latestSeasonal) {
+  if (latestSeasonal) {
     const brancheStart = new Date(latestSeasonal.periodDate);
     brancheStart.setMonth(brancheStart.getMonth() - 24);
-    const brancheRows = await prisma.dataPoint.findMany({
-      where: { sourceId: brancheSource.id, value: { not: null }, periodDate: { gte: brancheStart } },
-      select: { period: true, periodDate: true, value: true, dimensions: true },
+
+    const brancheSerier = await prisma.series.findMany({
+      where: { legacySourceSlug: "dst-konk25", status: "ACTIVE" },
+      select: { id: true, nameDa: true, legacyAreaCode: true, frequency: true },
     });
-    const typed = brancheRows.map((r) => ({
-      period: r.period,
-      periodDate: r.periodDate,
-      value: r.value,
-      dimensions: r.dimensions as Record<string, string> | null,
-    }));
+
+    const typed: Array<{
+      period: string;
+      periodDate: Date;
+      value: number | null;
+      dimensions: Record<string, string> | null;
+    }> = [];
+
+    for (const b of brancheSerier) {
+      // Uden koden kan rækken ikke tilskrives en branche. Det er en
+      // mapning der er gået i stykker, ikke en branche uden konkurser.
+      if (!b.legacyAreaCode) {
+        throw new Error(
+          `${b.id}: mangler legacyAreaCode. Branchekoden kan ikke udledes, ` +
+            `og brancheoversigten ville stille og roligt mangle en branche.`
+        );
+      }
+      const label = b.nameDa.includes(": ")
+        ? b.nameDa.slice(b.nameDa.indexOf(": ") + 2)
+        : b.nameDa;
+      const punkter = await hentNationale(prisma, b.id, b.frequency, {
+        fra: brancheStart,
+      });
+      for (const pt of punkter) {
+        typed.push({
+          period: pt.period,
+          periodDate: pt.periodDate,
+          value: pt.value,
+          dimensions: { BRANCHE_CODE: b.legacyAreaCode, BRANCHE_LABEL: label },
+        });
+      }
+    }
+
     brancheAggregation = aggregateBranches(typed, latestSeasonal.periodDate);
   }
 
-  const allSignals = await prisma.signal.findMany({
-    where: { sourceId: source.id },
-    orderBy: [{ severity: "desc" }, { magnitude: "desc" }],
-  });
+  // Signalerne regnes her frem for at ligge i Signal-tabellen.
+  const rang: Record<string, number> = { important: 2, note: 1, info: 0 };
+  const allSignals = [...generateKonkursSignals(alleTilSignaler)].sort(
+    (a, b) =>
+      (rang[b.severity] ?? 0) - (rang[a.severity] ?? 0) ||
+      (b.magnitude ?? 0) - (a.magnitude ?? 0)
+  );
 
   const importantSignals = allSignals.filter((s) => s.severity === "important");
   const noteSignals = allSignals.filter((s) => s.severity === "note");
@@ -307,7 +348,7 @@ export default async function KonkursPulsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {otherSignals.map((s) => (
                 <PulseSignalCard
-                  key={s.id}
+                  key={`${s.type}:${s.period}:${s.headline}`}
                   headline={s.headline}
                   body={s.body}
                   direction={toDirection(s.direction)}
@@ -339,10 +380,10 @@ export default async function KonkursPulsPage() {
             </div>
             <p className="text-[14px] leading-[1.6] text-stone mb-3">
               Hovedtal og historik fra{" "}
-              <a href={`https://www.statistikbanken.dk/${source.tableId}`} target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">KONK3</a>.
+              <a href={`https://www.statistikbanken.dk/${totalSerie.sourceRef}`} target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">KONK3</a>.
               {" "}Brancheopdeling fra{" "}
               <a href="https://www.statistikbanken.dk/KONK25" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">KONK25</a>.
-              {" "}Begge fra Danmarks Statistik, opdateres månedligt.
+              {" "}Begge fra Danmarks Statistik, og tallene tjekkes dagligt.
               {" "}Brancher følger DB25. Tal før 2026 er omklassificeret fra DB07, da DST lukkede KONK4 i januar 2026.
             </p>
           </div>
@@ -355,10 +396,10 @@ export default async function KonkursPulsPage() {
                 ? `Seneste datapunkt: ${humanizePeriod(latestSeasonal.period)}.`
                 : "Ingen data tilgængelig endnu."}
             </p>
-            {source.lastFetchedAt && (
+            {totalSerie.hentet && (
               <p className="text-[14px] leading-[1.6] text-stone mt-2">
                 Sidst hentet:{" "}
-                {new Date(source.lastFetchedAt).toLocaleDateString("da-DK", {
+                {totalSerie.hentet.toLocaleDateString("da-DK", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
