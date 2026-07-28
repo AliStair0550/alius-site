@@ -26,11 +26,19 @@ type JsonStat = {
 export class EurostatAdapter implements SourceAdapter {
   readonly source = "EUROSTAT" as const;
 
-  async fetchSeries(def: SeriesDef): Promise<FetchedPoint[]> {
+  async fetchSeries(
+    def: SeriesDef,
+    opts: { since?: Date | null } = {}
+  ): Promise<FetchedPoint[]> {
     const p = def.eurostat;
     if (!p) throw new Error(`${def.id}: mangler eurostat-parametre`);
 
     const qs = new URLSearchParams({ format: "JSON", ...p.params });
+    // Eurostat afkorter selv med sinceTimePeriod. Formatet er årstal og
+    // måned, ikke dato.
+    if (opts.since) {
+      qs.set("sinceTimePeriod", opts.since.toISOString().slice(0, 7));
+    }
     const url = `${BASE}/${p.dataflow}?${qs.toString()}`;
 
     const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
@@ -71,10 +79,17 @@ export class EurostatAdapter implements SourceAdapter {
       points.push({ period: date, areaCode: "DK", value: raw ?? null });
     }
 
+    // Kun ved fuld hentning. I et afkortet vindue er "ingen værdier
+    // endnu" en normal tilstand, ikke en død serie.
     const withValue = points.filter((x) => x.value !== null);
     if (withValue.length === 0) {
-      throw new Error(
-        `${def.id}: ${p.dataflow} gav ${points.length} perioder uden en eneste værdi`
+      if (!opts.since) {
+        throw new Error(
+          `${def.id}: ${p.dataflow} gav ${points.length} perioder uden en eneste værdi`
+        );
+      }
+      console.log(
+        `      ${def.id}: ${points.length} perioder i vinduet, ingen med værdi endnu.`
       );
     }
 

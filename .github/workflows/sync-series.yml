@@ -1,0 +1,78 @@
+name: Sync series (dagligt)
+
+# Det inkrementelle hentejob til den nye model, series og observations.
+#
+# Kører hver dag kl. 05:30 UTC. Renter, valuta og elpris får nye tal
+# hver hverdag; månedsserierne tjekkes samtidig, så vi slipper for at
+# vedligeholde en publiceringskalender.
+#
+# 05:30 er valgt så det ligger før Vercel-cronen kl. 06:00, som rører
+# den gamle model. De to jobs skriver til hver sit tabelsæt og kan
+# køre samtidig, men rækkefølgen gør logs lettere at læse.
+#
+# Det MÅNEDLIGE job i sync-dst.yml bliver som det er. Det fylder
+# DataSource og DataPoint, som de fire dashboards stadig læser.
+#
+# Nødvendige hemmeligheder:
+#   DATABASE_URL   Neon connection string
+#   ADMIN_SECRET   så jobbet kan bede /pulse om at genskabe sig med det
+#                  samme. Uden den opdaterer siden sig alligevel, men
+#                  først når ISR-vinduet på en time udløber. Jobbet
+#                  siger det højt i loggen hvis den mangler.
+
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Tørløb — hent fra kilderne, skriv intet"
+        type: boolean
+        default: false
+      series:
+        description: "Kun disse serie-id'er, mellemrumsadskilt. Tomt betyder alle."
+        type: string
+        default: ""
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  sync:
+    name: Inkrementel hentning
+    runs-on: ubuntu-latest
+    # Et fuldt løb tog 30 sekunder målt 28. juli 2026. Tyve minutter er
+    # rigeligt til at en kilde kan være langsom uden at jobbet hænger
+    # i timevis.
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Installér afhængigheder
+        run: npm ci
+
+      - name: Generér Prisma-klient
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Kør testene først
+        # En hentning der skriver i produktion skal ikke køre fra en
+        # commit hvor værnene er i stykker.
+        run: npm test
+
+      - name: Hent nye observationer
+        run: |
+          npx tsx scripts/sync-series.ts \
+            ${{ inputs.dry_run && '--dry' || '' }} \
+            ${{ inputs.series }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          SITE_URL: https://alius.dk

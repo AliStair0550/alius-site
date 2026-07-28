@@ -18,7 +18,10 @@ import {
 export class DstAdapter implements SourceAdapter {
   readonly source = "DST" as const;
 
-  async fetchSeries(def: SeriesDef): Promise<FetchedPoint[]> {
+  async fetchSeries(
+    def: SeriesDef,
+    opts: { since?: Date | null } = {}
+  ): Promise<FetchedPoint[]> {
     const p = def.dst;
     if (!p) throw new Error(`${def.id}: mangler dst-parametre`);
 
@@ -50,9 +53,46 @@ export class DstAdapter implements SourceAdapter {
     const tidVar = meta.variables.find((v) => v.code.toUpperCase() === "TID");
     if (!tidVar) throw new Error(`${def.id}: ingen Tid-dimension i ${def.sourceRef}`);
 
+    // Uden `since` bedes der om hele tidsdimensionen. Med `since`
+    // udpeges de enkelte perioder, fordi DST ikke har et "fra og med".
+    let tidValues: string[] = ["*"];
+    if (opts.since) {
+      const siden = opts.since.getTime();
+      const uparsbare: string[] = [];
+      tidValues = tidVar.values
+        .filter((v) => {
+          const d = dstPeriodToDate(v.code);
+          if (!d) { uparsbare.push(v.code); return false; }
+          return d.getTime() >= siden;
+        })
+        .map((v) => v.code);
+
+      // En periodekode vi ikke kan læse er ikke en periode der ikke
+      // findes. Falder formatet om, skal kørslen stoppe, ikke hente
+      // et tilfældigt udsnit.
+      if (uparsbare.length > 0) {
+        throw new Error(
+          `${def.id}: ${uparsbare.length} periodekoder i ${def.sourceRef} kunne ikke ` +
+            `tolkes, fx "${uparsbare.slice(0, 3).join('", "')}". Periodeformatet er ændret.`
+        );
+      }
+
+      // Tabellen har perioder, men ingen i vinduet. Det er ikke det
+      // samme som en tom tabel, og det er ikke en fejl: en kvartalsserie
+      // kan sagtens ligge stille i to måneder.
+      if (tidValues.length === 0) {
+        console.log(
+          `      ${def.id}: ${def.sourceRef} har ingen perioder siden ` +
+            `${opts.since.toISOString().slice(0, 10)}. Nyeste hos kilden er ` +
+            `${tidVar.values[tidVar.values.length - 1]?.code ?? "ukendt"}.`
+        );
+        return [];
+      }
+    }
+
     const filters: DSTFilter[] = [
       ...Object.entries(p.filters).map(([code, values]) => ({ code, values })),
-      { code: tidVar.code, values: ["*"] },
+      { code: tidVar.code, values: tidValues },
     ];
 
     const raw = await getTableData(def.sourceRef, filters);
@@ -85,11 +125,22 @@ export class DstAdapter implements SourceAdapter {
 
     // En serie uden observationer er en fejl, ikke et tomt resultat.
     // MPK3 lærte os at en levende tabel kan have døde serier.
+    //
+    // Men kun ved fuld hentning. I et vindue på tres dage kan en
+    // månedsserie sagtens have nul værdier, fordi den næste endnu ikke
+    // er publiceret. At kaste dér ville gøre "ikke publiceret endnu"
+    // til "serien er udgået", og det er stale-alarmens spørgsmål, ikke
+    // hentningens.
     const withValue = points.filter((x) => x.value !== null);
     if (withValue.length === 0) {
-      throw new Error(
-        `${def.id}: ${def.sourceRef} svarede med ${points.length} perioder, ` +
-          `men ingen af dem har en værdi. Serien er sandsynligvis udgået.`
+      if (!opts.since) {
+        throw new Error(
+          `${def.id}: ${def.sourceRef} svarede med ${points.length} perioder, ` +
+            `men ingen af dem har en værdi. Serien er sandsynligvis udgået.`
+        );
+      }
+      console.log(
+        `      ${def.id}: ${points.length} perioder i vinduet, ingen med værdi endnu.`
       );
     }
 

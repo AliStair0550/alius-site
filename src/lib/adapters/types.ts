@@ -132,10 +132,20 @@ export interface SourceAdapter {
    *
    * `resumeFrom` springer alt til og med den dato over, så en afbrudt
    * kørsel kan tages op igen uden at hente det samme to gange.
+   *
+   * `since` afkorter hentningen hos KILDEN til perioder fra og med den
+   * dato. Bruges af det daglige job, så en tabel med 12.506 daglige
+   * perioder ikke hentes i sin helhed hver morgen.
+   *
+   * De to ligner hinanden og gør ikke det samme. `resumeFrom` er
+   * "spring over hvad vi allerede nåede at gemme i denne kørsel" og
+   * springer også revisioner over. `since` er "spørg kun om det her
+   * vindue" og henter alt i vinduet igen, netop for at se revisioner.
+   * Sæt aldrig `since` når formålet er fuld historik.
    */
   fetchSeries(
     def: SeriesDef,
-    opts?: { onBatch?: BatchSink; resumeFrom?: Date | null }
+    opts?: { onBatch?: BatchSink; resumeFrom?: Date | null; since?: Date | null }
   ): Promise<FetchedPoint[]>;
 }
 

@@ -77,7 +77,7 @@ export class EdsAdapter implements SourceAdapter {
 
   async fetchSeries(
     def: SeriesDef,
-    opts: { onBatch?: BatchSink; resumeFrom?: Date | null } = {}
+    opts: { onBatch?: BatchSink; resumeFrom?: Date | null; since?: Date | null } = {}
   ): Promise<FetchedPoint[]> {
     const p = def.eds;
     if (!p) throw new Error(`${def.id}: mangler eds-parametre`);
@@ -85,7 +85,21 @@ export class EdsAdapter implements SourceAdapter {
     const resumeMs = opts.resumeFrom?.getTime() ?? -Infinity;
     const all: FetchedPoint[] = [];
 
+    // EDS' egen "start" afkorter hos kilden. Det er forskellen mellem
+    // 23 sider med fire minutters pause imellem og én side: et fuldt
+    // backfill af DK1 tager halvanden time, et tresdages vindue tager
+    // sekunder. Uden det kan jobbet ikke køre dagligt.
+    const startParam = opts.since
+      ? `&start=${opts.since.toISOString().slice(0, 10)}T00:00`
+      : "";
+
     for (const ds of p.datasets) {
+      // Et datasæt der slutter før vinduet begynder har intet at give.
+      // At springe det over er ikke at skjule noget: Elspotprices er
+      // lukket i 2025 og kan per definition ikke have nye tal.
+      if (opts.since && ds.toInclusive && ds.toInclusive < opts.since.toISOString()) {
+        continue;
+      }
       // Døgnspande for netop dette datasæt. Et døgn er først færdigt når
       // vi har set en observation fra næste døgn.
       const daily = new Map<number, { sum: number; n: number }>();
@@ -96,7 +110,8 @@ export class EdsAdapter implements SourceAdapter {
         const filter = encodeURIComponent(JSON.stringify({ PriceArea: [p.priceArea] }));
         const url =
           `${BASE}/${ds.name}?limit=${PAGE}&offset=${offset}` +
-          `&sort=${encodeURIComponent(`${ds.timeField} ASC`)}&filter=${filter}`;
+          `&sort=${encodeURIComponent(`${ds.timeField} ASC`)}&filter=${filter}` +
+          startParam;
         const body = (await fetchPage(url, `${ds.name} ${p.priceArea} @${offset}`)) as {
           records?: Row[];
         };
@@ -160,10 +175,20 @@ export class EdsAdapter implements SourceAdapter {
         await sleep(PAGE_DELAY_MS);
       }
 
-      if (got === 0 && resumeMs === -Infinity) {
+      // Nul rækker ved fuld hentning betyder at datasættet er tomt,
+      // omdøbt eller filtreret forkert. Nul rækker i et tresdages
+      // vindue betyder som regel bare at der ikke er kommet nye timer
+      // endnu, og det er ikke en fejl.
+      if (got === 0 && resumeMs === -Infinity && !opts.since) {
         throw new Error(
           `${def.id}: ${ds.name} gav nul brugbare observationer for ${p.priceArea}. ` +
             `Datasættet er tomt, omdøbt eller filtreret forkert.`
+        );
+      }
+      if (got === 0 && opts.since) {
+        process.stdout.write(
+          `      ${ds.name} ${p.priceArea}: ingen nye timer siden ` +
+            `${opts.since.toISOString().slice(0, 10)}\n`
         );
       }
     }
