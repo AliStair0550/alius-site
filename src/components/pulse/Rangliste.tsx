@@ -16,6 +16,7 @@
 // ============================================================
 
 import { getKommuneByCode } from "@/lib/areas";
+import { formatVaerdi } from "@/lib/pulse-enheder";
 import {
   kildeUrl,
   NATIONALE_OMRAADER,
@@ -34,33 +35,6 @@ function periodeTekst(d: Date): string {
 
 function hentetTekst(d: Date): string {
   return `${d.getUTCDate()}. ${MAANEDER[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-}
-
-function tal(v: number, decimaler = 1): string {
-  return v.toLocaleString("da-DK", {
-    minimumFractionDigits: decimaler,
-    maximumFractionDigits: decimaler,
-  });
-}
-
-/** Værdien i seriens egen enhed. Enheden skrives ud, aldrig som kode. */
-function vaerdiTekst(v: number, enhed: string): string {
-  switch (enhed) {
-    case "pct":
-      return `${tal(v, 2)} procent`;
-    case "antal":
-      return tal(v, 0);
-    case "m2":
-      return `${tal(v, 0)} m2`;
-    case "dkk_mwh":
-      return `${tal(v, 0)} kr. per MWh`;
-    case "dkk_per_enhed":
-      return `${tal(v, 2)} kr.`;
-    case "nettotal":
-      return tal(v, 1);
-    default:
-      return tal(v, 1);
-  }
 }
 
 /**
@@ -114,10 +88,16 @@ function omraadeTekst(areaCode: string): string {
  */
 function sammenligning(k: Kandidat, aar: number): string {
   if (k.transform === "yoy") {
+    // Årsændringen er en procent, uanset hvad serien selv måles i.
+    // Transformationen ændrer enheden, og at formatere den som seriens
+    // egen ville skrive "165.037 m2 over samme måned året før" om et
+    // tal der er en procentvis ændring.
+    const pct = (v: number) =>
+      v.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     const retning = k.vaerdi >= 0 ? "over" : "under";
-    return `${tal(Math.abs(k.vaerdi), 1)} procent ${retning} samme måned året før. Normalt ${tal(k.normal, 1)} procent.`;
+    return `${pct(Math.abs(k.vaerdi))} procent ${retning} samme måned året før. Normalt ${pct(k.normal)} procent.`;
   }
-  return `Normalt ${vaerdiTekst(k.normal, k.enhed)} over de seneste ${aar} år.`;
+  return `Normalt ${formatVaerdi(k.normal, k.enhed)} over de seneste ${aar} år.`;
 }
 
 export function RanglisteSektion({ data }: { data: Rangliste }) {
@@ -190,7 +170,7 @@ function Kort({ k, aar }: { k: Kandidat; aar: number }) {
       </h3>
 
       <p className="text-[28px] md:text-[32px] font-light leading-[1.1] text-ink mb-1">
-        {vaerdiTekst(k.raaVaerdi, k.enhed)}
+        {formatVaerdi(k.raaVaerdi, k.enhed)}
       </p>
       <p className="text-[13px] text-stone opacity-70 mb-5">
         {periodeTekst(k.periode)}
@@ -300,7 +280,7 @@ function RoligListe({ rolige }: { rolige: Kandidat[] }) {
               )}
             </span>
             <span className="text-[14px] text-stone">
-              {vaerdiTekst(k.raaVaerdi, k.enhed)}
+              {formatVaerdi(k.raaVaerdi, k.enhed)}
             </span>
             <span className="text-[12px] text-stone opacity-50">
               {periodeTekst(k.periode)}

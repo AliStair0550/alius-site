@@ -19,6 +19,7 @@
 
 import { kildeUrl } from "@/lib/pulse-rangliste";
 import { VINDUE_AAR, type Noegletal, type NoegletalResultat } from "@/lib/pulse-noegletal";
+import { formatVaerdi, formatAendring } from "@/lib/pulse-enheder";
 
 const MAANEDER = [
   "januar", "februar", "marts", "april", "maj", "juni",
@@ -40,43 +41,6 @@ function datoTekst(d: Date): string {
   return `${d.getUTCDate()}. ${MAANEDER[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
-function tal(v: number, decimaler: number): string {
-  return v.toLocaleString("da-DK", {
-    minimumFractionDigits: decimaler,
-    maximumFractionDigits: decimaler,
-  });
-}
-
-/** Enheden skrives ud. Aldrig en kode, aldrig en forkortelse vi selv har fundet på. */
-function vaerdiTekst(v: number, enhed: string): string {
-  switch (enhed) {
-    case "pct":
-      return `${tal(v, 2)} procent`;
-    case "antal":
-      return tal(v, 0);
-    case "m2":
-      return `${tal(v, 0)} m2`;
-    case "dkk_mwh":
-      return `${tal(v, 0)} kr. per MWh`;
-    case "dkk_per_enhed":
-      return `${tal(v, 2)} kr.`;
-    case "nettotal":
-      return tal(v, 1);
-    default:
-      return tal(v, 1);
-  }
-}
-
-/**
- * Enheder der ER en sats. Her er forskellen i point oplysningen.
- *
- * En rente der går fra 3,0 til 3,4 er steget 0,4 procentpoint, ikke
- * 0,4 procent. At kalde begge dele "procent" får en læser til at regne
- * forkert. For alt andet, hvor niveauet er en mængde eller et beløb, er
- * den procentvise ændring oplysningen.
- */
-const SATSENHEDER = new Set(["pct", "nettotal"]);
-
 /**
  * Årsændringen som en hel sætning, uden fortegnssymbol.
  *
@@ -91,46 +55,12 @@ const SATSENHEDER = new Set(["pct", "nettotal"]);
  */
 function aarsaendringTekst(n: Noegletal): string | null {
   if (n.aaretFoer === null) return null;
-
-  const enhed = n.serie.unit;
-  const retning = n.aaretFoer > 0 ? "højere" : "lavere";
-  const a = Math.abs(n.aaretFoer);
-
-  if (SATSENHEDER.has(enhed)) {
-    const navn = enhed === "pct" ? "procentpoint" : "point";
-    const decimaler = enhed === "pct" ? 2 : 1;
-    if (a < (enhed === "pct" ? 0.005 : 0.05)) {
-      return "Uændret mod samme måned sidste år";
-    }
-    return `${tal(a, decimaler)} ${navn} ${retning} end samme måned sidste år`;
-  }
-
-  // Procent kræver et grundlag. Er grundlaget nul eller nær nul, er den
-  // procentvise ændring enten uendelig eller vildt ustabil, og så er
-  // det absolutte tal det ærlige svar.
-  const grundlag = n.aaretFoerNiveau;
-  if (grundlag === null || Math.abs(grundlag) < 1) {
-    const dele = [tal(a, 0), enhedsnavn(enhed), retning, "end samme måned sidste år"];
-    return dele.filter(Boolean).join(" ");
-  }
-
-  const pct = (a / Math.abs(grundlag)) * 100;
-  if (pct < 0.5) return "Nogenlunde som samme måned sidste år";
-  return `${tal(pct, 0)} procent ${retning} end samme måned sidste år`;
-}
-
-/** Enhedens navn efter et tal. Tom når enheden er et blot antal. */
-function enhedsnavn(enhed: string): string {
-  switch (enhed) {
-    case "m2":
-      return "m2";
-    case "dkk_mwh":
-      return "kr. per MWh";
-    case "dkk_per_enhed":
-      return "kr.";
-    default:
-      return "";
-  }
+  return formatAendring(
+    n.aaretFoer,
+    n.aaretFoerNiveau,
+    n.serie.unit,
+    "samme måned sidste år"
+  );
 }
 
 /**
@@ -210,7 +140,7 @@ function Kort({ n }: { n: Noegletal }) {
       </header>
 
       <p className="text-[30px] md:text-[34px] font-light leading-[1.05] text-ink mb-1">
-        {vaerdiTekst(n.vaerdi, n.serie.unit)}
+        {formatVaerdi(n.vaerdi, n.serie.unit)}
       </p>
       <p className="text-[13px] text-stone opacity-70 mb-5">
         {periodeTekst(n.periode, n.serie.frequency)}

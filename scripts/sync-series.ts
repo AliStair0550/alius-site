@@ -90,6 +90,34 @@ async function synkroniser(def: SeriesDef, nu: Date): Promise<Udfald> {
   // tal", det er en serie der aldrig er blevet backfillet.
   if (!raekke) return { slags: "ukendt_serie" };
 
+  // Enhed og attribution holdes i takt med config.
+  //
+  // Samme grund som i broen: series-rækken skrives kun af backfill, og
+  // backfill kører sjældent. Rettes en enhed eller en licenstekst i
+  // config, ville den ellers stå forkert i basen indtil næste fulde
+  // hentning. Begge er tekst på skærmen, og en licenspåstand der er
+  // rettet i koden men ikke i basen er værre end ingen rettelse.
+  //
+  // KUN de to. rankable ejes af korrelationsgruppen, og navn og lag er
+  // redaktionelle beslutninger.
+  const serieRaekke = await prisma.series.findUnique({
+    where: { id: def.id },
+    select: { unit: true, attribution: true },
+  });
+  if (serieRaekke) {
+    const retter: { unit?: string; attribution?: string } = {};
+    if (serieRaekke.unit !== def.unit) retter.unit = def.unit;
+    if (serieRaekke.attribution !== def.attribution) retter.attribution = def.attribution;
+    if (Object.keys(retter).length > 0) {
+      console.log(
+        `      ${def.id}: ${Object.entries(retter)
+          .map(([k, v]) => `${k} -> "${v}"`)
+          .join(", ")}`
+      );
+      if (!DRY) await prisma.series.update({ where: { id: def.id }, data: retter });
+    }
+  }
+
   const since =
     DAGE !== null
       ? new Date(nu.getTime() - DAGE * 86_400_000)

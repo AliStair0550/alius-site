@@ -166,7 +166,7 @@ export const SERIES: SeriesDef[] = [
     layer: "COST",
     revisionPolicy: "NONE",
     expectedLagDays: 1,
-    attribution: "Energinet, Energi Data Service",
+    attribution: "Energinet, Energi Data Service. CC BY 4.0",
     zTransform: "level",
     eds: {
       priceArea: "DK1",
@@ -197,7 +197,7 @@ export const SERIES: SeriesDef[] = [
     layer: "COST",
     revisionPolicy: "NONE",
     expectedLagDays: 1,
-    attribution: "Energinet, Energi Data Service",
+    attribution: "Energinet, Energi Data Service. CC BY 4.0",
     zTransform: "level",
     eds: {
       priceArea: "DK2",
@@ -374,7 +374,7 @@ export const SERIES: SeriesDef[] = [
       layer: "EXTERNAL",
       revisionPolicy: "MINOR",
       expectedLagDays: 2,
-      attribution: "Eurostat, ei_bsin_m_r2",
+      attribution: "Eurostat, ei_bsin_m_r2. CC BY 4.0",
       zTransform: "level",
       rankable: ikkeRangerbar ? false : undefined,
       rankableReason: ikkeRangerbar ?? undefined,

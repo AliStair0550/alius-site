@@ -790,6 +790,65 @@ Den nuværende tekst krediterer Danmarks Statistik under CC 4.0 BY. Det dækker 
 
 Tilføj Energinet, Danmarks Nationalbank og Eurostat. Hver serie bærer sit eget `attribution`-felt fra `series`-tabellen, og kildelinjen på hvert dashboard genereres fra de serier der faktisk vises. Ikke en statisk tekst i bunden.
 
+Gjort 28. juli 2026. Kildelinjen udledes nu af `kildeOrganisationer()` og
+nævner Danmarks Nationalbank, Danmarks Statistik, Energinet og Eurostat.
+
+### 6a. Licens er en forudsætning for fase 3, ikke en formalitet
+
+**Pulse er gratis i dag. Den dag der sendes en faktura, skifter
+spørgsmålet fra "må vi vise det" til "må vi sælge en fortolkning af
+det", og de to har ikke samme svar hos alle fire kilder.**
+
+Afklaret 28. juli 2026 ved at læse kildernes egne vilkår. Status:
+
+| Kilde | Licens | Kommerciel brug | Krævet kreditering | Status |
+|---|---|---|---|---|
+| Energinet | CC BY 4.0 | Ja, udtrykkeligt | "Source: Energinet (www.energidataservice.dk)" | **Afklaret** |
+| Eurostat | CC BY 4.0 | Ja, for EU- og EFTA-data | "Source: Eurostat, [titel], [link], [dato]" | **Afklaret med forbehold** |
+| Danmarks Statistik | ikke fundet | ukendt | vi skriver "CC 4.0 BY" | **Uafklaret** |
+| Danmarks Nationalbank | ikke fundet | ukendt | vi skriver "Kilde: Danmarks Nationalbank" | **Uafklaret** |
+
+**Energinet.** Vilkårene siger det direkte: data må kopieres, ændres og
+distribueres frit, også kommercielt, mod kreditering. Krediteringen må
+ikke give indtryk af at Energinet støtter anvendelsen. Det sidste er
+værd at holde øje med, når fortolkningslinjerne skrives.
+
+**Eurostat.** CC BY 4.0, og kommerciel genbrug er tilladt for data fra
+EU-lande, EFTA og officielle kandidatlande. Forbeholdet: der er
+undtagelser for tredjeparts ophavsret, for data om lande uden for EU, og
+for bestemte handelsdata fra Schweiz og Østrig. Vores eneste
+Eurostat-serie er `ei_bsin_m_r2` for DE, SE og EU27, som alle ligger
+inden for det tilladte. Kommer flere lande til, skal det tjekkes igen.
+
+**Danmarks Statistik er ikke afklaret, og det er det vigtigste fund.**
+Vi skriver "CC 4.0 BY" på hvert eneste kort og i bunden af hver side.
+Den påstand står i vores egen kode; DST's `tableinfo`-API leverer intet
+licensfelt, og jeg kunne ikke finde en offentlig side med vilkårene. Det
+betyder ikke at påstanden er forkert. Det betyder at vi ikke kan
+dokumentere den, og en licenspåstand vi ikke kan dokumentere er præcis
+den slags der først bliver et problem når nogen spørger.
+
+**Nationalbanken er uafklaret, men spørgsmålet er mindre end det ser
+ud.** Vi henter ikke fra Nationalbanken. DNVALD, DNRUGPI, DNRUURI og
+DNRENTD kommer fra DST's statistikbank, som republicerer dem;
+Nationalbanken har ingen egen REST-API (se
+`pulse-kildeverifikation-fase-1.md` afsnit 1). Den licens der styrer
+vores brug er derfor DST's, og Nationalbanken er ophavsmand der skal
+krediteres. Det bør bekræftes skriftligt af begge, ikke udledes af os.
+
+**Krav før første kunde:**
+
+1. Skriftlig bekræftelse fra DST på vilkårene for genbrug af
+   statistikbankens data i et kommercielt produkt
+2. Skriftlig bekræftelse på at DST's videreformidling af
+   Nationalbankens tabeller dækker samme brug
+3. Krediteringsteksten for Eurostat rettes til deres eget format med
+   titel, link og hentedato
+4. En gennemgang af om nogen fortolkningslinje kan læses som at en
+   kilde støtter vores konklusion. Energinet forbyder det udtrykkeligt
+
+Punkt 1 og 2 er de eneste der kan blokere. Punkt 3 og 4 er arbejde.
+
 ---
 
 ## 7. Prompt til Claude Code
