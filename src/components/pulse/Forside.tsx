@@ -125,7 +125,7 @@ function Signal({ k }: { k: Kandidat }) {
   const url = kildeUrl(k.kilde, k.kildeRef);
 
   return (
-    <article className="p-5 md:p-6 bg-white border-l-2 border-moss">
+    <article className="p-5 md:p-6 bg-white">
       <p className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-60 mb-3 leading-[1.4]">
         {k.navn}
       </p>
@@ -197,6 +197,20 @@ function Minikurve({ punkter }: { punkter: Kandidat["kurve"] }) {
 export type Gitterraekke = { navn: string; tal: Noegletal };
 
 /**
+ * Perioden i kort form: "jul 26", "1. kvt 26", "2024".
+ *
+ * Står ved hvert tal, ikke som én dato over gitteret. Serierne er ikke
+ * lige langt fremme: elprisen er fra i går, lønindekset fra januar.
+ * Én fælles dato ville påstå at de var samtidige.
+ */
+function kortPeriode(d: Date, frekvens: string): string {
+  const aa = String(d.getUTCFullYear()).slice(2);
+  if (frekvens === "YEARLY") return String(d.getUTCFullYear());
+  if (frekvens === "QUARTERLY") return `${Math.floor(d.getUTCMonth() / 3) + 1}. kvt ${aa}`;
+  return `${MAANEDER[d.getUTCMonth()].slice(0, 3)} ${aa}`;
+}
+
+/**
  * Nøgletalsgitteret. Scanningsfladen.
  *
  * Som en afgangstavle: navn til venstre, tal og pil til højre, tynd
@@ -214,7 +228,12 @@ export function Noegletalsgitter({ raekker }: { raekker: Gitterraekke[] }) {
             key={tal.serie.id}
             className="flex items-baseline justify-between gap-4 py-3 border-b border-ink/10"
           >
-            <span className="text-[14px] leading-[1.4] text-stone">{navn}</span>
+            <span className="text-[14px] leading-[1.4] text-stone">
+              {navn}
+              <span className="text-[11px] text-stone opacity-45 ml-2 whitespace-nowrap">
+                {kortPeriode(tal.periode, tal.serie.frequency)}
+              </span>
+            </span>
             <span className="flex items-baseline gap-2 shrink-0">
               <span className="text-[15px] text-ink tabular-nums">
                 {formatVaerdi(tal.vaerdi, tal.serie.unit)}
@@ -239,20 +258,24 @@ export function Noegletalsgitter({ raekker }: { raekker: Gitterraekke[] }) {
 
 export type Vej = { navn: string; href: string };
 
-/** Veje ned i dybden. Ingen kort, ingen beskrivelser. */
+/**
+ * Veje ned i dybden.
+ *
+ * Knapper frem for tekstlinks. Pilen er væk: syv pile i træk blev til
+ * et mønster man læser henover i stedet for syv valg man tager stilling
+ * til. Rammen gør hvert navn til et mål man kan ramme, også med en
+ * tommelfinger.
+ */
 export function Dashboardlinks({ veje }: { veje: Vej[] }) {
   return (
-    <nav className="mb-16 md:mb-20 flex flex-wrap gap-x-7 gap-y-3">
+    <nav className="mb-14 md:mb-16 flex flex-wrap gap-2">
       {veje.map((v) => (
         <Link
           key={v.href}
           href={v.href}
-          className="group text-[15px] text-ink no-underline hover:text-moss transition-colors"
+          className="px-4 py-2.5 border border-ink/15 text-[14px] tracking-[0.02em] text-ink no-underline hover:bg-ink hover:border-ink hover:text-parchment transition-colors"
         >
-          {v.navn}{" "}
-          <span className="inline-block transition-transform group-hover:translate-x-1 text-moss">
-            &rarr;
-          </span>
+          {v.navn}
         </Link>
       ))}
     </nav>

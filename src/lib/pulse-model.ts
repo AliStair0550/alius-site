@@ -318,8 +318,16 @@ export function kildeOrganisationer(serier: Array<SerieInfo | null | undefined>)
     // listen i forvejen.
     const n = navne[s.source];
     if (n) set.add(n);
+    // Nationalbanken nævnes ALTID med "via Danmarks Statistik".
+    //
+    // Vi henter ikke fra dem. DNVALD, DNRUGPI, DNRUURI og DNRENTD
+    // kommer fra DST's statistikbank, som republicerer dem;
+    // Nationalbanken har ingen egen REST-API. En kildelinje der
+    // antyder et direkte forhold vi ikke har, er samme fejlklasse som
+    // CC-påstanden, bare mildere. Og netop det forhold er det
+    // uafklarede spørgsmål i byggebriefens 6a.
     if (s.attribution.includes("Danmarks Nationalbank")) {
-      set.add("Danmarks Nationalbank");
+      set.add("Danmarks Nationalbank via Danmarks Statistik");
     }
   }
   return [...set].sort((a, b) => a.localeCompare(b, "da"));

@@ -135,40 +135,59 @@ export default async function PulseHubPage() {
 
         <Dashboardlinks veje={VEJE} />
 
-        {/* For virksomheder. To linjer, ikke ti. Stadig forretningen. */}
-        <section className="p-7 md:p-9 bg-ink text-parchment mb-10">
-          <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-4">
-            <div className="max-w-[600px]">
-              <h2 className="font-fraunces font-light text-[22px] md:text-[26px] leading-[1.25] mb-2">
-                Vil I have de her tal for{" "}
-                <em className="italic text-[#B8C9C1]">jeres marked?</em>
-              </h2>
-              <p className="opacity-70 text-[14px] leading-[1.6]">
-                Vi kombinerer offentlige data med jeres egne og leverer det som
-                rapport, dashboard eller månedlig indsigt.
-              </p>
-            </div>
-            <a
-              href="mailto:hej@alius.dk?subject=Data-arbejde for [firmanavn]"
-              className="shrink-0 inline-flex items-center gap-3 bg-parchment text-ink px-7 py-4 text-[12px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
-            >
-              Tag fat
-              <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
-            </a>
-          </div>
-        </section>
+        {/*
+          Bunden er ét afsnit, ikke to.
 
-        <footer className="pt-6 border-t border-ink/10 text-[11px] text-stone opacity-60 tracking-[0.05em] leading-[1.7]">
-          <p>{kildeOgLicens(serier)}</p>
-          {gitter.udeladte.length > 0 && (
-            <p className="mt-2">
-              Ikke vist:{" "}
-              {gitter.udeladte
-                .map((u) => `${u.navn ?? u.seriesId} (${u.grund})`)
-                .join("; ")}
-            </p>
-          )}
-        </footer>
+          Den sorte blok og kildelinjen sad som to løsrevne kasser med
+          luft imellem. Nu deler de ramme: den sorte bærer tilbuddet,
+          den lyse under bærer kilderne, og de støder op til hinanden.
+          Samme kant, samme bredde, ingen luft der får dem til at ligne
+          to sider der er stødt sammen ved et uheld.
+        */}
+        <section className="mt-4">
+          <div className="p-7 md:p-10 bg-ink text-parchment">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+              <div className="max-w-[560px]">
+                <h2 className="font-fraunces font-light text-[24px] md:text-[30px] leading-[1.2] mb-3">
+                  Vil I have de her tal for{" "}
+                  <em className="italic text-[#B8C9C1]">jeres marked?</em>
+                </h2>
+                <p className="opacity-65 text-[14px] leading-[1.65]">
+                  Vi kombinerer offentlige data med jeres egne og leverer det
+                  som rapport, dashboard eller månedlig indsigt.
+                </p>
+              </div>
+              <a
+                href="mailto:hej@alius.dk?subject=Data-arbejde for [firmanavn]"
+                className="shrink-0 inline-flex items-center gap-3 bg-parchment text-ink px-8 py-4 text-[12px] font-normal tracking-[0.25em] uppercase no-underline hover:bg-[#4A7D68] hover:text-parchment transition-colors group"
+              >
+                Tag fat
+                <span className="transition-transform group-hover:translate-x-1">
+                  &rarr;
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <footer className="px-7 md:px-10 py-6 md:py-7 bg-fog/50">
+            <div className="grid grid-cols-1 md:grid-cols-[110px_1fr] gap-2 md:gap-8">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-stone opacity-55">
+                Kilder
+              </span>
+              <div className="text-[12px] text-stone leading-[1.7] max-w-[720px]">
+                <p>{kildeOgLicens(serier)}</p>
+                {gitter.udeladte.length > 0 && (
+                  <p className="mt-2 opacity-70">
+                    Ikke vist:{" "}
+                    {gitter.udeladte
+                      .map((u) => `${u.navn ?? u.seriesId} (${u.grund})`)
+                      .join("; ")}
+                  </p>
+                )}
+              </div>
+            </div>
+          </footer>
+        </section>
       </div>
     </div>
   );
