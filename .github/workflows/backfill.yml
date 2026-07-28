@@ -1,0 +1,111 @@
+name: Backfill (manuelt)
+
+# Fuld historik for en eller flere serier. Startes i hånden.
+#
+# HVORFOR DEN IKKE KØRER LOKALT
+#
+# Backfill regner døgngennemsnit, og hvilket døgn en observation lander
+# i afhænger af processens tidszone. Kørt fra en maskine i CEST blev
+# hvert eneste elpristal fem til femten procent forkert, og resultatet
+# lignede stadig en elpris. Ingen alarm ville have fanget det.
+#
+# Actions kører i UTC og har ét sæt indstillinger i stedet for ét per
+# udvikler. Skriveværnet i scripts/write-guard.ts nægter at køre
+# scriptet mod produktion andre steder fra.
+#
+# INGEN TIMEOUT VÆRD AT TALE OM
+#
+# EDS rate-limiter til cirka én side på 10.000 rækker per fire minutter.
+# Et fuldt backfill af begge prisområder er omkring tre en halv time.
+# GitHub tillader op til seks timer per job, og det er rigeligt. Den
+# lokale kørsel havde ingen grænse, men havde til gengæld et
+# terminalvindue der kunne lukkes ved et uheld.
+#
+# Kørslen skriver undervejs og kan genoptages, så en afbrydelse kun
+# koster den side den var i gang med.
+#
+# Nødvendige hemmeligheder:
+#   DATABASE_URL   Neon connection string
+
+on:
+  workflow_dispatch:
+    inputs:
+      series:
+        description: "Serie-id'er, mellemrumsadskilt. Tomt betyder ALLE, og det tager timer."
+        type: string
+        required: false
+        default: ""
+      paany:
+        description: "Regn historikken om. Springer genoptagelsen over. Brug når et tal var forkert, ikke bare manglede."
+        type: boolean
+        default: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Skriveværnet afviser alt der ikke er UTC. Sat eksplicit, så det
+  # ikke afhænger af hvad GitHub tilfældigvis gør i morgen.
+  TZ: UTC
+
+jobs:
+  backfill:
+    name: Hent fuld historik
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Installér afhængigheder
+        run: npm ci
+
+      - name: Generér Prisma-klient
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Kør testene først
+        # En kørsel der skriver hele historikken om skal ikke starte fra
+        # en commit hvor værnene er i stykker.
+        run: npm test
+
+      - name: Bekræft at vi er i UTC
+        # Billigere at fejle her end at opdage det i tallene bagefter.
+        run: |
+          zone=$(node -e "process.stdout.write(Intl.DateTimeFormat().resolvedOptions().timeZone)")
+          echo "tidszone: $zone"
+          if [ "$zone" != "UTC" ] && [ "$zone" != "Etc/UTC" ]; then
+            echo "STOP: kørslen er ikke i UTC. Døgnaggregeringen ville blive forskudt."
+            exit 1
+          fi
+
+      - name: Backfill
+        # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
+        run: |
+          args=""
+          if [ "$PAANY" = "true" ]; then args="--paany"; fi
+          npx tsx scripts/backfill.ts $args $SERIES_IDS
+        env:
+          PAANY: ${{ inputs.paany }}
+          SERIES_IDS: ${{ inputs.series }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Genskab /pulse
+        if: ${{ success() }}
+        # Uden hemmeligheden opdaterer siden sig alligevel, men først når
+        # ISR-vinduet på en time udløber. Siges højt frem for at fejle.
+        run: |
+          if [ -z "$ADMIN_SECRET" ]; then
+            echo "ADMIN_SECRET er ikke sat. /pulse genskabes ikke nu, men inden for en time."
+            exit 0
+          fi
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "authorization: Bearer $ADMIN_SECRET" \
+            https://alius.dk/api/revalidate/pulse)
+          echo "genskabelse svarede $code"
+        env:
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}

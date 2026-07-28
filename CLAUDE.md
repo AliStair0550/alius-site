@@ -171,6 +171,61 @@ produktion og verificeret ved afspilning i en tom database. Den gamle
 historik ligger i `prisma/_archive/` og beskrev et skema der aldrig kom
 i produktion. Arkivet må ikke flyttes tilbage i `prisma/migrations`.
 
+## Hvor skrivning sker
+
+**Intet på en udviklermaskine skriver til produktionsdata. Lokale
+indstillinger som tidszone og sprog må ikke kunne nå tallene.**
+
+Læsning er fri. Man skal kunne undersøge produktion fra sin egen maskine
+uden ceremoni, og tørløb med `--dry` rammes ikke. Det er skrivningen der
+er farlig.
+
+Skrivning sker i GitHub Actions:
+
+| Job | Hvornår | Hvad |
+|---|---|---|
+| `sync-series.yml` | dagligt 05:30 UTC | nye observationer, vindue bagud |
+| `backfill.yml` | i hånden | hele historikken for udvalgte serier |
+| `sync-dst.yml` | den 25. hver måned | den gamle model, indtil dashboardene er flyttet |
+
+```
+gh workflow run backfill.yml -f series="eds.el.dk1 eds.el.dk2"
+gh workflow run sync-series.yml
+```
+
+`scripts/write-guard.ts` håndhæver det. Hvert script der skriver kalder
+`kraevSkriveret()` som første handling. Værnet afviser tre ting: ingen
+`DATABASE_URL`, produktionsværten uden `GITHUB_ACTIONS=true`, og enhver
+tidszone der ikke er UTC selv inde i Actions.
+
+### Nærmisset der begrunder reglen
+
+`toUtcMidnight` tolkede EDS' tidsstempler som lokal tid, fordi
+`TimeUTC` leveres uden `Z` og `new Date()` på sådan en streng bruger
+maskinens zone. Backfill blev kørt fra en maskine i CEST, så de to
+første timer af hvert UTC-døgn røg over i døgnet før. Hvert eneste
+døgngennemsnit i elserierne blev fem til femten procent forkert.
+
+**613 kroner og 565 kroner ligner begge en elpris.** Ingen alarm, ingen
+fejlende test, intet urimeligt tal. Se afsnittet om plausible forkerte
+værdier ovenfor; det er den fejlklasse.
+
+Den blev kun fundet fordi den samme kode gav to svar: GitHub Actions
+kører i UTC og skrev rigtigt, den lokale maskine skrev forkert, og de to
+kørsler reviderede hinanden frem og tilbage. Uden det sammenstød ville
+tallene have stået uimodsagt.
+
+Fejlen krævede tre ting samtidig: en tvetydig tidsstempelstreng, en
+maskine der ikke var i UTC, og adgang til at skrive i produktion fra den
+maskine. Den første er rettet. Den anden kan ikke rettes, for folk bor
+hvor de bor. Den tredje kan fjernes, og så findes fejlklassen ikke
+længere.
+
+### Prøven
+
+Kan resultatet af denne kørsel afhænge af hvilken maskine der startede
+den? Kan det, hører kørslen ikke hjemme på en maskine.
+
 ## Pulse
 
 Specifikationen ligger i `docs/`. Læs `pulse-datakatalog-fase-1.md` og

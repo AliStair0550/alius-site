@@ -35,6 +35,7 @@ import { EurostatAdapter } from "../src/lib/adapters/eurostat";
 import type { SeriesDef, SourceAdapter } from "../src/lib/adapters/types";
 import { writeObservations } from "../src/lib/pulse-observations";
 import { defaultRankable } from "../src/lib/pulse-series";
+import { kraevSkriveret } from "./write-guard";
 
 const prisma = new PrismaClient();
 
@@ -105,10 +106,7 @@ async function upsertSeries(def: SeriesDef) {
 }
 
 async function main() {
-  // TODO: kraevSkriveret("backfill.ts") sættes på sammen med
-  // .github/workflows/backfill.yml, når elhistorikken er regnet
-  // færdig. Værnet ville ellers spærre for at genstarte den kørsel
-  // lokalt, og Actions-vejen findes endnu ikke.
+  kraevSkriveret("backfill.ts");
   const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
   const defs = only.length ? SERIES.filter((s) => only.includes(s.id)) : SERIES;
 
