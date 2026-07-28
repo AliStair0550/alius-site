@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { generateForv1Signals } from "@/lib/signals/forv1-detectors";
+import { hentSerieInfoFlere, hentNationale } from "@/lib/pulse-model";
 import { humanizePeriod } from "@/lib/signals/types";
 import { TillidsChart } from "@/components/pulse/TillidsChart";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
@@ -17,6 +19,10 @@ export const metadata: Metadata = pageMetadata({
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
 export const revalidate = 3600;
 
+const F1 = "dst.forbrug.forventning.f1";
+const DETAIL = "dst.detail.omsaetning.g47";
+const INFLATION = "dst.pris.forbruger.aarsaendring";
+
 const SUB_INDICATORS = [
   { code: "F2", label: "Familiens økonomi i dag", note: "vs. for et år siden" },
   { code: "F3", label: "Familiens økonomi om et år", note: "vs. i dag" },
@@ -31,22 +37,31 @@ function signedFormat(v: number): string {
 }
 
 export default async function ForbrugPage() {
-  const [forv1Source, detaSource, pris01Source] = await Promise.all([
-    prisma.dataSource.findUnique({ where: { slug: "dst-forv1" } }),
-    prisma.dataSource.findUnique({ where: { slug: "dst-deta211a" } }),
-    prisma.dataSource.findUnique({ where: { slug: "dst-pris01" } }),
-  ]);
+  // FORV1's tretten spørgsmål blev til tretten serier, fordi et
+  // spørgsmålsnummer ikke er geografi. Detektorerne forventer stadig
+  // koden i areaCode, så den sættes tilbage her fra legacyAreaCode.
+  const forv1Serier = await prisma.series.findMany({
+    where: { legacySourceSlug: "dst-forv1" },
+    select: { id: true, legacyAreaCode: true, frequency: true, status: true },
+  });
 
-  const forv1Signals = forv1Source
-    ? await prisma.signal.findMany({
-        where: { sourceId: forv1Source.id },
-        orderBy: { magnitude: "desc" },
-        take: 20,
+  const forv1Punkter = (
+    await Promise.all(
+      forv1Serier.map(async (b) => {
+        if (!b.legacyAreaCode) {
+          throw new Error(
+            `${b.id}: mangler legacyAreaCode. Spørgsmålsnummeret kan ikke ` +
+              `udledes, og et delspørgsmål ville forsvinde fra siden.`
+          );
+        }
+        const punkter = await hentNationale(prisma, b.id, b.frequency);
+        return punkter.map((pt) => ({ ...pt, areaCode: b.legacyAreaCode! }));
       })
-    : [];
+    )
+  ).flat();
 
   const sevRank: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const sortedForv1Signals = forv1Signals
+  const sortedForv1Signals = generateForv1Signals(forv1Punkter)
     .sort(
       (a, b) =>
         (sevRank[b.severity] ?? 0) - (sevRank[a.severity] ?? 0) ||
@@ -54,54 +69,38 @@ export default async function ForbrugPage() {
     )
     .slice(0, 4);
 
-  const [f1All, subLatest, retailAll, inflationAll] = await Promise.all([
-    forv1Source
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: forv1Source.id, areaCode: "F1", value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, value: true },
-        })
-      : [],
-    forv1Source
-      ? prisma.dataPoint.findMany({
-          where: {
-            sourceId: forv1Source.id,
-            areaCode: { in: SUB_INDICATORS.map(s => s.code) },
-            value: { not: null },
-          },
-          orderBy: { periodDate: "desc" },
-          distinct: ["areaCode"],
-          select: { areaCode: true, value: true, period: true },
-        })
-      : [],
-    detaSource
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: detaSource.id, areaCode: "G47", value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, value: true },
-        })
-      : [],
-    pris01Source
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: pris01Source.id, areaCode: "300", value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, value: true },
-        })
-      : [],
+  const serier = await hentSerieInfoFlere(prisma, [F1, DETAIL, INFLATION]);
+  const manglende = [F1, DETAIL, INFLATION].filter((id) => !serier.has(id));
+  if (manglende.length > 0) {
+    throw new Error(`Forbrugssiden mangler serierne [${manglende.join(", ")}] i basen.`);
+  }
+  const f = (id: string) => serier.get(id)!.frequency;
+
+  const [f1All, retailAll, inflationAll] = await Promise.all([
+    hentNationale(prisma, F1, f(F1)),
+    hentNationale(prisma, DETAIL, f(DETAIL)),
+    hentNationale(prisma, INFLATION, f(INFLATION)),
   ]);
 
-  const f1Points = (f1All as { period: string; value: number | null }[])
-    .filter((p): p is { period: string; value: number } => p.value !== null);
+  // hentNationale giver kun rækker med værdi, men typen tillader null.
+  // Indsnævringen gør resten af siden fri for udråbstegn.
+  const nonNull = (xs: Array<{ period: string; value: number | null }>) =>
+    xs.filter((x): x is { period: string; value: number } => x.value !== null);
 
-  const retailPoints = (retailAll as { period: string; value: number | null }[])
-    .filter((p): p is { period: string; value: number } => p.value !== null);
-
-  const inflationPoints = (inflationAll as { period: string; value: number | null }[])
-    .filter((p): p is { period: string; value: number } => p.value !== null);
-
+  const f1Points = nonNull(f1All);
+  const retailPoints = nonNull(retailAll);
+  const inflationPoints = nonNull(inflationAll);
   const latestInflation = inflationPoints[inflationPoints.length - 1] ?? null;
 
-  const subByCode = new Map(subLatest.map(r => [r.areaCode, r]));
+  // Seneste værdi for hvert delspørgsmål.
+  const subByCode = new Map<string, { value: number | null; period: string }>();
+  for (const kode of SUB_INDICATORS.map((x) => x.code)) {
+    const punkter = forv1Punkter
+      .filter((pt) => pt.areaCode === kode)
+      .sort((a, b) => a.periodDate.getTime() - b.periodDate.getTime());
+    const sidste = punkter[punkter.length - 1];
+    if (sidste) subByCode.set(kode, { value: sidste.value, period: sidste.period });
+  }
 
   const latestF1 = f1Points[f1Points.length - 1] ?? null;
   const prevMonthF1 = f1Points[f1Points.length - 2] ?? null;
@@ -225,7 +224,7 @@ export default async function ForbrugPage() {
         )}
 
         {/* Sub-indicators grid */}
-        {subLatest.length > 0 && (
+        {subByCode.size > 0 && (
           <section className="mb-20 md:mb-28">
             <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 mb-10">
               <div className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
@@ -371,7 +370,7 @@ export default async function ForbrugPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {sortedForv1Signals.map((s) => (
                 <PulseSignalCard
-                  key={s.id}
+                  key={`${s.type}:${s.areaCode ?? "dk"}:${s.period}:${s.headline}`}
                   headline={s.headline}
                   body={s.body}
                   direction={s.direction as "UP" | "DOWN" | "STABLE" | null}
