@@ -68,11 +68,16 @@ jobs:
         run: npm test
 
       - name: Hent nye observationer
+        # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
+        # ${{ }} interpoleres af GitHub FOER shellen ser linjen, saa et
+        # serie-id med semikolon i ville blive koert som en kommando.
         run: |
-          npx tsx scripts/sync-series.ts \
-            ${{ inputs.dry_run && '--dry' || '' }} \
-            ${{ inputs.series }}
+          args=""
+          if [ "$DRY_RUN" = "true" ]; then args="--dry"; fi
+          npx tsx scripts/sync-series.ts $args $SERIES_IDS
         env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          SERIES_IDS: ${{ inputs.series }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
           SITE_URL: https://alius.dk
