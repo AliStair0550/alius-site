@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { hentSerieInfoFlere, hentSenesteePerOmraade } from "@/lib/pulse-model";
 import { getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
 import { KommunerList, type KommuneRow } from "@/components/pulse/KommunerList";
@@ -15,59 +16,42 @@ export const metadata: Metadata = pageMetadata({
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+const LEDIGHED = "dst.ledighed.sasonkorrigeret";
+const BEFOLKNING = "dst.befolkning.antal";
+const INDKOMST = "dst.indkomst.disponibel";
+const BOLIGVAERDI = "dst.ejendom.markedsvaerdi.enfamiliehuse";
+
 export const revalidate = 3600;
 
 export default async function KommunerHubPage() {
   const kommuner = getAllKommuner();
 
-  const [aus08Source, folk1amSource, indkp101Source, ejdfoe1HuseSource] =
-    await Promise.all([
-      prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-indkp101" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-huse" } }),
-    ]);
+  const serier = await hentSerieInfoFlere(prisma, [
+    LEDIGHED,
+    BEFOLKNING,
+    INDKOMST,
+    BOLIGVAERDI,
+  ]);
 
-  const [latestUnemployment, latestPopulation, latestIncome, latestHouseValue] =
-    await Promise.all([
-      aus08Source
-        ? prisma.dataPoint.findMany({
-            where: { sourceId: aus08Source.id, areaType: "KOMMUNE", value: { not: null } },
-            orderBy: { periodDate: "desc" },
-            distinct: ["areaCode"],
-            select: { areaCode: true, value: true, period: true },
-          })
-        : [],
-      folk1amSource
-        ? prisma.dataPoint.findMany({
-            where: { sourceId: folk1amSource.id, areaType: "KOMMUNE", value: { not: null } },
-            orderBy: { periodDate: "desc" },
-            distinct: ["areaCode"],
-            select: { areaCode: true, value: true, period: true },
-          })
-        : [],
-      indkp101Source
-        ? prisma.dataPoint.findMany({
-            where: { sourceId: indkp101Source.id, areaType: "KOMMUNE", value: { not: null } },
-            orderBy: { periodDate: "desc" },
-            distinct: ["areaCode"],
-            select: { areaCode: true, value: true, period: true },
-          })
-        : [],
-      ejdfoe1HuseSource
-        ? prisma.dataPoint.findMany({
-            where: { sourceId: ejdfoe1HuseSource.id, areaType: "KOMMUNE", value: { not: null } },
-            orderBy: { periodDate: "desc" },
-            distinct: ["areaCode"],
-            select: { areaCode: true, value: true, period: true },
-          })
-        : [],
-    ]);
+  // En serie der mangler i basen er ikke en kolonne uden tal. Siden
+  // skal ikke vise en tom kolonne som var den målt til ingenting.
+  const manglende = [LEDIGHED, BEFOLKNING, INDKOMST, BOLIGVAERDI].filter(
+    (id) => !serier.has(id)
+  );
+  if (manglende.length > 0) {
+    throw new Error(
+      `Kommuneoversigten mangler serierne [${manglende.join(", ")}] i basen. ` +
+        `Kør migrate-to-series for dem frem for at vise tomme kolonner.`
+    );
+  }
 
-  const unemploymentByCode = new Map(latestUnemployment.map((r) => [r.areaCode, r]));
-  const populationByCode = new Map(latestPopulation.map((r) => [r.areaCode, r]));
-  const incomeByCode = new Map(latestIncome.map((r) => [r.areaCode, r]));
-  const houseValueByCode = new Map(latestHouseValue.map((r) => [r.areaCode, r]));
+  const [unemploymentByCode, populationByCode, incomeByCode, houseValueByCode] =
+    await Promise.all([
+      hentSenesteePerOmraade(prisma, LEDIGHED, serier.get(LEDIGHED)!.frequency),
+      hentSenesteePerOmraade(prisma, BEFOLKNING, serier.get(BEFOLKNING)!.frequency),
+      hentSenesteePerOmraade(prisma, INDKOMST, serier.get(INDKOMST)!.frequency),
+      hentSenesteePerOmraade(prisma, BOLIGVAERDI, serier.get(BOLIGVAERDI)!.frequency),
+    ]);
 
   const kommuneRows: KommuneRow[] = kommuner.map((k) => ({
     code: k.code,
@@ -79,7 +63,11 @@ export default async function KommunerHubPage() {
     boligvaerdi: houseValueByCode.get(k.code)?.value ?? null,
   }));
 
-  const latestUnemploymentPeriod = latestUnemployment[0]?.period ?? null;
+  // Nyeste ledighedsperiode blandt kommunerne. Bruges kun til teksten.
+  const latestUnemploymentPeriod =
+    [...unemploymentByCode.values()].sort(
+      (a, b) => b.periodDate.getTime() - a.periodDate.getTime()
+    )[0]?.period ?? null;
 
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">

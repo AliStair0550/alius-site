@@ -250,6 +250,38 @@ export async function hentKommuner(
 }
 
 /**
+ * Seneste værdi per område, uanset om områderne er lige langt fremme.
+ *
+ * Erstatter den gamle models distinct-på-areaCode. Nødvendig fordi
+ * kommunerne ikke altid har samme nyeste periode: en enkelt kommune kan
+ * mangle en måned uden at de andre gør, og at binde alle til samme
+ * periode ville så vise den som tom frem for som forsinket.
+ */
+export async function hentSenesteePerOmraade(
+  prisma: PrismaClient,
+  seriesId: string,
+  frequency: SeriesFrequency
+): Promise<Map<string, { value: number; period: string; periodDate: Date }>> {
+  const rows = await prisma.observation.findMany({
+    where: { seriesId, isCurrent: true, value: { not: null } },
+    orderBy: { period: "desc" },
+    distinct: ["areaCode"],
+    select: { areaCode: true, value: true, period: true },
+  });
+
+  return new Map(
+    rows.map((r) => [
+      r.areaCode,
+      {
+        value: Number(r.value),
+        period: datoTilPeriode(r.period, frequency),
+        periodDate: r.period,
+      },
+    ])
+  );
+}
+
+/**
  * Kildelinje for de serier en side faktisk viser.
  *
  * Byggebriefens afsnit 6: attribution genereres fra serierne, ikke som

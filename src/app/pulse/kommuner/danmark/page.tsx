@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { hentSerieInfoFlere, hentNationale } from "@/lib/pulse-model";
 import { humanizePeriod } from "@/lib/signals/types";
 import { IncomeBars } from "@/components/pulse/IncomeBars";
 
@@ -16,48 +17,29 @@ export const metadata: Metadata = pageMetadata({
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
 export const revalidate = 3600;
 
-const NATIONAL_AREA_CODE = "000";
+const BEFOLKNING = "dst.befolkning.antal";
+const INDKOMST = "dst.indkomst.disponibel";
+const LEDIGHED = "dst.ledighed.sasonkorrigeret";
 
 export default async function DanmarkProfilePage() {
-  // Load source IDs
-  const folkSource = await prisma.dataSource.findUnique({
-    where: { slug: "dst-folk1am" },
-  });
-  const indkSource = await prisma.dataSource.findUnique({
-    where: { slug: "dst-indkp101" },
-  });
-  const ledigSource = await prisma.dataSource.findUnique({
-    where: { slug: "dst-aus08" },
-  });
+  const serier = await hentSerieInfoFlere(prisma, [BEFOLKNING, INDKOMST, LEDIGHED]);
+  const manglende = [BEFOLKNING, INDKOMST, LEDIGHED].filter((id) => !serier.has(id));
+  if (manglende.length > 0) {
+    throw new Error(`Danmarksprofilen mangler serierne [${manglende.join(", ")}] i basen.`);
+  }
+  const f = (id: string) => serier.get(id)!.frequency;
 
-  // Population: national latest + 24 months for sparkline
-  const populationLatest = folkSource
-    ? await prisma.dataPoint.findFirst({
-        where: {
-          sourceId: folkSource.id,
-          areaCode: NATIONAL_AREA_CODE,
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-      })
-    : null;
+  const [befolkningAlle, indkomstAlle, ledighedAlle] = await Promise.all([
+    hentNationale(prisma, BEFOLKNING, f(BEFOLKNING)),
+    hentNationale(prisma, INDKOMST, f(INDKOMST)),
+    hentNationale(prisma, LEDIGHED, f(LEDIGHED)),
+  ]);
 
-  const populationHistory = folkSource
-    ? await prisma.dataPoint.findMany({
-        where: {
-          sourceId: folkSource.id,
-          areaCode: NATIONAL_AREA_CODE,
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        take: 24,
-        select: { period: true, periodDate: true, value: true },
-      })
-    : [];
+  // Befolkning: nyeste plus fireogtyve måneder til kurven.
+  const populationLatest = befolkningAlle[befolkningAlle.length - 1] ?? null;
+  const populationHistoryAsc = befolkningAlle.slice(-24);
+  const populationHistory = [...populationHistoryAsc].reverse();
 
-  const populationHistoryAsc = [...populationHistory].reverse();
-
-  // 12-month change for population
   const population12mAgo =
     populationHistory.length >= 13 ? populationHistory[12].value : null;
   const populationChange12m =
@@ -65,38 +47,15 @@ export default async function DanmarkProfilePage() {
       ? populationLatest.value - population12mAgo
       : null;
 
-  // Income: latest + last 10 years
-  const incomeLatest = indkSource
-    ? await prisma.dataPoint.findFirst({
-        where: {
-          sourceId: indkSource.id,
-          areaCode: NATIONAL_AREA_CODE,
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-      })
-    : null;
-
-  const incomeHistory = indkSource
-    ? await prisma.dataPoint.findMany({
-        where: {
-          sourceId: indkSource.id,
-          areaCode: NATIONAL_AREA_CODE,
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        take: 10,
-        select: { period: true, periodDate: true, value: true },
-      })
-    : [];
-
-  const incomeHistoryAsc = [...incomeHistory].reverse();
+  // Indkomst: nyeste plus ti år.
+  const incomeLatest = indkomstAlle[indkomstAlle.length - 1] ?? null;
+  const incomeHistoryAsc = indkomstAlle.slice(-10);
+  const incomeHistory = [...incomeHistoryAsc].reverse();
   const incomePoints = incomeHistoryAsc.map((p) => ({
     year: p.periodDate.getUTCFullYear(),
     value: p.value!,
   }));
 
-  // Year-over-year income change
   const incomePrevious =
     incomeHistory.length >= 2 ? incomeHistory[1].value : null;
   const incomeChange =
@@ -104,35 +63,13 @@ export default async function DanmarkProfilePage() {
       ? incomeLatest.value - incomePrevious
       : null;
 
-  // Unemployment: latest national value + 12 months
-  const unemploymentLatest = ledigSource
-    ? await prisma.dataPoint.findFirst({
-        where: {
-          sourceId: ledigSource.id,
-          areaCode: NATIONAL_AREA_CODE,
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-      })
+  // Ledighed: nyeste og målingen tættest på et år før.
+  const unemploymentLatest = ledighedAlle[ledighedAlle.length - 1] ?? null;
+  const etAarFoer = unemploymentLatest
+    ? new Date(unemploymentLatest.periodDate.getTime() - 365 * 86_400_000)
     : null;
-
-  const unemployment12mAgo = ledigSource
-    ? await prisma.dataPoint.findFirst({
-        where: {
-          sourceId: ledigSource.id,
-          areaCode: NATIONAL_AREA_CODE,
-          value: { not: null },
-          periodDate: unemploymentLatest
-            ? {
-                lte: new Date(
-                  unemploymentLatest.periodDate.getTime() -
-                    365 * 24 * 60 * 60 * 1000
-                ),
-              }
-            : undefined,
-        },
-        orderBy: { periodDate: "desc" },
-      })
+  const unemployment12mAgo = etAarFoer
+    ? [...ledighedAlle].reverse().find((p) => p.periodDate <= etAarFoer) ?? null
     : null;
 
   const unemploymentChange12m =

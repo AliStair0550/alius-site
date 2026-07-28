@@ -3,6 +3,12 @@ import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { generateAllSignals } from "@/lib/signals/detectors";
+import {
+  hentSerieInfoFlere,
+  hentPunkter,
+  hentSenesteePerOmraade,
+} from "@/lib/pulse-model";
 import { getKommuneBySlug, getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
 import { KommuneSparkline } from "@/components/pulse/KommuneSparkline";
@@ -25,6 +31,15 @@ type Props = {
 
 // DST-data opdateres månedligt, og cron-jobbet kalder revalidatePath når nye
 // tal lander. Derfor caches siden i stedet for at rendere ved hver forespørgsel.
+const LEDIGHED = "dst.ledighed.sasonkorrigeret";
+const BEFOLKNING = "dst.befolkning.antal";
+const INDKOMST = "dst.indkomst.disponibel";
+const HUSE = "dst.ejendom.markedsvaerdi.enfamiliehuse";
+const LEJL = "dst.ejendom.markedsvaerdi.ejerlejligheder";
+const BYGGERI = "dst.byg.paabegyndt";
+const VAEKST = "dst.demografi.befolkningstilvaekst";
+const SERIER = [LEDIGHED, BEFOLKNING, INDKOMST, HUSE, LEJL, BYGGERI, VAEKST];
+
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -49,34 +64,18 @@ export default async function KommuneProfilPage({ params }: Props) {
   const kommune = getKommuneBySlug(slug);
   if (!kommune) notFound();
 
-  // Load all sources in parallel
-  const [aus08Source, folk1amSource, indkp101Source, huseSource, lejlSource, bygv33Source, laby01Source, kommuneSignalsRaw] =
-    await Promise.all([
-      prisma.dataSource.findUnique({ where: { slug: "dst-aus08" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-folk1am" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-indkp101" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-huse" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-ejdfoe1-lejl" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-bygv33" } }),
-      prisma.dataSource.findUnique({ where: { slug: "dst-laby01-b11" } }),
-      prisma.signal.findMany({
-        where: { areaCode: kommune.code },
-        include: { source: { select: { slug: true } } },
-        orderBy: { magnitude: "desc" },
-        take: 20,
-      }),
-    ]);
+  // Alle serier fra den nye model. Findes en serie ikke, kastes der
+  // frem for at vise et tomt felt: en manglende serie og en kommune
+  // uden tal ser ens ud på skærmen og er ikke det samme.
+  const serier = await hentSerieInfoFlere(prisma, SERIER);
+  const manglende = SERIER.filter((id) => !serier.has(id));
+  if (manglende.length > 0) {
+    throw new Error(
+      `Kommuneprofilen mangler serierne [${manglende.join(", ")}] i basen.`
+    );
+  }
+  const f = (id: string) => serier.get(id)!.frequency;
 
-  const sevRank: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const kommuneSignals = kommuneSignalsRaw
-    .sort(
-      (a, b) =>
-        (sevRank[b.severity] ?? 0) - (sevRank[a.severity] ?? 0) ||
-        (b.magnitude ?? 0) - (a.magnitude ?? 0)
-    )
-    .slice(0, 4);
-
-  // Fetch datapoints per source in parallel
   const [
     unemploymentPoints,
     populationPoints,
@@ -85,57 +84,29 @@ export default async function KommuneProfilPage({ params }: Props) {
     lejlPoints,
     bygPoints,
     vaekstPoints,
+    ledighedTilSignaler,
   ] = await Promise.all([
-    aus08Source
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: aus08Source.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
-    folk1amSource
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: folk1amSource.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
-    indkp101Source
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: indkp101Source.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
-    huseSource
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: huseSource.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
-    lejlSource
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: lejlSource.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
-    bygv33Source
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: bygv33Source.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
-    laby01Source
-      ? prisma.dataPoint.findMany({
-          where: { sourceId: laby01Source.id, areaCode: kommune.code, value: { not: null } },
-          orderBy: { periodDate: "asc" },
-          select: { period: true, periodDate: true, value: true },
-        })
-      : Promise.resolve([]),
+    hentPunkter(prisma, LEDIGHED, f(LEDIGHED), { areaCode: kommune.code }),
+    hentPunkter(prisma, BEFOLKNING, f(BEFOLKNING), { areaCode: kommune.code }),
+    hentPunkter(prisma, INDKOMST, f(INDKOMST), { areaCode: kommune.code }),
+    hentPunkter(prisma, HUSE, f(HUSE), { areaCode: kommune.code }),
+    hentPunkter(prisma, LEJL, f(LEJL), { areaCode: kommune.code }),
+    hentPunkter(prisma, BYGGERI, f(BYGGERI), { areaCode: kommune.code }),
+    hentPunkter(prisma, VAEKST, f(VAEKST), { areaCode: kommune.code }),
+    hentPunkter(prisma, LEDIGHED, f(LEDIGHED)),
   ]);
+
+  // Signalerne regnes her frem for at ligge i Signal-tabellen.
+  // Ledigheden er den eneste af de syv serier der har detektorer.
+  const sevRank: Record<string, number> = { important: 2, note: 1, info: 0 };
+  const kommuneSignals = generateAllSignals(ledighedTilSignaler)
+    .filter((sig) => sig.areaCode === kommune.code)
+    .sort(
+      (a, b) =>
+        (sevRank[b.severity] ?? 0) - (sevRank[a.severity] ?? 0) ||
+        (b.magnitude ?? 0) - (a.magnitude ?? 0)
+    )
+    .slice(0, 4);
 
   const latestUnemp = unemploymentPoints[unemploymentPoints.length - 1] ?? null;
   const prevUnemp =
@@ -192,51 +163,20 @@ export default async function KommuneProfilPage({ params }: Props) {
   const allKommuner = getAllKommuner();
   let lignende: ReturnType<typeof findSimilarKommuner> = [];
 
-  if (latestUnemp && aus08Source && folk1amSource && indkp101Source) {
-    const [allUnemp, allPop, allIncome] = await Promise.all([
-      prisma.dataPoint.findMany({
-        where: {
-          sourceId: aus08Source.id,
-          areaType: "KOMMUNE",
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        distinct: ["areaCode"],
-        select: { areaCode: true, value: true },
-      }),
-      prisma.dataPoint.findMany({
-        where: {
-          sourceId: folk1amSource.id,
-          areaType: "KOMMUNE",
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        distinct: ["areaCode"],
-        select: { areaCode: true, value: true },
-      }),
-      prisma.dataPoint.findMany({
-        where: {
-          sourceId: indkp101Source.id,
-          areaType: "KOMMUNE",
-          value: { not: null },
-        },
-        orderBy: { periodDate: "desc" },
-        distinct: ["areaCode"],
-        select: { areaCode: true, value: true },
-      }),
+  if (latestUnemp) {
+    const [unempByCode, popByCode, incomeByCode] = await Promise.all([
+      hentSenesteePerOmraade(prisma, LEDIGHED, f(LEDIGHED)),
+      hentSenesteePerOmraade(prisma, BEFOLKNING, f(BEFOLKNING)),
+      hentSenesteePerOmraade(prisma, INDKOMST, f(INDKOMST)),
     ]);
-
-    const unempByCode = new Map(allUnemp.map((r) => [r.areaCode, r.value]));
-    const popByCode = new Map(allPop.map((r) => [r.areaCode, r.value]));
-    const incomeByCode = new Map(allIncome.map((r) => [r.areaCode, r.value]));
 
     const allMetrics: KommuneMetrics[] = allKommuner.map((k) => ({
       code: k.code,
       name: k.name,
       slug: k.slug,
-      unemployment: unempByCode.get(k.code) ?? null,
-      income: incomeByCode.get(k.code) ?? null,
-      population: popByCode.get(k.code) ?? null,
+      unemployment: unempByCode.get(k.code)?.value ?? null,
+      income: incomeByCode.get(k.code)?.value ?? null,
+      population: popByCode.get(k.code)?.value ?? null,
     }));
 
     const target: KommuneMetrics = {
@@ -358,26 +298,25 @@ export default async function KommuneProfilPage({ params }: Props) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {kommuneSignals.map((s) => {
-                const sourceSlug = s.source.slug;
-                const href =
-                  sourceSlug === "dst-aus08"
-                    ? `/pulse/ledighed/${kommune.slug}`
-                    : null;
-                return (
-                  <PulseSignalCard
-                    key={s.id}
-                    headline={s.headline}
-                    body={s.body}
-                    direction={s.direction as "UP" | "DOWN" | "STABLE" | null}
-                    severity={s.severity}
-                    areaName={s.areaName}
-                    areaCode={s.areaCode}
-                    sourceLabel={KOMMUNE_SOURCE_LABELS[sourceSlug] ?? undefined}
-                    href={href}
-                  />
-                );
-              })}
+              {kommuneSignals.map((s) => (
+                <PulseSignalCard
+                  key={`${s.type}:${s.period}:${s.headline}`}
+                  headline={s.headline}
+                  body={s.body}
+                  direction={
+                    (s.direction?.toUpperCase() ?? null) as
+                      | "UP"
+                      | "DOWN"
+                      | "STABLE"
+                      | null
+                  }
+                  severity={s.severity}
+                  areaName={s.areaName}
+                  areaCode={s.areaCode}
+                  sourceLabel="Ledighed"
+                  href={`/pulse/ledighed/${kommune.slug}`}
+                />
+              ))}
             </div>
           </section>
         )}
