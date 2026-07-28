@@ -21,6 +21,7 @@ import {
   type PendingPoint,
 } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const TABLE_ID = "KONK4";
@@ -50,6 +51,7 @@ function parsePeriodToDate(period: string): Date | null {
 }
 
 async function main() {
+  kraevSkriveret("sync-konk4.ts");
   console.log(`🔄 Syncing ${TABLE_ID} from Danmarks Statistik...\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

@@ -8,10 +8,12 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { generateBygv33Signals } from "../src/lib/signals/bygv33-detectors";
 import type { DataPoint } from "../src/lib/signals/types";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const SOURCE_SLUG = "dst-bygv33";
 
 async function main() {
+  kraevSkriveret("generate-bygv33-signals.ts");
   console.log("🧠 Generating signals for BYGV33 (boligbyggeri)...\n");
 
   const source = await prisma.dataSource.findUnique({ where: { slug: SOURCE_SLUG } });

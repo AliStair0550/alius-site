@@ -40,6 +40,7 @@ import type { SeriesDef, SourceAdapter } from "../src/lib/adapters/types";
 import { writeObservations } from "../src/lib/pulse-observations";
 import { hentFra, tilbageblikDage, forventetFriskhedDage } from "../src/lib/pulse-incremental";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const DRY = process.argv.includes("--dry");
 
@@ -176,6 +177,7 @@ async function genskabForsiden(): Promise<string> {
 }
 
 async function main() {
+  if (!DRY) kraevSkriveret("sync-series.ts");
   const nu = new Date();
   const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
   const defs = only.length ? SERIES.filter((s) => only.includes(s.id)) : SERIES;

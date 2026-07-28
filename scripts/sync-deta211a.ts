@@ -11,6 +11,7 @@ import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const TABLE_ID = "DETA211A";
 const SOURCE_SLUG = "dst-deta211a";
@@ -29,6 +30,7 @@ const SOURCE_SLUG = "dst-deta211a";
 const SYNC_BRANCHES = ["G47"];
 
 async function main() {
+  kraevSkriveret("sync-deta211a.ts");
   console.log(`Syncing ${TABLE_ID} — detailomsætningsindeks\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

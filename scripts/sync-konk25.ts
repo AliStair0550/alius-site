@@ -26,6 +26,7 @@ import {
   type PendingPoint,
 } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const TABLE_ID = "KONK25";
 const SOURCE_SLUG = "dst-konk25";
@@ -70,6 +71,7 @@ const DB07_TO_DB25: Array<{ db25: string; wasDb07: string; note?: string }> = [
 ];
 
 async function main() {
+  kraevSkriveret("sync-konk25.ts");
   console.log(`Syncing ${TABLE_ID} — erklærede konkurser efter branche (DB25)\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

@@ -10,9 +10,11 @@
 import { PrismaClient } from "@prisma/client";
 import { classifyAreaCode } from "../src/lib/areas";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 async function main() {
+  kraevSkriveret("reclassify-areas.ts");
   console.log("🔄 Reclassifying areas in existing datapoints...\n");
 
   const allDatapoints = await prisma.dataPoint.findMany({

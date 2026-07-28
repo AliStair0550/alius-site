@@ -8,11 +8,13 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { generateLaby01Signals } from "../src/lib/signals/laby01-detectors";
 import type { DataPoint } from "../src/lib/signals/types";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 // B11 = total population growth (births−deaths + net migration)
 const SOURCE_SLUG = "dst-laby01-b11";
 
 async function main() {
+  kraevSkriveret("generate-laby01-signals.ts");
   console.log("🧠 Generating signals for LABY01-B11 (befolkningstilvækst)...\n");
 
   const source = await prisma.dataSource.findUnique({ where: { slug: SOURCE_SLUG } });

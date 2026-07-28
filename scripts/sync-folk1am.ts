@@ -13,6 +13,7 @@ import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { classifyAreaCode } from "../src/lib/areas";
 import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const TABLE_ID = "FOLK1AM";
@@ -34,6 +35,7 @@ function parsePeriodToDate(period: string): Date | null {
 }
 
 async function main() {
+  kraevSkriveret("sync-folk1am.ts");
   console.log(`Syncing ${TABLE_ID} from Danmarks Statistik...\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

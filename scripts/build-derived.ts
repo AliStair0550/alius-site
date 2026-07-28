@@ -19,6 +19,7 @@ import { writeObservations } from "../src/lib/pulse-observations";
 import { defaultRankable } from "../src/lib/pulse-series";
 import type { FetchedPoint } from "../src/lib/adapters/types";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const key = (areaCode: string, period: Date) =>
@@ -133,6 +134,7 @@ async function build(def: DerivedDef) {
 }
 
 async function main() {
+  kraevSkriveret("build-derived.ts");
   const only = process.argv.slice(2);
   const defs = only.length ? DERIVED.filter((d) => only.includes(d.id)) : DERIVED;
   if (defs.length === 0) {

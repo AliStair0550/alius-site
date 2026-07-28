@@ -13,6 +13,7 @@ import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { classifyAreaCode } from "../src/lib/areas";
 import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const TABLE_ID = "BYGV33";
 const SOURCE_SLUG = "dst-bygv33";
@@ -22,6 +23,7 @@ const RESIDENTIAL_ANVEND = ["120", "130", "140", "150", "190"];
 const ALL_BYGHERRE = ["10+30+40+90", "20", "41", "SK", "UOPL"];
 
 async function main() {
+  kraevSkriveret("sync-bygv33.ts");
   console.log(`Syncing ${TABLE_ID} — nyopstartede boliger per kommune\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

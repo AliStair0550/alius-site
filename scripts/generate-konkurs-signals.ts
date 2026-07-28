@@ -10,11 +10,13 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { generateKonkursSignals } from "../src/lib/signals/konkurs-detectors";
 import type { DataPoint } from "../src/lib/signals/types";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const SOURCE_SLUG = "dst-konk3";
 
 async function main() {
+  kraevSkriveret("generate-konkurs-signals.ts");
   console.log("🧠 Generating signals for KONK3...\n");
 
   const source = await prisma.dataSource.findUnique({

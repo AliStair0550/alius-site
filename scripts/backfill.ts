@@ -1,17 +1,29 @@
 // ============================================================
 // Backfill af fase 1-serier
 //
-// Run with:
-//   set -a && . ./.env.local && set +a
-//   npx tsx scripts/backfill.ts [serie-id ...]
+// KØRES I GITHUB ACTIONS, ikke lokalt:
+//   gh workflow run backfill.yml -f series="eds.el.dk1 eds.el.dk2"
 //
-// KØRES LOKALT. Ikke som endpoint. Kørslen henter hele historikken fra
-// hver kilde og kan tage mange minutter; elprisen alene er 27 år
-// timedata der skal sideindlæses og aggregeres.
+// eller fra Actions-fanen. Skriveværnet nægter at køre den mod
+// produktion fra en udviklermaskine. Se scripts/write-guard.ts.
+//
+// Grunden er ikke bekvemmelighed. Backfill regner døgngennemsnit, og
+// et døgn afhænger af hvilken tidszone processen står i. Kørt fra en
+// maskine i CEST blev hvert eneste elpristal fem til femten procent
+// forkert, og resultatet lignede stadig en elpris. Actions er ét miljø
+// med kendte indstillinger.
+//
+// Kørslen henter hele historikken fra hver kilde og tager mange
+// minutter; elprisen alene er 27 år timedata der skal sideindlæses og
+// aggregeres, og EDS rate-limiter til én side per fire minutter.
 //
 // Henter så langt tilbage kilden tillader. Ingen afkortning til ti år.
 // Vi kan altid vælge et kortere vindue til beregning, men vi kan ikke
 // hente historik der aldrig blev gemt.
+//
+// Flag:
+//   --paany   springer genoptagelsen over og regner historikken om.
+//             Nødvendig når et tal var forkert, ikke bare manglede.
 // ============================================================
 
 import { PrismaClient } from "@prisma/client";
@@ -93,6 +105,10 @@ async function upsertSeries(def: SeriesDef) {
 }
 
 async function main() {
+  // TODO: kraevSkriveret("backfill.ts") sættes på sammen med
+  // .github/workflows/backfill.yml, når elhistorikken er regnet
+  // færdig. Værnet ville ellers spærre for at genstarte den kørsel
+  // lokalt, og Actions-vejen findes endnu ikke.
   const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
   const defs = only.length ? SERIES.filter((s) => only.includes(s.id)) : SERIES;
 

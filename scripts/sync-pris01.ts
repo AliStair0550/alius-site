@@ -11,11 +11,13 @@ import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const TABLE_ID = "PRIS01";
 const SOURCE_SLUG = "dst-pris01";
 
 async function main() {
+  kraevSkriveret("sync-pris01.ts");
   console.log(`Syncing ${TABLE_ID} — forbrugerprisindeks\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

@@ -67,6 +67,14 @@ jobs:
         # commit hvor værnene er i stykker.
         run: npm test
 
+      - name: Bro fra den gamle model
+        # Ni serier fodres stadig af de gamle sync-scripts, som skriver
+        # til DataPoint. Broen loefter dem over i observations, saa
+        # dashboardene ikke fryser den dag DST publicerer.
+        run: npx tsx scripts/sync-legacy-bridge.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Hent nye observationer
         # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
         # ${{ }} interpoleres af GitHub FOER shellen ser linjen, saa et

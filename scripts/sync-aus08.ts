@@ -14,6 +14,7 @@ import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTVariable } from "../src/lib/dst";
 import { classifyAreaCode } from "../src/lib/areas";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const TABLE_ID = "AUS08";
@@ -43,6 +44,7 @@ function findVariable(variables: DSTVariable[], ...candidates: string[]): DSTVar
 // ============================================================
 
 async function main() {
+  kraevSkriveret("sync-aus08.ts");
   console.log(`🔄 Syncing ${TABLE_ID} from Danmarks Statistik...\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

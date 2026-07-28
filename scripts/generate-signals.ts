@@ -10,11 +10,13 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import { generateAllSignals, type DataPoint } from "../src/lib/signals/detectors";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const SOURCE_SLUG = "dst-aus08";
 
 async function main() {
+  kraevSkriveret("generate-signals.ts");
   console.log("🧠 Generating signals for AUS08...\n");
 
   const source = await prisma.dataSource.findUnique({

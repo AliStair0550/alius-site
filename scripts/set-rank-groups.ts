@@ -16,6 +16,7 @@
 import { PrismaClient } from "@prisma/client";
 import { withDbRetry } from "../src/lib/db";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const DRY = process.argv.includes("--dry");
 
@@ -66,6 +67,7 @@ function matches(id: string, g: Group): boolean {
 }
 
 async function main() {
+  if (!DRY) kraevSkriveret("set-rank-groups.ts");
   await withDbRetry(() => prisma.$queryRaw`SELECT 1`);
   const all = await prisma.series.findMany({
     select: { id: true, rankable: true, rankGroup: true, status: true, layer: true },

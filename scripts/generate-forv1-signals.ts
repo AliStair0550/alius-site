@@ -8,10 +8,12 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { generateForv1Signals } from "../src/lib/signals/forv1-detectors";
 import type { DataPoint } from "../src/lib/signals/types";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const SOURCE_SLUG = "dst-forv1";
 
 async function main() {
+  kraevSkriveret("generate-forv1-signals.ts");
   console.log("🧠 Generating signals for FORV1 (forbrugertillid)...\n");
 
   const source = await prisma.dataSource.findUnique({ where: { slug: SOURCE_SLUG } });

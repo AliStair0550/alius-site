@@ -14,6 +14,7 @@ import { PrismaClient } from "@prisma/client";
 import { getTableMetadata, getTableData, type DSTFilter } from "../src/lib/dst";
 import { writeDataPoints, type PendingPoint } from "../src/lib/pulse-batch";
 
+import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 
 const TABLE_ID = "KONK3";
@@ -51,6 +52,7 @@ function parsePeriodType(period: string): "MONTH" | "QUARTER" | "YEAR" | "WEEK" 
 }
 
 async function main() {
+  kraevSkriveret("sync-konk3.ts");
   console.log(`🔄 Syncing ${TABLE_ID} from Danmarks Statistik...\n`);
 
   const metadata = await getTableMetadata(TABLE_ID);

@@ -15,7 +15,7 @@
     "db:status": "prisma migrate status",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "test": "tsx --test \"src/**/*.test.ts\""
+    "test": "tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\""
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
