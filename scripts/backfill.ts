@@ -105,6 +105,32 @@ async function upsertSeries(def: SeriesDef) {
   });
 }
 
+/**
+ * Skriver kørselsloggen. Fejler den, fortsætter kørslen.
+ *
+ * Den 28. juli 2026 døde en reparation efter halvanden time, da
+ * forbindelsespuljen løb tør netop mens ingest_runs skulle opdateres.
+ * Observationerne var skrevet undervejs og gik ikke tabt, men DK2 blev
+ * aldrig hentet, fordi undtagelsen slap ud af både try og catch.
+ *
+ * En bogføring der ikke kan skrives må ikke ødelægge det den bogfører.
+ * withDbRetry rider en kold Neon-forbindelse af; lykkes det stadig
+ * ikke, siges det højt og kørslen går videre.
+ */
+async function noterKoersel(
+  id: bigint,
+  data: Parameters<typeof prisma.ingestRun.update>[0]["data"]
+): Promise<void> {
+  try {
+    await withDbRetry(() => prisma.ingestRun.update({ where: { id }, data }));
+  } catch (e) {
+    console.log(
+      `   BEMÆRK: kørselsloggen kunne ikke skrives (${(e as Error).message.slice(0, 90)}). ` +
+        `Observationerne er skrevet; det er kun bogføringen der mangler.`
+    );
+  }
+}
+
 async function main() {
   kraevSkriveret("backfill.ts");
   const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
@@ -206,23 +232,21 @@ async function main() {
         );
       }
 
-      await prisma.ingestRun.update({
-        where: { id: run.id },
-        data: {
-          seriesId: def.id,
-          finishedAt: new Date(),
-          status: w.inserted + w.revised > 0 ? "OK" : "NO_NEW_DATA",
-          rowsWritten: w.inserted,
-          rowsRevised: w.revised,
-        },
+      await noterKoersel(run.id, {
+        seriesId: def.id,
+        finishedAt: new Date(),
+        status: w.inserted + w.revised > 0 ? "OK" : "NO_NEW_DATA",
+        rowsWritten: w.inserted,
+        rowsRevised: w.revised,
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.log(`   FEJL: ${msg}`);
       failures.push({ id: def.id, error: msg });
-      await prisma.ingestRun.update({
-        where: { id: run.id },
-        data: { finishedAt: new Date(), status: "ERROR", errorMessage: msg },
+      await noterKoersel(run.id, {
+        finishedAt: new Date(),
+        status: "ERROR",
+        errorMessage: msg,
       });
     }
     console.log("");
