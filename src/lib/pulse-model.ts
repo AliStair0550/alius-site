@@ -331,3 +331,44 @@ export function opremsning(dele: string[]): string {
   if (dele.length === 1) return dele[0];
   return `${dele.slice(0, -1).join(", ")} og ${dele[dele.length - 1]}`;
 }
+
+/**
+ * Kilder med dokumenteret licens.
+ *
+ * Vi skrev "CC 4.0 BY" på alt indtil 28. juli 2026. For Energinet og
+ * Eurostat kan påstanden dokumenteres: begge oplyser CC BY 4.0 i deres
+ * egne vilkår, og begge tillader kommerciel brug.
+ *
+ * For Danmarks Statistik kan den ikke. DST's tableinfo-API leverer
+ * intet licensfelt, og der findes ingen offentlig vilkårsside vi har
+ * kunnet finde. Påstanden er formentlig rigtig, men den stod i vores
+ * egen kode og ingen andres.
+ *
+ * En licenspåstand vi ikke kan dokumentere er værre end ingen: den
+ * ser ud som en oplysning og er et gæt. Indtil skriftlig bekræftelse
+ * foreligger, krediteres DST uden licens. Se byggebriefens afsnit 6a.
+ */
+export const DOKUMENTEREDE_LICENSER: Record<string, string> = {
+  Energinet: "CC BY 4.0",
+  Eurostat: "CC BY 4.0",
+};
+
+/**
+ * Kildelinjen til bunden af en side.
+ *
+ * Nævner alle kilder, men kun de licenser vi kan stå inde for.
+ */
+export function kildeOgLicens(serier: Array<SerieInfo | null | undefined>): string {
+  const orgs = kildeOrganisationer(serier);
+  if (orgs.length === 0) return "";
+
+  const medLicens = orgs.filter((o) => DOKUMENTEREDE_LICENSER[o]);
+  const linje = `Alius Pulse er udviklet af Alius og bygger på åbne data fra ${opremsning(orgs)}.`;
+  if (medLicens.length === 0) return linje;
+
+  // Licenserne er de samme i dag, men listen skal kunne bære to
+  // forskellige uden at blive omskrevet.
+  const unikke = [...new Set(medLicens.map((o) => DOKUMENTEREDE_LICENSER[o]))];
+  const navn = unikke.length === 1 ? unikke[0] : unikke.join(" henholdsvis ");
+  return `${linje} ${opremsning(medLicens)} under ${navn}.`;
+}

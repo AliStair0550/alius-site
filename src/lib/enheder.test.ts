@@ -8,6 +8,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
 import { ENHEDER, enhed, formatVaerdi, formatAendring } from "./pulse-enheder";
+import { ugeNummer } from "../components/pulse/Forside";
 import { UNIT_RANGES } from "./adapters/types";
 import { SERIES } from "../../config/series";
 import { CONFIG, enhedFor } from "../../scripts/legacy-mapping";
@@ -95,5 +96,47 @@ describe("Enheder: ændringer", () => {
   test("en ændring under afrundingen kaldes uændret, ikke nul", () => {
     assert.equal(formatAendring(0.001, 3.0, "pct", hale), `Uændret ${hale}`);
     assert.match(formatAendring(0.1, 10000, "antal", hale), /Nogenlunde som/);
+  });
+});
+
+// ----------------------------------------------------------------
+describe("Licens: kun det vi kan dokumentere", () => {
+  test("DST krediteres uden licens", () => {
+    // Vi skrev "CC 4.0 BY" på hvert kort indtil 28. juli 2026. Den
+    // påstand stod i vores egen kode og ingen andres.
+    const dstSerier = SERIES.filter((s) => s.source === "DST");
+    assert.ok(dstSerier.length > 0);
+    const medLicens = dstSerier.filter((s) => /CC\s*(BY\s*)?4\.?0/i.test(s.attribution));
+    assert.deepEqual(
+      medLicens.map((s) => s.id),
+      [],
+      "en licenspåstand vi ikke kan dokumentere må ikke stå på siden"
+    );
+  });
+
+  test("Energinet og Eurostat beholder deres, de er dokumenterede", () => {
+    for (const kilde of ["EDS", "EUROSTAT"]) {
+      const s = SERIES.filter((x) => x.source === kilde);
+      assert.ok(s.length > 0, kilde);
+      for (const x of s) {
+        assert.match(x.attribution, /CC BY 4\.0/, `${x.id} mangler sin licens`);
+      }
+    }
+  });
+});
+
+describe("Forsiden: ugenummer", () => {
+  test("ISO-uge, ikke kalenderuge", () => {
+    // 4. januar ligger altid i uge 1, uanset ugedag.
+    assert.equal(ugeNummer(new Date(Date.UTC(2026, 0, 4))), 1);
+    assert.equal(ugeNummer(new Date(Date.UTC(2026, 6, 28))), 31);
+  });
+
+  test("regnes i UTC, saa ugen ikke afhaenger af maskinen", () => {
+    // Samme oejeblik, to skrivemaader. Det var netop en tidszone der
+    // gjorde elpriserne forkerte.
+    const a = ugeNummer(new Date("2026-07-28T23:30:00Z"));
+    const b = ugeNummer(new Date(Date.UTC(2026, 6, 28, 23, 30)));
+    assert.equal(a, b);
   });
 });

@@ -1,0 +1,260 @@
+// ============================================================
+// Forsidens fire dele
+//
+// Siden skal forklare sig selv ved at VÆRE et overblik, ikke ved at
+// beskrive at den er et. Derfor er der ingen brødtekst i toppen.
+//
+// Fem sekunder, tre ting: hvad ugens historie er, hvad der har flyttet
+// sig, og hvor alt andet står.
+//
+//   1. Statuslinje      uge, opdateringstidspunkt, plads til én sætning
+//   2. Signalkort       det usædvanlige, ét til fem
+//   3. Nøgletalsgitter  scanningsfladen, ti rækker
+//   4. Dashboardlinks   veje ned i dybden, ingen beskrivelser
+//
+// Kravene fra ranglisten gælder stadig: intet fagsprog, mobil først,
+// hentetidspunkt synligt, farve betyder usædvanlig og aldrig dårlig.
+// ============================================================
+
+import Link from "next/link";
+import { formatVaerdi } from "@/lib/pulse-enheder";
+import { kildeUrl, type Kandidat } from "@/lib/pulse-rangliste";
+import type { Noegletal } from "@/lib/pulse-noegletal";
+
+const MAANEDER = [
+  "januar", "februar", "marts", "april", "maj", "juni",
+  "juli", "august", "september", "oktober", "november", "december",
+];
+
+/**
+ * ISO-ugenummer. Uge 1 er den uge der indeholder 4. januar.
+ *
+ * Regnes i UTC, så ugen ikke skifter afhængigt af hvilken maskine der
+ * renderer siden. Det var netop den slags der gjorde elpriserne
+ * forkerte.
+ */
+export function ugeNummer(d: Date): number {
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  // Torsdag i samme uge afgør hvilket år ugen tilhører.
+  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+  const aarsStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return Math.ceil(((t.getTime() - aarsStart.getTime()) / 86_400_000 + 1) / 7);
+}
+
+/**
+ * "i dag 07:04" eller "27. juli 07:04".
+ *
+ * "I dag" kun når det ER i dag. Et hentetidspunkt der påstår at være
+ * friskere end det er, er værre end et der er præcist.
+ */
+function opdateretTekst(hentet: Date, nu: Date): string {
+  const sammeDag =
+    hentet.getUTCFullYear() === nu.getUTCFullYear() &&
+    hentet.getUTCMonth() === nu.getUTCMonth() &&
+    hentet.getUTCDate() === nu.getUTCDate();
+  const kl = `${String(hentet.getUTCHours()).padStart(2, "0")}:${String(
+    hentet.getUTCMinutes()
+  ).padStart(2, "0")}`;
+  if (sammeDag) return `Opdateret i dag ${kl}`;
+  return `Opdateret ${hentet.getUTCDate()}. ${MAANEDER[hentet.getUTCMonth()]} ${kl}`;
+}
+
+export function Statuslinje({
+  hentet,
+  nu,
+  overskrift,
+}: {
+  hentet: Date | null;
+  nu: Date;
+  /**
+   * Ugens sætning. Leveres af fortolkningslaget efter kalibreringen.
+   *
+   * Indtil da står her en optælling, ikke en fortolkning. "Tre serier
+   * ligger usædvanligt langt fra det normale" er talt og kan
+   * efterprøves; "renterne stiger, byggeriet bremser" er en påstand om
+   * sammenhæng, og den må vi ikke skrive før vi kan holde den.
+   */
+  overskrift: string;
+}) {
+  return (
+    <section className="pb-10 md:pb-14 mb-10 md:mb-14 border-b border-ink/10">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-6 md:mb-8">
+        <span className="text-[11px] tracking-[0.3em] uppercase text-stone opacity-60">
+          Pulse &#183; uge {ugeNummer(nu)}
+        </span>
+        {hentet && (
+          <span className="text-[11px] tracking-[0.2em] uppercase text-stone opacity-50">
+            {opdateretTekst(hentet, nu)}
+          </span>
+        )}
+      </div>
+
+      <h1 className="font-fraunces font-light italic text-[clamp(30px,5.2vw,56px)] leading-[1.12] tracking-[-0.02em] text-ink max-w-[900px]">
+        {overskrift}
+      </h1>
+    </section>
+  );
+}
+
+/**
+ * Signalkortene.
+ *
+ * Gitteret skal bære ét til fem kort uden at se tomt eller trængt ud.
+ * Derfor auto-fit med en mindstebredde frem for et fast antal kolonner:
+ * ét kort fylder rækken, fem lægger sig i to rækker af tre og to.
+ */
+export function Signalkort({ kort }: { kort: Kandidat[] }) {
+  if (kort.length === 0) return null;
+
+  return (
+    <section className="mb-12 md:mb-16">
+      <div
+        className="grid gap-3 md:gap-4"
+        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))" }}
+      >
+        {kort.map((k) => (
+          <Signal key={`${k.seriesId}:${k.areaCode}`} k={k} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Signal({ k }: { k: Kandidat }) {
+  const opad = k.vaerdi >= k.normal;
+  const url = kildeUrl(k.kilde, k.kildeRef);
+
+  return (
+    <article className="p-5 md:p-6 bg-white border-l-2 border-moss">
+      <p className="text-[11px] tracking-[0.15em] uppercase text-stone opacity-60 mb-3 leading-[1.4]">
+        {k.navn}
+      </p>
+
+      <div className="flex items-end justify-between gap-4 mb-3">
+        <p className="text-[26px] font-light leading-[1] text-ink">
+          {formatVaerdi(k.raaVaerdi, k.enhed)}
+        </p>
+        <Minikurve punkter={k.kurve} />
+      </div>
+
+      <p className="text-[12px] leading-[1.5] text-stone">
+        <span className="text-moss" aria-hidden>
+          {opad ? "▲" : "▼"}
+        </span>{" "}
+        {sjaeldenhed(k)} &#183; {periode(k.periode)}
+      </p>
+
+      {url && (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sr-only focus:not-sr-only text-[11px] text-moss"
+        >
+          Se kilden
+        </a>
+      )}
+    </article>
+  );
+}
+
+function periode(d: Date): string {
+  return `${MAANEDER[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()}`;
+}
+
+/** Samme ordvalg som ranglistens badge. Ingen ny formulering at holde i takt. */
+function sjaeldenhed(k: Kandidat): string {
+  const opad = k.vaerdi >= k.normal;
+  if (k.sjaeldenhed <= 1) return opad ? "Højeste i ti år" : "Laveste i ti år";
+  if (k.sjaeldenhed <= 3) return `Kun set ${k.sjaeldenhed} gange på ti år`;
+  return opad ? "Over det normale" : "Under det normale";
+}
+
+/** Kurven ved siden af tallet. Ingen akser, ingen tal: kun formen. */
+function Minikurve({ punkter }: { punkter: Kandidat["kurve"] }) {
+  if (punkter.length < 2) return null;
+  const v = punkter.map((p) => p.vaerdi);
+  const min = Math.min(...v);
+  const spaend = Math.max(...v) - min || 1;
+  const w = 96;
+  const h = 26;
+  const d = punkter
+    .map(
+      (p, i) =>
+        `${i === 0 ? "M" : "L"} ${((i / (punkter.length - 1)) * w).toFixed(1)} ${(
+          h - ((p.vaerdi - min) / spaend) * h
+        ).toFixed(1)}`
+    )
+    .join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h + 4}`} width={w} height={h + 4} aria-hidden className="shrink-0">
+      <path d={d} fill="none" stroke="#1A1A1A" strokeWidth={1.4} opacity={0.4} strokeLinejoin="round" />
+      <circle cx={w} cy={h - ((v[v.length - 1] - min) / spaend) * h} r={2.5} fill="#2D5F4A" />
+    </svg>
+  );
+}
+
+export type Gitterraekke = { navn: string; tal: Noegletal };
+
+/**
+ * Nøgletalsgitteret. Scanningsfladen.
+ *
+ * Som en afgangstavle: navn til venstre, tal og pil til højre, tynd
+ * streg imellem. To kolonner på desktop, én på mobil. Ingen kurver,
+ * ingen forklaring, ingen kort.
+ */
+export function Noegletalsgitter({ raekker }: { raekker: Gitterraekke[] }) {
+  if (raekker.length === 0) return null;
+
+  return (
+    <section className="mb-12 md:mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-12">
+        {raekker.map(({ navn, tal }) => (
+          <div
+            key={tal.serie.id}
+            className="flex items-baseline justify-between gap-4 py-3 border-b border-ink/10"
+          >
+            <span className="text-[14px] leading-[1.4] text-stone">{navn}</span>
+            <span className="flex items-baseline gap-2 shrink-0">
+              <span className="text-[15px] text-ink tabular-nums">
+                {formatVaerdi(tal.vaerdi, tal.serie.unit)}
+              </span>
+              <span className="text-[10px] text-moss w-[9px] text-center" aria-hidden>
+                {tal.retning === "op" ? "▲" : tal.retning === "ned" ? "▼" : "·"}
+              </span>
+              <span className="sr-only">
+                {tal.retning === "op"
+                  ? "steget"
+                  : tal.retning === "ned"
+                    ? "faldet"
+                    : "uændret"}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export type Vej = { navn: string; href: string };
+
+/** Veje ned i dybden. Ingen kort, ingen beskrivelser. */
+export function Dashboardlinks({ veje }: { veje: Vej[] }) {
+  return (
+    <nav className="mb-16 md:mb-20 flex flex-wrap gap-x-7 gap-y-3">
+      {veje.map((v) => (
+        <Link
+          key={v.href}
+          href={v.href}
+          className="group text-[15px] text-ink no-underline hover:text-moss transition-colors"
+        >
+          {v.navn}{" "}
+          <span className="inline-block transition-transform group-hover:translate-x-1 text-moss">
+            &rarr;
+          </span>
+        </Link>
+      ))}
+    </nav>
+  );
+}

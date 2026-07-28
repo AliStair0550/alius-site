@@ -13,8 +13,15 @@
 
 import type { SeriesDef } from "../src/lib/adapters/types";
 
-const DST = (tableId: string) =>
-  `Danmarks Statistik, tabel ${tableId}. CC 4.0 BY`;
+/**
+ * Kreditering af en DST-tabel, UDEN licenspåstand.
+ *
+ * Der stod "CC 4.0 BY" indtil 28. juli 2026. Den påstand kunne ikke
+ * dokumenteres: DST's API leverer intet licensfelt, og der findes ingen
+ * offentlig vilkårsside vi har kunnet finde. Se byggebriefens 6a.
+ * Licensen sættes tilbage når skriftlig bekræftelse foreligger.
+ */
+const DST = (tableId: string) => `Danmarks Statistik, tabel ${tableId}`;
 
 export const SERIES: SeriesDef[] = [
   // ==========================================================

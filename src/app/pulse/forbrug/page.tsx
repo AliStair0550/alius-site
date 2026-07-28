@@ -390,12 +390,12 @@ export default async function ForbrugPage() {
             Om dataene
           </div>
           <p className="text-[14px] leading-[1.6] text-stone max-w-[640px]">
-            Forbrugertillid fra DST-tabel FORV1 (månedlig, siden 1974). Inflation fra PRIS01 (månedlig, siden 2001). Detailomsætning fra DETA211A (månedlig, siden 2015). Alle fra Danmarks Statistik under licens CC 4.0 BY.
+            Forbrugertillid fra DST-tabel FORV1 (månedlig, siden 1974). Inflation fra PRIS01 (månedlig, siden 2001). Detailomsætning fra DETA211A (månedlig, siden 2015). Alle fra Danmarks Statistik.
           </p>
         </section>
 
         <footer className="mt-16 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik.
         </footer>
       </div>
     </div>

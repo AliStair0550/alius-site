@@ -132,7 +132,7 @@ async function broenFor(cfg: (typeof CONFIG)[number], nu: Date): Promise<Udfald>
     // kommet ud af trit, ikke noget der skal repareres i stilhed.
     const findes = await prisma.series.findUnique({
       where: { id: seriesId },
-      select: { id: true, unit: true, legacyAreaCode: true },
+      select: { id: true, unit: true, attribution: true, legacyAreaCode: true },
     });
     if (!findes) {
       throw new Error(
@@ -152,15 +152,19 @@ async function broenFor(cfg: (typeof CONFIG)[number], nu: Date): Promise<Udfald>
     // er redaktionelle beslutninger der ikke skal overskrives af en
     // hentning.
     const forventetEnhed = enhedFor(cfg, findes.legacyAreaCode);
-    if (findes.unit !== forventetEnhed) {
+    const forventetAttribution = `Danmarks Statistik, tabel ${source.tableId}`;
+    const retter: { unit?: string; attribution?: string } = {};
+    if (findes.unit !== forventetEnhed) retter.unit = forventetEnhed;
+    if (findes.attribution !== forventetAttribution) {
+      retter.attribution = forventetAttribution;
+    }
+    if (Object.keys(retter).length > 0) {
       console.log(
-        `      ${seriesId}: enhed rettet fra "${findes.unit}" til ` +
-          `"${forventetEnhed}" efter legacy-mapping.ts`
+        `      ${seriesId}: ${Object.entries(retter)
+          .map(([k, v]) => `${k} -> "${v}"`)
+          .join(", ")}`
       );
-      await prisma.series.update({
-        where: { id: seriesId },
-        data: { unit: forventetEnhed },
-      });
+      await prisma.series.update({ where: { id: seriesId }, data: retter });
     }
 
     const r = await withDbRetry(() => writeObservations(prisma, seriesId, punkter, nu));

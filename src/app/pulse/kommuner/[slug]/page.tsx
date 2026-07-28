@@ -581,12 +581,12 @@ export default async function KommuneProfilPage({ params }: Props) {
             <a href="https://www.statistikbanken.dk/BYGV33" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">BYGV33</a>.
             {" "}Befolkningstilvækst fra{" "}
             <a href="https://www.statistikbanken.dk/LABY01" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">LABY01</a>.
-            {" "}Alle fra Danmarks Statistik under licens CC 4.0 BY.
+            {" "}Alle fra Danmarks Statistik.
           </p>
         </section>
 
         <footer className="mt-16 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik.
         </footer>
       </div>
     </div>

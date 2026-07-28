@@ -8,11 +8,7 @@
 
 import Link from "next/link";
 import { NoegletalSektion } from "./Noegletal";
-import {
-  kildeOrganisationer,
-  opremsning,
-  type SerieInfo,
-} from "@/lib/pulse-model";
+import { kildeOgLicens, type SerieInfo } from "@/lib/pulse-model";
 import type { NoegletalResultat } from "@/lib/pulse-noegletal";
 
 const MAANEDER = [
@@ -43,7 +39,7 @@ export function NoegletalSide({
   noteOmDaekning?: string;
 }) {
   const alleSerier: SerieInfo[] = afsnit.flatMap((a) => a.data.tal.map((t) => t.serie));
-  const kilder = opremsning(kildeOrganisationer(alleSerier));
+  const kildelinje = kildeOgLicens(alleSerier);
 
   const hentet = afsnit
     .map((a) => a.data.hentet)
@@ -128,8 +124,7 @@ export function NoegletalSide({
         </section>
 
         <footer className="mt-16 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra {kilder}.
-          Tal benyttes under licens CC 4.0 BY.
+          {kildelinje}
         </footer>
       </div>
     </div>

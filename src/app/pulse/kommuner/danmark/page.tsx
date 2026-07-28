@@ -257,7 +257,7 @@ export default async function DanmarkProfilePage() {
             Kilder
           </div>
           <p className="text-[14px] leading-[1.6] text-stone max-w-[640px]">
-            Befolkningstal fra <a href="https://www.statistikbanken.dk/FOLK1AM" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">FOLK1AM</a>. Indkomsttal fra <a href="https://www.statistikbanken.dk/INDKP101" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">INDKP101</a>. Ledighedstal fra <a href="https://www.statistikbanken.dk/AUS08" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">AUS08</a>. Alle fra Danmarks Statistik under licens CC 4.0 BY.
+            Befolkningstal fra <a href="https://www.statistikbanken.dk/FOLK1AM" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">FOLK1AM</a>. Indkomsttal fra <a href="https://www.statistikbanken.dk/INDKP101" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">INDKP101</a>. Ledighedstal fra <a href="https://www.statistikbanken.dk/AUS08" target="_blank" rel="noopener noreferrer" className="text-moss hover:underline">AUS08</a>. Alle fra Danmarks Statistik.
           </p>
         </section>
 
@@ -282,7 +282,7 @@ export default async function DanmarkProfilePage() {
         </section>
 
         <footer className="mt-24 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik.
         </footer>
       </div>
     </div>

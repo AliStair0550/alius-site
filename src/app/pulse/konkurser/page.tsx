@@ -430,7 +430,7 @@ export default async function KonkursPulsPage() {
         </section>
 
         <footer className="mt-24 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik.
         </footer>
       </div>
     </div>

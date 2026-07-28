@@ -145,12 +145,12 @@ export default async function KommunerHubPage() {
             Om profilerne
           </div>
           <p className="text-[14px] leading-[1.6] text-stone max-w-[640px]">
-            Kommuneprofilerne samler data fra fire DST-tabeller: FOLK1AM (befolkning, månedlig), INDKP101 (disponibel indkomst, årlig), AUS08 (ledighed, månedlig) og EJDFOE1 (ejendomsværdi, årlig). Alle tal fra Danmarks Statistik under licens CC 4.0 BY.
+            Kommuneprofilerne samler data fra fire DST-tabeller: FOLK1AM (befolkning, månedlig), INDKP101 (disponibel indkomst, årlig), AUS08 (ledighed, månedlig) og EJDFOE1 (ejendomsværdi, årlig). Alle tal fra Danmarks Statistik.
           </p>
         </section>
 
         <footer className="mt-16 pt-8 border-t border-ink/10 text-[11px] text-stone opacity-50 tracking-[0.05em] leading-[1.6]">
-          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik. Tal benyttes under licens CC 4.0 BY.
+          Alius Pulse er udviklet af Alius og bygger på åbne data fra Danmarks Statistik.
         </footer>
       </div>
     </div>

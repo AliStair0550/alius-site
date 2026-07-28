@@ -86,7 +86,10 @@ async function main() {
       },
     });
 
-    const attribution = `Danmarks Statistik, tabel ${source.tableId}. ${source.license ?? "CC 4.0 BY"}`;
+    // Uden licenspåstand. Se byggebriefens afsnit 6a: vi kan ikke
+    // dokumentere CC BY for DST, og en licens vi ikke kan dokumentere
+    // ser ud som en oplysning og er et gæt.
+    const attribution = `Danmarks Statistik, tabel ${source.tableId}`;
     const seenSeries = new Set<string>();
     const areaCodes = new Set<string>();
     let obsCount = 0;
