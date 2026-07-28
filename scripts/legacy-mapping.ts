@@ -33,7 +33,29 @@ export type SourceConfig = {
   slug: string;
   seriesBase: string;
   nameDa: string;
+  /**
+   * Enheden for kildens serier.
+   *
+   * En kilde kan levere flere enheder. PRIS01 leverer både et indeks og
+   * en årsændring i procent fra samme tabel, og de er ikke det samme
+   * tal. Sæt `unitPerCode` når det er tilfældet; `unit` er så kun
+   * standarden.
+   */
   unit: string;
+  /**
+   * Enhed per serie, når kilden leverer flere.
+   *
+   * Koden er den der bruges til at danne serie-id'et: areaCode ved
+   * `areaCodeIsIdentity`, dimensionsværdien ved `dimensionIsIdentity`.
+   * Returnér undefined for at falde tilbage på `unit`.
+   *
+   * Findes fordi enheden ellers var bundet til HVOR tallet kom fra i
+   * stedet for HVAD det måler. Det er samme fejl som valueScale-
+   * nærmisset i CLAUDE.md: årsændringen på forbrugerpriser stod som
+   * "indeks" og blev vist som "1,9" uden enhed. Seriens navn reddede
+   * den, men den dag tallet citeres uden navnet er redningen væk.
+   */
+  unitPerCode?: (code: string) => string | undefined;
   frequency: Freq;
   layer: Layer;
   revisionPolicy: Revision;
@@ -162,6 +184,9 @@ export const CONFIG: SourceConfig[] = [
     seriesBase: "dst.pris.forbruger",
     nameDa: "Forbrugerprisindeks",
     unit: "indeks",
+    // "100" er selve indekset. Alt andet fra PRIS01 er årsændringen,
+    // som er en procent og ikke et indeks.
+    unitPerCode: (c) => (c === "100" ? "indeks" : "pct"),
     frequency: "MONTHLY",
     layer: "COST",
     revisionPolicy: "NONE",
@@ -306,4 +331,15 @@ export function mapRaekke(
   const code = dims?.[cfg.area.dimKey];
   if (!code) return null;
   return { seriesId: `${cfg.seriesBase}.${cfg.area.suffix(code)}`, areaCode: "DK" };
+}
+
+/**
+ * Enheden for én serie under en kilde.
+ *
+ * Koden er den der danner serie-id'et. Null-koden betyder at kilden
+ * kun har én serie, og så gælder `unit`.
+ */
+export function enhedFor(cfg: SourceConfig, code: string | null): string {
+  if (code === null || !cfg.unitPerCode) return cfg.unit;
+  return cfg.unitPerCode(code) ?? cfg.unit;
 }

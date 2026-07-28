@@ -202,3 +202,33 @@ describe("Nøgletal: hele beregningen", () => {
     }
   });
 });
+
+// ----------------------------------------------------------------
+// Formuleringen af årsændringen ligger i komponenten, men reglen den
+// bygger på er en beslutning og hører til her: satser sammenlignes i
+// point, mængder i procent.
+describe("Nøgletal: årsændringen har et grundlag at regne procent af", () => {
+  test("niveauet et år før følger med ud", () => {
+    const n = beregnNoegletal(
+      serie({ unit: "m2" }),
+      maanedlig(Array.from({ length: 25 }, (_, i) => 100000 + i * 1000)),
+      NU
+    );
+    assert.ok(!("fejl" in n));
+    if ("fejl" in n) return;
+    assert.equal(n.aaretFoer, 12000);
+    assert.equal(n.aaretFoerNiveau, 112000, "grundlaget skal med, ellers kan procenten ikke regnes");
+    // 12000 af 112000 er knap elleve procent. Det er oplysningen,
+    // ikke "12.000,0 m2".
+    const pct = (n.aaretFoer! / n.aaretFoerNiveau!) * 100;
+    assert.ok(pct > 10 && pct < 11, `${pct}`);
+  });
+
+  test("uden et år tilbage er der hverken ændring eller grundlag", () => {
+    const n = beregnNoegletal(serie(), maanedlig([1, 2, 3]), NU);
+    assert.ok(!("fejl" in n));
+    if ("fejl" in n) return;
+    assert.equal(n.aaretFoer, null);
+    assert.equal(n.aaretFoerNiveau, null);
+  });
+});

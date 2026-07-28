@@ -34,7 +34,7 @@ export default async function EnergiPage() {
           data: elpris,
         },
       ]}
-      noteOmDaekning="Energi er den tyndeste af de tre sider. Vi har elprisen tilbage til 1999, men hverken gas, fjernvarme eller forbrug. Det er en afgrænsning, ikke en mangel vi har overset: de kilder er ikke bygget endnu."
+      noteOmDaekning="Energi er den tyndeste af de tre sider. Vi har elprisen tilbage til 1999, men hverken gas, forbrug eller den tyske pris. Det er en afgrænsning, ikke en mangel vi har overset: de tre står som kandidater til næste fase. Gasprisen er den anden halvdel af energiregningen, forbruget fortæller om nogen skruede ned, og den tyske pris afgør om en prisspids er dansk eller nordeuropæisk."
     />
   );
 }

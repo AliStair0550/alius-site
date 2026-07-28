@@ -60,6 +60,14 @@ export type Noegletal = {
   stribe: number;
   /** Ændring mod samme måned året før. Null når historikken ikke rækker. */
   aaretFoer: number | null;
+  /**
+   * Niveauet samme måned året før.
+   *
+   * Ligger med, så visningen kan skrive ændringen som en procent uden
+   * at regne baglæns. "61.616 m2 lavere" er et databasetal; "27 procent
+   * lavere" er oplysningen, og den kræver grundlaget.
+   */
+  aaretFoerNiveau: number | null;
   /** Månedsværdier til kurven, ældst først. */
   kurve: Array<{ periode: Date; vaerdi: number }>;
   /**
@@ -219,6 +227,7 @@ export function beregnNoegletal(
     aaretFoerVaerdi === undefined
       ? null
       : vaerdier[vaerdier.length - 1] - aaretFoerVaerdi;
+  const aaretFoerNiveau = aaretFoerVaerdi ?? null;
 
   const yder = beregnYderlighed(maanedlige);
 
@@ -233,6 +242,7 @@ export function beregnNoegletal(
     retning,
     stribe,
     aaretFoer,
+    aaretFoerNiveau,
     kurve: alleNoegler.map((k) => ({
       periode: fraNoegle(k),
       vaerdi: maanedligt.get(k)!,

@@ -68,29 +68,68 @@ function vaerdiTekst(v: number, enhed: string): string {
 }
 
 /**
- * Hvad en ændring hedder i den enhed.
+ * Enheder der ER en sats. Her er forskellen i point oplysningen.
  *
- * Procentpoint og procent er ikke det samme, og at kalde begge dele
- * "procent" er den slags der får en læser til at regne forkert. En
- * rente der går fra 3,0 til 3,4 er steget 0,4 procentpoint, ikke 0,4
- * procent.
+ * En rente der går fra 3,0 til 3,4 er steget 0,4 procentpoint, ikke
+ * 0,4 procent. At kalde begge dele "procent" får en læser til at regne
+ * forkert. For alt andet, hvor niveauet er en mængde eller et beløb, er
+ * den procentvise ændring oplysningen.
  */
-function aendringTekst(v: number, enhed: string): string {
-  const fortegn = v > 0 ? "+" : "−";
-  const a = Math.abs(v);
+const SATSENHEDER = new Set(["pct", "nettotal"]);
+
+/**
+ * Årsændringen som en hel sætning, uden fortegnssymbol.
+ *
+ * Pilen på kortet hører til striben. Står der også et plus eller minus
+ * på årsændringen, har kortet to symboler der kan pege hver sin vej, og
+ * en læser kan ikke se hvilket af dem pilen svarer til.
+ * Forbrugertilliden er faldet siden sidste måned OG ligger over sidste
+ * år; begge dele er sande, og de skal kunne stå ved siden af hinanden
+ * uden at slås.
+ *
+ * "Højere" og "lavere" er ord. De kan ikke forveksles med pilen.
+ */
+function aarsaendringTekst(n: Noegletal): string | null {
+  if (n.aaretFoer === null) return null;
+
+  const enhed = n.serie.unit;
+  const retning = n.aaretFoer > 0 ? "højere" : "lavere";
+  const a = Math.abs(n.aaretFoer);
+
+  if (SATSENHEDER.has(enhed)) {
+    const navn = enhed === "pct" ? "procentpoint" : "point";
+    const decimaler = enhed === "pct" ? 2 : 1;
+    if (a < (enhed === "pct" ? 0.005 : 0.05)) {
+      return "Uændret mod samme måned sidste år";
+    }
+    return `${tal(a, decimaler)} ${navn} ${retning} end samme måned sidste år`;
+  }
+
+  // Procent kræver et grundlag. Er grundlaget nul eller nær nul, er den
+  // procentvise ændring enten uendelig eller vildt ustabil, og så er
+  // det absolutte tal det ærlige svar.
+  const grundlag = n.aaretFoerNiveau;
+  if (grundlag === null || Math.abs(grundlag) < 1) {
+    const dele = [tal(a, 0), enhedsnavn(enhed), retning, "end samme måned sidste år"];
+    return dele.filter(Boolean).join(" ");
+  }
+
+  const pct = (a / Math.abs(grundlag)) * 100;
+  if (pct < 0.5) return "Nogenlunde som samme måned sidste år";
+  return `${tal(pct, 0)} procent ${retning} end samme måned sidste år`;
+}
+
+/** Enhedens navn efter et tal. Tom når enheden er et blot antal. */
+function enhedsnavn(enhed: string): string {
   switch (enhed) {
-    case "pct":
-      return `${fortegn}${tal(a, 2)} procentpoint`;
-    case "nettotal":
-      return `${fortegn}${tal(a, 1)} point`;
-    case "antal":
-      return `${fortegn}${tal(a, 0)}`;
+    case "m2":
+      return "m2";
     case "dkk_mwh":
-      return `${fortegn}${tal(a, 0)} kr.`;
+      return "kr. per MWh";
     case "dkk_per_enhed":
-      return `${fortegn}${tal(a, 2)} kr.`;
+      return "kr.";
     default:
-      return `${fortegn}${tal(a, 1)}`;
+      return "";
   }
 }
 
@@ -159,17 +198,12 @@ export function NoegletalSektion({
 function Kort({ n }: { n: Noegletal }) {
   const url = kildeUrl(n.serie.source, n.serie.sourceRef);
   const yder = yderlighedTekst(n);
+  const aarsTekst = aarsaendringTekst(n);
   const pil = n.retning === "op" ? "▲" : n.retning === "ned" ? "▼" : "·";
 
   return (
     <article className="p-6 md:p-8 bg-fog/40">
-      <header className="flex items-baseline gap-3 mb-4">
-        <span className="text-[11px] text-moss font-medium" aria-hidden>
-          {pil}
-        </span>
-        <span className="sr-only">
-          {n.retning === "op" ? "op" : n.retning === "ned" ? "ned" : "uændret"}
-        </span>
+      <header className="mb-4">
         <h3 className="font-fraunces font-light italic text-[19px] md:text-[21px] leading-[1.25] text-ink tracking-[-0.005em]">
           {n.serie.nameDa}
         </h3>
@@ -185,14 +219,25 @@ function Kort({ n }: { n: Noegletal }) {
       <Kurve punkter={n.kurve} />
 
       <ul className="list-none p-0 mt-5 mb-0 space-y-1">
-        <li className="text-[14px] leading-[1.6] text-stone">{stribeTekst(n)}</li>
-        {n.aaretFoer !== null && (
-          <li className="text-[14px] leading-[1.6] text-stone">
-            {aendringTekst(n.aaretFoer, n.serie.unit)} mod samme måned sidste år
+        {/* Pilen står HER, ved striben den beskriver. Stod den øverst,
+            ville en læser tro den også dækkede årsændringen nedenfor,
+            og de to kan pege hver sin vej. */}
+        <li className="text-[14px] leading-[1.6] text-stone flex items-baseline gap-2">
+          <span className="text-[11px] text-moss font-medium" aria-hidden>
+            {pil}
+          </span>
+          <span className="sr-only">
+            {n.retning === "op" ? "op" : n.retning === "ned" ? "ned" : "uændret"}
+          </span>
+          <span>{stribeTekst(n)}</span>
+        </li>
+        {aarsTekst && (
+          <li className="text-[14px] leading-[1.6] text-stone pl-[19px]">
+            {aarsTekst}
           </li>
         )}
         {yder && (
-          <li className="text-[14px] leading-[1.6] text-moss">{yder}</li>
+          <li className="text-[14px] leading-[1.6] text-moss pl-[19px]">{yder}</li>
         )}
       </ul>
 

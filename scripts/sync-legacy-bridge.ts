@@ -33,7 +33,7 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import { withDbRetry } from "../src/lib/db";
 import { writeObservations } from "../src/lib/pulse-observations";
-import { CONFIG, mapRaekke } from "./legacy-mapping";
+import { CONFIG, mapRaekke, enhedFor } from "./legacy-mapping";
 import { kraevSkriveret } from "./write-guard";
 import { tilbageblikDage } from "../src/lib/pulse-incremental";
 import type { FetchedPoint } from "../src/lib/adapters/types";
@@ -132,13 +132,35 @@ async function broenFor(cfg: (typeof CONFIG)[number], nu: Date): Promise<Udfald>
     // kommet ud af trit, ikke noget der skal repareres i stilhed.
     const findes = await prisma.series.findUnique({
       where: { id: seriesId },
-      select: { id: true },
+      select: { id: true, unit: true, legacyAreaCode: true },
     });
     if (!findes) {
       throw new Error(
         `${cfg.slug}: serien "${seriesId}" findes ikke i basen. ` +
           `Kør migrate-to-series for kilden først.`
       );
+    }
+
+    // Enheden holdes i takt med mapningen.
+    //
+    // migrate-to-series er et engangsscript og kan ikke køres igen, så
+    // en rettet enhed ville ellers aldrig nå frem til basen. Enheden er
+    // ikke kosmetik: den afgør om tallet vises som "1,90 procent" eller
+    // som "1,9", og et tal uden enhed kan citeres forkert.
+    //
+    // KUN enheden. rankable ejes af korrelationsgruppen, og navn og lag
+    // er redaktionelle beslutninger der ikke skal overskrives af en
+    // hentning.
+    const forventetEnhed = enhedFor(cfg, findes.legacyAreaCode);
+    if (findes.unit !== forventetEnhed) {
+      console.log(
+        `      ${seriesId}: enhed rettet fra "${findes.unit}" til ` +
+          `"${forventetEnhed}" efter legacy-mapping.ts`
+      );
+      await prisma.series.update({
+        where: { id: seriesId },
+        data: { unit: forventetEnhed },
+      });
     }
 
     const r = await withDbRetry(() => writeObservations(prisma, seriesId, punkter, nu));

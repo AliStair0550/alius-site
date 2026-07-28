@@ -355,6 +355,18 @@ Ikke i denne fase, og det er bevidst:
 - Ingen frontend ud over det der skal til for at verificere data
 - Ingen alarmmails til kunder. Først når 10 års historik ligger i basen og z-scores er validerede
 
+**Energisiden er tynd, og det er en afgrænsning, ikke en forglemmelse.**
+Vi har elprisen for DK1 og DK2 tilbage til 1999. Tre kandidater er noteret
+til fase 2, i den rækkefølge de er værd:
+
+| Kandidat | Hvorfor | Hvor |
+|---|---|---|
+| Gaspris | Anden halvdel af energiregningen for produktion og fjernvarme. Elprisen alene besvarer ikke "hvad koster energi" | Energi Data Service |
+| Elforbrug | Prisen uden mængden siger ikke om nogen skruede ned. Sammen bliver de et signal om aktivitet, ikke kun om marked | Energi Data Service |
+| Tysk elpris | Danmark handler mod Tyskland. Er en dansk prisspids dansk eller nordeuropæisk, ændrer det hvad en indkøber skal gøre | ENTSO-E eller Eurostat |
+
+Godkendt 28. juli 2026 sammen med de tre nøgletalssider.
+
 ---
 
 ## 7. Definition of done

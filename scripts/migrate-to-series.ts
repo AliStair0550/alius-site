@@ -25,7 +25,7 @@ import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
 const FORCE = process.argv.includes("--force");
 
-import { CONFIG, type SourceConfig } from "./legacy-mapping";
+import { CONFIG, enhedFor, type SourceConfig } from "./legacy-mapping";
 
 const CHUNK = 1000;
 
@@ -129,7 +129,7 @@ async function main() {
           nameDa: seriesName,
           source: "DST",
           sourceRef: source.tableId,
-          unit: cfg.unit,
+          unit: enhedFor(cfg, legacyArea),
           frequency: cfg.frequency,
           expectedLagDays: cfg.expectedLagDays,
           revisionPolicy: cfg.revisionPolicy,
