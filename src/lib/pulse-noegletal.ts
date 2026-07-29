@@ -93,7 +93,6 @@ export type NoegletalResultat = {
   hentet: Date | null;
 };
 
-const maanedNoegle = (d: Date) => d.getUTCFullYear() * 12 + d.getUTCMonth();
 const fraNoegle = (k: number) => new Date(Date.UTC(Math.floor(k / 12), k % 12, 1));
 
 /**

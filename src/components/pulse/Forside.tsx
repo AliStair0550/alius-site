@@ -18,7 +18,7 @@
 
 import Link from "next/link";
 import { formatVaerdi } from "@/lib/pulse-enheder";
-import { kildeUrl, type Kandidat } from "@/lib/pulse-rangliste";
+import type { Kandidat } from "@/lib/pulse-rangliste";
 import type { Noegletal } from "@/lib/pulse-noegletal";
 
 const MAANEDER = [
