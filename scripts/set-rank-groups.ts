@@ -29,7 +29,43 @@ type Group = {
   why: string;
 };
 
+/**
+ * Vinderen er den serie der står tættest på en BESLUTNING hos den kunde
+ * vi faktisk har. Ikke den længste historik, ikke den pæneste serie,
+ * ikke den mest aggregerede.
+ *
+ * Det er samme prøve i alle grupper, og den er afgjort på indholdet
+ * hver gang. Se byggebriefens afsnit 3m.
+ */
 const GROUPS: Group[] = [
+  {
+    name: "rente",
+    winner: "dst.rente.erhverv.nye",
+    members: [{ prefix: "dst.rente." }],
+    why:
+      "DNRUGPI er nye forretninger, altså prisen på den næste krone en " +
+      "virksomhed låner. Realkreditten er bestanden, og den bevæger sig " +
+      "fordi bankrenten gør. En leder der overvejer at finansiere noget " +
+      "spørger hvad det koster nu.",
+  },
+  {
+    name: "elpris",
+    winner: "eds.el.dk1",
+    members: [{ prefix: "eds.el." }],
+    why:
+      "DK1 og DK2 korrelerer 0,987 og er samme signal. DK1 dækker Jylland " +
+      "og Fyn, hvor det meste produktionsvirksomhed ligger. Forskellen " +
+      "mellem de to er en fortolkningslinje, og det er dér spredningen " +
+      "hører hjemme.",
+  },
+  {
+    name: "tillid.udland",
+    winner: "eurostat.de.tillid.industri",
+    members: [{ prefix: "eurostat." }],
+    why:
+      "Tyskland er største eksportmarked, og det var hele begrundelsen for " +
+      "det eksterne lag. Sverige og EU27 er kontekst.",
+  },
   {
     name: "valuta",
     winner: "dst.valuta.effektiv",

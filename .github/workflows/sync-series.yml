@@ -75,6 +75,15 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Haandhaev korrelationsgrupperne
+        # Koeres FOER hentningen, saa genskabelsen af /pulse til sidst
+        # sker efter en eventuel aendring. Scriptet er idempotent og
+        # fejler hvis en gruppe ender med to rangerbare, saa reglen
+        # haandhaeves dagligt i stedet for naar nogen husker det.
+        run: npx tsx scripts/set-rank-groups.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Hent nye observationer
         # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
         # ${{ }} interpoleres af GitHub FOER shellen ser linjen, saa et
