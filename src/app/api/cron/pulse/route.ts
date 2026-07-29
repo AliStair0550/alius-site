@@ -8,6 +8,7 @@ import {
   regenerateSignalsForKonk3,
 } from "@/lib/pulse-pipeline";
 import { sendPulseUpdateEmail, sendPulseErrorEmail } from "@/lib/pulse-email";
+import { udloesSyncSeries, beskrivUdfald } from "@/lib/github-dispatch";
 import { humanizePeriod } from "@/lib/signals/types";
 
 function isAuthorized(req: Request): boolean {
@@ -126,12 +127,21 @@ export async function GET(req: Request) {
       );
     }
 
-    // Early exit if neither had new data
+    // Early exit if neither had new data.
+    //
+    // Actions-kørslen udløses ALLIGEVEL. Den gamle model havde ikke nye
+    // tal, men den nye model henter fra otteogtyve andre serier, og de
+    // fleste dage har præcis denne form: ingenting fra AUS08 og KONK3,
+    // nye valutakurser og elpriser. Sprang vi udløsningen over her,
+    // ville den nye model kun blive hentet de dage DST publicerer.
     if (!aus08Sync.hadNewData && !konk3Sync.hadNewData) {
-      note("No new data from either source. Exiting early.");
+      note("No new data from either source.");
+      const udloestTidligt = await udloesSyncSeries();
+      note(beskrivUdfald(udloestTidligt));
       return NextResponse.json({
         ok: true,
         hadNewData: false,
+        actionsUdloest: udloestTidligt.slags,
         runtime_ms: Date.now() - startedAt.getTime(),
         log,
       });
@@ -244,11 +254,27 @@ export async function GET(req: Request) {
       });
     }
 
+    // ============================================================
+    // Step 5: udløs Actions-kørslen for den NYE model
+    // ============================================================
+    //
+    // Rækkefølgen er ikke tilfældig. Trinene ovenfor har lige opdateret
+    // DataPoint; sync-series begynder med broen, der løfter DataPoint
+    // over i observations. Udløses den her, kommer den nye model med
+    // i samme omgang.
+    //
+    // Vercel udløser kun. Arbejdet bliver i Actions, hvor tidszonen er
+    // UTC og skriveværnet gælder.
+    note("Step 5: udløser Actions-kørslen");
+    const udloest = await udloesSyncSeries();
+    note(beskrivUdfald(udloest));
+
     note("Done");
 
     return NextResponse.json({
       ok: true,
       hadNewData: true,
+      actionsUdloest: udloest.slags,
       aus08: aus08Sync.hadNewData
         ? {
             inserted: aus08Sync.rowsInserted,

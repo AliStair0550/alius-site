@@ -25,6 +25,10 @@ on:
     - cron: "30 5 * * *"
   workflow_dispatch:
     inputs:
+      udloeser:
+        description: "Hvem startede den. Vercel-cronen saetter vercel."
+        type: string
+        default: "manuel"
       dry_run:
         description: "Tørløb — hent fra kilderne, skriv intet"
         type: boolean
@@ -33,6 +37,15 @@ on:
         description: "Kun disse serie-id'er, mellemrumsadskilt. Tomt betyder alle."
         type: string
         default: ""
+
+# To uafhaengige udloesere peger paa den her koersel: GitHubs egen
+# scheduler og Vercels cron gennem /api/cron/pulse. Gruppen sikrer at to
+# der starter i samme oejeblik koer op i stedet for at koere oven i
+# hinanden. cancel-in-progress er FALSE: en halvfaerdig hentning skal
+# have lov at blive faerdig, ikke droeftes af en dublet.
+concurrency:
+  group: sync-series
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -47,6 +60,11 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      - name: Hvem startede koerslen
+        # Staar foerst i loggen, saa det kan aflaeses bagefter om
+        # GitHubs scheduler eller Vercel-cronen fyrede.
+        run: echo "udloeser=${{ github.event_name == 'schedule' && 'github-schedule' || inputs.udloeser }}"
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4

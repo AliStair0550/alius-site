@@ -779,9 +779,50 @@ bruger "DK". På landstal mod landstal, aggregeret til kvartal:
 | Påbegyndte boliger mod tilladt etageareal, erhverv | 0,454 | 41 kvartaler |
 
 0,819 ligger under de tre der blev grupperet (0,884 til 0,991) og over
-det der klart er uafhængigt (0,154). Det er en vurdering, ikke et
-selvfølge, og forskydningen mellem tilladelse og påbegyndelse er stadig
-i sig selv information. Beslutningen står åben.
+det der klart er uafhængigt (0,154).
+
+**Afgjort 29. juli 2026: de grupperes ikke.**
+
+Tilladelse og påbegyndelse er **to begivenheder i en kæde**, ikke samme
+fænomen målt to steder. Det er forskellen på de tre der blev grupperet:
+DK1 og DK2 er den samme elpris i to prisområder, og de to
+realkreditrenter er den samme rente på to bestande. Her er der derimod
+en beslutning, og så et spadestik nogle kvartaler senere, og
+forskydningen imellem dem er i sig selv information.
+
+**Erhvervstallet beviser at kæden kan skilles ad.** Samme to faser,
+samme tabeller, korrelation 0,454. Var de to serier bare den samme
+kendsgerning målt to gange, ville erhvervsbyggeriet følge boligbyggeriet
+lige så tæt. Det gør det ikke, fordi tilladelser kan gives uden at der
+graves.
+
+### Princippet: korrelation udløser vurderingen, den træffer den ikke
+
+Det er den regel de otte grupper og den her afgørelse tilsammen tegner,
+og den er værd at skrive ud, fordi et tal er lettere at læne sig op ad
+end en vurdering.
+
+Et højt r betyder: **se på de to serier og afgør om de er samme
+kendsgerning.** Det betyder ikke: gruppér dem.
+
+| r | Hvad det er | Afgørelse |
+|---|---|---|
+| 0,991 realkredit erhverv mod husholdning | samme rente, to bestande | grupperet |
+| 0,987 elpris DK1 mod DK2 | samme pris, to prisområder | grupperet |
+| 0,932 tysk mod svensk tillid | samme undersøgelse, to lande | grupperet |
+| 0,884 bankrente mod realkredit | samme prissætning, to markeder | grupperet |
+| **0,819 tilladt mod påbegyndt** | **to led i en kæde** | **ikke grupperet** |
+| 0,749 ETILLID indbyrdes | delindeks i en total | kildekvoten dækker |
+| 0,154 tilladt bolig mod erhverv | to konjunkturer | ikke grupperet |
+
+Rækken på 0,819 er den vigtigste i tabellen. Den er højere end en af de
+grupperede, og den blev alligevel afvist, fordi spørgsmålet ikke er hvor
+tæt de følges ad, men **om de svarer på det samme**.
+
+Havde vi grupperet på tallet alene, ville vi have skjult den ene serie
+der fortæller om beslutningen, til fordel for den der fortæller om
+udførelsen, og forskydningen mellem dem er præcis det en leder i
+byggebranchen læser efter.
 
 ---
 
