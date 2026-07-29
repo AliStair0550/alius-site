@@ -193,6 +193,48 @@ gh workflow run backfill.yml -f series="eds.el.dk1 eds.el.dk2"
 gh workflow run sync-series.yml
 ```
 
+### To udløsere på den daglige kørsel
+
+`sync-series` startes af to uafhængige kilder, og det er med vilje.
+
+| Udløser | Hvornår | Hvor den er defineret |
+|---|---|---|
+| GitHubs scheduler | 05:30 UTC | `on.schedule` i workflowet |
+| Vercels cron | 06:00 UTC | `/api/cron/pulse` kalder GitHubs API |
+
+**GitHubs scheduler er upålidelig på tidspunktet.** Den 29. juli 2026 var
+kørslen forfalden 05:30 og startede 08:04, altså to en halv times
+forsinkelse. Konfigurationen fejlede intet: cron-udtrykket var gyldigt,
+workflowet aktivt, Actions ubegrænset og GitHub meldt operational.
+GitHub oplyser selv at planlagte kørsler forsinkes eller falder bort
+under belastning.
+
+I de to en halv time viste forsiden gårsdagens tal uden at nogen kunne
+se at der manglede noget. Derfor er den anden udløser ikke kun en
+reserve: **den hurtigste af de to sætter tempoet.**
+
+Vercel udløser kun. Arbejdet bliver i Actions, hvor tidszonen er UTC og
+skriveværnet gælder. En Vercel-funktion kan ikke skrive i
+produktionsdata, uanset at den beder om at få det gjort.
+
+**Hemmeligheden hører til på Vercel, ikke på GitHub.** Det er den ene af
+de fire der ikke ligger sammen med de andre:
+
+| Hemmelighed | Hvor | Til hvad |
+|---|---|---|
+| `DATABASE_URL` | GitHub | jobbene skriver i basen |
+| `ADMIN_SECRET` | GitHub og Vercel | genskabelse af `/pulse`, beskyttede endpoints |
+| `GITHUB_DISPATCH_TOKEN` | **kun Vercel** | Vercel beder Actions om at køre |
+
+Tokenen skal være fine-grained med `Actions: read and write` på repoet.
+Læseretten er nødvendig: ruten spørger først om der allerede kører eller
+lige har kørt en, og springer over hvis der gør.
+
+**Vercel indsætter miljøvariabler ved deploy.** En variabel der tilføjes
+bagefter er usynlig for den kørende version indtil næste deploy. Mangler
+tokenen, siger cron-loggen det ordret i stedet for at se ud som om
+kørslen blev udløst.
+
 `scripts/write-guard.ts` håndhæver det. Hvert script der skriver kalder
 `kraevSkriveret()` som første handling. Værnet afviser tre ting: ingen
 `DATABASE_URL`, produktionsværten uden `GITHUB_ACTIONS=true`, og enhver
