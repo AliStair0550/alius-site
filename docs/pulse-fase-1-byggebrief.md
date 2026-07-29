@@ -711,6 +711,46 @@ så ugegennemsnittet ville ikke ændre en eneste rangering.
 
 Katalogets afsnit 5 bør rettes på dette punkt.
 
+### 3m2. Tre grupper mere, afgjort 29. juli 2026
+
+Ranglisten viste to rentekort ud af tre. De korrelerede 0,884, og
+kildekvoten fangede dem ikke, fordi de kommer fra hver sin DST-tabel.
+Kvoten dækker korrelation inden for én kilde; det her var på tværs.
+
+Alle rangerbare par blev målt. Fire klynger stod ugrupperede:
+
+| Par | r | Fangede kvoten kortene? |
+|---|---|---|
+| Realkreditrente erhverv mod husholdning | 0,991 | ja, samme tabel |
+| Elpris DK1 mod DK2 | 0,987 | ja, samme kilde |
+| Tysk mod svensk erhvervstillid | 0,932 | ja, samme datasæt |
+| Erhvervsudlånsrente mod realkreditrente | 0,884 | **nej** |
+
+| Gruppe | Vinder | Hvorfor |
+|---|---|---|
+| `rente` | `dst.rente.erhverv.nye` | DNRUGPI er nye forretninger, altså prisen på den næste krone en virksomhed låner. Realkreditten er bestanden og bevæger sig fordi bankrenten gør |
+| `elpris` | `eds.el.dk1` | DK1 dækker Jylland og Fyn, hvor det meste produktionsvirksomhed ligger |
+| `tillid.udland` | `eurostat.de.tillid.industri` | Tyskland er største eksportmarked, og det var hele begrundelsen for det eksterne lag |
+
+Rangerbare gik fra 22 til 18.
+
+**Undtagelsen for realkreditten er allerede bygget.** Divergenslinjen,
+hvor bidraget stiger mens renten falder, udløser på sin egen betingelse
+og fanger det ene tilfælde hvor realkreditten er sin egen historie.
+
+**Princippet er det samme i alle otte grupper: vinderen er den serie der
+står tættest på en BESLUTNING hos den kunde vi faktisk har.** Ikke den
+længste historik, ikke den pæneste serie, ikke den mest aggregerede.
+
+Reglen håndhæves nu dagligt. `scripts/set-rank-groups.ts` kører som
+trin i det daglige job, før hentningen, og fejler hvis en gruppe ender
+med to rangerbare. En regel der skal huskes er en regel der falder.
+
+**Ikke grupperet, og det er målt:** byggetilladelser til bolig mod
+erhverv korrelerer 0,154. De er to forskellige konjunkturer.
+Tillidsindikatorerne fra ETILLID korrelerer 0,749 indbyrdes og holdes
+adskilt af kildekvoten.
+
 ### Åben vurdering: byggeserierne
 
 `dst.byg.paabegyndt` (BYGV33, antal boliger, kvartalsvis, kommune) og
@@ -728,6 +768,20 @@ to ikke er sammenlignelige.
 Jeg har ikke grupperet dem, fordi jeg ikke er sikker, og en forkert gruppe
 fjerner information permanent uden at nogen opdager det. Det er en
 beslutning til dig.
+
+**Målt 29. juli 2026.** Sammenligningen kunne ikke laves før, fordi de to
+serier koder "hele landet" forskelligt: BYGV33 bruger DST's "000", BYGV88
+bruger "DK". På landstal mod landstal, aggregeret til kvartal:
+
+| Par | r | n |
+|---|---|---|
+| Påbegyndte boliger mod tilladt etageareal, bolig | **0,819** | 41 kvartaler |
+| Påbegyndte boliger mod tilladt etageareal, erhverv | 0,454 | 41 kvartaler |
+
+0,819 ligger under de tre der blev grupperet (0,884 til 0,991) og over
+det der klart er uafhængigt (0,154). Det er en vurdering, ikke et
+selvfølge, og forskydningen mellem tilladelse og påbegyndelse er stadig
+i sig selv information. Beslutningen står åben.
 
 ---
 
