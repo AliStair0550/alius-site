@@ -71,3 +71,21 @@ describe("Udløser: to kilder, én kørsel", () => {
     if (!d.udloes) assert.match(d.grund, /in_progress/);
   });
 });
+
+describe("Værnet i jobbet: samme regel begge steder", () => {
+  test("den kørende koersel taeller ikke sig selv med", () => {
+    // scripts/skal-koere.ts filtrerer GITHUB_RUN_ID fra, foer listen
+    // sendes hertil. Uden det ville hver koersel se sig selv som "en
+    // koersel der lige er startet" og springe over hver gang.
+    const kunMigSelv: Array<{ status: string; startedAt: Date }> = [];
+    assert.deepEqual(skalUdloese(kunMigSelv, NU), { udloes: true });
+  });
+
+  test("Vercels koersel en time foer blokerer GitHubs schedule", () => {
+    // Det faktiske moenster: Vercel 06:43, GitHub 07:43. Foer vaernet
+    // laa i jobbet, koerte begge.
+    const d = skalUdloese([{ status: "completed", startedAt: timerSiden(1) }], NU);
+    assert.equal(d.udloes, false);
+    if (!d.udloes) assert.match(d.grund, /60 minutter siden/);
+  });
+});

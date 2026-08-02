@@ -29,6 +29,10 @@ on:
         description: "Hvem startede den. Vercel-cronen saetter vercel."
         type: string
         default: "manuel"
+      tving:
+        description: "Koer selvom en anden koersel lige har vaeret der."
+        type: boolean
+        default: false
       dry_run:
         description: "Tørløb — hent fra kilderne, skriv intet"
         type: boolean
@@ -43,6 +47,11 @@ on:
 # der starter i samme oejeblik koer op i stedet for at koere oven i
 # hinanden. cancel-in-progress er FALSE: en halvfaerdig hentning skal
 # have lov at blive faerdig, ikke droeftes af en dublet.
+# Vaernet i skal-koere.ts skal kunne laese workflowets egne koersler.
+permissions:
+  actions: read
+  contents: read
+
 concurrency:
   group: sync-series
   cancel-in-progress: false
@@ -80,12 +89,25 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Er arbejdet lige gjort
+        # Værnet ligger HER, hvor de to udløsere mødes. Ruten i
+        # /api/cron/pulse stopper Vercel fra at udløse en dublet, men
+        # den kan ikke stoppe GitHubs egen scheduler, som fyrer
+        # ubetinget. Uden det her kørte jobbet to gange i døgnet.
+        id: vaern
+        run: npx tsx scripts/skal-koere.ts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TVING: ${{ inputs.tving }}
+
       - name: Kør testene først
+        if: steps.vaern.outputs.skal == 'true'
         # En hentning der skriver i produktion skal ikke køre fra en
         # commit hvor værnene er i stykker.
         run: npm test
 
       - name: Bro fra den gamle model
+        if: steps.vaern.outputs.skal == 'true'
         # Ni serier fodres stadig af de gamle sync-scripts, som skriver
         # til DataPoint. Broen loefter dem over i observations, saa
         # dashboardene ikke fryser den dag DST publicerer.
@@ -94,6 +116,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Haandhaev korrelationsgrupperne
+        if: steps.vaern.outputs.skal == 'true'
         # Koeres FOER hentningen, saa genskabelsen af /pulse til sidst
         # sker efter en eventuel aendring. Scriptet er idempotent og
         # fejler hvis en gruppe ender med to rangerbare, saa reglen
@@ -103,6 +126,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Hent nye observationer
+        if: steps.vaern.outputs.skal == 'true'
         # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
         # ${{ }} interpoleres af GitHub FOER shellen ser linjen, saa et
         # serie-id med semikolon i ville blive koert som en kommando.
