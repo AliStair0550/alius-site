@@ -220,10 +220,29 @@ export function ShareSection({ totals, pct, primary, secondary }: ShareCardProps
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
 
+    // Her stod indtil 11. august 2026 et @import af Jost og Fraunces fra
+    // Google Fonts. Det hentede aldrig noget.
+    //
+    // En SVG der indlæses gennem new Image() nedenfor, gengives af
+    // browseren i sikker statisk tilstand. Dér hentes eksterne
+    // ressourcer ikke, hverken stylesheets, skrifttyper eller billeder.
+    // Det er en regel i SVG-specifikationen og gælder alle browsere, så
+    // linjen kunne ikke virke nogen steder.
+    //
+    // Kortet er derfor altid blevet hentet ned i systemets sans-serif,
+    // ikke i Jost. Ingen fejl, ingen advarsel, bare et kort der ikke
+    // ser ud som resten af mærket.
+    //
+    // Skal det laves rigtigt, skal skrifttypen med SOM DATA: hent
+    // fonts/jost.woff2, kod den som base64 og læg den i en @font-face
+    // her. En data-URL er ikke en ekstern ressource og slipper igennem.
+    // Det kræver at downloadAsPng bliver asynkron.
+    //
+    // Indtil da står sans-serif her, fordi det er hvad der faktisk
+    // bliver brugt.
     const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
     styleEl.textContent = `
-      @import url('https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&family=Fraunces:ital,wght@0,300;1,300&display=swap');
-      text { font-family: 'Jost', sans-serif; }
+      text { font-family: sans-serif; }
     `;
     clone.insertBefore(styleEl, clone.firstChild);
 
