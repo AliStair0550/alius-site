@@ -6,6 +6,8 @@ import { hentSerieInfoFlere, hentSenesteePerOmraade } from "@/lib/pulse-model";
 import { getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
 import { KommunerList, type KommuneRow } from "@/components/pulse/KommunerList";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Kommuneprofiler · Alius Pulse",
@@ -24,6 +26,8 @@ const BOLIGVAERDI = "dst.ejendom.markedsvaerdi.enfamiliehuse";
 export const revalidate = 86400;
 
 export default async function KommunerHubPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const kommuner = getAllKommuner();
 
   const serier = await hentSerieInfoFlere(prisma, [

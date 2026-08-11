@@ -9,6 +9,8 @@ import { PulseSignalCard } from "@/components/pulse/SignalCard";
 import { KonkursHero } from "@/components/pulse/KonkursHero";
 import { KonkursHistoryChart } from "@/components/pulse/KonkursHistoryChart";
 import { BrancheRankings } from "@/components/pulse/BrancheRankings";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Konkurspuls · Alius Pulse",
@@ -138,6 +140,8 @@ function formatPeriodRange(start: Date, end: Date): string {
 }
 
 export default async function KonkursPulsPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   // Læser series og observations. KONK3 er totalen, KONK25's sytten
   // brancher ligger som sytten selvstændige serier, fordi branche ikke
   // er geografi og derfor hører til i serieidentiteten.

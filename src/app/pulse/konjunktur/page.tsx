@@ -3,6 +3,8 @@ import { pageMetadata } from "@/lib/page-metadata";
 import { prisma } from "@/lib/db";
 import { hentNoegletal } from "@/lib/pulse-noegletal";
 import { NoegletalSide } from "@/components/pulse/NoegletalSide";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Konjunktur · Alius Pulse",
@@ -34,6 +36,8 @@ const UDLANDET = [
 ];
 
 export default async function KonjunkturPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const [stemning, ordreboeger, realiseret, udlandet] = await Promise.all([
     hentNoegletal(prisma, STEMNING),
     hentNoegletal(prisma, ORDREBOEGER),

@@ -3,6 +3,8 @@ import { pageMetadata } from "@/lib/page-metadata";
 import { prisma } from "@/lib/db";
 import { hentNoegletal } from "@/lib/pulse-noegletal";
 import { NoegletalSide } from "@/components/pulse/NoegletalSide";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Energi · Alius Pulse",
@@ -18,6 +20,8 @@ export const revalidate = 86400;
 const ELPRIS = ["eds.el.dk1", "eds.el.dk2"];
 
 export default async function EnergiPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const elpris = await hentNoegletal(prisma, ELPRIS);
 
   return (

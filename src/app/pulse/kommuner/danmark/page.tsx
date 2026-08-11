@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { hentSerieInfoFlere, hentNationale } from "@/lib/pulse-model";
 import { humanizePeriod } from "@/lib/signals/types";
 import { IncomeBars } from "@/components/pulse/IncomeBars";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Danmark · Kommuneprofiler · Alius Pulse",
@@ -27,6 +29,8 @@ const INDKOMST = "dst.indkomst.disponibel";
 const LEDIGHED = "dst.ledighed.sasonkorrigeret";
 
 export default async function DanmarkProfilePage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const serier = await hentSerieInfoFlere(prisma, [BEFOLKNING, INDKOMST, LEDIGHED]);
   const manglende = [BEFOLKNING, INDKOMST, LEDIGHED].filter((id) => !serier.has(id));
   if (manglende.length > 0) {

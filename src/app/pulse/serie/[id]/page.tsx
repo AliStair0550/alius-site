@@ -12,6 +12,8 @@ import {
 import { hentNoegletal } from "@/lib/pulse-noegletal";
 import { formatVaerdi, formatAendring, enhed } from "@/lib/pulse-enheder";
 import { kildeUrl } from "@/lib/pulse-rangliste";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -55,6 +57,8 @@ function periodeTekst(d: Date, frekvens: string): string {
 }
 
 export default async function SeriePage({ params }: Props) {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const id = decodeURIComponent((await params).id);
   const serie = await hentSerieInfo(prisma, id);
   if (!serie) notFound();

@@ -17,6 +17,8 @@ import {
   findSimilarKommuner,
   type KommuneMetrics,
 } from "@/lib/similar-kommuner";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 
 type Props = {
@@ -54,6 +56,8 @@ export async function generateStaticParams() {
 }
 
 export default async function KommuneProfilPage({ params }: Props) {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const { slug } = await params;
   const kommune = getKommuneBySlug(slug);
   if (!kommune) notFound();

@@ -13,6 +13,7 @@ import { NextResponse } from "next/server";
 import { prisma, withDbRetry } from "@/lib/db";
 import { findStaleSources, findStaleSeries } from "@/lib/pulse-stale";
 import { sendPulseStaleEmail, sendPulseErrorEmail } from "@/lib/pulse-email";
+import { PAA_PAUSE, PAUSE_FRA } from "@/lib/pulse-pause";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,12 @@ function isAuthorized(req: Request): boolean {
 }
 
 export async function GET(req: Request) {
+  // Pulse holder pause. Der er intet at alarmere om naar der ikke
+  // hentes. Se src/lib/pulse-pause.ts.
+  if (PAA_PAUSE) {
+    return NextResponse.json({ ok: true, paaPause: true, siden: PAUSE_FRA });
+  }
+
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

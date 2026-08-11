@@ -29,7 +29,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url("", 1),
 
     // Hovedsektioner
-    url("/pulse", 0.9),
+    // Pulse holder pause. Kun forsiden staar tilbage, med lav vaegt:
+    // undersiderne viser alle den samme pausebesked, og der er ingen
+    // grund til at bede nogen indeksere tolv kopier af den.
+    url("/pulse", 0.3),
     url("/værktøjer", 0.8),
     url("/frihedstænkere", 0.7),
     url("/beregner", 0.7),
@@ -44,11 +47,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...ARTICLES.map((a) => url(a.href, 0.6)),
 
     // Pulse-oversigter
-    url("/pulse/ledighed", 0.8),
-    url("/pulse/konkurser", 0.8),
-    url("/pulse/forbrug", 0.8),
-    url("/pulse/kommuner", 0.8),
-    url("/pulse/kommuner/danmark", 0.8),
 
     // Kommunesider - de vigtigste long-tail-sider (98 kommuner x 2 routes)
     ...kommuner.map((k) => url(`/pulse/kommuner/${k.slug}`, 0.6)),

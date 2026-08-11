@@ -41,10 +41,10 @@ export default function Tools() {
         </Link>
 
         {/* Pulse */}
-        <Link href="/pulse" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
-          <div className="w-2 h-2 rounded-full bg-moss mb-1" />
+        <Link href="/pulse" className="p-6 border border-clay flex flex-col gap-2 group hover:bg-fog/40 transition-colors">
+          <div className="w-2 h-2 rounded-full bg-clay mb-1" />
           <div className="font-[400] text-[0.9rem] text-ink">Pulse</div>
-          <div className="font-[200] text-[0.7rem] text-slate">Data · Opdateres automatisk</div>
+          <div className="font-[200] text-[0.7rem] text-slate">Data · På pause</div>
           <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
             Ledighed, konkurser og mere. Danske erhvervs- og samfundsdata fra åbne kilder, fortolket til indsigt hver måned.
           </div>

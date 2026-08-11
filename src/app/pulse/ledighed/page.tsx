@@ -20,6 +20,8 @@ import { NationalHistoryChart } from "@/components/pulse/NationalHistoryChart";
 import { KommuneRankings } from "@/components/pulse/KommuneRankings";
 import { KommunePicker } from "@/components/pulse/KommunePicker";
 import { MapWithMobileFallback } from "@/components/pulse/MapWithMobileFallback";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Ledighedspuls · Alius Pulse",
@@ -63,6 +65,8 @@ async function loadGeoData() {
 }
 
 export default async function LedighedsPulsPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   // Læser series og observations. Den gamle DataSource/DataPoint-model
   // røres ikke længere herfra.
   const serie = await hentSerieInfo(prisma, SERIE);

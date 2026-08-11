@@ -3,6 +3,8 @@ import { pageMetadata } from "@/lib/page-metadata";
 import { prisma } from "@/lib/db";
 import { hentNoegletal } from "@/lib/pulse-noegletal";
 import { NoegletalSide } from "@/components/pulse/NoegletalSide";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Priser og renter · Alius Pulse",
@@ -40,6 +42,8 @@ const VALUTA = [
 ];
 
 export default async function PriserPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const [forbrugerpriser, omkostninger, renter, valuta] = await Promise.all([
     hentNoegletal(prisma, FORBRUGERPRISER),
     hentNoegletal(prisma, OMKOSTNINGER),

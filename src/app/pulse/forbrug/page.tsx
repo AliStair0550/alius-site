@@ -7,6 +7,8 @@ import { hentSerieInfoFlere, hentNationale } from "@/lib/pulse-model";
 import { humanizePeriod } from "@/lib/signals/types";
 import { TillidsChart } from "@/components/pulse/TillidsChart";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Forbrugerklimaet · Alius Pulse",
@@ -42,6 +44,8 @@ function signedFormat(v: number): string {
 }
 
 export default async function ForbrugPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   // FORV1's tretten spørgsmål blev til tretten serier, fordi et
   // spørgsmålsnummer ikke er geografi. Detektorerne forventer stadig
   // koden i areaCode, så den sættes tilbage her fra legacyAreaCode.

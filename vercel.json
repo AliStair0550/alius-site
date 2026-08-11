@@ -1,12 +1,3 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/pulse",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/pulse-stale",
-      "schedule": "0 7 * * *"
-    }
-  ]
+  "crons": []
 }

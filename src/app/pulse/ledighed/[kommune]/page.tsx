@@ -14,6 +14,8 @@ import { getKommuneBySlug } from "@/lib/areas";
 import { humanizePeriod, formatPercent, formatPercentagePoints } from "@/lib/signals/types";
 import { ComparisonChart } from "@/components/pulse/ComparisonChart";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 type Props = {
   params: Promise<{ kommune: string }>;
@@ -58,6 +60,8 @@ export async function generateStaticParams() {
 }
 
 export default async function KommunePage({ params }: Props) {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const { kommune: slug } = await params;
   const kommune = getKommuneBySlug(slug);
   if (!kommune) notFound();

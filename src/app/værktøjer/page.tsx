@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
 type SubLink = {
   name: string;
   href: string;
-  status?: "live" | "coming";
+  status?: "live" | "coming" | "paused";
   meta?: string;
 };
 
@@ -33,13 +33,13 @@ const VAERKTOEJER: Vaerktoj[] = [
     name: "Pulse",
     tagline: "Danske data, fortolket til indsigt.",
     description:
-      "Hver måned henter Pulse de seneste danske erhvervs- og samfundsdata fra åbne kilder og forvandler dem til signaler, kort og grafer. Ingen abonnement. Ingen login. Bare et levende billede af Danmark.",
-    audience: "For ledere, journalister og virksomheder der vil følge med markedet.",
+      "Pulse hentede danske erhvervs- og samfundsdata fra åbne kilder og forvandlede dem til signaler, kort og grafer. Værktøjet holder pause, og der kommer ikke nye tal ind lige nu.",
+    audience: "Skal I bruge økonomiske nøgletal til noget konkret, laver vi det som opgave.",
     href: "/pulse",
-    accentLabel: "Data · Opdateres automatisk",
+    accentLabel: "Data · På pause",
     subLinks: [
-      { name: "Ledighed", href: "/pulse/ledighed", status: "live", meta: "kommune for kommune" },
-      { name: "Konkurser", href: "/pulse/konkurser", status: "live", meta: "månedlig udvikling" },
+      { name: "Ledighed", href: "/pulse/ledighed", status: "paused", meta: "kommune for kommune" },
+      { name: "Konkurser", href: "/pulse/konkurser", status: "paused", meta: "månedlig udvikling" },
       { name: "Forbrug", href: "#", status: "coming", meta: "kommer 2026" },
     ],
   },
@@ -201,7 +201,7 @@ function SubLinkGrid({ links }: { links: SubLink[] }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[640px]">
       {links.map((link) => {
-        if (link.status === "coming") {
+        if (link.status === "coming" || link.status === "paused") {
           return (
             <div
               key={link.name}
@@ -211,7 +211,7 @@ function SubLinkGrid({ links }: { links: SubLink[] }) {
                 {link.name}
               </div>
               <div className="text-[11px] tracking-[0.05em] uppercase text-stone/40">
-                {link.meta}
+                {link.status === "paused" ? "på pause" : link.meta}
               </div>
             </div>
           );

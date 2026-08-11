@@ -12,6 +12,8 @@ import {
   Dashboardlinks,
   type Gitterraekke,
 } from "@/components/pulse/Forside";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
+import PaaPause from "@/components/pulse/PaaPause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Pulse · Alius",
@@ -129,6 +131,8 @@ function overskrift(antalKort: number, antalSerier: number): string {
 }
 
 export default async function PulseHubPage() {
+  if (PAA_PAUSE) return <PaaPause />;
+
   const nu = new Date();
 
   const [rangliste, gitter] = await Promise.all([

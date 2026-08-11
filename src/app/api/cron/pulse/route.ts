@@ -9,6 +9,7 @@ import {
 } from "@/lib/pulse-pipeline";
 import { sendPulseUpdateEmail, sendPulseErrorEmail } from "@/lib/pulse-email";
 import { udloesSyncSeries, beskrivUdfald } from "@/lib/github-dispatch";
+import { PAA_PAUSE, PAUSE_FRA } from "@/lib/pulse-pause";
 import { humanizePeriod } from "@/lib/signals/types";
 
 function isAuthorized(req: Request): boolean {
@@ -31,6 +32,22 @@ const MIN_INTERVAL_MS = 60 * 1000;
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Pulse holder pause. Ruten roerer hverken DST eller databasen.
+  //
+  // Den svarer stadig, saa et kald udefra faar at vide hvad der sker
+  // frem for at ramme en 404. Se src/lib/pulse-pause.ts.
+  if (PAA_PAUSE) {
+    return NextResponse.json({
+      ok: true,
+      paaPause: true,
+      siden: PAUSE_FRA,
+      besked:
+        "Pulse holder pause. Ingen hentning, ingen skrivning, ingen " +
+        "databaseadgang. Saet PAA_PAUSE til false i src/lib/pulse-pause.ts " +
+        "for at taende igen.",
+    });
   }
 
   if (lastRunAt && Date.now() - lastRunAt.getTime() < MIN_INTERVAL_MS) {
