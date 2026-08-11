@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import { Footer } from "@/components/CTAFooter";
+import Link from "next/link";
 
 export const metadata: Metadata = pageMetadata({
   title: "Ali Al-Farhan - CV | ALIUS",
@@ -95,9 +96,9 @@ export default function CVPage() {
   return (
     <>
       <nav className="flex justify-between items-center px-8 py-5 border-b border-fog bg-parchment">
-        <a href="/" className="font-[300] text-[0.78rem] tracking-[0.1em] uppercase text-slate hover:text-ink transition-colors">
+        <Link href="/" className="font-[300] text-[0.78rem] tracking-[0.1em] uppercase text-slate hover:text-ink transition-colors">
           &larr; Tilbage
-        </a>
+        </Link>
       </nav>
 
       <main className="max-w-[900px] mx-auto px-6 md:px-8 py-16 md:py-24">
@@ -212,12 +213,12 @@ export default function CVPage() {
           <p className="font-[300] text-[1.1rem] text-ink mb-6">
             Interesseret i et samarbejde?
           </p>
-          <a
-            href="/#kontakt"
+          <Link
+            href="/kontakt"
             className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 bg-ink text-parchment border border-ink hover:bg-moss hover:border-moss transition-all"
           >
             Book en samtale
-          </a>
+          </Link>
         </div>
       </main>
 

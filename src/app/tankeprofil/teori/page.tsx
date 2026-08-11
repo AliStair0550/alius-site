@@ -64,7 +64,7 @@ export default function TeoriPage() {
                 Hjernen som fire rum.
               </h2>
               <p className="text-[17px] leading-[1.65] text-stone mb-5 max-w-[640px]">
-                I 1970'erne arbejdede den amerikanske ingeniør Ned Herrmann med spørgsmålet: hvorfor er nogle mennesker tiltrukket af tal og struktur, mens andre er tiltrukket af mennesker og muligheder? Han forenede neurovidenskab og psykologi i en model med fire dominerende tænkemåder.
+                I 1970&apos;erne arbejdede den amerikanske ingeniør Ned Herrmann med spørgsmålet: hvorfor er nogle mennesker tiltrukket af tal og struktur, mens andre er tiltrukket af mennesker og muligheder? Han forenede neurovidenskab og psykologi i en model med fire dominerende tænkemåder.
               </p>
               <p className="text-[17px] leading-[1.65] text-stone mb-5 max-w-[640px]">
                 Senere udvidede den sydafrikanske forsker Kobus Neethling modellen til det vi kender som Whole Brain Thinking. Vi har taget den tænkning, oversat den til dansk virkelighed, og givet den vores eget sprog.
