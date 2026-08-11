@@ -21,7 +21,7 @@ const BEFOLKNING = "dst.befolkning.antal";
 const INDKOMST = "dst.indkomst.disponibel";
 const BOLIGVAERDI = "dst.ejendom.markedsvaerdi.enfamiliehuse";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function KommunerHubPage() {
   const kommuner = getAllKommuner();

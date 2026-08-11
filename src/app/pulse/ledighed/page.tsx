@@ -5,10 +5,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { prisma } from "@/lib/db";
 import { humanizePeriod } from "@/lib/signals/types";
-import { generateAllSignals } from "@/lib/signals/detectors";
+import { hentLedighedSignaler } from "@/lib/pulse-cache";
 import {
   hentSerieInfo,
-  hentPunkter,
   hentNationale,
   hentNyestePeriode,
   hentKommuner,
@@ -30,8 +29,13 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
-// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
-export const revalidate = 3600;
+// nye tal. Døgnet her er sikkerhedsnettet hvis kaldet ikke når frem.
+//
+// Var en time indtil 11. august 2026. Dataene ændrer sig én gang i
+// døgnet, så treogtyve ud af fireogtyve genskabelser producerede
+// nøjagtig samme side som gangen før, hver med titusindvis af rækker
+// læst fra Neon. Det brændte månedskvoten på ti dage.
+export const revalidate = 86400;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
@@ -74,11 +78,13 @@ export default async function LedighedsPulsPage() {
   const femAarSiden = new Date();
   femAarSiden.setFullYear(femAarSiden.getFullYear() - 5);
 
-  const [nationalHistory, kommuneRaekker, alleTilSignaler] = await Promise.all([
+  const [nationalHistory, kommuneRaekker, alleSignaler] = await Promise.all([
     hentNationale(prisma, SERIE, serie.frequency, { fra: femAarSiden }),
     hentKommuner(prisma, SERIE, senestePeriode),
-    // Detektorerne skal se hele billedet, både land og kommuner.
-    hentPunkter(prisma, SERIE, serie.frequency),
+    // Detektorerne skal se hele billedet, både land og kommuner, og det
+    // er 2,2 MB. Beregningen deles med de 196 kommunesider gennem
+    // cachen i pulse-cache.ts frem for at blive lavet forfra hver gang.
+    hentLedighedSignaler(),
   ]);
 
   const latestNational = nationalHistory[nationalHistory.length - 1] ?? null;
@@ -98,7 +104,7 @@ export default async function LedighedsPulsPage() {
   // pegede på DataSource. Detektorerne er rene funktioner, så tallet
   // og fortolkningen kommer nu fra samme kilde.
   const rang: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const allSignals = [...generateAllSignals(alleTilSignaler)].sort(
+  const allSignals = [...alleSignaler].sort(
     (a, b) =>
       (rang[b.severity] ?? 0) - (rang[a.severity] ?? 0) ||
       (b.magnitude ?? 0) - (a.magnitude ?? 0)

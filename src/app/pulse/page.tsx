@@ -21,8 +21,13 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Det daglige hentejob kalder /api/revalidate/pulse når det har skrevet
-// nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
-export const revalidate = 3600;
+// nye tal. Døgnet her er sikkerhedsnettet hvis kaldet ikke når frem.
+//
+// Var en time indtil 11. august 2026. Dataene ændrer sig én gang i
+// døgnet, så treogtyve ud af fireogtyve genskabelser producerede
+// nøjagtig samme side som gangen før, hver med titusindvis af rækker
+// læst fra Neon. Det brændte månedskvoten på ti dage.
+export const revalidate = 86400;
 
 /**
  * Scanningsfladen. Ti serier på tværs af lagene.

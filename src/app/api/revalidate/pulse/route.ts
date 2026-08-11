@@ -11,7 +11,9 @@
 // ============================================================
 
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+
+import { PULSE_TAG } from "@/lib/pulse-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -55,10 +57,19 @@ export async function POST(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  // Mærket rydder de delte opslag i pulse-cache.ts. Uden det ville
+  // siderne blive genskabt fra en cache der stadig holdt gårsdagens
+  // signaler, og et nyt tal ville ikke slå igennem før levetiden
+  // udløb af sig selv.
+  // "max" giver stale-while-revalidate: den næste besøgende får det
+  // gamle svar med det samme, mens det nye hentes bagved. Enkelt-
+  // argumentformen er forældet i Next 16.
+  revalidateTag(PULSE_TAG, "max");
   for (const [sti, type] of STIER) revalidatePath(sti, type);
   return NextResponse.json({
     ok: true,
     revalidated: STIER.map(([s]) => s),
+    tag: PULSE_TAG,
     at: new Date().toISOString(),
   });
 }

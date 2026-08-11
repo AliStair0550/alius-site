@@ -3,11 +3,10 @@ import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { generateAllSignals } from "@/lib/signals/detectors";
+import { hentLedighedSignaler, hentKommuneNoegletal } from "@/lib/pulse-cache";
 import {
   hentSerieInfoFlere,
   hentPunkter,
-  hentSenesteePerOmraade,
 } from "@/lib/pulse-model";
 import { getKommuneBySlug, getAllKommuner } from "@/lib/areas";
 import { humanizePeriod } from "@/lib/signals/types";
@@ -19,11 +18,6 @@ import {
   type KommuneMetrics,
 } from "@/lib/similar-kommuner";
 
-const KOMMUNE_SOURCE_LABELS: Record<string, string> = {
-  "dst-aus08": "Ledighed",
-  "dst-bygv33": "Boligbyggeri",
-  "dst-laby01-b11": "Befolkning",
-};
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -40,7 +34,7 @@ const BYGGERI = "dst.byg.paabegyndt";
 const VAEKST = "dst.demografi.befolkningstilvaekst";
 const SERIER = [LEDIGHED, BEFOLKNING, INDKOMST, HUSE, LEJL, BYGGERI, VAEKST];
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -93,13 +87,15 @@ export default async function KommuneProfilPage({ params }: Props) {
     hentPunkter(prisma, LEJL, f(LEJL), { areaCode: kommune.code }),
     hentPunkter(prisma, BYGGERI, f(BYGGERI), { areaCode: kommune.code }),
     hentPunkter(prisma, VAEKST, f(VAEKST), { areaCode: kommune.code }),
-    hentPunkter(prisma, LEDIGHED, f(LEDIGHED)),
+    // Signalerne deles med de oevrige sider. Uden cachen laeste hver af
+    // de 98 profiler hele ledighedsserien paa 2,2 MB.
+    hentLedighedSignaler(),
   ]);
 
   // Signalerne regnes her frem for at ligge i Signal-tabellen.
   // Ledigheden er den eneste af de syv serier der har detektorer.
   const sevRank: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const kommuneSignals = generateAllSignals(ledighedTilSignaler)
+  const kommuneSignals = ledighedTilSignaler
     .filter((sig) => sig.areaCode === kommune.code)
     .sort(
       (a, b) =>
@@ -164,19 +160,19 @@ export default async function KommuneProfilPage({ params }: Props) {
   let lignende: ReturnType<typeof findSimilarKommuner> = [];
 
   if (latestUnemp) {
-    const [unempByCode, popByCode, incomeByCode] = await Promise.all([
-      hentSenesteePerOmraade(prisma, LEDIGHED, f(LEDIGHED)),
-      hentSenesteePerOmraade(prisma, BEFOLKNING, f(BEFOLKNING)),
-      hentSenesteePerOmraade(prisma, INDKOMST, f(INDKOMST)),
-    ]);
+    // Tre opslag der gav samme svar paa alle 98 sider. Nu eet, delt.
+    const noegletal = await hentKommuneNoegletal();
+    const unempByCode = new Map(noegletal.ledighed);
+    const popByCode = new Map(noegletal.befolkning);
+    const incomeByCode = new Map(noegletal.indkomst);
 
     const allMetrics: KommuneMetrics[] = allKommuner.map((k) => ({
       code: k.code,
       name: k.name,
       slug: k.slug,
-      unemployment: unempByCode.get(k.code)?.value ?? null,
-      income: incomeByCode.get(k.code)?.value ?? null,
-      population: popByCode.get(k.code)?.value ?? null,
+      unemployment: unempByCode.get(k.code) ?? null,
+      income: incomeByCode.get(k.code) ?? null,
+      population: popByCode.get(k.code) ?? null,
     }));
 
     const target: KommuneMetrics = {

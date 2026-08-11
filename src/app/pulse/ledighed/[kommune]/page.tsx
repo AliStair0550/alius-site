@@ -3,14 +3,14 @@ import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { generateAllSignals } from "@/lib/signals/detectors";
+import { hentLedighedSignaler } from "@/lib/pulse-cache";
 import {
   hentSerieInfo,
   hentPunkter,
   hentNationale,
   hentKommuner,
 } from "@/lib/pulse-model";
-import { getKommuneBySlug, getAllKommuner } from "@/lib/areas";
+import { getKommuneBySlug } from "@/lib/areas";
 import { humanizePeriod, formatPercent, formatPercentagePoints } from "@/lib/signals/types";
 import { ComparisonChart } from "@/components/pulse/ComparisonChart";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
@@ -23,7 +23,7 @@ type Props = {
 // nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 const SERIE = "dst.ledighed.sasonkorrigeret";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
@@ -87,9 +87,11 @@ export default async function KommunePage({ params }: Props) {
 
   // Signaler om netop denne kommune. Regnes af detektorerne frem for at
   // blive slået op i Signal-tabellen, som hørte til den gamle model.
-  const alleTilSignaler = await hentPunkter(prisma, SERIE, serie.frequency);
+  // Delt med de oevrige kommunesider. Uden cachen laeste hver af de 98
+  // sider hele serien paa 2,2 MB for at bruge nogle faa signaler.
+  const alleSignaler = await hentLedighedSignaler();
   const rang: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const kommuneSignals = generateAllSignals(alleTilSignaler)
+  const kommuneSignals = alleSignaler
     .filter((sig) => sig.areaCode === kommune.code)
     .sort(
       (a, b) =>

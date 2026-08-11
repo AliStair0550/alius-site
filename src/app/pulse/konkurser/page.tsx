@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { generateKonkursSignals } from "@/lib/signals/konkurs-detectors";
+import { hentKonkursSignaler } from "@/lib/pulse-cache";
 import { hentSerieInfo, hentNationale } from "@/lib/pulse-model";
 import { humanizePeriod } from "@/lib/signals/types";
 import { PulseSignalCard } from "@/components/pulse/SignalCard";
@@ -21,7 +21,7 @@ export const metadata: Metadata = pageMetadata({
 // nye tal. Timen her er sikkerhedsnettet hvis kaldet ikke når frem.
 const TOTAL_SERIE = "dst.konkurs.total";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 type Direction = "UP" | "DOWN" | "STABLE";
 
@@ -147,9 +147,9 @@ export default async function KonkursPulsPage() {
   const femAarSiden = new Date();
   femAarSiden.setFullYear(femAarSiden.getFullYear() - 5);
 
-  const [seasonal, alleTilSignaler] = await Promise.all([
+  const [seasonal, alleSignaler] = await Promise.all([
     hentNationale(prisma, TOTAL_SERIE, totalSerie.frequency, { fra: femAarSiden }),
-    hentNationale(prisma, TOTAL_SERIE, totalSerie.frequency),
+    hentKonkursSignaler(),
   ]);
 
   // Den gamle side havde en tom "actual"-serie ved siden af den
@@ -211,7 +211,7 @@ export default async function KonkursPulsPage() {
 
   // Signalerne regnes her frem for at ligge i Signal-tabellen.
   const rang: Record<string, number> = { important: 2, note: 1, info: 0 };
-  const allSignals = [...generateKonkursSignals(alleTilSignaler)].sort(
+  const allSignals = [...alleSignaler].sort(
     (a, b) =>
       (rang[b.severity] ?? 0) - (rang[a.severity] ?? 0) ||
       (b.magnitude ?? 0) - (a.magnitude ?? 0)

@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/pulse/konjunktur",
 });
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Rækkefølgen er redaktionel og sorteres ikke om. Stemningen først,
 // fordi den vender før tallene gør, og det realiserede sidst, fordi

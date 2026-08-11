@@ -393,3 +393,53 @@ export function kildeOgLicens(serier: Array<SerieInfo | null | undefined>): stri
 
   return dele.join(" ");
 }
+
+/**
+ * Månedsgennemsnit, regnet i databasen.
+ *
+ * Serie-siden tegnede kurven ved at hente hele dagshistorikken og midle
+ * den i Node. For elprisen er det 9.902 rækker over ledningen for at
+ * ende med 325 punkter, altså tredive gange mere end nødvendigt.
+ *
+ * Aggregeringen hører hjemme hvor rækkerne er. Neons månedskvote er
+ * netværkstrafik, ikke regnetid.
+ */
+export async function hentMaanedsgennemsnit(
+  prisma: PrismaClient,
+  seriesId: string
+): Promise<Array<{ periode: Date; vaerdi: number }>> {
+  const rows = await prisma.$queryRaw<Array<{ maaned: Date; snit: number }>>`
+    SELECT date_trunc('month', period)::date AS maaned, avg(value)::float8 AS snit
+    FROM observations
+    WHERE series_id = ${seriesId} AND is_current AND value IS NOT NULL
+      AND area_code IN ('DK', '000')
+    GROUP BY 1 ORDER BY 1`;
+  return rows.map((r) => ({ periode: r.maaned, vaerdi: Number(r.snit) }));
+}
+
+/** Første og seneste observation plus antallet, uden at hente rækkerne. */
+export async function hentSerieOmfang(
+  prisma: PrismaClient,
+  seriesId: string
+): Promise<{ foerste: Date; seneste: Date; vaerdi: number; antal: number } | null> {
+  const rows = await prisma.$queryRaw<
+    Array<{ foerste: Date; seneste: Date; antal: bigint }>
+  >`
+    SELECT min(period) AS foerste, max(period) AS seneste, count(*) AS antal
+    FROM observations
+    WHERE series_id = ${seriesId} AND is_current AND value IS NOT NULL
+      AND area_code IN ('DK', '000')`;
+  const r = rows[0];
+  if (!r?.foerste) return null;
+  const sidste = await prisma.observation.findFirst({
+    where: { seriesId, isCurrent: true, value: { not: null }, areaCode: { in: ["DK", "000"] } },
+    orderBy: { period: "desc" },
+    select: { value: true },
+  });
+  return {
+    foerste: r.foerste,
+    seneste: r.seneste,
+    vaerdi: Number(sidste!.value),
+    antal: Number(r.antal),
+  };
+}

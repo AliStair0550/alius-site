@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/pulse/energi",
 });
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // DK1 er vest for Storebælt, DK2 øst. To prisområder, to markeder, og
 // forskellen mellem dem er sin egen historie.

@@ -3,15 +3,19 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { pageMetadata } from "@/lib/page-metadata";
 import { prisma } from "@/lib/db";
-import { hentSerieInfo, hentNationale, kildeOgLicens } from "@/lib/pulse-model";
+import {
+  hentSerieInfo,
+  hentMaanedsgennemsnit,
+  hentSerieOmfang,
+  kildeOgLicens,
+} from "@/lib/pulse-model";
 import { hentNoegletal } from "@/lib/pulse-noegletal";
 import { formatVaerdi, formatAendring, enhed } from "@/lib/pulse-enheder";
 import { kildeUrl } from "@/lib/pulse-rangliste";
-import { toMonthlyMedKilde } from "@/lib/pulse-zscore";
 
 type Props = { params: Promise<{ id: string }> };
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Siderne renderes ved første besøg og caches derefter. Der er halvfems
 // serier, og de fleste bliver aldrig slået op.
@@ -55,28 +59,20 @@ export default async function SeriePage({ params }: Props) {
   const serie = await hentSerieInfo(prisma, id);
   if (!serie) notFound();
 
-  // Hele historikken, ikke fem år. Det er hele pointen med siden.
-  const alle = await hentNationale(prisma, id, serie.frequency);
-  if (alle.length === 0) notFound();
+  // Hele historikken, men aggregeret i databasen. Siden hentede før
+  // hver eneste dagsobservation for at midle dem her; for elprisen var
+  // det 9.902 rækker for at ende med 325 punkter.
+  const omfang = await hentSerieOmfang(prisma, id);
+  if (!omfang) notFound();
 
-  const punkter = alle.map((p) => ({ periode: p.periodDate, vaerdi: p.value! }));
-  const seneste = punkter[punkter.length - 1];
-  const foerste = punkter[0];
+  const seneste = { periode: omfang.seneste, vaerdi: omfang.vaerdi };
+  const foerste = { periode: omfang.foerste, vaerdi: 0 };
 
   // Nøgletallene genbruges, så forsiden og den her side aldrig kan
   // fortælle to forskellige historier om samme serie.
   const n = (await hentNoegletal(prisma, [id])).tal[0] ?? null;
 
-  // Månedsværdier over hele historikken til kurven.
-  const { udfyldt } = toMonthlyMedKilde(
-    punkter.map((p) => ({ period: p.periode, value: p.vaerdi }))
-  );
-  const kurve = [...udfyldt.entries()]
-    .sort((a, b) => a[0] - b[0])
-    .map(([k, v]) => ({
-      periode: new Date(Date.UTC(Math.floor(k / 12), k % 12, 1)),
-      vaerdi: v,
-    }));
+  const kurve = await hentMaanedsgennemsnit(prisma, id);
 
   const aar = (
     (seneste.periode.getTime() - foerste.periode.getTime()) /
@@ -196,7 +192,7 @@ export default async function SeriePage({ params }: Props) {
                 }[serie.frequency] ?? serie.frequency
               }
             />
-            <Raekke etiket="Observationer" vaerdi={punkter.length.toLocaleString("da-DK")} />
+            <Raekke etiket="Observationer" vaerdi={omfang.antal.toLocaleString("da-DK")} />
             <Raekke
               etiket="Sidst hentet"
               vaerdi={

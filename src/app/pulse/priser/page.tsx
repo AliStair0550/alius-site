@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/pulse/priser",
 });
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const FORBRUGERPRISER = [
   "dst.pris.forbruger.aarsaendring",
