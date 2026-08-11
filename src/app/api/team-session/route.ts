@@ -67,6 +67,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
+      // Sessionen blev oprettet uanset hvad, og linkene står i svaret her,
+      // så brugeren aldrig er låst ude. Men skærmen må ikke påstå at
+      // mailen kom frem hvis den ikke gjorde: adminUrl findes kun i den
+      // mail og på den skærm. Tror man på en mail der aldrig kom, og
+      // lukker fanen, er holdet væk.
+      mailSendt: emailResult.ok,
       joinUrl,
       adminUrl,
       joinToken: session.joinToken,

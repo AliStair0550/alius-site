@@ -6,6 +6,8 @@ type SessionResult = {
   joinUrl: string;
   adminUrl: string;
   joinToken: string;
+  /** Om kvitteringsmailen faktisk gik af sted. Se SuccessPanel. */
+  mailSendt: boolean;
 };
 
 export function TeamSessionForm() {
@@ -41,7 +43,14 @@ export function TeamSessionForm() {
         return;
       }
 
-      setResult({ joinUrl: body.joinUrl, adminUrl: body.adminUrl, joinToken: body.joinToken });
+      setResult({
+        joinUrl: body.joinUrl,
+        adminUrl: body.adminUrl,
+        joinToken: body.joinToken,
+        // Kun sandt når serveren udtrykkeligt siger det. Et felt der
+        // mangler er ikke det samme som en mail der kom frem.
+        mailSendt: body.mailSendt === true,
+      });
     } catch (err) {
       console.error("[TeamSessionForm] Submit error:", err);
       setError("Kunne ikke oprette sessionen. Tjek din internetforbindelse og prøv igen.");
@@ -138,9 +147,26 @@ function SuccessPanel({ result }: { result: SessionResult }) {
           Hold-linket er klar
         </div>
         <p className="text-[15px] text-stone leading-[1.6] max-w-[440px]">
-          Gør to ting: send linket til holdet, og tag så testen selv. Begge links er også sendt til din email.
+          Gør to ting: send linket til holdet, og tag så testen selv.
+          {result.mailSendt ? " Begge links er også sendt til din email." : ""}
         </p>
       </div>
+
+      {/* Kom mailen ikke af sted, skal skærmen sige det. Admin-linket
+          findes kun her og i mailen, og den der lukker fanen i tillid
+          til en mail der aldrig kom, har mistet sit hold. */}
+      {!result.mailSendt && (
+        <div className="border-l-2 border-ink pl-5 py-1">
+          <div className="text-[11px] tracking-[0.3em] uppercase text-ink mb-2">
+            Gem linkene nu
+          </div>
+          <p className="text-[15px] text-stone leading-[1.6] max-w-[440px]">
+            Vi kunne ikke sende dig kvitteringsmailen. Linkene nedenfor er
+            de eneste, du har. Kopier dem et sikkert sted hen, før du lukker
+            siden. Sig til på hej@alius.dk, så finder vi dem frem igen.
+          </p>
+        </div>
+      )}
 
       {/* Trin 1 · Send til holdet */}
       <div className="bg-sand p-8 md:p-10">

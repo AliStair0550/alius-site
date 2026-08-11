@@ -6,27 +6,12 @@ import {
   beregnerLeadEmailHtml,
   beregnerLeadEmailText,
 } from "@/lib/email";
+import { afsenderNoegle, vurderGraense } from "@/lib/rate-limit";
 
 // ── Beregningsgrundlag (spejler /beregner) ─────────────────────────
 const WEEKS_PER_YEAR = 46;
 const ANNUAL_HOURS = 1628;
 const EMPLOYER_OVERHEAD = 1.08;
-
-// In-memory rate-limit. Nulstilles ved server-genstart - fint til denne brug.
-const recent = new Map<string, number>();
-const RATE_WINDOW_MS = 60 * 1000;
-const RATE_MAX = 3;
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  for (const [k, ts] of recent.entries()) {
-    if (now - ts > RATE_WINDOW_MS) recent.delete(k);
-  }
-  const count = Array.from(recent.values()).filter((ts) => now - ts < RATE_WINDOW_MS).length;
-  if (count >= RATE_MAX) return false;
-  recent.set(`${key}-${now}`, now);
-  return true;
-}
 
 function clampInt(v: unknown, min: number, max: number): number | null {
   const n = typeof v === "number" ? v : Number(v);
@@ -59,8 +44,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Ugyldige tal." }, { status: 400 });
     }
 
-    if (!checkRateLimit(email)) {
-      return NextResponse.json({ error: "For mange forsøg. Prøv igen om lidt." }, { status: 429 });
+    // Pr. afsender, ikke pr. e-mail: en robot vælger selv sin e-mail.
+    const graense = vurderGraense(afsenderNoegle(req));
+    if (graense.grund === "ukendt_afsender") {
+      console.warn("[beregner/lead] ingen afsenderadresse - gik igennem uden grænse");
+    }
+    if (!graense.tilladt) {
+      return NextResponse.json({ error: "Du har lige sendt en beregning. Prøv igen om et øjeblik." }, { status: 429 });
     }
 
     // Beregn server-side (stol ikke på klientens tal)
@@ -87,12 +77,25 @@ export async function POST(req: Request) {
     });
 
     // 2) Lead-notifikation til hej@alius.dk (fanger leadet, reply går til brugeren)
-    await sendEmail({
+    const leadRes = await sendEmail({
       subject: `Ny beregner-lead: ${annualCost.toLocaleString("da-DK")} kr`,
       html: beregnerLeadEmailHtml({ ...shared, email }),
       text: beregnerLeadEmailText({ ...shared, email }),
       replyTo: email,
     });
+
+    // Svaret blev ikke tjekket indtil 11. august 2026. Slog notifikationen
+    // fejl, forsvandt leadet lydløst: den besøgende fik sin egen mail og
+    // en kvittering, og vi hørte aldrig om ham. Leadet gemmes ikke i basen,
+    // så mailen er det eneste spor. Derfor skrives hele leadet ud her, så
+    // det kan hentes op af Vercels log frem for at være tabt.
+    if (!leadRes.ok) {
+      console.error(
+        "[beregner/lead] TABT LEAD - notifikationen kunne ikke sendes:",
+        leadRes.reason,
+        JSON.stringify({ email, ...shared })
+      );
+    }
 
     if (!resultRes.ok) {
       console.error("[beregner/lead] Result email failed:", resultRes.reason);

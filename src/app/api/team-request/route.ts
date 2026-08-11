@@ -1,27 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendEmail, teamRequestEmailHtml, teamRequestEmailText } from "@/lib/email";
+import { afsenderNoegle, vurderGraense } from "@/lib/rate-limit";
 
-// Basic rate-limit using in-memory map. Resets on server restart.
-// For preview deployments this is OK; for production we'd want a real KV store.
-const recentSubmissions = new Map<string, number>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_PER_WINDOW = 3;
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  // Clean old entries
-  for (const [k, ts] of recentSubmissions.entries()) {
-    if (now - ts > RATE_LIMIT_WINDOW_MS) recentSubmissions.delete(k);
-  }
-  // Count current
-  const count = Array.from(recentSubmissions.values()).filter(
-    (ts) => now - ts < RATE_LIMIT_WINDOW_MS
-  ).length;
-  if (count >= RATE_LIMIT_MAX_PER_WINDOW) return false;
-  recentSubmissions.set(`${key}-${now}`, now);
-  return true;
-}
+// Grænsen ligger i @/lib/rate-limit og tælles pr. afsender.
 
 function isValidString(v: unknown, maxLen = 500): v is string {
   return typeof v === "string" && v.trim().length > 0 && v.trim().length <= maxLen;
@@ -76,10 +58,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    // Rate limit by email
-    if (!checkRateLimit(body.email)) {
+    const graense = vurderGraense(afsenderNoegle(req));
+    if (graense.grund === "ukendt_afsender") {
+      console.warn("[team-request] ingen afsenderadresse - gik igennem uden grænse");
+    }
+    if (!graense.tilladt) {
       return NextResponse.json(
-        { error: "For mange anmodninger. Prøv igen om lidt." },
+        { error: "Du har lige sendt en anmodning. Prøv igen om et øjeblik." },
         { status: 429 }
       );
     }

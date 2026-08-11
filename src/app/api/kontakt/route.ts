@@ -8,20 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
-
-const RATE_WINDOW_MS = 60 * 1000;
-const RATE_MAX = 3;
-const recent = new Map<string, number>();
-
-function underGraensen(): boolean {
-  const nu = Date.now();
-  for (const [k, ts] of recent.entries()) {
-    if (nu - ts > RATE_WINDOW_MS) recent.delete(k);
-  }
-  if (recent.size >= RATE_MAX) return false;
-  recent.set(`${nu}-${Math.round(nu % 1000)}`, nu);
-  return true;
-}
+import { afsenderNoegle, vurderGraense } from "@/lib/rate-limit";
 
 /** Klipper og afviser tomt. Returnerer null når feltet ikke duer. */
 function tekst(v: unknown, maks: number): string | null {
@@ -67,9 +54,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Skriv en besked." }, { status: 400 });
   }
 
-  if (!underGraensen()) {
+  // Grænsen tælles pr. afsender. Se rate-limit.ts for hvorfor den
+  // ikke må være fælles: den fjerde besøgende i et minut er ikke en
+  // robot, bare den fjerde.
+  const graense = vurderGraense(afsenderNoegle(req));
+  if (graense.grund === "ukendt_afsender") {
+    console.warn("[kontakt] ingen afsenderadresse - beskeden gik igennem uden grænse");
+  }
+  if (!graense.tilladt) {
     return NextResponse.json(
-      { error: "Der er sendt for mange beskeder lige nu. Prøv om et øjeblik." },
+      { error: "Du har lige sendt en besked. Vent et øjeblik, så tager vi imod den næste." },
       { status: 429 }
     );
   }

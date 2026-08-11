@@ -4,6 +4,7 @@ import {
   kortlaegningLeadEmailHtml,
   kortlaegningLeadEmailText,
 } from "@/lib/email";
+import { afsenderNoegle, vurderGraense } from "@/lib/rate-limit";
 
 // ── Beregningsgrundlag (spejler /beregner) ─────────────────────────
 const WEEKS_PER_YEAR = 46;
@@ -25,21 +26,7 @@ const ALLOWED_ROUTINES = [
 const MAX_ROUTINES = 3;
 const MAX_NOTE_LEN = 2000;
 
-// In-memory rate-limit. Nulstilles ved server-genstart - fint til denne brug.
-const recent = new Map<string, number>();
-const RATE_WINDOW_MS = 60 * 1000;
-const RATE_MAX = 3;
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  for (const [k, ts] of recent.entries()) {
-    if (now - ts > RATE_WINDOW_MS) recent.delete(k);
-  }
-  const count = Array.from(recent.values()).filter((ts) => now - ts < RATE_WINDOW_MS).length;
-  if (count >= RATE_MAX) return false;
-  recent.set(`${key}-${now}`, now);
-  return true;
-}
+// Grænsen ligger i @/lib/rate-limit og tælles pr. afsender.
 
 function clampInt(v: unknown, min: number, max: number): number | null {
   const n = typeof v === "number" ? v : Number(v);
@@ -86,8 +73,12 @@ export async function POST(req: Request) {
     const note =
       typeof body.note === "string" ? body.note.trim().slice(0, MAX_NOTE_LEN) : "";
 
-    if (!checkRateLimit(email)) {
-      return NextResponse.json({ error: "For mange forsøg. Prøv igen om lidt." }, { status: 429 });
+    const graense = vurderGraense(afsenderNoegle(req));
+    if (graense.grund === "ukendt_afsender") {
+      console.warn("[beregner/kortlaegning] ingen afsenderadresse - gik igennem uden grænse");
+    }
+    if (!graense.tilladt) {
+      return NextResponse.json({ error: "Du har lige sendt en anmodning. Prøv igen om et øjeblik." }, { status: 429 });
     }
 
     // Beregn server-side (stol ikke på klientens tal)
