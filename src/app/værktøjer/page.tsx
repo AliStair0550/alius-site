@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Værktøjer · Alius",
@@ -27,22 +28,27 @@ type Vaerktoj = {
   subLinks?: SubLink[];
 };
 
+// Pulse staar foerst, men vises kun naar den koerer. Se listen nedenfor:
+// den filtreres paa PAA_PAUSE, saa posten her kan blive staaende uroert
+// og komme tilbage af sig selv.
+const PULSE: Vaerktoj = {
+  slug: "pulse",
+  name: "Pulse",
+  tagline: "Danske data, fortolket til indsigt.",
+  description:
+    "Pulse henter danske erhvervs- og samfundsdata fra åbne kilder og forvandler dem til signaler, kort og grafer.",
+  audience: "For ledere og rådgivere der vil se udviklingen før den bliver til en nyhed.",
+  href: "/pulse",
+  accentLabel: "Data · Opdateres dagligt",
+  subLinks: [
+    { name: "Ledighed", href: "/pulse/ledighed", status: "live", meta: "kommune for kommune" },
+    { name: "Konkurser", href: "/pulse/konkurser", status: "live", meta: "månedlig udvikling" },
+    { name: "Forbrug", href: "#", status: "coming", meta: "kommer 2026" },
+  ],
+};
+
 const VAERKTOEJER: Vaerktoj[] = [
-  {
-    slug: "pulse",
-    name: "Pulse",
-    tagline: "Danske data, fortolket til indsigt.",
-    description:
-      "Pulse hentede danske erhvervs- og samfundsdata fra åbne kilder og forvandlede dem til signaler, kort og grafer. Værktøjet holder pause, og der kommer ikke nye tal ind lige nu.",
-    audience: "Skal I bruge økonomiske nøgletal til noget konkret, laver vi det som opgave.",
-    href: "/pulse",
-    accentLabel: "Data · På pause",
-    subLinks: [
-      { name: "Ledighed", href: "/pulse/ledighed", status: "paused", meta: "kommune for kommune" },
-      { name: "Konkurser", href: "/pulse/konkurser", status: "paused", meta: "månedlig udvikling" },
-      { name: "Forbrug", href: "#", status: "coming", meta: "kommer 2026" },
-    ],
-  },
+  ...(PAA_PAUSE ? [] : [PULSE]),
   {
     slug: "tankeprofil",
     name: "Personlighedsprofil",

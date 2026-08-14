@@ -34,10 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // her indtil 11. august 2026, mens 196 kommunesider stod meldt ind.
     url("/kontakt", 0.9),
 
-    // Pulse holder pause. Kun forsiden staar tilbage, med lav vaegt:
-    // undersiderne viser alle den samme pausebesked, og der er ingen
-    // grund til at bede nogen indeksere kopier af den.
-    url("/pulse", 0.3),
+    // Pulse holder pause og er skjult fra baade forsiden og
+    // vaerktoejssiden. Saa skal den heller ikke meldes ind her: et
+    // sitemap er en opfordring til at gennemgaa en side, og den eneste
+    // side der er tilbage, siger at der ikke er noget at komme efter.
+    ...(PAA_PAUSE ? [] : [url("/pulse", 0.8)]),
+
     url("/værktøjer", 0.8),
     url("/frihedstænkere", 0.7),
     url("/beregner", 0.7),

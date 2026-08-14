@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PAA_PAUSE } from "@/lib/pulse-pause";
 
 export default function Tools() {
   return (
@@ -13,7 +14,14 @@ export default function Tools() {
         Vores værktøjer giver dig indsigt inden du tager kontakt. De er gratis og kræver ingen tilmelding.
       </p>
 
-      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Antallet af spalter foelger antallet af kort. Med Pulse skjult er
+          der tre, og et firespaltet gitter ville efterlade et tomt felt
+          der ligner noget der mangler. */}
+      <div
+        className={`mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5 ${
+          PAA_PAUSE ? "lg:grid-cols-3" : "lg:grid-cols-4"
+        }`}
+      >
         {/* Tankeprofil */}
         <Link href="/tankeprofil" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
@@ -40,18 +48,23 @@ export default function Tools() {
           </div>
         </Link>
 
-        {/* Pulse */}
-        <Link href="/pulse" className="p-6 border border-clay flex flex-col gap-2 group hover:bg-fog/40 transition-colors">
-          <div className="w-2 h-2 rounded-full bg-clay mb-1" />
-          <div className="font-[400] text-[0.9rem] text-ink">Pulse</div>
-          <div className="font-[200] text-[0.7rem] text-slate">Data · På pause</div>
-          <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
-            Ledighed, konkurser og mere. Danske erhvervs- og samfundsdata fra åbne kilder, fortolket til indsigt hver måned.
-          </div>
-          <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
-            Se data &rarr;
-          </div>
-        </Link>
+        {/* Pulse. Skjult mens den holder pause, ikke slettet: kortet
+            skal tilbage uroert naar PAA_PAUSE bliver falsk. Et kort der
+            reklamerer for noget der staar stille, koster mere end det
+            giver. */}
+        {!PAA_PAUSE && (
+          <Link href="/pulse" className="p-6 border border-clay flex flex-col gap-2 group hover:bg-fog/40 transition-colors">
+            <div className="w-2 h-2 rounded-full bg-clay mb-1" />
+            <div className="font-[400] text-[0.9rem] text-ink">Pulse</div>
+            <div className="font-[200] text-[0.7rem] text-slate">Data · Opdateres dagligt</div>
+            <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
+              Ledighed, konkurser og mere. Danske erhvervs- og samfundsdata fra åbne kilder, fortolket til indsigt hver måned.
+            </div>
+            <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
+              Se data &rarr;
+            </div>
+          </Link>
+        )}
 
         {/* Frihedstænkere */}
         <Link href="/frihedstænkere" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
