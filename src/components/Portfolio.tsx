@@ -82,10 +82,19 @@ const projects = [
   },
   {
     name: "folka",
-    type: "Platform · SaaS · Community",
-    desc: "Community management platform bygget fra bunden. Direkte leverancer: Stripe Connect til betalinger og udbetalinger, abonnements- og medlemslogik, rollebaseret adgang og community-værktøjer. Next.js, Prisma og Postgres - fra arkitektur til produktion.",
-    image: "/folka.jpg",
-    tint: "moss",
+    type: "Platform · SaaS · Intranet",
+    desc: "Intranet for små og mellemstore virksomheder, bygget fra bunden. Sammen om arbejdet: beskeder, filer og overblik, ét sted for hele holdet. Direkte leverancer: opslag med læsekvittering, håndbøger der skal bekræftes, tidsregistrering, lønsedler og kontraktunderskrift. Next.js, Prisma og Postgres - fra arkitektur til produktion.",
+    // Folkas eget foto fra folka.dk. Erstattede 14. september 2026 et
+    // stockfoto fra en yogatime, som passede til den gamle position som
+    // fællesskabsplatform, men lignede forbrugerfitness.
+    //
+    // Sløret er væk af samme grund. Folka havde tint: "moss", som lagde
+    // bg-moss/40 hen over hele billedet for at få et off-brand foto til
+    // at passe ind. De ni andre projekter viser deres billede i fuld
+    // farve, og 40 procent grønt ville skjule netop det fotoet er valgt
+    // for. Fotoet ligger selv i paletten: træ, cremet, salviegrøn.
+    // Folka var den eneste bruger af tint, så grenen er fjernet.
+    image: "/folka.webp",
     link: "https://folka.dk",
     layout: "image-left" as const,
     logoFont: true,
@@ -344,9 +353,6 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
               </div>
             </div>
           </>
-        )}
-        {"tint" in p && p.tint === "moss" && (
-          <div className="absolute inset-0 bg-moss/40 z-[5]" />
         )}
         {"cornerLogo" in p && p.cornerLogo && (
           <img
