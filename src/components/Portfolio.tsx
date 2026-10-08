@@ -84,16 +84,21 @@ const projects = [
     name: "folka",
     type: "Platform · SaaS · Intranet",
     desc: "Intranet for små og mellemstore virksomheder, bygget fra bunden. Sammen om arbejdet: beskeder, filer og overblik, ét sted for hele holdet. Direkte leverancer: opslag med læsekvittering, håndbøger der skal bekræftes, tidsregistrering, lønsedler og kontraktunderskrift. Next.js, Prisma og Postgres - fra arkitektur til produktion.",
-    // Folkas eget foto fra folka.dk. Erstattede 14. september 2026 et
-    // stockfoto fra en yogatime, som passede til den gamle position som
-    // fællesskabsplatform, men lignede forbrugerfitness.
+    // Foto leveret af Ali 8. oktober 2026. Caféinteriør i modlys.
     //
-    // Sløret er væk af samme grund. Folka havde tint: "moss", som lagde
-    // bg-moss/40 hen over hele billedet for at få et off-brand foto til
-    // at passe ind. De ni andre projekter viser deres billede i fuld
-    // farve, og 40 procent grønt ville skjule netop det fotoet er valgt
-    // for. Fotoet ligger selv i paletten: træ, cremet, salviegrøn.
-    // Folka var den eneste bruger af tint, så grenen er fjernet.
+    // Tredje billede på pladsen. Først et stockfoto fra en yogatime, som
+    // passede til den gamle position som fællesskabsplatform. Så et foto
+    // fra folka.dk med to kolleger om én skærm. Nu dette.
+    //
+    // Kilden er 4:3 og 5184 px bred; kortet er 16:10 og viser højst 640.
+    // Derfor nedskaleret til 1600 px og gemt som webp: 1,8 MB blev til
+    // 77 KB. object-cover skærer resten, cirka 17 procent af højden,
+    // mest loftet og lamperne foroven.
+    //
+    // Ingen tint. Folka havde tint: "moss", som lagde bg-moss/40 hen over
+    // hele billedet for at få et off-brand foto til at passe ind. De ni
+    // andre projekter viser deres billede i fuld farve, og grenen er
+    // fjernet, fordi Folka var dens eneste bruger.
     image: "/folka.webp",
     link: "https://folka.dk",
     layout: "image-left" as const,
