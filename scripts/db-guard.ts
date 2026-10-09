@@ -20,7 +20,8 @@
  * fanges af samme mønster.
  */
 const PRODUCTION_HOSTS = [
-  "ep-rough-forest-alz77jsq", // Neon, alius-site produktion
+  "ep-rough-forest-alz77jsq", // Neon, Pulse produktion
+  "ep-fragrant-haze-b2c8m125", // Neon, forretningen produktion
 ];
 
 const command = process.argv[2] ?? "ukendt kommando";

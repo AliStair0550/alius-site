@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { TeamTestClient } from "@/components/tankeprofil/TeamTestClient";
 import type { Metadata } from "next";
 

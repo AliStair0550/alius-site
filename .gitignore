@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Prisma-klienten til forretningsdatabasen. Genereres af `npm run generate`
+# ved hver installation og hvert byg, praecis som den anden klient.
+# Genereret kode hoerer ikke i repoet.
+src/generated/

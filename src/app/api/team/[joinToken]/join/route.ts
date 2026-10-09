@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 
 export async function POST(
   req: NextRequest,

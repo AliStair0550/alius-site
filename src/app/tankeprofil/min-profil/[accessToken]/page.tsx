@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { ARCHETYPES, type QuadrantKey, type Totals } from "@/components/tankeprofil/data";
 import { ProfileView } from "@/components/tankeprofil/ProfileView";
 import { calculateClarity, clarityQualifier, clarityDescription } from "@/components/tankeprofil/confidence";

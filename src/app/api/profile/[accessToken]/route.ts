@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { sendEmail, fullProfileEmailHtml, fullProfileEmailText } from "@/lib/email";
 import { ARCHETYPES } from "@/components/tankeprofil/data";
 import type { QuadrantKey } from "@/components/tankeprofil/data";

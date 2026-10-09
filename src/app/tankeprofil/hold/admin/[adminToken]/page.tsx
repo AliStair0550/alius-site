@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import SessionAdminPanel from "./SessionAdminPanel";
 import type { Metadata } from "next";
 

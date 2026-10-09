@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 
 // Validate that totals look reasonable
 function isValidTotals(t: unknown): t is { A: number; B: number; C: number; D: number } {

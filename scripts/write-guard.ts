@@ -39,7 +39,8 @@
  * og kan ikke importere herfra uden at trække Prisma med ind.
  */
 export const PRODUKTIONSVAERTER = [
-  "ep-rough-forest-alz77jsq", // Neon, alius-site produktion
+  "ep-rough-forest-alz77jsq", // Neon, Pulse produktion
+  "ep-fragrant-haze-b2c8m125", // Neon, forretningen produktion
 ];
 
 export function erProduktion(databaseUrl: string | undefined): boolean {

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { analyzeTeam, type Participant } from "@/lib/team-analysis";
 import { TeamReportReveal } from "@/components/tankeprofil/TeamReportReveal";
 import type { QuadrantKey } from "@/components/tankeprofil/data";

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { sendEmail, approvalEmailHtml, approvalEmailText } from "@/lib/email";
 
 function isValidString(v: unknown, maxLen = 500): v is string {

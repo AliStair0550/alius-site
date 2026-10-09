@@ -1,9 +1,10 @@
 // ============================================================
-// Seed-fil for alius database
+// Seed-fil for FORRETNINGSDATABASEN (tankeprofil og hold).
+// Pulse seedes ikke; dens data hentes fra kilderne.
 // Kør med: npx prisma db seed
 // ============================================================
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/forretning";
 
 const prisma = new PrismaClient();
 

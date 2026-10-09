@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { sendEmail, teamRequestEmailHtml, teamRequestEmailText } from "@/lib/email";
 import { afsenderNoegle, vurderGraense } from "@/lib/rate-limit";
 

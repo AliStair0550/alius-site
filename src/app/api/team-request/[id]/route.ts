@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
+import { forretningPrisma as prisma } from "@/lib/forretning-db";
 import { sendEmail, approvalEmailHtml, approvalEmailText } from "@/lib/email";
 
 function checkAdmin(req: NextRequest): boolean {
