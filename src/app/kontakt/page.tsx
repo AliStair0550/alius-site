@@ -30,8 +30,9 @@ export default function KontaktPage() {
               Lad os tage en snak.
             </h1>
             <p className="font-[200] text-[1.05rem] text-slate leading-[1.8] max-w-[420px] mb-10">
-              Fortæl hvad der tager tid hos jer. Vi svarer som regel samme dag,
-              og den første samtale koster ingenting.
+              Vil du finde ud af, hvor AI kan skabe værdi hos jer? Fortæl os
+              om jeres udfordringer, så kommer vi med løsningsforslag. Det
+              koster kun lidt nysgerrighed, og vi svarer som regel samme dag.
             </p>
 
             <dl className="border-t border-fog">
