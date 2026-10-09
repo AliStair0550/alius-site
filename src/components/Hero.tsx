@@ -203,12 +203,6 @@ export default function Hero() {
         >
           Tag en snak
         </Link>
-        <Link
-          href="/beregner"
-          className="font-[300] text-[0.82rem] tracking-[0.08em] uppercase px-7 py-3 border border-clay text-ink hover:border-moss hover:text-moss transition-all"
-        >
-          Find jeres gevinster
-        </Link>
       </div>
 
       <MachineFlow />

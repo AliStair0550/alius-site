@@ -5,10 +5,11 @@ import Link from "next/link";
 import AliusLogo from "./AliusLogo";
 
 const links = [
-  { href: "#maskinrummet", label: "Maskinrummet" },
   { href: "#portfolio", label: "Portfolio" },
+  { href: "#maskinrummet", label: "Maskinrummet" },
   { href: "#værktøjer", label: "Værktøjer" },
-  { href: "#kontakt", label: "Kontakt" },
+  // Egen side, ikke ankeret nederst på forsiden.
+  { href: "/kontakt", label: "Kontakt" },
 ];
 
 export default function Navbar() {
