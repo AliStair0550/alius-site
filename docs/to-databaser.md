@@ -99,5 +99,7 @@ blev i den gamle base, `ep-rough-forest-alz77jsq`, fordi det er den der
 fylder 90 MB og har migrationshistorikken. Begge værter står i
 `PRODUKTIONSVAERTER` i write-guard og i db-guard.
 
-Flytningen rørte aldrig kilden. Den gamle base står med sin kopi af
-forretningsdataene, indtil nogen bevidst rydder dem.
+Flytningen rørte aldrig kilden. Den gamle kopi blev ryddet samme dag,
+efter at det var efterprøvet at hver række også fandtes i den nye base.
+Det skete med migrationen `20261009120000_forretning_flyttet_ud`, som
+fjerner de fire tabeller og deres to enum-typer fra Pulse-basen.
