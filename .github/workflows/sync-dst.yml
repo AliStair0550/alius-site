@@ -8,10 +8,8 @@ name: Sync DST data
 # Set it at: Settings → Secrets and variables → Actions → New repository secret
 
 on:
-  # PAA PAUSE fra 11. august 2026. Se src/lib/pulse-pause.ts.
-  # schedule er fjernet, ikke udkommenteret: en udkommenteret cron er
-  # en der bliver taendt igen ved et uheld. workflow_dispatch bliver,
-  # saa jobbet kan startes i haanden naar Pulse skal op igen.
+  schedule:
+    - cron: "0 6 25 * *"
   workflow_dispatch:
     inputs:
       dry_run:

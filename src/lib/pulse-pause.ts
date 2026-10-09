@@ -1,7 +1,8 @@
 // ============================================================
 // Pulse er sat på pause
 //
-// ÉN KONTAKT. Sat 11. august 2026.
+// ÉN KONTAKT. Sat 11. august 2026, slået fra igen 9. oktober 2026,
+// da forretningen havde fået sin egen database.
 //
 // HVORFOR
 //
@@ -51,7 +52,7 @@
  * skulle spørge om noget ved hver forespørgsel. En konstant lader
  * Next skære databasekaldene helt væk.
  */
-export const PAA_PAUSE = true;
+export const PAA_PAUSE = false;
 
 /** Datoen står ét sted, så beskeden og dokumentationen ikke skrider. */
 export const PAUSE_FRA = "11. august 2026";
