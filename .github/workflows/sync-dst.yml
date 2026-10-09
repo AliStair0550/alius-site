@@ -45,21 +45,12 @@ jobs:
 
       # ── Monthly sources ────────────────────────────────────────────
 
-      - name: AUS08 — Ledighed
-        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
-        run: npx tsx scripts/sync-aus08.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # AUS08 og KONK3 hentes DAGLIGT i sync-series.yml, sammen med deres
+      # signaler. De stod her og i Vercel-cronen indtil 9. oktober 2026.
 
       - name: FOLK1AM — Befolkning
         if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
         run: npx tsx scripts/sync-folk1am.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: KONK3 — Konkurser
-        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
-        run: npx tsx scripts/sync-konk3.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -118,18 +109,6 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       # ── Signal generation (runs after all data syncs) ──────────────
-
-      - name: Generer signaler — ledighed
-        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
-        run: npx tsx scripts/generate-signals.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Generer signaler — konkurser
-        if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}
-        run: npx tsx scripts/generate-konkurs-signals.ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Generer signaler — forbrugertillid
         if: ${{ always() && steps.setup.outcome == 'success' && inputs.dry_run != true }}

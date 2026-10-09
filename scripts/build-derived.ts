@@ -1,9 +1,10 @@
 // ============================================================
 // Beregn afledte serier
 //
-// Run with:
-//   set -a && . ./.env.local && set +a
-//   npx tsx scripts/build-derived.ts [serie-id ...]
+// Kører dagligt i sync-series.yml, efter hentningen. Skriveværnet
+// nægter at køre den mod produktion uden for Actions.
+//
+//   npx tsx scripts/build-derived.ts [--dry] [serie-id ...]
 //
 // Læser gældende observationer for to serier, beregner den tredje og
 // skriver den append-only som alt andet. Henter intet udefra.
@@ -17,20 +18,18 @@ import { withDbRetry } from "../src/lib/db";
 import { DERIVED, type DerivedDef } from "../config/derived";
 import { writeObservations } from "../src/lib/pulse-observations";
 import { defaultRankable } from "../src/lib/pulse-series";
-import type { FetchedPoint } from "../src/lib/adapters/types";
+import { beregnAfledt, type Raekke } from "../src/lib/derived";
 
 import { kraevSkriveret } from "./write-guard";
 const prisma = new PrismaClient();
+const DRY = process.argv.includes("--dry");
 
-const key = (areaCode: string, period: Date) =>
-  `${areaCode}::${period.toISOString().slice(0, 10)}`;
-
-async function loadCurrent(seriesId: string) {
+async function loadCurrent(seriesId: string): Promise<Raekke[]> {
   const rows = await prisma.observation.findMany({
     where: { seriesId, isCurrent: true, value: { not: null } },
     select: { areaCode: true, period: true, value: true },
   });
-  return new Map(rows.map((r) => [key(r.areaCode, r.period), Number(r.value)]));
+  return rows.map((r) => ({ areaCode: r.areaCode, period: r.period, value: Number(r.value) }));
 }
 
 async function build(def: DerivedDef) {
@@ -51,32 +50,16 @@ async function build(def: DerivedDef) {
   }
 
   const [a, b] = await Promise.all([loadCurrent(def.a), loadCurrent(def.b)]);
-  if (a.size === 0) throw new Error(`"${def.a}" har ingen gældende observationer`);
-  if (b.size === 0) throw new Error(`"${def.b}" har ingen gældende observationer`);
+  if (a.length === 0) throw new Error(`"${def.a}" har ingen gældende observationer`);
+  if (b.length === 0) throw new Error(`"${def.b}" har ingen gældende observationer`);
 
-  const scale = def.scale ?? 1;
-  const points: FetchedPoint[] = [];
-  let skippedNoMatch = 0;
-  let skippedZero = 0;
-
-  for (const [k, av] of a) {
-    const bv = b.get(k);
-    if (bv === undefined) { skippedNoMatch++; continue; }
-    if (def.kind === "ratio" && bv === 0) { skippedZero++; continue; }
-    const [areaCode, iso] = k.split("::");
-    points.push({
-      period: new Date(`${iso}T00:00:00.000Z`),
-      areaCode,
-      value: def.kind === "ratio" ? (av / bv) * scale : (av - bv) * scale,
-    });
-  }
-
-  points.sort((x, y) => x.period.getTime() - y.period.getTime());
+  // Omregning og værn mod forkert størrelsesorden. Kaster før skrivning.
+  const { points, udenModpart, nulINaevneren } = beregnAfledt(def, a, b);
 
   console.log(
-    `   ${a.size} + ${b.size} observationer -> ${points.length} beregnede` +
-      (skippedNoMatch ? `, ${skippedNoMatch} uden modpart` : "") +
-      (skippedZero ? `, ${skippedZero} med nul i nævneren` : "")
+    `   ${a.length} + ${b.length} observationer -> ${points.length} beregnede` +
+      (udenModpart ? `, ${udenModpart} uden modpart` : "") +
+      (nulINaevneren ? `, ${nulINaevneren} med nul i nævneren` : "")
   );
 
   if (points.length === 0) {
@@ -84,6 +67,14 @@ async function build(def: DerivedDef) {
       `ingen perioder er fælles for "${def.a}" og "${def.b}". ` +
         `Frekvens eller periodejustering passer ikke.`
     );
+  }
+
+  if (DRY) {
+    const sidste = points[points.length - 1];
+    console.log(
+      `   TØRLØB, intet skrevet. Seneste: ${sidste.period.toISOString().slice(0, 10)} = ${sidste.value}`
+    );
+    return;
   }
 
   const auto = defaultRankable(def.layer, "ACTIVE");
@@ -134,8 +125,8 @@ async function build(def: DerivedDef) {
 }
 
 async function main() {
-  kraevSkriveret("build-derived.ts");
-  const only = process.argv.slice(2);
+  if (!DRY) kraevSkriveret("build-derived.ts");
+  const only = process.argv.slice(2).filter((a) => !a.startsWith("-"));
   const defs = only.length ? DERIVED.filter((d) => only.includes(d.id)) : DERIVED;
   if (defs.length === 0) {
     console.error("Ingen afledte serier matchede. Kendte:");
@@ -163,7 +154,7 @@ async function main() {
     for (const f of failures) console.log(`  ${f}`);
     process.exitCode = 1;
   } else {
-    console.log("Alle afledte serier bygget.");
+    console.log(DRY ? "Tørløb slut. Intet skrevet." : "Alle afledte serier bygget.");
   }
 }
 

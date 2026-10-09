@@ -4,6 +4,11 @@ Juli 2026. Skrevet før der bygges noget. Alle tal er trukket direkte fra
 produktionsdatabasen (Neon) og fra GitHub Actions-kørselshistorikken den
 27. juli 2026.
 
+> **Senere ændring, 9. oktober 2026.** Vercel-cronen henter og skriver
+> ikke længere noget. Den udløser kun `sync-series.yml`, som nu selv
+> henter AUS08 og KONK3 dagligt. `src/lib/pulse-pipeline.ts` er slettet.
+> Beskrivelsen af "mekanisme 1" nedenfor gælder tilstanden i juli.
+
 ---
 
 ## Kort svar først

@@ -6,12 +6,13 @@ name: Sync series (dagligt)
 # hver hverdag; månedsserierne tjekkes samtidig, så vi slipper for at
 # vedligeholde en publiceringskalender.
 #
-# 05:30 er valgt så det ligger før Vercel-cronen kl. 06:00, som rører
-# den gamle model. De to jobs skriver til hver sit tabelsæt og kan
-# køre samtidig, men rækkefølgen gør logs lettere at læse.
+# Vercel-cronen kl. 06:00 udløser den samme kørsel som reserve; den
+# hurtigste af de to sætter tempoet. Vercel skriver intet selv.
 #
-# Det MÅNEDLIGE job i sync-dst.yml bliver som det er. Det fylder
-# DataSource og DataPoint, som de fire dashboards stadig læser.
+# AUS08 og KONK3 hentes også her, til den gamle model, fordi ledighed
+# og konkurser skal opdateres dagligt. Det gjorde Vercel-cronen indtil
+# 9. oktober 2026. De øvrige gamle kilder hentes af det MÅNEDLIGE job
+# i sync-dst.yml.
 #
 # Nødvendige hemmeligheder:
 #   DATABASE_URL   Neon connection string
@@ -101,32 +102,90 @@ jobs:
           TVING: ${{ inputs.tving }}
 
       - name: Kør testene først
+        id: test
         if: steps.vaern.outputs.skal == 'true'
         # En hentning der skriver i produktion skal ikke køre fra en
         # commit hvor værnene er i stykker.
         run: npm test
 
-      - name: Bro fra den gamle model
-        if: steps.vaern.outputs.skal == 'true'
-        # Ni serier fodres stadig af de gamle sync-scripts, som skriver
-        # til DataPoint. Broen loefter dem over i observations, saa
-        # dashboardene ikke fryser den dag DST publicerer.
-        run: npx tsx scripts/sync-legacy-bridge.ts
+      # Trinene herfra kører hver for sig, ikke i kæde. En kilde der
+      # fejler (DST lukker af og til forbindelsen) må ikke tage de andre
+      # med sig, men jobbet ender stadig som fejlet, så det kan ses.
+      # Betingelsen er derfor !cancelled() plus at testene gik igennem,
+      # ikke den implicitte success() der kræver at ALT foer lykkedes.
+
+      - name: AUS08 til den gamle model (ledighed)
+        id: aus08
+        if: ${{ !cancelled() && steps.test.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-aus08.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Signaler for ledighed
+        if: ${{ !cancelled() && steps.aus08.outcome == 'success' }}
+        run: npx tsx scripts/generate-signals.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: KONK3 til den gamle model (konkurser)
+        id: konk3
+        if: ${{ !cancelled() && steps.test.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-konk3.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Signaler for konkurser
+        if: ${{ !cancelled() && steps.konk3.outcome == 'success' }}
+        run: npx tsx scripts/generate-konkurs-signals.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Bro fra den gamle model
+        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
+        # Ni serier fodres stadig af de gamle sync-scripts, som skriver
+        # til DataPoint. Broen loefter dem over i observations, saa
+        # dashboardene ikke fryser den dag DST publicerer. Koerer efter
+        # AUS08 og KONK3, saa dagens tal kommer med i samme omgang.
+        run: |
+          args=""
+          if [ "$DRY_RUN" = "true" ]; then args="--dry"; fi
+          npx tsx scripts/sync-legacy-bridge.ts $args
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Afledte serier
+        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
+        # Mængdeindekset for detailhandlen er omsætning divideret med
+        # forbrugerpriser. Begge kilder kommer gennem broen lige ovenfor,
+        # så den afledte serie regnes efter dem og før siderne genskabes
+        # til sidst i hentningen. Den stod stille på april 2026, fordi
+        # intet workflow kørte den. Scriptet kaster før skrivning, hvis
+        # resultatet har forkert størrelsesorden.
+        run: |
+          args=""
+          if [ "$DRY_RUN" = "true" ]; then args="--dry"; fi
+          npx tsx scripts/build-derived.ts $args
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Haandhaev korrelationsgrupperne
-        if: steps.vaern.outputs.skal == 'true'
+        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
         # Koeres FOER hentningen, saa genskabelsen af /pulse til sidst
         # sker efter en eventuel aendring. Scriptet er idempotent og
         # fejler hvis en gruppe ender med to rangerbare, saa reglen
         # haandhaeves dagligt i stedet for naar nogen husker det.
-        run: npx tsx scripts/set-rank-groups.ts
+        run: |
+          args=""
+          if [ "$DRY_RUN" = "true" ]; then args="--dry"; fi
+          npx tsx scripts/set-rank-groups.ts $args
         env:
+          DRY_RUN: ${{ inputs.dry_run }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Hent nye observationer
-        if: steps.vaern.outputs.skal == 'true'
+        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
         # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
         # ${{ }} interpoleres af GitHub FOER shellen ser linjen, saa et
         # serie-id med semikolon i ville blive koert som en kommando.
