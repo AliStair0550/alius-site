@@ -35,7 +35,11 @@
 /** Hvor længe efter en kørsel vi regner arbejdet for gjort. */
 export const DAEKNINGSVINDUE_TIMER = 6;
 
-export type Koersel = { status: string; startedAt: Date };
+/**
+ * `conclusion` er GitHubs afslutning: "success", "failure", "cancelled"
+ * osv. Den er null mens kørslen er i gang.
+ */
+export type Koersel = { status: string; conclusion?: string | null; startedAt: Date };
 
 export type Beslutning =
   | { udloes: true }
@@ -46,8 +50,13 @@ export type Beslutning =
  *
  * Ren funktion, så reglen kan prøves uden at røre GitHub.
  *
- * En kørsel der er i gang eller lige har været det, dækker allerede
- * dagens arbejde. Vinduet er seks timer: jobbet er dagligt, så to
+ * En kørsel der er i gang, eller som lige er LYKKEDES, dækker allerede
+ * dagens arbejde. En kørsel der fejlede eller blev afbrudt dækker ikke:
+ * "jeg fejlede" er ikke "der er ikke mere at gøre". Den 15. oktober 2026
+ * fejlede AUS08 i Vercels kørsel, og GitHubs kørsel tre timer senere
+ * sprang over, fordi den regnede arbejdet for gjort. Ledigheden ventede
+ * et døgn. En afsluttet kørsel uden kendt afslutning dækker heller ikke:
+ * en dublet er billigere end en udebleven hentning. Vinduet er seks timer: jobbet er dagligt, så to
  * kørsler inden for seks timer er altid en dublet, og en udeblevet
  * kørsel opdages stadig samme dag.
  */
@@ -60,10 +69,12 @@ export function skalUdloese(koersler: Koersel[], nu: Date): Beslutning {
   }
 
   const graense = nu.getTime() - DAEKNINGSVINDUE_TIMER * 3600_000;
-  const nylig = koersler.find((k) => k.startedAt.getTime() >= graense);
+  const nylig = koersler.find(
+    (k) => k.startedAt.getTime() >= graense && k.status === "completed" && k.conclusion === "success"
+  );
   if (nylig) {
     const minutter = Math.round((nu.getTime() - nylig.startedAt.getTime()) / 60_000);
-    return { udloes: false, grund: `en kørsel startede for ${minutter} minutter siden` };
+    return { udloes: false, grund: `en kørsel lykkedes for ${minutter} minutter siden` };
   }
 
   return { udloes: true };
@@ -112,10 +123,16 @@ export async function udloesSyncSeries(nu: Date = new Date()): Promise<Udfald> {
       return { slags: "fejl", besked: `kunne ikke hente kørsler: HTTP ${liste.status}` };
     }
     const data = (await liste.json()) as {
-      workflow_runs?: Array<{ status: string; run_started_at: string; created_at: string }>;
+      workflow_runs?: Array<{
+        status: string;
+        conclusion: string | null;
+        run_started_at: string;
+        created_at: string;
+      }>;
     };
     const koersler: Koersel[] = (data.workflow_runs ?? []).map((r) => ({
       status: r.status,
+      conclusion: r.conclusion,
       startedAt: new Date(r.run_started_at ?? r.created_at),
     }));
 

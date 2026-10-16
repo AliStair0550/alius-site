@@ -27,9 +27,9 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: "npm"
@@ -44,6 +44,13 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       # ── Monthly sources ────────────────────────────────────────────
+
+      - name: Væk basen
+        # Neon sover efter fem minutters stilhed. Se scripts/vaek-basen.ts.
+        if: ${{ steps.setup.outcome == 'success' && inputs.dry_run != true }}
+        run: npx tsx scripts/vaek-basen.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       # AUS08 og KONK3 hentes DAGLIGT i sync-series.yml, sammen med deres
       # signaler. De stod her og i Vercel-cronen indtil 9. oktober 2026.

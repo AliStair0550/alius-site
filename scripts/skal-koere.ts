@@ -74,17 +74,27 @@ async function main() {
   }
 
   const data = (await res.json()) as {
-    workflow_runs?: Array<{ id: number; status: string; run_started_at: string; created_at: string }>;
+    workflow_runs?: Array<{
+      id: number;
+      status: string;
+      conclusion: string | null;
+      run_started_at: string;
+      created_at: string;
+    }>;
   };
 
   // Denne kørsel står selv på listen og må ikke tælle med.
   const andre: Koersel[] = (data.workflow_runs ?? [])
     .filter((r) => String(r.id) !== migSelv)
-    .map((r) => ({ status: r.status, startedAt: new Date(r.run_started_at ?? r.created_at) }));
+    .map((r) => ({
+      status: r.status,
+      conclusion: r.conclusion,
+      startedAt: new Date(r.run_started_at ?? r.created_at),
+    }));
 
   const dom = skalUdloese(andre, new Date());
   if (dom.udloes) {
-    svar(true, `ingen anden kørsel inden for ${DAEKNINGSVINDUE_TIMER} timer`);
+    svar(true, `ingen anden lykket eller igangværende kørsel inden for ${DAEKNINGSVINDUE_TIMER} timer`);
   }
   svar(false, dom.grund);
 }

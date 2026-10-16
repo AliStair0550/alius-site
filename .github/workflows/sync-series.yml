@@ -75,9 +75,9 @@ jobs:
         # GitHubs scheduler eller Vercel-cronen fyrede.
         run: echo "udloeser=${{ github.event_name == 'schedule' && 'github-schedule' || inputs.udloeser }}"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: "npm"
@@ -108,15 +108,25 @@ jobs:
         # commit hvor værnene er i stykker.
         run: npm test
 
+      - name: Væk basen
+        id: basen
+        if: steps.test.outcome == 'success'
+        # Neon sover efter fem minutters stilhed, og det første kald efter
+        # en opvågning kan fejle. Den 15. oktober 2026 ramte det AUS08.
+        # Her rides opvågningen af med genforsøg, før noget skrives.
+        run: npx tsx scripts/vaek-basen.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       # Trinene herfra kører hver for sig, ikke i kæde. En kilde der
       # fejler (DST lukker af og til forbindelsen) må ikke tage de andre
       # med sig, men jobbet ender stadig som fejlet, så det kan ses.
-      # Betingelsen er derfor !cancelled() plus at testene gik igennem,
+      # Betingelsen er derfor !cancelled() plus at basen svarede,
       # ikke den implicitte success() der kræver at ALT foer lykkedes.
 
       - name: AUS08 til den gamle model (ledighed)
         id: aus08
-        if: ${{ !cancelled() && steps.test.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
         run: npx tsx scripts/sync-aus08.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -129,7 +139,7 @@ jobs:
 
       - name: KONK3 til den gamle model (konkurser)
         id: konk3
-        if: ${{ !cancelled() && steps.test.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
         run: npx tsx scripts/sync-konk3.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -141,7 +151,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Bro fra den gamle model
-        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' }}
         # Ni serier fodres stadig af de gamle sync-scripts, som skriver
         # til DataPoint. Broen loefter dem over i observations, saa
         # dashboardene ikke fryser den dag DST publicerer. Koerer efter
@@ -155,7 +165,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Afledte serier
-        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' }}
         # Mængdeindekset for detailhandlen er omsætning divideret med
         # forbrugerpriser. Begge kilder kommer gennem broen lige ovenfor,
         # så den afledte serie regnes efter dem og før siderne genskabes
@@ -171,7 +181,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Haandhaev korrelationsgrupperne
-        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' }}
         # Koeres FOER hentningen, saa genskabelsen af /pulse til sidst
         # sker efter en eventuel aendring. Scriptet er idempotent og
         # fejler hvis en gruppe ender med to rangerbare, saa reglen
@@ -185,7 +195,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Hent nye observationer
-        if: ${{ !cancelled() && steps.test.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' }}
         # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
         # ${{ }} interpoleres af GitHub FOER shellen ser linjen, saa et
         # serie-id med semikolon i ville blive koert som en kommando.

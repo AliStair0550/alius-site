@@ -27,13 +27,44 @@ describe("Udløser: to kilder, én kørsel", () => {
   });
 
   test("en kørsel der netop er afsluttet blokerer", () => {
-    const d = skalUdloese([{ status: "completed", startedAt: timerSiden(0.5) }], NU);
+    const d = skalUdloese([{ status: "completed", conclusion: "success", startedAt: timerSiden(0.5) }], NU);
     assert.equal(d.udloes, false);
     if (!d.udloes) assert.match(d.grund, /30 minutter siden/);
   });
 
+  test("en kørsel der FEJLEDE blokerer ikke", () => {
+    // Den 15. oktober 2026: Vercels kørsel fejlede på AUS08, og GitHubs
+    // schedule tre timer senere sprang over, fordi den regnede arbejdet
+    // for gjort. Fejlet er ikke gjort.
+    for (const conclusion of ["failure", "cancelled", "timed_out", "startup_failure"]) {
+      const d = skalUdloese([{ status: "completed", conclusion, startedAt: timerSiden(3) }], NU);
+      assert.deepEqual(d, { udloes: true }, `${conclusion} må ikke dække`);
+    }
+  });
+
+  test("en afsluttet kørsel uden kendt afslutning blokerer ikke", () => {
+    // Ved ikke er ikke det samme som lykkedes. En dublet er billigere
+    // end en udebleven hentning.
+    for (const conclusion of [null, undefined]) {
+      const d = skalUdloese([{ status: "completed", conclusion, startedAt: timerSiden(1) }], NU);
+      assert.deepEqual(d, { udloes: true });
+    }
+  });
+
+  test("en fejlet og en lykket: den lykkede dækker", () => {
+    const d = skalUdloese(
+      [
+        { status: "completed", conclusion: "failure", startedAt: timerSiden(0.5) },
+        { status: "completed", conclusion: "success", startedAt: timerSiden(2) },
+      ],
+      NU
+    );
+    assert.equal(d.udloes, false);
+    if (!d.udloes) assert.match(d.grund, /lykkedes for 120 minutter siden/);
+  });
+
   test("gårsdagens kørsel blokerer ikke", () => {
-    const d = skalUdloese([{ status: "completed", startedAt: timerSiden(24) }], NU);
+    const d = skalUdloese([{ status: "completed", conclusion: "success", startedAt: timerSiden(24) }], NU);
     assert.deepEqual(d, { udloes: true });
   });
 
@@ -51,9 +82,9 @@ describe("Udløser: to kilder, én kørsel", () => {
   test("den nyeste kørsel afgør, ikke den ældste", () => {
     // GitHub leverer nyeste først, men rækkefølgen må ikke bestemme.
     const koersler = [
-      { status: "completed", startedAt: timerSiden(48) },
-      { status: "completed", startedAt: timerSiden(1) },
-      { status: "completed", startedAt: timerSiden(72) },
+      { status: "completed", conclusion: "success", startedAt: timerSiden(48) },
+      { status: "completed", conclusion: "success", startedAt: timerSiden(1) },
+      { status: "completed", conclusion: "success", startedAt: timerSiden(72) },
     ];
     const d = skalUdloese(koersler, NU);
     assert.equal(d.udloes, false);
@@ -62,7 +93,7 @@ describe("Udløser: to kilder, én kørsel", () => {
   test("en kørsel i gang vinder over en gammel afsluttet", () => {
     const d = skalUdloese(
       [
-        { status: "completed", startedAt: timerSiden(48) },
+        { status: "completed", conclusion: "success", startedAt: timerSiden(48) },
         { status: "in_progress", startedAt: timerSiden(0.05) },
       ],
       NU
@@ -77,14 +108,14 @@ describe("Værnet i jobbet: samme regel begge steder", () => {
     // scripts/skal-koere.ts filtrerer GITHUB_RUN_ID fra, foer listen
     // sendes hertil. Uden det ville hver koersel se sig selv som "en
     // koersel der lige er startet" og springe over hver gang.
-    const kunMigSelv: Array<{ status: string; startedAt: Date }> = [];
+    const kunMigSelv: Array<{ status: string; conclusion: string; startedAt: Date }> = [];
     assert.deepEqual(skalUdloese(kunMigSelv, NU), { udloes: true });
   });
 
   test("Vercels koersel en time foer blokerer GitHubs schedule", () => {
     // Det faktiske moenster: Vercel 06:43, GitHub 07:43. Foer vaernet
     // laa i jobbet, koerte begge.
-    const d = skalUdloese([{ status: "completed", startedAt: timerSiden(1) }], NU);
+    const d = skalUdloese([{ status: "completed", conclusion: "success", startedAt: timerSiden(1) }], NU);
     assert.equal(d.udloes, false);
     if (!d.udloes) assert.match(d.grund, /60 minutter siden/);
   });
