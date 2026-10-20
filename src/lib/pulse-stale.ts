@@ -442,6 +442,58 @@ function nextPeriodEndFromDate(periodStart: Date, frequency: string): Date {
   }
 }
 
+/**
+ * Hvad ved vi om den seneste hentning af en serie i den nye model.
+ *
+ * Indtil 20. oktober 2026 blev "sidst hentet" læst af den nyeste
+ * observations retrieved_at. Men den daglige kørsel skriver kun
+ * ændringer, så når kilden intet nyt havde, stod tidspunktet stille.
+ * "Vi spurgte i morges, der var intet" lignede derfor "vi har ikke
+ * spurgt i to måneder", og en forsinket publicering hos DST blev meldt
+ * som noget der skulle undersøges.
+ *
+ * Nu skriver sync-series én ingest_run per serie per kørsel med sin
+ * faktiske tilstand, og den læses her.
+ */
+export type HentningsSpor = {
+  /** Seneste kørsel der nåede kilden og fik et svar: OK eller NO_NEW_DATA. */
+  sidstLykket: Date | null;
+  /** Seneste kørsel der fejlede, og dens besked. */
+  sidstFejlet: { at: Date; besked: string | null } | null;
+  /** Hvornår den nyeste observation blev skrevet. Også et bevis på en hentning. */
+  nyesteSkrevet: Date;
+};
+
+export type Afgoerelse =
+  | { kind: "PUBLICATION_LATE"; action: "JUSTER_TAERSKEL"; sidstTjekket: Date; timerSiden: number }
+  | { kind: "SYNC_FAILED"; action: "UNDERSOEG"; fejletAt: Date; besked: string | null }
+  | { kind: "DATA_STALE"; action: "UNDERSOEG"; sidstTjekket: Date; timerSiden: number };
+
+/** Inden for så mange timer regnes en hentning for "nylig". */
+export const NYLIG_HENTNING_TIMER = 48;
+
+export function afgoerForsinkelse(spor: HentningsSpor, now: Date): Afgoerelse {
+  // Begge er rigtige hentninger. Den seneste af dem tæller.
+  const sidstTjekket =
+    spor.sidstLykket && spor.sidstLykket > spor.nyesteSkrevet ? spor.sidstLykket : spor.nyesteSkrevet;
+
+  // Fejlede den seneste kørsel efter den sidste der lykkedes, ved vi
+  // ikke om kilden har nyt. Det er sin egen tilstand, ikke "forsinket".
+  if (spor.sidstFejlet && spor.sidstFejlet.at > sidstTjekket) {
+    return {
+      kind: "SYNC_FAILED",
+      action: "UNDERSOEG",
+      fejletAt: spor.sidstFejlet.at,
+      besked: spor.sidstFejlet.besked,
+    };
+  }
+
+  const timerSiden = (now.getTime() - sidstTjekket.getTime()) / 3_600_000;
+  return timerSiden <= NYLIG_HENTNING_TIMER
+    ? { kind: "PUBLICATION_LATE", action: "JUSTER_TAERSKEL", sidstTjekket, timerSiden }
+    : { kind: "DATA_STALE", action: "UNDERSOEG", sidstTjekket, timerSiden };
+}
+
 export async function findStaleSeries(
   prisma: PrismaClient,
   now: Date = new Date()
@@ -506,26 +558,49 @@ export async function findStaleSeries(
       continue;
     }
 
-    const hoursSinceFetch =
-      (now.getTime() - newest.retrievedAt.getTime()) / (60 * 60 * 1000);
-    const checkedRecently = hoursSinceFetch <= 48;
+    const [lykket, fejlet] = await Promise.all([
+      prisma.ingestRun.findFirst({
+        where: { seriesId: s.id, status: { in: ["OK", "NO_NEW_DATA"] } },
+        orderBy: { startedAt: "desc" },
+        select: { startedAt: true },
+      }),
+      prisma.ingestRun.findFirst({
+        where: { seriesId: s.id, status: { in: ["ERROR", "ABORTED"] } },
+        orderBy: { startedAt: "desc" },
+        select: { startedAt: true, errorMessage: true },
+      }),
+    ]);
+    const a = afgoerForsinkelse(
+      {
+        sidstLykket: lykket?.startedAt ?? null,
+        sidstFejlet: fejlet ? { at: fejlet.startedAt, besked: fejlet.errorMessage } : null,
+        nyesteSkrevet: newest.retrievedAt,
+      },
+      now
+    );
+
+    const forventet =
+      `Næste periode sluttede ${formatDate(dueEnd)} og var forventet senest ` +
+      `${formatDate(expectedBy)} (${s.expectedLagDays} dages lag plus ${GRACE_DAYS} dages nåde).`;
 
     findings.push({
       slug: s.id,
       name: s.nameDa,
-      kind: checkedRecently ? "PUBLICATION_LATE" : "DATA_STALE",
-      action: checkedRecently ? "JUSTER_TAERSKEL" : "UNDERSOEG",
+      kind: a.kind,
+      action: a.action,
       headline: `Ingen nye tal siden ${formatDate(newest.period)}`,
-      detail: checkedRecently
-        ? `Hentet for ${Math.round(hoursSinceFetch)} timer siden uden nyere tal fra ${s.sourceRef}. ` +
-          `Enten er publiceringen forsinket, eller også er expected_lag_days på ${s.expectedLagDays} for lav.`
-        : `Næste periode sluttede ${formatDate(dueEnd)} og var forventet senest ` +
-          `${formatDate(expectedBy)} (${s.expectedLagDays} dages lag plus ${GRACE_DAYS} dages nåde). ` +
-          `Seneste hentning ${formatDate(newest.retrievedAt)}.`,
+      detail:
+        a.kind === "PUBLICATION_LATE"
+          ? `Hentet for ${Math.round(a.timerSiden)} timer siden uden nyere tal fra ${s.sourceRef}. ` +
+            `Enten er publiceringen forsinket, eller også er expected_lag_days på ${s.expectedLagDays} for lav.`
+          : a.kind === "SYNC_FAILED"
+            ? `Seneste hentning ${formatDate(a.fejletAt)} fejlede: ${a.besked ?? "uden besked"}. ` +
+              `Om ${s.sourceRef} har nyere tal, ved vi ikke. ${forventet}`
+            : `${forventet} Seneste vellykkede hentning ${formatDate(a.sidstTjekket)}.`,
       latestPeriod: formatDate(newest.period),
       expectedBy,
       daysOverdue: daysBetween(now, expectedBy),
-      lastFetchedAt: newest.retrievedAt,
+      lastFetchedAt: a.kind === "SYNC_FAILED" ? a.fejletAt : a.sidstTjekket,
     });
   }
 

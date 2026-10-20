@@ -80,6 +80,50 @@ type Udfald =
 
 type Resultat = { def: SeriesDef; udfald: Udfald; sekunder: number };
 
+/**
+ * Hver tilstand gemmes i ingest_runs, så stale-tjekket kan se at vi
+ * spurgte, også når kilden intet nyt havde. Uden det stod "sidst
+ * hentet" stille på den nyeste observation, og "vi spurgte i morges"
+ * lignede "vi har ikke spurgt i to måneder".
+ *
+ * Tørløb gemmes ikke: der er ikke sammenlignet med basen, så der er
+ * ingen tilstand at gemme.
+ */
+async function registrer(def: SeriesDef, udfald: Udfald, startet: Date): Promise<void> {
+  const faelles = { sourceSlug: def.id, startedAt: startet, finishedAt: new Date() };
+  let data;
+  switch (udfald.slags) {
+    case "nye":
+      data = { ...faelles, seriesId: def.id, status: "OK" as const, rowsWritten: udfald.indsat, rowsRevised: udfald.revideret };
+      break;
+    case "uaendret":
+      data = { ...faelles, seriesId: def.id, status: "NO_NEW_DATA" as const, rowsWritten: 0, rowsRevised: 0 };
+      break;
+    case "ingen_i_vindue":
+      // Kilden svarede, men havde intet i vinduet. Et svar, ikke en fejl,
+      // men ikke det samme som "intet nyt". Beskeden holder dem adskilt.
+      data = {
+        ...faelles,
+        seriesId: def.id,
+        status: "NO_NEW_DATA" as const,
+        rowsWritten: 0,
+        rowsRevised: 0,
+        errorMessage: "kilden havde ingen perioder i vinduet",
+      };
+      break;
+    case "ukendt_serie":
+      // Serien findes ikke i basen, så fremmednøglen kan ikke sættes.
+      data = { ...faelles, seriesId: null, status: "ERROR" as const, errorMessage: "serien findes ikke i basen" };
+      break;
+    case "fejl":
+      data = { ...faelles, seriesId: def.id, status: "ERROR" as const, errorMessage: udfald.besked.slice(0, 1000) };
+      break;
+    case "toerloeb":
+      return;
+  }
+  await withDbRetry(() => prisma.ingestRun.create({ data }));
+}
+
 async function synkroniser(def: SeriesDef, nu: Date): Promise<Udfald> {
   const raekke = await prisma.series.findUnique({
     where: { id: def.id },
@@ -233,8 +277,11 @@ async function main() {
 
   const resultater: Resultat[] = [];
 
+  const ikkeRegistreret: string[] = [];
+
   for (const def of defs) {
     const t0 = Date.now();
+    const startet = new Date();
     let udfald: Udfald;
     try {
       udfald = await synkroniser(def, nu);
@@ -245,6 +292,16 @@ async function main() {
     }
     const sekunder = (Date.now() - t0) / 1000;
     resultater.push({ def, udfald, sekunder });
+
+    if (!DRY) {
+      try {
+        await registrer(def, udfald, startet);
+      } catch (e) {
+        // Hentningen gik måske godt, men det ved stale-tjekket ikke.
+        // Det skal stå i loggen og få jobbet til at fejle.
+        ikkeRegistreret.push(`${def.id}: ${(e as Error).message}`);
+      }
+    }
 
     const raekke = await prisma.series.findUnique({
       where: { id: def.id },
@@ -351,6 +408,11 @@ async function main() {
     process.exitCode = 1;
   }
   if (ukendte.length > 0) process.exitCode = 1;
+  if (ikkeRegistreret.length > 0) {
+    console.log(`\nTILSTAND IKKE GEMT i ingest_runs (${ikkeRegistreret.length}). Stale-tjekket kan ikke se disse kørsler:`);
+    for (const l of ikkeRegistreret) console.log(`  ${l}`);
+    process.exitCode = 1;
+  }
 }
 
 main()
