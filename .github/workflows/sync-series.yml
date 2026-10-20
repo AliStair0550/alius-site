@@ -9,10 +9,10 @@ name: Sync series (dagligt)
 # Vercel-cronen kl. 06:00 udløser den samme kørsel som reserve; den
 # hurtigste af de to sætter tempoet. Vercel skriver intet selv.
 #
-# AUS08 og KONK3 hentes også her, til den gamle model, fordi ledighed
-# og konkurser skal opdateres dagligt. Det gjorde Vercel-cronen indtil
-# 9. oktober 2026. De øvrige gamle kilder hentes af det MÅNEDLIGE job
-# i sync-dst.yml.
+# Alle elleve kilder i den gamle model (DataPoint) hentes også her,
+# før broen løfter dem over i observations. Der er ikke længere noget
+# månedligt job: sync-dst.yml blev fjernet 20. oktober 2026, så hver
+# kilde opdateres dagen efter DST publicerer, ikke den 25.
 #
 # Nødvendige hemmeligheder:
 #   DATABASE_URL   Neon connection string
@@ -64,10 +64,11 @@ jobs:
   sync:
     name: Inkrementel hentning
     runs-on: ubuntu-latest
-    # Et fuldt løb tog 30 sekunder målt 28. juli 2026. Tyve minutter er
+    # Et fuldt løb tog 30 sekunder målt 28. juli 2026, og de ni gamle
+    # kilder lagde omkring et minut til i oktober. Tredive minutter er
     # rigeligt til at en kilde kan være langsom uden at jobbet hænger
     # i timevis.
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Hvem startede koerslen
@@ -147,6 +148,95 @@ jobs:
       - name: Signaler for konkurser
         if: ${{ !cancelled() && steps.konk3.outcome == 'success' }}
         run: npx tsx scripts/generate-konkurs-signals.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # De oevrige ni kilder i den gamle model. Indtil 20. oktober 2026
+      # hentede et maanedligt job (sync-dst.yml) dem den 25., uanset
+      # hvornaar DST publicerede. September-tallene for forbrugerpriserne
+      # kom hos DST 12. oktober og ville foerst have naaet siden den 25.,
+      # mens undergrupperne fra samme tabel allerede stod der via den nye
+      # model. Nu hentes de dagligt. Scripterne skriver kun aendringer.
+      # KONK4 blev lukket af DST 7. januar 2026 og er afloest af KONK25.
+
+      - name: FOLK1AM til den gamle model (befolkning)
+        id: folk1am
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-folk1am.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: KONK25 til den gamle model (konkurser efter branche)
+        id: konk25
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-konk25.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: FORV1 til den gamle model (forbrugertillid)
+        id: forv1
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-forv1.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Signaler for forbrugertillid
+        if: ${{ !cancelled() && steps.forv1.outcome == 'success' }}
+        run: npx tsx scripts/generate-forv1-signals.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: DETA211A til den gamle model (detailomsaetning)
+        id: deta211a
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-deta211a.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: PRIS01 til den gamle model (forbrugerpriser)
+        id: pris01
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-pris01.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: BYGV33 til den gamle model (nyopstartede boliger)
+        id: bygv33
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-bygv33.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Signaler for boligbyggeri
+        if: ${{ !cancelled() && steps.bygv33.outcome == 'success' }}
+        run: npx tsx scripts/generate-bygv33-signals.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: INDKP101 til den gamle model (disponibel indkomst)
+        id: indkp101
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-indkp101.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: EJDFOE1 til den gamle model (ejendomsvaerdier)
+        id: ejdfoe1
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-ejdfoe1.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: LABY01 til den gamle model (befolkningstilvaekst)
+        id: laby01
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.dry_run != true && inputs.series == '' }}
+        run: npx tsx scripts/sync-laby01.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Signaler for befolkningstilvaekst
+        if: ${{ !cancelled() && steps.laby01.outcome == 'success' }}
+        run: npx tsx scripts/generate-laby01-signals.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 

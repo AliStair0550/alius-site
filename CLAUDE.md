@@ -184,9 +184,12 @@ Skrivning sker i GitHub Actions:
 
 | Job | Hvornår | Hvad |
 |---|---|---|
-| `sync-series.yml` | dagligt 05:30 UTC | nye observationer, vindue bagud |
+| `sync-series.yml` | dagligt 05:30 UTC | nye observationer, vindue bagud, og alle kilder i den gamle model |
 | `backfill.yml` | i hånden | hele historikken for udvalgte serier |
-| `sync-dst.yml` | den 25. hver måned | den gamle model, indtil dashboardene er flyttet |
+
+Det månedlige `sync-dst.yml` blev fjernet 20. oktober 2026. Det hentede
+den gamle model den 25., uanset hvornår DST publicerede, så inflationen
+kunne stå to uger bagud for sine egne undergrupper.
 
 ```
 gh workflow run backfill.yml -f series="eds.el.dk1 eds.el.dk2"

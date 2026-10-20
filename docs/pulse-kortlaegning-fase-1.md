@@ -8,6 +8,9 @@ produktionsdatabasen (Neon) og fra GitHub Actions-kørselshistorikken den
 > ikke længere noget. Den udløser kun `sync-series.yml`, som nu selv
 > henter AUS08 og KONK3 dagligt. `src/lib/pulse-pipeline.ts` er slettet.
 > Beskrivelsen af "mekanisme 1" nedenfor gælder tilstanden i juli.
+>
+> **20. oktober 2026.** Det månedlige `sync-dst.yml` ("mekanisme 2") er
+> fjernet. Alle dets kilder hentes dagligt i `sync-series.yml`.
 
 ---
 

@@ -12,7 +12,8 @@
 // en Vercel-funktion. Det stred mod reglen i CLAUDE.md om hvor skrivning
 // sker: Vercel-funktioner er uden for skriveværnet, og deres tidszone
 // og miljø er ikke dem Actions har. Det arbejde ligger nu i
-// sync-series.yml, før broen, med samme scripts som det månedlige job.
+// sync-series.yml, før broen, sammen med de øvrige kilder i den gamle
+// model.
 //
 // HVORFOR DEN FINDES
 //
