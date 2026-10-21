@@ -89,7 +89,7 @@ export function CTA() {
   return (
     <section
       id="kontakt"
-      className="bg-sand py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
+      className="bg-parchment py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
     >
       <div className="match-breathe w-12 h-12 rounded-full bg-moss mb-7" />
       <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em] max-w-[520px]">

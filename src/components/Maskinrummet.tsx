@@ -126,10 +126,10 @@ const TABS: { label: string; cards: Card[] }[] = [
 function ExampleCard({ card }: { card: Card }) {
   return (
     <article className="group border border-clay/70 p-5 md:p-6 flex flex-col transition-colors duration-300 hover:border-moss/50 hover:bg-fog/30">
-      <div className="mb-4">
+      <div className="flex items-center gap-3 mb-3">
         <MaskinIkon navn={card.title} />
+        <h3 className="font-[400] text-[1.05rem] text-ink tracking-[0.01em] leading-[1.3]">{card.title}</h3>
       </div>
-      <h3 className="font-[400] text-[1.05rem] text-ink mb-2.5 tracking-[0.01em]">{card.title}</h3>
       <p className="font-[200] text-[0.85rem] text-stone leading-[1.75] mb-5 flex-1">{card.desc}</p>
       <div className="mb-5">
         <div className="text-[0.58rem] tracking-[0.18em] uppercase text-moss font-[400] mb-1.5">Resultat</div>

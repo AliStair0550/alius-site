@@ -134,8 +134,8 @@ const IKONER: Record<string, Tegning> = {
 export default function MaskinIkon({ navn }: { navn: string }) {
   const tegning = IKONER[navn];
   return (
-    <div className="w-14 h-14 rounded-2xl bg-parchment border border-clay/70 flex items-center justify-center transition-colors duration-300 group-hover:border-moss/60" aria-hidden>
-      <svg viewBox="0 0 24 24" width="34" height="34">
+    <div className="shrink-0 w-10 h-10 rounded-xl bg-parchment border border-clay/70 flex items-center justify-center transition-colors duration-300 group-hover:border-moss/60" aria-hidden>
+      <svg viewBox="0 0 24 24" width="24" height="24">
         {tegning ? tegning() : <circle className="fill-moss" cx="12" cy="12" r="2.5" />}
       </svg>
     </div>
