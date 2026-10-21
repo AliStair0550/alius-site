@@ -143,6 +143,8 @@ const KILDEURL: Record<string, (ref: string, id: string) => string> = {
 export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
   return {
     id: "pulse",
+    // 2: feltet tendens, og konkursserien er sæsonkorrigeret (C1).
+    version: 2,
     navn: "Pulse (Danmarks Statistik, Energinet, Eurostat)",
     beskrivelse:
       "Danske nøgletal som Pulse henter dagligt og tjekker for enhed og størrelsesorden: forbrugerpriser, " +

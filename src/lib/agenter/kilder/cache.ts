@@ -13,7 +13,7 @@ import type { PrismaClient, Prisma } from "@prisma/client";
 import type { Kilde, KildeSvar } from "./typer";
 
 export async function hentMedCache(prisma: PrismaClient, kilde: Kilde, dag: string): Promise<KildeSvar> {
-  const noegle = `${kilde.id}:${dag}`;
+  const noegle = kilde.version ? `${kilde.id}@${kilde.version}:${dag}` : `${kilde.id}:${dag}`;
   const gemt = await prisma.sourceCache.findUnique({ where: { key: noegle } });
   if (gemt) return { ...(gemt.payload as unknown as KildeSvar), fraCache: true };
 

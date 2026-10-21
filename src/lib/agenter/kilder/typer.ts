@@ -82,6 +82,13 @@ export interface Kilde {
   navn: string;
   /** Står i systemprompten. Hvad kilden er, og hvad den ikke kan. */
   beskrivelse: string;
+  /**
+   * Hæves når kilden ændrer hvad den leverer. Indgår i cache-nøglen, så
+   * dagens gemte svar fra før ændringen ikke genbruges. 22. oktober 2026
+   * brugte Finn en cachet konkursserie fra før skiftet til C1 og skrev
+   * 184, mens Pulse viste 155,2.
+   */
+  version?: number;
   hent(dag: string): Promise<KildeSvar>;
 }
 
