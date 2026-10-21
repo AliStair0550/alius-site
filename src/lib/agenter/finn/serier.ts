@@ -1,0 +1,69 @@
+// ============================================================
+// De Pulse-serier Finn læser
+//
+// SÆSONKORREKTION ER EFTERPRØVET, IKKE ANTAGET. 21. oktober 2026 blev
+// hver tabel slået op i DST's API, og de serier der hentes med et
+// sæsonfilter, blev tjekket i config/series.ts og sync-scripterne:
+//
+//   korrigeret       Serien er hentet med DST's eller Eurostats
+//                    sæsonfilter (AUS08 SAESONFAK, BYGV88 SÆSON,
+//                    Eurostat s_adj=SA).
+//   ikke korrigeret  Tabellen har ingen sæsondimension, og serien er
+//                    rå. Sammenlignes derfor med samme periode året før.
+//   ukendt           Tabellen har ingen sæsondimension, og DST siger
+//                    ikke i tabellen om tallene er renset. Behandles som
+//                    ikke korrigeret, og Finn skal sige det.
+//   ikke relevant    Renter, kurser, priser og ændringer år/år.
+//
+// FUND UNDERVEJS: dst.konkurs.total hedder "Erklærede konkurser i alt,
+// sæsonkorrigeret" i Pulse, men indeholder KONK3's nøgle C, "Konkurser
+// i aktive virksomheder (A+B)", rå. Navnet her er derfor sat efter
+// hvad tallet faktisk er.
+// ============================================================
+
+import type { Saeson } from "../kilder/typer";
+
+export type FinnSerie = {
+  id: string;
+  /** Pulse gemmer landstal som "DK" i den nye model og "000" fra broen. */
+  omraade: "DK" | "000";
+  saeson: Saeson;
+  /** Sættes kun når Pulses navn ikke dækker det tallet faktisk er. */
+  navn?: string;
+};
+
+export const FINN_SERIER: FinnSerie[] = [
+  // Priser
+  { id: "dst.pris.forbruger.aarsaendring", omraade: "DK", saeson: "ikke relevant", navn: "Inflation, forbrugerpriser år/år" },
+  { id: "dst.pris.forbruger.indeks", omraade: "DK", saeson: "ikke korrigeret" },
+  { id: "dst.pris.producent.industri", omraade: "DK", saeson: "ikke korrigeret" },
+
+  // Arbejdsmarked og løn
+  { id: "dst.ledighed.sasonkorrigeret", omraade: "000", saeson: "korrigeret", navn: "Fuldtidsledige i pct. af arbejdsstyrken, sæsonkorrigeret" },
+  { id: "dst.loen.privat", omraade: "DK", saeson: "ikke korrigeret" },
+
+  // Virksomheder
+  { id: "dst.konkurs.total", omraade: "DK", saeson: "ikke korrigeret", navn: "Konkurser i aktive virksomheder" },
+  { id: "dst.distress.tvangsauktion", omraade: "DK", saeson: "ikke korrigeret" },
+  { id: "dst.konjunktur.tillid.samlet", omraade: "DK", saeson: "ukendt" },
+  { id: "eurostat.de.tillid.industri", omraade: "DK", saeson: "korrigeret" },
+
+  // Forbrug
+  { id: "dst.forbrug.forventning.f1", omraade: "DK", saeson: "ukendt", navn: "Forbrugertillid" },
+  { id: "dst.detail.omsaetning.g47", omraade: "DK", saeson: "ukendt" },
+  { id: "derived.detail.maengde", omraade: "DK", saeson: "ukendt" },
+
+  // Byggeri
+  { id: "dst.byg.tilladt.bolig", omraade: "DK", saeson: "korrigeret" },
+
+  // Renter
+  { id: "dst.rente.nationalbank.udlaan", omraade: "DK", saeson: "ikke relevant" },
+  { id: "dst.rente.erhverv.nye", omraade: "DK", saeson: "ikke relevant" },
+  { id: "dst.rente.realkredit.husholdning", omraade: "DK", saeson: "ikke relevant" },
+
+  // Kurser og energi
+  { id: "dst.valuta.usd", omraade: "DK", saeson: "ikke relevant" },
+  { id: "dst.valuta.effektiv", omraade: "DK", saeson: "ikke relevant" },
+  { id: "eds.el.dk1", omraade: "DK", saeson: "ikke relevant", navn: "Elpris Vestdanmark (DK1), døgngennemsnit" },
+  { id: "eds.el.dk2", omraade: "DK", saeson: "ikke relevant", navn: "Elpris Østdanmark (DK2), døgngennemsnit" },
+];
