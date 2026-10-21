@@ -760,17 +760,18 @@ export function PrioritizerApp() {
 
       {/* Tab bar */}
       <nav className="sticky top-14 z-40 bg-parchment border-b border-clay/40">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="flex">
+        <div className="max-w-[1400px] mx-auto px-2 sm:px-6">
+          {/* Ruller inden for sig selv på smalle skærme i stedet for at gøre hele siden bredere. */}
+          <div className="flex overflow-x-auto [scrollbar-width:none]">
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`px-6 py-4 text-[10px] tracking-[0.14em] uppercase border-b-2 transition-colors font-[300] ${
+                className={`shrink-0 px-4 sm:px-6 py-4 text-[10px] tracking-[0.14em] uppercase border-b-2 transition-colors font-[300] ${
                   tab === t.id ? "border-moss text-moss" : "border-transparent text-slate hover:text-ink"
                 }`}>
                 {t.label}
               </button>
             ))}
-            <div className="ml-auto flex items-center pr-2">
+            <div className="ml-auto hidden sm:flex items-center pr-2">
               <span className="text-[9px] tracking-[0.1em] uppercase text-clay font-[300]">
                 {computed.length} initiativ{computed.length !== 1 ? "er" : ""}
               </span>
