@@ -319,7 +319,10 @@ export async function koerFinn(opt: {
           meaning: betyder,
           sources: kildeposter.map((x) => ({
             id: x.id,
-            navn: x.type === "tal" ? `${x.navn}, ${x.periode}` : (svar.find((s) => s.kilde === x.kilde)?.navn ?? x.kilde),
+            navn:
+              x.type === "tal"
+                ? `${x.navn}, ${x.periode}`
+                : `${svar.find((s) => s.kilde === x.kilde)?.navn ?? x.kilde}: ${x.titel}`,
             url: x.url,
             type: x.type,
           })),
