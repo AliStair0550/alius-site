@@ -45,6 +45,10 @@ export function tilladteTal(post: Post): number[] {
     tal.push(post.vaerdi);
     fraTekst(post.navn);
     fraTekst(post.periode);
+    // Året før perioden: "højere end i september 2025" er en korrekt
+    // beskrivelse af en ændring år/år, og et årstal kan ikke forklæde sig
+    // som et måltal.
+    for (const f of talITekst(post.periode)) if (f.vaerdi >= 1990 && f.vaerdi <= 2100) tal.push(f.vaerdi - 1);
     for (const f of post.forloeb) {
       tal.push(f.vaerdi);
       fraTekst(f.periode);

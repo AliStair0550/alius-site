@@ -301,18 +301,21 @@ export async function koerFinn(opt: {
         effort: "medium",
       });
 
-      // 6a. De hårde regler (Sonnet). Tallene vurderes IKKE her: tjekket
-      // ser ikke dataene, og i tredje kørsel afviste det et tal der stod
-      // ordret i dem. Tallene kontrolleres af kode i 6b.
+      // 6a. De hårde regler (Sonnet): investeringsråd, råd til læseren,
+      // gengivet artikeltekst. Tallene vurderes IKKE her: tjekket ser ikke
+      // dataene, og i tredje kørsel afviste det et tal der stod ordret i
+      // dem. Selvmodsigelse er heller ikke med længere; i femte kørsel
+      // kaldte tjekket "faldt, men ligger højt" for en modsigelse. Det er
+      // en skriveregel i prompten. Tallene kontrolleres af kode i 6b.
       const regel = await kaldMedLoft(k, {
         trin: forsoeg === 1 ? "selvtjek regler" : `selvtjek regler, forsøg ${forsoeg}`,
         model: MODEL_SKRIV,
         system: finnSystem(kilder),
         bruger:
-          `Tjek hvert punkt for fire brud, og kun dem: 1) giver investeringsråd eller anbefaler et konkret produkt, ` +
-          `2) fortæller læseren hvad de skal gøre, 3) gengiver artikeltekst ud over overskriften, 4) siger det modsatte ` +
-          `af sig selv. Tallene er allerede kontrolleret mod kilderne; vurder dem ikke. Svar for hvert nummer, og ` +
-          `navngiv bruddet.\n\n` +
+          `Tjek hvert punkt for tre brud, og kun dem: 1) giver investeringsråd eller anbefaler et konkret produkt, ` +
+          `2) fortæller læseren hvad de skal gøre, 3) gengiver artikeltekst ud over overskriften. Marker kun et brud, ` +
+          `når det er tydeligt; tvivl er ikke et brud. Tallene er allerede kontrolleret mod kilderne, og stil og ` +
+          `nyhedsværdi er ikke din opgave. Svar for hvert nummer, og navngiv bruddet.\n\n` +
           skrevet.data.punkter.map((p, i) => `${i + 1}. ${p.overskrift}\n${p.tekst}\n${p.hvadDetBetyder}`).join("\n\n"),
         skema: RegelSkema,
         maxTokens: 3000,

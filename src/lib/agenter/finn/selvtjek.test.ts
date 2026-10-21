@@ -79,3 +79,11 @@ describe("Hvad det betyder", () => {
     assert.equal(udenPraefiks("Lønudgifterne vokser."), "Lønudgifterne vokser.");
   });
 });
+
+describe("Årstal", () => {
+  test("året før perioden er tilladt, et vilkårligt andet år er ikke", () => {
+    assert.deepEqual(usporedeTal("Ledigheden er lavere end i august 2025.", [ledighed]), []);
+    assert.deepEqual(usporedeTal("Ledigheden er lavere end i 2019.", [ledighed]), ["2019"]);
+  });
+});
+
