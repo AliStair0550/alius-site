@@ -24,13 +24,13 @@ async function Taeller({ agent }: { agent: AgentKort }) {
   // Tallene er fra seneste FÆRDIGE brief. En senere kørsel der blev
   // stoppet eller fejlede, ændrer ikke hvad Finn læste til briefen.
   if (brief && brief.dato === idag && brief.sourcesRead !== null) {
-    return <>Har læst {brief.sourcesRead} kilder i dag. Beholdt {brief.kept ?? 0}.</>;
+    return <>Har læst {brief.sourcesRead} kilder i dag.</>;
   }
   if (seneste && seneste.dato === idag && seneste.status === "RUNNING") {
     return <>Læser dagens kilder lige nu.</>;
   }
   if (brief && brief.sourcesRead !== null) {
-    return <>Læste {brief.sourcesRead} kilder {langDato(brief.dato)}. Beholdt {brief.kept ?? 0}.</>;
+    return <>Læste {brief.sourcesRead} kilder {langDato(brief.dato)}.</>;
   }
   return <>Har ikke læst noget endnu.</>;
 }

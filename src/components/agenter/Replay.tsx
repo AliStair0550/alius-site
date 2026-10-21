@@ -89,7 +89,7 @@ export default function Replay({ trin }: { trin: TraceTrin[] }) {
           ["Afvist", tilstand.afviste.length],
           ["Beholdt", tilstand.rangeret.length],
         ].map(([navn, tal]) => (
-          <div key={navn} className="p-4 border border-fog">
+          <div key={navn} className="p-4 rounded-2xl bg-parchment border border-fog">
             <dt className="font-[300] text-[0.62rem] tracking-[0.15em] uppercase text-slate mb-1">{navn}</dt>
             <dd className="m-0 font-[300] text-[1.5rem] text-ink tabular-nums">{tal}</dd>
           </div>
@@ -99,7 +99,7 @@ export default function Replay({ trin }: { trin: TraceTrin[] }) {
       {/* Det der sker lige nu */}
       <p
         key={i}
-        className="animate-fade-up min-h-[3.4rem] mb-6 py-3 px-4 border-l-2 border-moss bg-sand font-[300] text-[0.88rem] text-ink leading-[1.6]"
+        className="animate-fade-up min-h-[3.4rem] mb-6 py-3 px-4 rounded-2xl bg-parchment border border-fog font-[300] text-[0.88rem] text-ink leading-[1.6]"
         aria-live="polite"
       >
         {nu ? beskriv(nu) : ""}
@@ -110,7 +110,7 @@ export default function Replay({ trin }: { trin: TraceTrin[] }) {
         <button
           type="button"
           onClick={() => setI((x) => Math.max(0, x - 1))}
-          className="w-11 h-11 border border-clay text-ink hover:border-ink"
+          className="w-11 h-11 rounded-full border border-clay bg-parchment text-ink hover:border-ink active:scale-[0.94] transition-transform duration-100"
           aria-label="Et trin tilbage"
         >
           &lsaquo;
@@ -123,14 +123,14 @@ export default function Replay({ trin }: { trin: TraceTrin[] }) {
               setSpiller(true);
             } else setSpiller(!korer);
           }}
-          className="h-11 px-5 bg-ink text-parchment font-[300] text-[0.78rem] tracking-[0.08em] uppercase hover:bg-moss"
+          className="h-11 px-5 rounded-full bg-ink text-parchment font-[300] text-[0.78rem] tracking-[0.08em] uppercase hover:bg-moss active:scale-[0.97] transition-transform duration-100"
         >
           {korer ? "Pause" : i >= sidste ? "Afspil igen" : "Afspil"}
         </button>
         <button
           type="button"
           onClick={() => setI((x) => Math.min(sidste, x + 1))}
-          className="w-11 h-11 border border-clay text-ink hover:border-ink"
+          className="w-11 h-11 rounded-full border border-clay bg-parchment text-ink hover:border-ink active:scale-[0.94] transition-transform duration-100"
           aria-label="Et trin frem"
         >
           &rsaquo;
@@ -138,7 +138,7 @@ export default function Replay({ trin }: { trin: TraceTrin[] }) {
         <button
           type="button"
           onClick={() => setTempo((t) => TEMPO[(TEMPO.indexOf(t) + 1) % TEMPO.length])}
-          className="h-11 px-3 border border-clay font-[300] text-[0.78rem] text-ink tabular-nums hover:border-ink"
+          className="h-11 px-3.5 rounded-full border border-clay bg-parchment font-[300] text-[0.78rem] text-ink tabular-nums hover:border-ink active:scale-[0.94] transition-transform duration-100"
           aria-label={`Tempo ${tempo} gange`}
         >
           {tempo}x

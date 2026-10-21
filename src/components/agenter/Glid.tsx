@@ -32,7 +32,9 @@ export default function Glid({
           obs.disconnect();
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
+      // Udløses så snart en pixel er inde. Et kort nederst på siden når
+      // ellers aldrig helt ind, og indhold må aldrig blive hængende usynligt.
+      { rootMargin: "0px", threshold: 0 }
     );
     // Skjul først, når vi ved at observatøren kan vise det igen.
     const t = setTimeout(() => setKlar(true), 0);

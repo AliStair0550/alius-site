@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Ramme from "@/components/agenter/Ramme";
+import FinnRum from "@/components/agenter/FinnRum";
 import Replay from "@/components/agenter/Replay";
 import { hentTrace } from "@/lib/agenter/laes";
 import { prisma } from "@/lib/db";
@@ -33,7 +33,7 @@ export default async function ReplaySide({ params }: Props) {
   const dato = brief.date.toISOString().slice(0, 10);
 
   return (
-    <Ramme etiket="Agenter">
+    <FinnRum undertitel={`Sådan blev briefen lavet, ${langDato(dato)}`}>
       <div className="animate-fade-up max-w-[680px] mb-10">
         <h1 className="font-[300] text-[1.6rem] md:text-[2rem] text-ink leading-[1.3] mb-3">Sådan blev briefen lavet</h1>
         <p className="font-[200] text-[0.95rem] text-slate leading-[1.75]">
@@ -45,6 +45,6 @@ export default async function ReplaySide({ params }: Props) {
         </Link>
       </div>
       <Replay trin={trin} />
-    </Ramme>
+    </FinnRum>
   );
 }

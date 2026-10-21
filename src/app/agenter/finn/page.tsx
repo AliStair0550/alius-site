@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
-import Ramme from "@/components/agenter/Ramme";
+import FinnRum from "@/components/agenter/FinnRum";
 import BriefVisning from "@/components/agenter/BriefVisning";
 import { hentArkiv, hentBrief, hentSenesteKoersel } from "@/lib/agenter/laes";
 import { danskDag } from "@/lib/agenter/finn/pipeline";
-import { danskTimeNu, dagensStatus } from "@/lib/agenter/dato";
+import { danskTimeNu, dagensStatus, langDato } from "@/lib/agenter/dato";
 
 export const metadata: Metadata = pageMetadata({
   title: "Finn Finans · Alius Agenter",
@@ -22,8 +22,8 @@ export default async function FinnSide() {
   ]);
   const status = dagensStatus(danskDag(new Date()), danskTimeNu(), brief, seneste);
   return (
-    <Ramme etiket="Agenter">
+    <FinnRum undertitel={brief ? `Brief, ${langDato(brief.dato)}` : "Ingen brief endnu"}>
       <BriefVisning brief={brief} statuslinje={status} arkiv={arkiv} kanSpoerge />
-    </Ramme>
+    </FinnRum>
   );
 }

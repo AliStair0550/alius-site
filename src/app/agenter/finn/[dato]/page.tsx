@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { pageMetadata } from "@/lib/page-metadata";
-import Ramme from "@/components/agenter/Ramme";
+import FinnRum from "@/components/agenter/FinnRum";
 import BriefVisning from "@/components/agenter/BriefVisning";
 import { hentArkiv, hentBrief } from "@/lib/agenter/laes";
 import { langDato } from "@/lib/agenter/dato";
@@ -30,8 +30,8 @@ export default async function FinnArkivSide({ params }: Props) {
   const [brief, arkiv] = await Promise.all([hentBrief("finn", dato), hentArkiv("finn")]);
   if (!brief) notFound();
   return (
-    <Ramme etiket="Agenter">
+    <FinnRum undertitel={`Arkiv, ${langDato(dato)}`}>
       <BriefVisning brief={brief} statuslinje={null} arkiv={arkiv} />
-    </Ramme>
+    </FinnRum>
   );
 }

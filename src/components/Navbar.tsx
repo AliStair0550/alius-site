@@ -5,9 +5,9 @@ import Link from "next/link";
 import AliusLogo from "./AliusLogo";
 
 const links = [
+  { href: "#værktøjer", label: "Værktøjer" },
   { href: "#portfolio", label: "Portfolio" },
   { href: "#maskinrummet", label: "Maskinrummet" },
-  { href: "#værktøjer", label: "Værktøjer" },
   // Egen side, ikke ankeret nederst på forsiden.
   { href: "/kontakt", label: "Kontakt" },
 ];

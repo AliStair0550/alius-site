@@ -23,10 +23,10 @@ export default function Home() {
         <div className="h-px bg-clay" />
         <About />
         <div className="h-px bg-clay" />
-        <Maskinrummet />
-        <Portfolio />
-        <div className="h-px bg-clay" />
         <Tools />
+        <div className="h-px bg-clay" />
+        <Portfolio />
+        <Maskinrummet />
         <div className="h-px bg-clay" />
         <CTA />
       </main>
