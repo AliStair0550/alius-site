@@ -27,11 +27,16 @@
 export type BudgetConfig = {
   maanedUsd: number;
   doegnUsd: number;
+  /**
+   * Delbudget for spørgsmål til agenterne per døgn. Ligger INDEN FOR
+   * døgnloftet, så spørgsmål aldrig kan spise morgenens brief.
+   */
+  spoergsmaalDoegnUsd: number;
   /** 1-28. Dagen i måneden hvor budgetmåneden begynder. */
   nulstillingsdag: number;
 };
 
-const STANDARD = { maanedUsd: 80, doegnUsd: 4, nulstillingsdag: 1 };
+const STANDARD = { maanedUsd: 80, doegnUsd: 4, spoergsmaalDoegnUsd: 1, nulstillingsdag: 1 };
 
 /**
  * Læser lofterne fra miljøet. En værdi der er sat, men ikke kan læses,
@@ -51,8 +56,21 @@ export function laesBudgetConfig(env: Record<string, string | undefined> = proce
   const cfg = {
     maanedUsd: tal("AGENTS_BUDGET_MONTHLY_USD", STANDARD.maanedUsd, 0, 100),
     doegnUsd: tal("AGENTS_BUDGET_DAILY_USD", STANDARD.doegnUsd, 0, 100),
+    spoergsmaalDoegnUsd: 0,
     nulstillingsdag: tal("AGENTS_BUDGET_RESET_DAY", STANDARD.nulstillingsdag, 1, 28),
   };
+  // Ikke sat: standarden, men aldrig over døgnloftet (budgettestet sætter
+  // døgnet til $0,01). Sat udtrykkeligt over døgnloftet: en fejl.
+  const qaSat = env.AGENTS_QA_DAILY_USD !== undefined && env.AGENTS_QA_DAILY_USD.trim() !== "";
+  cfg.spoergsmaalDoegnUsd = qaSat
+    ? tal("AGENTS_QA_DAILY_USD", STANDARD.spoergsmaalDoegnUsd, 0, 100)
+    : Math.min(STANDARD.spoergsmaalDoegnUsd, cfg.doegnUsd);
+  if (cfg.spoergsmaalDoegnUsd > cfg.doegnUsd) {
+    throw new Error(
+      `AGENTS_QA_DAILY_USD ($${cfg.spoergsmaalDoegnUsd}) er større end døgnloftet ($${cfg.doegnUsd}). ` +
+        `Spørgsmål skal ligge inden for døgnloftet.`
+    );
+  }
   if (!Number.isInteger(cfg.nulstillingsdag)) {
     throw new Error(`AGENTS_BUDGET_RESET_DAY skal være et helt tal, ikke ${cfg.nulstillingsdag}.`);
   }

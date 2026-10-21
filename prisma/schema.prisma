@@ -467,3 +467,21 @@ model SourceCache {
 
   @@map("source_cache")
 }
+
+/// Et spørgsmål til en agent. Kun det grænserne og regnskabet kræver:
+/// hvem (som salted hash af IP), hvornår, hvordan det endte, og prisen.
+/// Selve spørgsmålet og svaret gemmes ikke.
+model AgentQuestion {
+  id      BigInt   @id @default(autoincrement())
+  ts      DateTime @default(now()) @db.Timestamptz(3)
+  agentId String   @map("agent_id")
+  ipHash  String   @map("ip_hash")
+
+  /// "svaret", "ikke_sporbar", "budget", "graense", "kredit", "fejl"
+  status  String
+  costUsd Decimal @default(0) @map("cost_usd") @db.Decimal(12, 6)
+
+  @@index([agentId, ts])
+  @@index([ipHash, ts])
+  @@map("agent_questions")
+}

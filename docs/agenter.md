@@ -78,7 +78,7 @@ $1 til $2 om måneden.
 
 | Hemmelighed | Hvor | Til hvad |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | GitHub (og Vercel, ubrugt indtil fase 2) | kørslen |
+| `ANTHROPIC_API_KEY` | GitHub og Vercel | kørslen (GitHub), Spørg Finn (Vercel) |
 | `DATABASE_URL` | GitHub | briefs, traces og ledger i Pulse-basen |
 | `ADMIN_SECRET` | GitHub og Vercel | genskabelse af siderne, statusside |
 | `GITHUB_DISPATCH_TOKEN` | Vercel | Vercel beder Actions om at køre |
@@ -146,6 +146,30 @@ Holder færre end fem, skrives briefen om én gang med grundene.
 Sammenligninger vælges i kode ud fra sæsonkorrektionen: korrigerede
 serier og satser mod forrige periode, rå og ukendte mod samme periode
 året før. "I træk" tælles i kode (`tendens`), aldrig af modellen.
+
+## Spørg Finn
+
+På `/agenter/finn` kan en læser stille Finn et spørgsmål. Han svarer ud
+fra seneste brief og dens dags data fra `source_cache`, og samme
+selvtjek gælder: et tal der ikke kan spores, giver en ærlig besked i
+stedet for et svar. Logikken står i `src/lib/agenter/finn/spoerg.ts`.
+
+Grænserne, i rækkefølge:
+
+1. 3 til 300 tegn.
+2. Højst 5 spørgsmål per besøgende per døgn (UTC). Kun en salted hash af
+   IP-adressen gemmes. Selve spørgsmålet og svaret gemmes ikke.
+3. Eget døgnbudget for spørgsmål, `AGENTS_QA_DAILY_USD`, standard $1 og
+   aldrig over døgnloftet. Så kan spørgsmål ikke spise morgenens brief.
+4. Det almindelige loft i `kaldMedLoft`.
+5. Er Anthropic-kreditten brugt, siger Finn det.
+
+Hver udgang gemmes i `agent_questions` med sin status: `svaret`,
+`ikke_sporbar`, `budget`, `graense`, `kredit`, `fejl`. Et spørgsmål
+koster cirka $0,01 til $0,02.
+
+Spørgsmålene kører på Vercel og skriver regnskab derfra. Se CLAUDE.md
+for hvorfor det er en bevidst undtagelse.
 
 ## Næste faser
 

@@ -7,7 +7,7 @@ import { kaldMedLoft } from "./claude";
 import { BudgetStop } from "./budget";
 import { MODEL_HURTIG } from "./priser";
 
-const CFG = { maanedUsd: 80, doegnUsd: 4, nulstillingsdag: 1 };
+const CFG = { maanedUsd: 80, doegnUsd: 4, spoergsmaalDoegnUsd: 1, nulstillingsdag: 1 };
 
 function falsk(svarTekst: string, stop = "end_turn", brugt = 0) {
   const ledger: unknown[] = [];

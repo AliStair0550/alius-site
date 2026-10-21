@@ -14,12 +14,11 @@ export default function Tools() {
         Vores værktøjer giver dig indsigt inden du tager kontakt. De er gratis og kræver ingen tilmelding.
       </p>
 
-      {/* Antallet af spalter foelger antallet af kort. Med Pulse skjult er
-          der fire, ellers fem, og et gitter med et tomt felt ligner noget
-          der mangler. */}
+      {/* Med Pulse skjult er der fire kort paa een raekke. Med Pulse er der
+          fem, fordelt 3 + 2: fem smalle kort paa een raekke blev for tætte. */}
       <div
         className={`mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5 ${
-          PAA_PAUSE ? "lg:grid-cols-4" : "lg:grid-cols-5"
+          PAA_PAUSE ? "lg:grid-cols-4" : "lg:grid-cols-3"
         }`}
       >
         {/* Tankeprofil */}

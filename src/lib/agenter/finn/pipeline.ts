@@ -59,7 +59,29 @@ export type BriefPunkt = {
   body: string;
   meaning: string;
   sources: { id: string; navn: string; url: string; type: "tal" | "nyhed" }[];
+  /** Udledt i kode fra punktets første kilde. Mangler i briefs fra før 22/10. */
+  tema?: string;
+  /** Punktets bærende tal. Kontrolleret af selvtjekket som alle andre tal. */
+  noegletal?: { vaerdi: string; etiket: string } | null;
 };
+
+/** Temaet for et punkt, ud fra hvad dets første kilde måler. */
+export function temaFor(p: Post): string {
+  if (p.type === "nyhed") return "Nyhed";
+  const id = p.id.replace(/^(pulse:|dst\.ej56:)/, "");
+  if (p.kilde === "dst.ej56") return "Bolig";
+  const regler: [RegExp, string][] = [
+    [/pris\.|aarsaendring/, "Priser"],
+    [/ledighed|loen/, "Arbejde"],
+    [/konkurs|distress|konjunktur|eurostat/, "Virksomheder"],
+    [/forbrug|detail/, "Forbrug"],
+    [/byg\./, "Byggeri"],
+    [/rente\./, "Renter"],
+    [/valuta/, "Kronen"],
+    [/^eds\.el/, "Energi"],
+  ];
+  return regler.find(([re]) => re.test(id))?.[1] ?? "Økonomi";
+}
 
 /** Dagen i dansk tid. Eksplicit tidszone, så maskinens zone aldrig når datoen. */
 export function danskDag(nu: Date): string {
@@ -96,6 +118,7 @@ const BriefSkema = z.object({
       tekst: z.string(),
       hvadDetBetyder: z.string(),
       kilder: z.array(z.string()),
+      noegletal: z.object({ vaerdi: z.string(), etiket: z.string() }).nullable(),
     })
   ),
   forbehold: z.array(z.string()),
@@ -286,6 +309,9 @@ export async function koerFinn(opt: {
           `Dato: ${dag}.\n\nSkriv dagens brief: 5 til 7 punkter om dansk økonomi. Hvert punkt har en kort overskrift, ` +
           `2 til 4 korte sætninger, og en sætning "Hvad det betyder" for en dansk virksomhed med 5 til 50 ansatte eller ` +
           `en husholdning. Hvert punkt henviser i "kilder" til de id'er det bygger på, og bruger kun tal fra dem.\n` +
+          `Hvert punkt har et "noegletal": punktets bærende tal med enhed, fx "2,2 procent" eller "1.337 kr. per MWh", ` +
+          `og en etiket på højst fem ord, fx "inflation i september". Tallet skal stå i punktets data. ` +
+          `Har punktet ikke ét bærende tal, er noegletal null.\n` +
           `Under "forbehold" skriver du ærligt, hvad du tog forbehold for: usikre eller ukorrigerede tal, gamle tal, ` +
           `og kilder der ikke kunne hentes.\n\n` +
           (feedback.length
@@ -340,7 +366,13 @@ export async function koerFinn(opt: {
         if (kildeposter.length === 0) return fjern("det henviste ikke til nogen af dagens kilder");
         const tekst = rensSprog(p.tekst);
         const betyder = rensSprog(udenPraefiks(p.hvadDetBetyder));
-        const usporet = usporedeTal(`${titel} ${tekst} ${betyder}`, kildeposter);
+        const noegletal = p.noegletal
+          ? { vaerdi: rensSprog(p.noegletal.vaerdi), etiket: rensSprog(p.noegletal.etiket) }
+          : null;
+        const usporet = usporedeTal(
+          `${titel} ${tekst} ${betyder} ${noegletal ? `${noegletal.vaerdi} ${noegletal.etiket}` : ""}`,
+          kildeposter
+        );
         if (usporet.length) return fjern(`tallet ${usporet.join(", ")} kunne ikke spores til kilderne`);
 
         log({ type: "punkt", titel, data: { forsoeg, kilder: kildeposter.map((x) => x.id), ukendteKilder: ukendte } });
@@ -348,6 +380,8 @@ export async function koerFinn(opt: {
           title: titel,
           body: tekst,
           meaning: betyder,
+          tema: temaFor(kildeposter[0]),
+          noegletal,
           sources: kildeposter.map((x) => ({
             id: x.id,
             navn:

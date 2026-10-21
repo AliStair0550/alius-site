@@ -292,6 +292,12 @@ Anthropic-klient andre steder. Priserne står ét sted,
 `src/lib/agenter/priser.ts`, og en ukendt model kaster i stedet for at
 koste nul.
 
+**Undtagelsen til "Vercel udløser kun":** Spørg Finn kører på Vercel,
+fordi svaret skal komme mens læseren venter. Den skriver i `api_ledger`
+og `agent_questions` derfra. Det er regnskab og grænser, ikke tal fra
+kilderne, og tidszonen kan ikke nå det. Uden den skrivning kunne
+budgetloftet ikke se spørgsmålenes pris. Intet andet fra Vercel skriver.
+
 **Ingen tal uden kilde.** Selvtjekket i `src/lib/agenter/finn/selvtjek.ts`
 fjerner ethvert punkt med et tal der ikke kan spores til de poster
 punktet selv henviser til. Det er kode, ikke en model, og det må ikke

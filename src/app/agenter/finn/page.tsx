@@ -23,7 +23,7 @@ export default async function FinnSide() {
   const status = dagensStatus(danskDag(new Date()), danskTimeNu(), brief, seneste);
   return (
     <Ramme etiket="Agenter">
-      <BriefVisning brief={brief} statuslinje={status} arkiv={arkiv} />
+      <BriefVisning brief={brief} statuslinje={status} arkiv={arkiv} kanSpoerge />
     </Ramme>
   );
 }

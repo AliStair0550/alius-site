@@ -25,7 +25,8 @@ import { anslaaTokens, prisForKald, vaerstTaenkeligePris, MODEL_HURTIG, PRISER }
 export type KaldKontekst = {
   prisma: PrismaClient;
   agentId: string;
-  briefId: string;
+  /** null for kald der ikke hører til en brief, fx spørgsmål. */
+  briefId: string | null;
   cfg: BudgetConfig;
   klient: Anthropic;
 };

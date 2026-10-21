@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { laesBudgetConfig, maaKalde, maanedStart, doegnStart } from "./budget";
 import { prisForKald, vaerstTaenkeligePris, MODEL_HURTIG, MODEL_SKRIV } from "./priser";
 
-const CFG = { maanedUsd: 80, doegnUsd: 4, nulstillingsdag: 1 };
+const CFG = { maanedUsd: 80, doegnUsd: 4, spoergsmaalDoegnUsd: 1, nulstillingsdag: 1 };
 const naer = (a: number, b: number) => Math.abs(a - b) < 1e-9;
 
 describe("Budgetloftet", () => {
@@ -47,6 +47,14 @@ describe("Budgetperioder", () => {
 });
 
 describe("Konfiguration", () => {
+  test("spørgsmålsbudgettet kan ikke sættes større end døgnloftet", () => {
+    assert.throws(() => laesBudgetConfig({ AGENTS_QA_DAILY_USD: "5" }), /inden for døgnloftet/);
+  });
+
+  test("budgettestets døgnloft på 0,01 virker stadig: spørgsmål følger med ned", () => {
+    assert.equal(laesBudgetConfig({ AGENTS_BUDGET_DAILY_USD: "0.01" }).spoergsmaalDoegnUsd, 0.01);
+  });
+
   test("tomt miljø giver standarden 80 / 4 / 1", () => {
     assert.deepEqual(laesBudgetConfig({}), CFG);
   });
