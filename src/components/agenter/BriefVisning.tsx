@@ -1,24 +1,7 @@
 import Link from "next/link";
 import { FinnAvatar } from "@/components/agenter/Avatar";
-import type { BriefVisning as Brief, KoerselStatus } from "@/lib/agenter/laes";
+import type { BriefVisning as Brief } from "@/lib/agenter/laes";
 import { langDato } from "@/lib/agenter/dato";
-
-/**
- * En linje om dagens kørsel, når den viste brief ikke er dagens.
- * Hver tilstand siges for sig: stoppet af budget er ikke det samme som
- * fejlet, og "ikke kl. 6 endnu" er ikke det samme som "udeblevet".
- */
-export function dagensStatus(idag: string, time: number, vist: Brief | null, seneste: KoerselStatus | null): string | null {
-  if (vist && vist.dato === idag) return null;
-  const fra = vist ? ` Her er briefen fra ${langDato(vist.dato)}.` : "";
-  if (seneste && seneste.dato === idag) {
-    if (seneste.status === "BUDGET_STOPPED") return `Dagens brief blev stoppet af budgetloftet.${fra}`;
-    if (seneste.status === "FAILED") return `Dagens brief blev ikke færdig.${fra}`;
-    if (seneste.status === "RUNNING") return `Finn arbejder på dagens brief.${fra}`;
-  }
-  if (time < 7) return `Dagens brief kommer kl. 6.${fra}`;
-  return `Dagens brief er ikke kommet.${fra}`;
-}
 
 export default function BriefVisning({
   brief,

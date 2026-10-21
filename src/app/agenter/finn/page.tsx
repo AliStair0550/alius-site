@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Ramme from "@/components/agenter/Ramme";
-import BriefVisning, { dagensStatus } from "@/components/agenter/BriefVisning";
+import BriefVisning from "@/components/agenter/BriefVisning";
 import { hentArkiv, hentBrief, hentSenesteKoersel } from "@/lib/agenter/laes";
 import { danskDag } from "@/lib/agenter/finn/pipeline";
-import { danskTimeNu } from "@/lib/agenter/dato";
+import { danskTimeNu, dagensStatus } from "@/lib/agenter/dato";
 
 export const metadata: Metadata = pageMetadata({
   title: "Finn Finans · Alius Agenter",
