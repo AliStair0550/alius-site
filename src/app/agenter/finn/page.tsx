@@ -10,6 +10,7 @@ export const metadata: Metadata = pageMetadata({
   title: "Finn Finans · Alius Agenter",
   description: "Dagens brief om dansk økonomi. Fem til syv punkter, hvert tal med kilde, skrevet hver morgen kl. 6.",
   path: "/agenter/finn",
+  image: "/agenter/finn/opengraph-image",
 });
 
 export const revalidate = 3600;

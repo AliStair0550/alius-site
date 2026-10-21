@@ -9,6 +9,21 @@ import { temaForKilde } from "@/lib/agenter/tema";
 /** Temaet regnes ud fra første kilde, så også ældre briefs får det rigtige. */
 const tema = (p: BriefPunkt) => (p.sources[0] ? temaForKilde(p.sources[0].id, p.sources[0].type) : (p.tema ?? "Økonomi"));
 
+/**
+ * Ankre efter temaet, så et delt link siger hvad det peger på:
+ * /agenter/finn#elpris frem for /agenter/finn#punkt-2. To punkter med
+ * samme tema får -2, -3 osv.
+ */
+function ankre(punkter: BriefPunkt[]): string[] {
+  const set = new Map<string, number>();
+  return punkter.map((p) => {
+    const grund = tema(p).toLowerCase().replace(/æ/g, "ae").replace(/ø/g, "oe").replace(/å/g, "aa").replace(/[^a-z0-9]+/g, "-");
+    const n = (set.get(grund) ?? 0) + 1;
+    set.set(grund, n);
+    return n === 1 ? grund : `${grund}-${n}`;
+  });
+}
+
 // Finns rum, indefra og ud: spørg Finn, overblik i dag, dagens brief, og
 // små knapper til forbehold, replay og arkiv nederst.
 
@@ -24,6 +39,7 @@ export default function BriefVisning({
   /** Kun på dagens side: Finn svarer ud fra seneste brief, ikke arkivets. */
   kanSpoerge?: boolean;
 }) {
+  const anker = brief ? ankre(brief.items) : [];
   const medTal = brief?.items.map((p, i) => ({ p, i })).filter(({ p }) => p.noegletal) ?? [];
 
   return (
@@ -53,7 +69,7 @@ export default function BriefVisning({
             {medTal.map(({ p, i }) => (
               <li key={i}>
                 <a
-                  href={`#punkt-${i + 1}`}
+                  href={`#${anker[i]}`}
                   className="block h-full rounded-2xl bg-parchment border border-fog p-4 no-underline hover:border-moss active:scale-[0.97] transition-[transform,border-color] duration-150"
                 >
                   <div className="font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss mb-2">{tema(p)}</div>
@@ -73,7 +89,7 @@ export default function BriefVisning({
           <Sektionstitel id="brief-titel">Dagens brief</Sektionstitel>
           <ol className="list-none p-0 m-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {brief.items.map((p, i) => (
-              <li key={i} id={`punkt-${i + 1}`} className="scroll-mt-20">
+              <li key={i} id={anker[i]} className="scroll-mt-20">
                 <Glid forsinkelse={(i % 3) * 70} className="h-full">
                   <Punktkort punkt={p} />
                 </Glid>

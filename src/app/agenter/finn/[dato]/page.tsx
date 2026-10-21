@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `Finn Finans, ${langDato(dato)} · Alius Agenter`,
     description: `Finns brief om dansk økonomi den ${langDato(dato)}.`,
     path: `/agenter/finn/${dato}`,
+    image: "/agenter/finn/opengraph-image",
   });
 }
 
