@@ -184,8 +184,9 @@ Skrivning sker i GitHub Actions:
 
 | Job | Hvornår | Hvad |
 |---|---|---|
-| `sync-series.yml` | dagligt 05:30 UTC | nye observationer, vindue bagud, og alle kilder i den gamle model |
+| `sync-series.yml` | dagligt 02 UTC | nye observationer, vindue bagud, og alle kilder i den gamle model |
 | `backfill.yml` | i hånden | hele historikken for udvalgte serier |
+| `agent-finn.yml` | dagligt 06 dansk tid | Finn Finans skriver dagens brief, se `docs/agenter.md` |
 
 Det månedlige `sync-dst.yml` blev fjernet 20. oktober 2026. Det hentede
 den gamle model den 25., uanset hvornår DST publicerede, så inflationen
@@ -202,8 +203,8 @@ gh workflow run sync-series.yml
 
 | Udløser | Hvornår | Hvor den er defineret |
 |---|---|---|
-| GitHubs scheduler | 05:30 UTC | `on.schedule` i workflowet |
-| Vercels cron | 06:00 UTC | `/api/cron/pulse` kalder GitHubs API |
+| GitHubs scheduler | 02 UTC | `on.schedule` i workflowet |
+| Vercels cron | 02 UTC, inden for timen | `/api/cron/pulse` kalder GitHubs API |
 
 **GitHubs scheduler er upålidelig på tidspunktet.** Den 29. juli 2026 var
 kørslen forfalden 05:30 og startede 08:04, altså to en halv times
@@ -279,3 +280,20 @@ eller i ingestion-laget.
 
 Tabel-ID'er må ikke hardcodes. `observations.value` må aldrig opdateres,
 kun tilføjes med ny `retrieved_at`.
+
+## Alius Agenter
+
+Læs `docs/agenter.md` før du ændrer noget under `src/lib/agenter/`,
+`src/app/agenter/` eller i `agent-finn.yml`.
+
+**Budgetloftet er ufravigeligt.** Ethvert kald til Anthropic går
+gennem `kaldMedLoft` i `src/lib/agenter/claude.ts`. Opret aldrig en
+Anthropic-klient andre steder. Priserne står ét sted,
+`src/lib/agenter/priser.ts`, og en ukendt model kaster i stedet for at
+koste nul.
+
+**Ingen tal uden kilde.** Selvtjekket i `src/lib/agenter/finn/selvtjek.ts`
+fjerner ethvert punkt med et tal der ikke kan spores til de poster
+punktet selv henviser til. Det er kode, ikke en model, og det må ikke
+blødes op.
+

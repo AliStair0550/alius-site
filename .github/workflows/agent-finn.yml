@@ -1,0 +1,82 @@
+name: Agent Finn Finans (dagligt)
+
+# Finn skriver dagens brief om dansk økonomi. Se docs/agenter.md.
+#
+# Udløses af Vercels cron kl. 06:00 dansk tid gennem /api/cron/agenter.
+# GitHubs scheduler herunder er kun reserve: den kommer ofte timer for
+# sent. Scriptet springer over, hvis dagens brief allerede er færdig.
+#
+# Budgetloftet håndhæves i koden før hvert kald (src/lib/agenter/budget.ts).
+# Lofterne kan sættes som repository-variabler; ellers gælder $4 i døgnet
+# og $80 i budgetmåneden.
+#
+# Nødvendige hemmeligheder:
+#   DATABASE_URL        Pulse-basen, hvor agenterne bor
+#   ANTHROPIC_API_KEY   nøglen fra Console-organisationen med kreditten
+#   ADMIN_SECRET        så siderne genskabes med det samme
+
+on:
+  schedule:
+    - cron: "15 5 * * *"
+  workflow_dispatch:
+    inputs:
+      udloeser:
+        description: "Hvem startede den. Vercel-cronen saetter vercel."
+        type: string
+        default: "manuel"
+      tving:
+        description: "Koer selvom dagens brief findes."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Aldrig to kørsler på én gang: så kunne to kørsler begge se et budget
+# der kun rakte til den ene.
+concurrency:
+  group: agenter
+  cancel-in-progress: false
+
+env:
+  TZ: UTC
+
+jobs:
+  finn:
+    name: Finn Finans
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Hvem startede koerslen
+        run: echo "udloeser=${{ github.event_name == 'schedule' && 'github-schedule' || inputs.udloeser }}"
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Installér afhængigheder
+        run: npm ci
+
+      - name: Kør testene først
+        # Budgetloftet og selvtjekket er testet. En kørsel der koster penge,
+        # skal ikke starte fra en commit hvor de er i stykker.
+        run: npm test
+
+      - name: Finn
+        run: |
+          args=""
+          if [ "$TVING" = "true" ]; then args="--tving"; fi
+          npx tsx scripts/agent-finn.ts $args
+        env:
+          TVING: ${{ inputs.tving }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          AGENTS_BUDGET_DAILY_USD: ${{ vars.AGENTS_BUDGET_DAILY_USD }}
+          AGENTS_BUDGET_MONTHLY_USD: ${{ vars.AGENTS_BUDGET_MONTHLY_USD }}
+          AGENTS_BUDGET_RESET_DAY: ${{ vars.AGENTS_BUDGET_RESET_DAY }}
+          SITE_URL: https://alius.dk

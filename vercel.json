@@ -2,11 +2,19 @@
   "crons": [
     {
       "path": "/api/cron/pulse",
-      "schedule": "0 6 * * *"
+      "schedule": "0 2 * * *"
     },
     {
       "path": "/api/cron/pulse-stale",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/agenter",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/agenter",
+      "schedule": "0 5 * * *"
     }
   ]
 }

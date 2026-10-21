@@ -2,11 +2,12 @@ name: Sync series (dagligt)
 
 # Det inkrementelle hentejob til den nye model, series og observations.
 #
-# Kører hver dag kl. 05:30 UTC. Renter, valuta og elpris får nye tal
+# Kører hver dag kl. 02 UTC, så Pulse er færdig før Alius Agenter
+# skriver kl. 06 dansk tid (04 eller 05 UTC). Renter, valuta og elpris får nye tal
 # hver hverdag; månedsserierne tjekkes samtidig, så vi slipper for at
 # vedligeholde en publiceringskalender.
 #
-# Vercel-cronen kl. 06:00 udløser den samme kørsel som reserve; den
+# Vercel-cronen kl. 02 udløser den samme kørsel som reserve; den
 # hurtigste af de to sætter tempoet. Vercel skriver intet selv.
 #
 # Alle elleve kilder i den gamle model (DataPoint) hentes også her,
@@ -23,7 +24,7 @@ name: Sync series (dagligt)
 
 on:
   schedule:
-    - cron: "30 5 * * *"
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       udloeser:

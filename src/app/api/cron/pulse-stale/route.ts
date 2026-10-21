@@ -2,7 +2,7 @@
 // Dagligt stale-tjek
 //
 // Kører hver dag kl. 07:00 UTC (09:00 dansk sommertid, 08:00 vintertid),
-// altså efter det daglige sync-job kl. 06:00 UTC.
+// altså efter det daglige sync-job kl. 02 UTC.
 //
 // Sender én samlet mail hvis noget er forældet eller fejlet.
 // Sender ingenting hvis alt er i orden, så en mail altid betyder

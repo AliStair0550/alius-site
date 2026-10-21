@@ -20,7 +20,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { PrismaClient } from "@prisma/client";
 import type { z } from "zod";
 import { BudgetStop, doegnStart, maaKalde, maanedStart, type BudgetConfig } from "./budget";
-import { anslaaTokens, prisForKald, vaerstTaenkeligePris, MODEL_HURTIG } from "./priser";
+import { anslaaTokens, prisForKald, vaerstTaenkeligePris, MODEL_HURTIG, PRISER } from "./priser";
 
 export type KaldKontekst = {
   prisma: PrismaClient;
@@ -88,14 +88,18 @@ export async function kaldMedLoft<S extends z.ZodType>(
     output_config: { effort: opt.effort, format: zodOutputFormat(opt.skema) },
   });
 
-  // 4. Prisen gemmes uanset hvad svaret indeholder.
-  const pris = prisForKald(opt.model, svar.usage);
+  // 4. Prisen gemmes uanset hvad svaret indeholder. Den regnes ud fra
+  // den model der FAKTISK svarede. Er den ukendt, skrives det værst
+  // tænkelige beløb, og kørslen stopper: hellere overvurderet end gratis.
+  const brugt = svar.model;
+  const kendt = brugt in PRISER;
+  const pris = kendt ? prisForKald(brugt, svar.usage) : estimeret;
   await k.prisma.apiLedger.create({
     data: {
       agentId: k.agentId,
       briefId: k.briefId,
-      step: opt.trin,
-      model: opt.model,
+      step: kendt ? opt.trin : `${opt.trin} (ukendt model, pris sat til loftet)`,
+      model: brugt,
       inputTokens: svar.usage.input_tokens,
       outputTokens: svar.usage.output_tokens,
       cacheReadTokens: svar.usage.cache_read_input_tokens ?? 0,
@@ -103,6 +107,8 @@ export async function kaldMedLoft<S extends z.ZodType>(
       costUsd: pris,
     },
   });
+
+  if (!kendt) throw new Error(`${opt.trin}: svaret kom fra ${brugt}, som ikke har en pris i priser.ts.`);
 
   // 5. Hver måde at fejle på er sin egen.
   if (svar.stop_reason === "refusal") {

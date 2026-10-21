@@ -33,7 +33,10 @@
 // ============================================================
 
 /** Hvor længe efter en kørsel vi regner arbejdet for gjort. */
-export const DAEKNINGSVINDUE_TIMER = 6;
+// Var 6 indtil 21. oktober 2026. Da kørslen blev flyttet til kl. 02 UTC,
+// kom GitHubs scheduler typisk 4 til 7 timer bagefter, og med 6 timer
+// ville den ofte hente alt en gang til.
+export const DAEKNINGSVINDUE_TIMER = 10;
 
 /**
  * `conclusion` er GitHubs afslutning: "success", "failure", "cancelled"
