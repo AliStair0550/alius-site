@@ -25,6 +25,9 @@ function ankre(punkter: BriefPunkt[]): string[] {
   });
 }
 
+/** Kun første bogstav småt, så "DK1" og egennavne bevares. */
+const forbogstav = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+
 // Finns rum, indefra og ud: spørg Finn, overblik i dag, dagens brief, og
 // små knapper til forbehold, replay og arkiv nederst.
 
@@ -49,7 +52,7 @@ export default function BriefVisning({
     ? [
         ...(analyse.dagens ? [`Hvad betyder "${analyse.dagens.overskrift}" for mig?`] : []),
         ...(analyse.elpris[0] ? ["Hvornår er strømmen billigst i dag?"] : []),
-        ...(analyse.usaedvanligt[0] ? [`Hvad ligger bag tallet for ${analyse.usaedvanligt[0].navn.toLowerCase()}?`] : []),
+        ...(analyse.usaedvanligt[0] ? [`Hvad ligger bag tallet for ${forbogstav(analyse.usaedvanligt[0].navn)}?`] : []),
       ]
     : (brief?.items.slice(0, 3).map((p) => `Hvad betyder "${p.title}" for mig?`) ?? []);
 
