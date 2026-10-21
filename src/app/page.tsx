@@ -29,8 +29,9 @@ export default function Home() {
         <Maskinrummet />
         <div className="h-px bg-clay" />
         <CTA />
+        <div className="h-px bg-clay" />
       </main>
-      <Footer />
+      <Footer kant={false} />
     </>
   );
 }

@@ -3,9 +3,9 @@ import { PAA_PAUSE } from "@/lib/pulse-pause";
 
 export default function Tools() {
   return (
-    // Fog på hele bredden, så sektionen ikke flyder sammen med "Om mig"
-    // over den. Sand lå for tæt på parchment til at skille dem ad.
-    <section id="værktøjer" className="bg-fog">
+    // Samme sand som "Sæt strøm til jeres processer", på hele bredden, så
+    // sektionen skiller sig fra "Om mig" over den.
+    <section id="værktøjer" className="bg-sand">
       <div className="py-20 md:py-28 px-6 md:px-8 max-w-[1100px] mx-auto">
       <div className="text-[0.6rem] tracking-[0.22em] uppercase text-clay font-[300] mb-8">
         Værktøjer

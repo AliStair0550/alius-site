@@ -89,7 +89,7 @@ export function CTA() {
   return (
     <section
       id="kontakt"
-      className="bg-fog py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
+      className="bg-sand py-14 md:py-18 px-6 md:px-8 flex flex-col items-center text-center overflow-hidden"
     >
       <div className="match-breathe w-12 h-12 rounded-full bg-moss mb-7" />
       <h2 className="font-[300] text-[1.8rem] text-ink mb-3 tracking-[0.03em] max-w-[520px]">
@@ -245,9 +245,18 @@ export function CTA() {
   );
 }
 
-export function Footer() {
+/**
+ * `kant` er stregen foroven. Forsiden slår den fra, fordi den selv har en
+ * streg i fuld bredde under "Del jeres udfordring", ligesom mellem de
+ * andre sektioner. Ellers stod der to streger lige oven på hinanden.
+ */
+export function Footer({ kant = true }: { kant?: boolean } = {}) {
   return (
-    <footer className="px-6 md:px-8 py-8 max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 border-t border-fog">
+    <footer
+      className={`px-6 md:px-8 py-8 max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 ${
+        kant ? "border-t border-fog" : ""
+      }`}
+    >
       <div className="font-[200] text-[0.7rem] text-stone tracking-[0.05em]">
         &copy; 2026 Alius - Vi bygger digitale maskiner.
       </div>
