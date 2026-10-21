@@ -72,6 +72,7 @@ export const dstBoligpriser: Kilde = {
               }
             : null,
         forloeb: [],
+        tendens: null,
         foersteGangSet: udgivet.toISOString(),
       });
     }

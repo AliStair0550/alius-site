@@ -106,6 +106,33 @@ export function sammenlign(
   };
 }
 
+const ENHEDSORD: Record<string, [string, string]> = {
+  DAILY: ["notering", "noteringer"],
+  MONTHLY: ["måned", "måneder"],
+  QUARTERLY: ["kvartal", "kvartaler"],
+  YEARLY: ["år", "år"],
+};
+
+/**
+ * Antal perioder i træk med samme retning, fra den nyeste og bagud.
+ * Kun meningsfuldt mellem nabo-perioder, altså for sæsonkorrigerede
+ * serier og satser. Ren funktion. `punkter` er nyeste først.
+ */
+export function tendens(punkter: Punkt[], frekvens: string): string | null {
+  if (punkter.length < 3) return null;
+  const retning = (a: number, b: number) => (a > b ? 1 : a < b ? -1 : 0);
+  const foerste = retning(punkter[0].value, punkter[1].value);
+  let antal = 0;
+  for (let i = 0; i < punkter.length - 1; i++) {
+    if (retning(punkter[i].value, punkter[i + 1].value) !== foerste) break;
+    antal++;
+  }
+  if (antal < 2) return null;
+  const [en, flere] = ENHEDSORD[frekvens] ?? ["periode", "perioder"];
+  const ord = foerste > 0 ? "steget" : foerste < 0 ? "faldet" : "uændret";
+  return `${ord} ${antal} ${antal === 1 ? en : flere} i træk`;
+}
+
 const KILDEURL: Record<string, (ref: string, id: string) => string> = {
   DST: (ref) => `https://www.statbank.dk/${ref.split(/[ +/]/)[0]}`,
   EDS: () => "https://www.energidataservice.dk/tso-electricity/DayAheadPrices",
@@ -171,6 +198,7 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
           forloeb: visForloeb
             ? punkter.slice(0, 4).map((p) => ({ periode: periodeTekst(p.period, serie.frequency), vaerdi: p.value }))
             : [],
+          tendens: visForloeb ? tendens(punkter, serie.frequency) : null,
           foersteGangSet: foerst!.retrievedAt.toISOString(),
         });
       }

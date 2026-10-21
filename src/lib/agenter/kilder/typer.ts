@@ -38,8 +38,14 @@ export type TalPost = {
   vaerdi: number;
   vaerdiTekst: string;
   sammenligning: Sammenligning | null;
-  /** De seneste værdier, nyeste først. Til "tredje måned i træk". */
+  /** De seneste værdier, nyeste først. */
   forloeb: { periode: string; vaerdi: number }[];
+  /**
+   * Hvor mange perioder i træk serien er gået samme vej, talt i kode over
+   * hele den hentede historik. Agenten må kun bruge dette felt til "i træk":
+   * da den talte selv, skrev den "fire måneder" ud fra fire værdier.
+   */
+  tendens: string | null;
   /** Hvornår vi første gang så den nyeste periode. Bruges som udgivelsestid. */
   foersteGangSet: string;
 };

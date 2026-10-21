@@ -27,6 +27,7 @@ const ledighed: TalPost = {
     { periode: "august 2026", vaerdi: 2.84 },
     { periode: "juli 2026", vaerdi: 2.8 },
   ],
+  tendens: null,
   foersteGangSet: "2026-10-09T10:21:00Z",
 };
 

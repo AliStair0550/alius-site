@@ -49,6 +49,7 @@ export function tilladteTal(post: Post): number[] {
     // beskrivelse af en ændring år/år, og et årstal kan ikke forklæde sig
     // som et måltal.
     for (const f of talITekst(post.periode)) if (f.vaerdi >= 1990 && f.vaerdi <= 2100) tal.push(f.vaerdi - 1);
+    fraTekst(post.tendens);
     for (const f of post.forloeb) {
       tal.push(f.vaerdi);
       fraTekst(f.periode);

@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { sammenlign, periodeTekst, type Punkt } from "./pulse";
+import { sammenlign, periodeTekst, tendens, type Punkt } from "./pulse";
 import { laesFeed } from "./rss";
 
 const m = (aar: number, md: number, v: number): Punkt => ({ period: new Date(Date.UTC(aar, md - 1, 1)), value: v });
@@ -72,5 +72,19 @@ describe("RSS-overskrifter på Alius' sider", () => {
   test("lange tankestreger bliver til almindelig bindestreg", () => {
     const xml = `<item><title>Krisen i nettet — kan vare i årevis</title><link>https://x.dk/a</link><pubDate>Tue, 20 Oct 2026 06:00:00 GMT</pubDate></item>`;
     assert.equal(laesFeed(xml, "t").poster[0].titel, "Krisen i nettet - kan vare i årevis");
+  });
+});
+
+describe("Tendens i træk", () => {
+  test("realkreditrenten 21/10: fire stigninger i træk tælles over hele historikken", () => {
+    const r = [m(2026, 8, 3.455), m(2026, 7, 3.449), m(2026, 6, 3.414), m(2026, 5, 3.404), m(2026, 4, 3.398), m(2026, 3, 3.41)];
+    assert.equal(tendens(r, "MONTHLY"), "steget 4 måneder i træk");
+  });
+  test("en enkelt ændring er ikke en tendens", () => {
+    assert.equal(tendens([m(2026, 8, 3), m(2026, 7, 2), m(2026, 6, 4)], "MONTHLY"), null);
+  });
+  test("fald og uændret siges for sig", () => {
+    assert.equal(tendens([m(2026, 3, 1), m(2026, 2, 2), m(2026, 1, 3)], "MONTHLY"), "faldet 2 måneder i træk");
+    assert.equal(tendens([m(2026, 3, 2), m(2026, 2, 2), m(2026, 1, 2)], "MONTHLY"), "uændret 2 måneder i træk");
   });
 });
