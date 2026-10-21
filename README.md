@@ -1,3 +1,13 @@
+# alius.dk
+
+Projektets regler står i `CLAUDE.md`. Dokumentation i `docs/`:
+
+- `docs/agenter.md`: Alius Agenter og Finn Finans, budgetloftet, kørsel og kilder
+- `docs/to-databaser.md`: forretningens og Pulses databaser
+- `docs/pulse-*.md`: Pulse
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
