@@ -95,7 +95,8 @@ export function kildeRef(p: Post): KildeRef {
     : { id: p.id, navn: p.titel, url: p.url, type: "nyhed" };
 }
 
-const vis = (p: TalPost) => `${p.vaerdiTekst}${p.enhed ? ` ${p.enhed}` : ""}`.trim();
+/** Tallet med enhed. "antal" siger intet ved siden af et tal og udelades. */
+const vis = (p: TalPost) => `${p.vaerdiTekst}${p.enhed && p.enhed !== "antal" ? ` ${p.enhed}` : ""}`.trim();
 
 /**
  * Overblikkets felter, valgt i kode. Samme tal hver dag, så man kan
