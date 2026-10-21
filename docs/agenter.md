@@ -123,9 +123,12 @@ hver hentning, og agenten behandles som den Claude-agent den er:
 udelukker et medie Anthropics agenter, gælder det også os. DR, Børsen,
 Politiken, Information og Altinget er fravalgt af den grund.
 
-**Finans Danmark** har ingen åben datakilde for boliglånsrenter, som vi
-har fundet. Realkreditrenterne kommer i stedet fra Nationalbankens tal
-via DST (DNRUURI), som Pulse allerede henter.
+**Finans Danmark** er ikke med. Deres statistikbank
+(`rkr.statistikbank.dk`, boligmarkedsstatistik) kører på den gamle
+ASP-baserede statbank5a uden REST-API (tjekket 21. oktober 2026:
+`/api/v1/tables` svarer 404), og vi fandt ingen anden åben datakilde for
+boliglånsrenter. Realkreditrenterne kommer i stedet fra Nationalbankens
+tal via DST (DNRUURI), som Pulse allerede henter.
 
 ## Finns regler og selvtjek
 
