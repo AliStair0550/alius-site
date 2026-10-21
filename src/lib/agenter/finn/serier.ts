@@ -15,10 +15,9 @@
 //                    ikke korrigeret, og Finn skal sige det.
 //   ikke relevant    Renter, kurser, priser og ændringer år/år.
 //
-// FUND UNDERVEJS: dst.konkurs.total hedder "Erklærede konkurser i alt,
-// sæsonkorrigeret" i Pulse, men indeholder KONK3's nøgle C, "Konkurser
-// i aktive virksomheder (A+B)", rå. Navnet her er derfor sat efter
-// hvad tallet faktisk er.
+// dst.konkurs.total indeholdt indtil 22. oktober 2026 KONK3's rå nøgle C
+// under navnet "sæsonkorrigeret". Den henter nu C1, konkurser i aktive
+// virksomheder, sæsonkorrigeret (se scripts/sync-konk3.ts).
 // ============================================================
 
 import type { Saeson } from "../kilder/typer";
@@ -43,7 +42,7 @@ export const FINN_SERIER: FinnSerie[] = [
   { id: "dst.loen.privat", omraade: "DK", saeson: "ikke korrigeret" },
 
   // Virksomheder
-  { id: "dst.konkurs.total", omraade: "DK", saeson: "ikke korrigeret", navn: "Konkurser i aktive virksomheder" },
+  { id: "dst.konkurs.total", omraade: "DK", saeson: "korrigeret" },
   { id: "dst.distress.tvangsauktion", omraade: "DK", saeson: "ikke korrigeret" },
   { id: "dst.konjunktur.tillid.samlet", omraade: "DK", saeson: "ukendt" },
   { id: "eurostat.de.tillid.industri", omraade: "DK", saeson: "korrigeret" },

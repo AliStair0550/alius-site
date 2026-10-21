@@ -83,7 +83,7 @@ export const CONFIG: SourceConfig[] = [
   {
     slug: "dst-konk3",
     seriesBase: "dst.konkurs.total",
-    nameDa: "Erklærede konkurser i alt, sæsonkorrigeret",
+    nameDa: "Konkurser i aktive virksomheder, sæsonkorrigeret",
     unit: "antal",
     frequency: "MONTHLY",
     layer: "REALISED",

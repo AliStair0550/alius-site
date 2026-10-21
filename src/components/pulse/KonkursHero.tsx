@@ -45,7 +45,7 @@ export function KonkursHero({
             {formattedValue}
           </h1>
           <div className="text-[11px] tracking-[0.25em] uppercase text-stone opacity-60 mt-3">
-            Sæsonkorrigeret
+            Aktive virksomheder, sæsonkorrigeret
           </div>
         </div>
 

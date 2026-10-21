@@ -117,19 +117,29 @@ async function main() {
 
     if (!tidVariable) throw new Error("Could not find Tid dimension");
 
-    // Filter to "aktive virksomheder" nøgletal
-    let nøgletalFilter: string[] = ["*"];
-    if (nøgletalVariable) {
-      const aktive = nøgletalVariable.values.find((v) =>
-        v.label.toLowerCase().includes("aktive")
+    // Konkurser i aktive virksomheder, SÆSONKORRIGERET: nøgle C1.
+    //
+    // KONK3 har ingen sæsondimension. Sæsonkorrektionen ligger i selve
+    // nøgletallet: C er rå, C1 er sæsonkorrigeret. Indtil 22. oktober
+    // 2026 valgte scriptet det første nøgletal med "aktive" i navnet,
+    // altså C, og ledte bagefter forgæves efter en sæsondimension. Pulse
+    // viste derfor rå tal under etiketten "Sæsonkorrigeret", og siden
+    // sammenlignede med forrige måned, så sæsonudsving lignede udvikling.
+    //
+    // Koden vælges nu eksplicit, og DST's egen etiket skal bekræfte den.
+    // Gør den ikke det, stopper hentningen. At falde tilbage til "alle
+    // nøgletal" ville være at hente noget andet end det vi tror.
+    if (!nøgletalVariable) throw new Error("KONK3: ingen nøgletalsdimension fundet");
+    const c1 = nøgletalVariable.values.find((v) => v.code === "C1");
+    const etiket = c1?.label.toLowerCase() ?? "";
+    if (!c1 || !etiket.includes("aktive") || !etiket.includes("sæsonkorrigeret")) {
+      throw new Error(
+        `KONK3: nøgle C1 er ikke "konkurser i aktive virksomheder, sæsonkorrigeret" ` +
+          `(fandt: ${c1 ? `"${c1.label}"` : "ingen C1"}). Stopper i stedet for at hente noget andet.`
       );
-      if (aktive) {
-        nøgletalFilter = [aktive.code];
-        console.log(`✓ Filter: nøgletal = "${aktive.label}" (${aktive.code})`);
-      } else {
-        console.log(`⚠️ Could not find "aktive virksomheder" — syncing all nøgletal`);
-      }
     }
+    const nøgletalFilter = [c1.code];
+    console.log(`✓ Filter: nøgletal = "${c1.label}" (${c1.code})`);
 
     // Filter to seasonal only (avoids unique constraint on national-level data)
     let sæsonFilter: string[] = ["*"];
