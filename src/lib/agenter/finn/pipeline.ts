@@ -245,80 +245,105 @@ export async function koerFinn(opt: {
       .map((b) => `${b.date.toISOString().slice(0, 10)}: ${((b.items as BriefPunkt[] | null) ?? []).map((i) => i.title).join(" / ")}`)
       .join("\n");
 
-    log({ type: "skriver", data: { antalKandidater: valgte.length } });
-    const skrevet = await kaldMedLoft(k, {
-      trin: "skriv",
-      model: MODEL_SKRIV,
-      system: finnSystem(kilder),
-      bruger:
-        `Dato: ${dag}.\n\nSkriv dagens brief: 5 til 7 punkter om dansk økonomi. Hvert punkt har en kort overskrift, ` +
-        `2 til 4 korte sætninger, og en sætning "Hvad det betyder" for en dansk virksomhed med 5 til 50 ansatte eller ` +
-        `en husholdning. Hvert punkt henviser i "kilder" til de id'er det bygger på, og bruger kun tal fra dem.\n` +
-        `Under "forbehold" skriver du ærligt, hvad du tog forbehold for: usikre eller ukorrigerede tal, gamle tal, ` +
-        `og kilder der ikke kunne hentes.\n\n` +
-        `DATA (fuld form). Feltet nyt er true, når tallet er udgivet inden for 48 timer.\n` +
-        `${JSON.stringify(valgte.map((p) => (p.type === "tal" ? { ...p, nyt: erNyt(p, nu) } : p)), null, 1)}\n\n` +
-        `KILDER DER IKKE LEVEREDE I DAG\n${ikkeOk.map((s) => `${s.navn}: ${s.status}${s.besked ? `, ${s.besked}` : ""}`).join("\n") || "Ingen."}\n\n` +
-        `DINE SENESTE BRIEFS\n${hukommelse || "Ingen endnu. Dette er den første."}`,
-      skema: BriefSkema,
-      maxTokens: 12000,
-      effort: "medium",
-    });
-
-    // 6a. Regler (Sonnet).
-    const regel = await kaldMedLoft(k, {
-      trin: "selvtjek regler",
-      model: MODEL_SKRIV,
-      system: finnSystem(kilder),
-      bruger:
-        `Tjek hvert punkt. Det er et brud, hvis punktet: giver investeringsråd eller anbefaler et konkret produkt; ` +
-        `fortæller læseren hvad de skal gøre; gengiver artikeltekst ud over overskriften; sammenligner tal fra ` +
-        `forskellige perioder; eller siger det modsatte af sig selv. Svar for hvert nummer, og navngiv bruddet.\n\n` +
-        skrevet.data.punkter.map((p, i) => `${i + 1}. ${p.overskrift}\n${p.tekst}\n${p.hvadDetBetyder}`).join("\n\n"),
-      skema: RegelSkema,
-      maxTokens: 3000,
-      effort: "low",
-    });
-    const brudt = new Map(regel.data.vurderinger.filter((v) => v.brud).map((v) => [v.nummer, v.hvilken]));
-
-    // 6b. Tal (kode, sidste ord) og sprog.
-    const forbehold = skrevet.data.forbehold.map(rensSprog);
-    const punkter: BriefPunkt[] = [];
-    skrevet.data.punkter.forEach((p, i) => {
-      const nr = i + 1;
-      const kildeposter = p.kilder.map((id) => efterId.get(id)).filter((x): x is Post => !!x && valgte.includes(x));
-      const ukendte = p.kilder.filter((id) => !kildeposter.some((x) => x.id === id));
-      const titel = rensSprog(p.overskrift);
-      const fjern = (grund: string) => {
-        log({ type: "fjernet", titel, grund });
-        forbehold.push(`Et punkt om "${titel}" blev fjernet: ${grund}.`);
-      };
-
-      if (brudt.has(nr)) return fjern(`brød Finns regler (${brudt.get(nr)})`);
-      if (kildeposter.length === 0) return fjern("det henviste ikke til nogen af dagens kilder");
-      const tekst = rensSprog(p.tekst);
-      const betyder = rensSprog(udenPraefiks(p.hvadDetBetyder));
-      const usporet = usporedeTal(`${titel} ${tekst} ${betyder}`, kildeposter);
-      if (usporet.length) return fjern(`tallet ${usporet.join(", ")} kunne ikke spores til kilderne`);
-
-      log({
-        type: "punkt",
-        titel,
-        data: { kilder: kildeposter.map((x) => x.id), ukendteKilder: ukendte },
+    // 5-6. Skriv og tjek. Ét udkast; holder færre end fem punkter, får
+    // Sonnet ét forsøg mere med grundene til det der blev afvist, og det
+    // udkast med flest holdbare punkter bruges.
+    const udkast = async (forsoeg: number, feedback: string[]) => {
+      log({ type: "skriver", data: { forsoeg, antalKandidater: valgte.length } });
+      const skrevet = await kaldMedLoft(k, {
+        trin: forsoeg === 1 ? "skriv" : `skriv, forsøg ${forsoeg}`,
+        model: MODEL_SKRIV,
+        system: finnSystem(kilder),
+        bruger:
+          `Dato: ${dag}.\n\nSkriv dagens brief: 5 til 7 punkter om dansk økonomi. Hvert punkt har en kort overskrift, ` +
+          `2 til 4 korte sætninger, og en sætning "Hvad det betyder" for en dansk virksomhed med 5 til 50 ansatte eller ` +
+          `en husholdning. Hvert punkt henviser i "kilder" til de id'er det bygger på, og bruger kun tal fra dem.\n` +
+          `Under "forbehold" skriver du ærligt, hvad du tog forbehold for: usikre eller ukorrigerede tal, gamle tal, ` +
+          `og kilder der ikke kunne hentes.\n\n` +
+          (feedback.length
+            ? `DIT FØRSTE UDKAST HOLDT IKKE. Disse punkter blev afvist, og grunden står ved hvert:\n${feedback.map((f) => `- ${f}`).join("\n")}\n` +
+              `Skriv briefen igen, så ingen punkter har de fejl.\n\n`
+            : "") +
+          `DATA (fuld form). Feltet nyt er true, når tallet er udgivet inden for 48 timer.\n` +
+          `${JSON.stringify(valgte.map((p) => (p.type === "tal" ? { ...p, nyt: erNyt(p, nu) } : p)), null, 1)}\n\n` +
+          `KILDER DER IKKE LEVEREDE I DAG\n${ikkeOk.map((s) => `${s.navn}: ${s.status}${s.besked ? `, ${s.besked}` : ""}`).join("\n") || "Ingen."}\n\n` +
+          `DINE SENESTE BRIEFS\n${hukommelse || "Ingen endnu. Dette er den første."}`,
+        skema: BriefSkema,
+        maxTokens: 12000,
+        effort: "medium",
       });
-      punkter.push({
-        title: titel,
-        body: tekst,
-        meaning: betyder,
-        sources: kildeposter.map((x) => ({
-          id: x.id,
-          navn: x.type === "tal" ? `${x.navn}, ${x.periode}` : (svar.find((s) => s.kilde === x.kilde)?.navn ?? x.kilde),
-          url: x.url,
-          type: x.type,
-        })),
+
+      // 6a. De hårde regler (Sonnet). Tallene vurderes IKKE her: tjekket
+      // ser ikke dataene, og i tredje kørsel afviste det et tal der stod
+      // ordret i dem. Tallene kontrolleres af kode i 6b.
+      const regel = await kaldMedLoft(k, {
+        trin: forsoeg === 1 ? "selvtjek regler" : `selvtjek regler, forsøg ${forsoeg}`,
+        model: MODEL_SKRIV,
+        system: finnSystem(kilder),
+        bruger:
+          `Tjek hvert punkt for fire brud, og kun dem: 1) giver investeringsråd eller anbefaler et konkret produkt, ` +
+          `2) fortæller læseren hvad de skal gøre, 3) gengiver artikeltekst ud over overskriften, 4) siger det modsatte ` +
+          `af sig selv. Tallene er allerede kontrolleret mod kilderne; vurder dem ikke. Svar for hvert nummer, og ` +
+          `navngiv bruddet.\n\n` +
+          skrevet.data.punkter.map((p, i) => `${i + 1}. ${p.overskrift}\n${p.tekst}\n${p.hvadDetBetyder}`).join("\n\n"),
+        skema: RegelSkema,
+        maxTokens: 3000,
+        effort: "low",
       });
-    });
-    log({ type: "selvtjek", data: { skrevet: skrevet.data.punkter.length, beholdt: punkter.length } });
+      const brudt = new Map(regel.data.vurderinger.filter((v) => v.brud).map((v) => [v.nummer, v.hvilken]));
+
+      // 6b. Tal (kode, sidste ord) og sprog.
+      const punkter: BriefPunkt[] = [];
+      const fjernede: string[] = [];
+      skrevet.data.punkter.forEach((p, i) => {
+        const nr = i + 1;
+        const kildeposter = p.kilder.map((id) => efterId.get(id)).filter((x): x is Post => !!x && valgte.includes(x));
+        const ukendte = p.kilder.filter((id) => !kildeposter.some((x) => x.id === id));
+        const titel = rensSprog(p.overskrift);
+        const fjern = (grund: string) => {
+          log({ type: "fjernet", titel, grund, data: { forsoeg } });
+          fjernede.push(`"${titel}": ${grund}`);
+        };
+
+        if (brudt.has(nr)) return fjern(`brød Finns regler (${brudt.get(nr)})`);
+        if (kildeposter.length === 0) return fjern("det henviste ikke til nogen af dagens kilder");
+        const tekst = rensSprog(p.tekst);
+        const betyder = rensSprog(udenPraefiks(p.hvadDetBetyder));
+        const usporet = usporedeTal(`${titel} ${tekst} ${betyder}`, kildeposter);
+        if (usporet.length) return fjern(`tallet ${usporet.join(", ")} kunne ikke spores til kilderne`);
+
+        log({ type: "punkt", titel, data: { forsoeg, kilder: kildeposter.map((x) => x.id), ukendteKilder: ukendte } });
+        punkter.push({
+          title: titel,
+          body: tekst,
+          meaning: betyder,
+          sources: kildeposter.map((x) => ({
+            id: x.id,
+            navn: x.type === "tal" ? `${x.navn}, ${x.periode}` : (svar.find((s) => s.kilde === x.kilde)?.navn ?? x.kilde),
+            url: x.url,
+            type: x.type,
+          })),
+        });
+      });
+      log({ type: "selvtjek", data: { forsoeg, skrevet: skrevet.data.punkter.length, beholdt: punkter.length } });
+      return { punkter, fjernede, forbehold: skrevet.data.forbehold.map(rensSprog) };
+    };
+
+    let valgt = await udkast(1, []);
+    let omskrevet = false;
+    if (valgt.punkter.length < 5) {
+      const andet = await udkast(2, valgt.fjernede);
+      if (andet.punkter.length > valgt.punkter.length) {
+        valgt = andet;
+        omskrevet = true;
+      }
+    }
+    const punkter = valgt.punkter;
+    const forbehold = [
+      ...valgt.forbehold,
+      ...valgt.fjernede.map((f) => `Et punkt blev fjernet, ${f}.`),
+      ...(omskrevet ? ["Første udkast holdt ikke, så briefen er skrevet om én gang."] : []),
+    ];
 
     if (punkter.length > 7) {
       for (const p of punkter.splice(7)) log({ type: "fjernet", titel: p.title, grund: "mere end syv punkter" });
