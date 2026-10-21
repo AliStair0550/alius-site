@@ -8,10 +8,15 @@
 //   1. Hent alle kilder (én gang per dag, se cache.ts).
 //   2. Dedupliker.
 //   3. Filtrer: nyheder højst 48 timer gamle; tal altid seneste udgivelse.
-//   4. Relevans og rangering (Haiku, ét kald).
-//   5. Skriv briefen (Sonnet).
-//   6. Selvtjek: regler (Sonnet), derefter tal (kode, sidste ord).
-//   7. Gem brief, trace, tællere og pris.
+//   4. Relevans for nyhederne (Haiku), derefter det der beregnes i kode:
+//      overblik, elpris time for time, det usædvanlige, nyt i dag.
+//   5. Medietemaer (Haiku).
+//   6. Dagens analyse om ét område (Sonnet), med selvtjek.
+//   7. En kort analyse per område (Sonnet), med selvtjek.
+//   8. Gem analysen, trace, tællere og pris.
+//
+// Selvtjekket: regler (Sonnet), derefter tal (kode, sidste ord). Hvert
+// afsnit holdes op mod netop de kilder det selv nævner.
 //
 // Hver slutning har sin egen status: DONE, BUDGET_STOPPED eller FAILED.
 // Siden viser altid seneste færdige brief og siger hvis dagens mangler.
@@ -25,19 +30,29 @@ import { kaldMedLoft, type KaldKontekst } from "../claude";
 import { MODEL_HURTIG, MODEL_SKRIV } from "../priser";
 import { hentMedCache } from "../kilder/cache";
 import { pulseKilde } from "../kilder/pulse";
+import { elprisTimer } from "../kilder/elpris-timer";
 import { dstBoligpriser } from "../kilder/dst-boligpriser";
 import { FEEDS, rssKilde, udenTankestreg } from "../kilder/rss";
-import type { Kilde, KildeSvar, Post, NyhedPost } from "../kilder/typer";
+import type { Kilde, KildeSvar, Post, NyhedPost, TalPost } from "../kilder/typer";
 import { FINN_SERIER } from "./serier";
 import { finnSystem } from "./prompt";
 import { temaForKilde } from "../tema";
 import { rensSprog, udenPraefiks, usporedeTal } from "./selvtjek";
+import { OMRAADER, OMRAADE_NOEGLER, postIOmraade, type OmraadeNoegle } from "./omraader";
+import {
+  bygElpris,
+  bygNyt,
+  bygOverblik,
+  bygUsaedvanligt,
+  kildeRef,
+  type Afsnit,
+  type Analyse,
+  type DagensAnalyse,
+  type Medietema,
+} from "./analyse";
 
 export const AGENT_ID = "finn";
 const MAKS_ALDER_TIMER = 48;
-const TIL_SKRIVNING = 12;
-/** Pladser til nyheder blandt kandidaterne, så tallene ikke altid fortrænger dem. */
-const NYHEDSPLADSER = 3;
 
 /** Er tallet udgivet inden for de seneste 48 timer. */
 function erNyt(p: Post, nu: Date): boolean {
@@ -46,7 +61,21 @@ function erNyt(p: Post, nu: Date): boolean {
 
 export type TraceTrin = {
   ts: string;
-  type: "start" | "kilde" | "afvist" | "beholdt" | "rangeret" | "skriver" | "punkt" | "fjernet" | "selvtjek" | "budget" | "slut" | "fejl";
+  type: | "start"
+    | "kilde"
+    | "afvist"
+    | "beholdt"
+    | "rangeret"
+    | "beregnet"
+    | "medietema"
+    | "skriver"
+    | "punkt"
+    | "fjernet"
+    | "selvtjek"
+    | "omraade"
+    | "budget"
+    | "slut"
+    | "fejl";
   kilde?: string;
   postId?: string;
   titel?: string;
@@ -55,6 +84,7 @@ export type TraceTrin = {
   data?: Record<string, unknown>;
 };
 
+/** Briefs fra før 22. oktober 2026 har punkter. Nyere har en Analyse (se analyse.ts). */
 export type BriefPunkt = {
   title: string;
   body: string;
@@ -80,36 +110,33 @@ function titelNoegle(t: string): string {
   return t.toLowerCase().normalize("NFKD").replace(/[^\p{L}\p{N} ]/gu, "").replace(/\s+/g, " ").trim();
 }
 
-function postLinje(p: Post, nu: Date): string {
-  if (p.type === "nyhed") return `${p.id} | nyhed | ${p.titel} | ${p.dato}`;
-  const nyt = erNyt(p, nu) ? " | NY UDGIVELSE" : "";
-  const s = p.sammenligning;
-  return (
-    `${p.id} | tal | ${p.navn} | ${p.periode} | ${p.vaerdiTekst} ${p.enhed}` +
-    (s ? ` | ${s.aendringTekst} mod ${s.slags} (${s.periode})` : " | ingen sammenligning") +
-    ` | sæson: ${p.saeson}${nyt}`
-  );
+function artiklerFor(nyheder: NyhedPost[]): Medietema["artikler"] {
+  return nyheder.map((n) => ({ titel: n.titel, url: n.url, kilde: n.kilde }));
 }
 
 const RelevansSkema = z.object({
   vurderinger: z.array(z.object({ nummer: z.number(), behold: z.boolean(), grund: z.string() })),
 });
 
-const RangeringSkema = z.object({
-  rangering: z.array(z.object({ id: z.string(), betydning: z.number(), begrundelse: z.string() })),
+const TemaSkema = z.object({
+  temaer: z.array(z.object({ titel: z.string(), omraade: z.string().nullable(), artikler: z.array(z.number()) })),
 });
 
-const BriefSkema = z.object({
-  punkter: z.array(
-    z.object({
-      overskrift: z.string(),
-      tekst: z.string(),
-      hvadDetBetyder: z.string(),
-      kilder: z.array(z.string()),
-      noegletal: z.object({ vaerdi: z.string(), etiket: z.string() }).nullable(),
-    })
-  ),
+const AfsnitSkema = z.object({ tekst: z.string(), kilder: z.array(z.string()) });
+
+const AnalyseSkema = z.object({
+  omraade: z.string(),
+  overskrift: z.string(),
+  tese: z.string(),
+  hvadTalleneSiger: z.array(AfsnitSkema),
+  hvadDetBetyder: z.object({ virksomhed: z.string(), husholdning: z.string() }),
+  holdOeje: z.array(AfsnitSkema),
+  medietemaer: z.array(z.object({ nummer: z.number(), kommentar: z.string(), kilder: z.array(z.string()) })),
   forbehold: z.array(z.string()),
+});
+
+const OmrSkema = z.object({
+  omraader: z.array(z.object({ noegle: z.string(), overskrift: z.string(), afsnit: z.array(AfsnitSkema) })),
 });
 
 const RegelSkema = z.object({
@@ -117,7 +144,7 @@ const RegelSkema = z.object({
 });
 
 export function finnKilder(prisma: PrismaClient): Kilde[] {
-  return [pulseKilde(prisma, FINN_SERIER), dstBoligpriser, ...FEEDS.map(rssKilde)];
+  return [pulseKilde(prisma, FINN_SERIER), elprisTimer, dstBoligpriser, ...FEEDS.map(rssKilde)];
 }
 
 export async function koerFinn(opt: {
@@ -228,189 +255,303 @@ export async function koerFinn(opt: {
       return true;
     });
 
-    // 4b. Rangering af tal og beholdte nyheder.
-    const r = await kaldMedLoft(k, {
-      trin: "rangering",
-      model: MODEL_HURTIG,
-      system: finnSystem(kilder),
-      bruger:
-        `Dato: ${dag}.\n\nRangér de højst 20 vigtigste poster herunder efter betydning for en dansk virksomhed ` +
-        `med 5 til 50 ansatte eller en husholdning, 1 til 10 hvor 10 er størst. Ny udgivelse vejer tungere end ` +
-        `gamle tal. Begrundelsen er højst tolv ord.\n\nPOSTER\n${beholdte.map((p) => postLinje(p, nu)).join("\n")}`,
-      skema: RangeringSkema,
-      maxTokens: 8000,
-      effort: "low",
+    // 4b. Det der kan beregnes, beregnes: overblik, elpris time for time,
+    // det usædvanlige og nyt i dag. Ingen model rører disse tal.
+    const tal = beholdte.filter((p): p is TalPost => p.type === "tal");
+    const nyhederBeholdt = beholdte.filter((p): p is NyhedPost => p.type === "nyhed");
+    const analyse: Analyse = {
+      udgave: 1,
+      dagens: null,
+      overblik: bygOverblik(tal),
+      elpris: bygElpris(tal),
+      usaedvanligt: bygUsaedvanligt(tal),
+      nyt: bygNyt(tal, nu),
+      medier: [],
+      omraader: {},
+    };
+    kept = beholdte.length;
+    log({
+      type: "beregnet",
+      data: {
+        overblik: analyse.overblik.length,
+        elpris: analyse.elpris.map((e) => e.kode),
+        usaedvanligt: analyse.usaedvanligt.map((u) => u.id),
+        nyt: analyse.nyt.map((n) => n.id),
+      },
     });
+    if (tal.length === 0) throw new Error("Ingen tal overlevede hentningen. Der er intet at analysere.");
+    const forbehold: string[] = [];
 
-    const rangeret = r.data.rangering
-      .filter((x) => {
-        const ok = efterId.has(x.id) && beholdte.some((b) => b.id === x.id);
-        if (!ok) log({ type: "afvist", postId: x.id, grund: "modellen rangerede et id der ikke var med" });
-        return ok;
-      })
-      .map((x) => ({ ...x, betydning: Math.max(1, Math.min(10, Math.round(x.betydning))) }))
-      .sort((a, b) => b.betydning - a.betydning);
-
-    // De bedst rangerede nyheder får op til NYHEDSPLADSER pladser, resten
-    // fyldes med de bedst rangerede tal. Ellers fortrængte tallene altid
-    // nyhederne: i første kørsel kom ingen nyhed med blandt de tolv.
-    const nyhedsvalg = rangeret.filter((x) => efterId.get(x.id)!.type === "nyhed").slice(0, NYHEDSPLADSER);
-    const talvalg = rangeret.filter((x) => efterId.get(x.id)!.type === "tal").slice(0, TIL_SKRIVNING - nyhedsvalg.length);
-    const valgteId = new Set([...nyhedsvalg, ...talvalg].map((x) => x.id));
-    const valgte = rangeret.filter((x) => valgteId.has(x.id)).map((x) => efterId.get(x.id)!);
-    for (const x of rangeret) {
-      const p = efterId.get(x.id)!;
-      const med = valgte.includes(p);
-      log({
-        type: med ? "rangeret" : "afvist",
-        postId: p.id,
-        titel: p.type === "tal" ? p.navn : p.titel,
-        kilde: p.kilde,
-        beslutning: `betydning ${x.betydning}`,
-        grund: med ? x.begrundelse : `lavere betydning end de ${TIL_SKRIVNING} valgte: ${x.begrundelse}`,
+    // 5. Medietemaer (Haiku): dagens beholdte nyheder samlet i højst tre temaer.
+    let temaer: { titel: string; omraade: OmraadeNoegle | null; artikler: NyhedPost[] }[] = [];
+    if (nyhederBeholdt.length > 0) {
+      const t = await kaldMedLoft(k, {
+        trin: "medietemaer",
+        model: MODEL_HURTIG,
+        system: finnSystem(kilder),
+        bruger:
+          `Dato: ${dag}.\n\nSaml nyhederne herunder i højst tre temaer om dansk økonomi. Et tema skal have mindst ` +
+          `én nyhed. Titlen er højst seks ord og indeholder ingen tal. "omraade" er et af: ${OMRAADE_NOEGLER.join(", ")}, ` +
+          `eller null hvis temaet ikke passer i nogen. Nyheder der ikke passer i et tema, udelades.\n\n` +
+          nyhederBeholdt.map((n, i) => `${i + 1}. ${n.titel}`).join("\n"),
+        skema: TemaSkema,
+        maxTokens: 4000,
+        effort: "low",
+      });
+      temaer = t.data.temaer.slice(0, 3).flatMap((x) => {
+        const artikler = [...new Set(x.artikler)].map((nr) => nyhederBeholdt[nr - 1]).filter((n): n is NyhedPost => !!n);
+        const omr = x.omraade && (OMRAADE_NOEGLER as string[]).includes(x.omraade) ? (x.omraade as OmraadeNoegle) : null;
+        if (x.omraade && !omr) log({ type: "afvist", titel: x.titel, grund: `ukendt område "${x.omraade}", temaet står uden område` });
+        if (artikler.length === 0) {
+          log({ type: "afvist", titel: x.titel, grund: "temaet henviste ikke til nogen af dagens nyheder" });
+          return [];
+        }
+        log({ type: "medietema", titel: rensSprog(x.titel), data: { omraade: omr, artikler: artikler.map((a) => a.id) } });
+        return [{ titel: rensSprog(x.titel), omraade: omr, artikler }];
       });
     }
-    kept = valgte.length;
-    if (valgte.length === 0) throw new Error("Intet overlevede filtreringen. Der er ikke noget at skrive om.");
 
-    // 5. Skriv.
+    // Hukommelse: hvilket område de seneste analyser handlede om.
     const tidligere = await prisma.brief.findMany({
       where: { agentId: AGENT_ID, status: "DONE", date: { lt: new Date(`${dag}T00:00:00Z`) } },
       orderBy: { date: "desc" },
       take: 5,
-      select: { date: true, items: true },
+      select: { date: true, items: true, analysis: true },
     });
     const hukommelse = tidligere
-      .map((b) => `${b.date.toISOString().slice(0, 10)}: ${((b.items as BriefPunkt[] | null) ?? []).map((i) => i.title).join(" / ")}`)
+      .map((b) => {
+        const d = b.date.toISOString().slice(0, 10);
+        const a = b.analysis as Analyse | null;
+        if (a?.dagens) return `${d}: område ${a.dagens.omraade}, "${a.dagens.overskrift}"`;
+        return `${d}: ${((b.items as BriefPunkt[] | null) ?? []).map((i) => i.title).join(" / ")}`;
+      })
       .join("\n");
 
-    // 5-6. Skriv og tjek. Ét udkast; holder færre end fem punkter, får
-    // Sonnet ét forsøg mere med grundene til det der blev afvist, og det
-    // udkast med flest holdbare punkter bruges.
-    const udkast = async (forsoeg: number, feedback: string[]) => {
-      log({ type: "skriver", data: { forsoeg, antalKandidater: valgte.length } });
-      const skrevet = await kaldMedLoft(k, {
-        trin: forsoeg === 1 ? "skriv" : `skriv, forsøg ${forsoeg}`,
-        model: MODEL_SKRIV,
-        system: finnSystem(kilder),
-        bruger:
-          `Dato: ${dag}.\n\nSkriv dagens brief: 5 til 7 punkter om dansk økonomi. Hvert punkt har en kort overskrift, ` +
-          `2 til 4 korte sætninger, og en sætning "Hvad det betyder" for en dansk virksomhed med 5 til 50 ansatte eller ` +
-          `en husholdning. Hvert punkt henviser i "kilder" til de id'er det bygger på, og bruger kun tal fra dem.\n` +
-          `Hvert punkt har et "noegletal": punktets bærende tal med enhed, fx "2,2 procent" eller "1.337 kr. per MWh", ` +
-          `og en etiket på højst fem ord, fx "inflation i september". Tallet skal stå i punktets data. ` +
-          `Har punktet ikke ét bærende tal, er noegletal null. Handler et punkt om elprisen i begge landsdele, ` +
-          `er noegletallet prisen i Østdanmark (DK2), og etiketten siger "elpris Østdanmark".\n` +
-          `Under "forbehold" skriver du ærligt, hvad du tog forbehold for: usikre eller ukorrigerede tal, gamle tal, ` +
-          `og kilder der ikke kunne hentes.\n\n` +
-          (feedback.length
-            ? `DIT FØRSTE UDKAST HOLDT IKKE. Disse punkter blev afvist, og grunden står ved hvert:\n${feedback.map((f) => `- ${f}`).join("\n")}\n` +
-              `Skriv briefen igen, så ingen punkter har de fejl.\n\n`
-            : "") +
-          `DATA (fuld form). Feltet nyt er true, når tallet er udgivet inden for 48 timer.\n` +
-          `${JSON.stringify(valgte.map((p) => (p.type === "tal" ? { ...p, nyt: erNyt(p, nu) } : p)), null, 1)}\n\n` +
-          `KILDER DER IKKE LEVEREDE I DAG\n${ikkeOk.map((s) => `${s.navn}: ${s.status}${s.besked ? `, ${s.besked}` : ""}`).join("\n") || "Ingen."}\n\n` +
-          `DINE SENESTE BRIEFS\n${hukommelse || "Ingen endnu. Dette er den første."}`,
-        skema: BriefSkema,
-        maxTokens: 12000,
-        effort: "medium",
-      });
+    // Selvtjek af ét afsnit mod netop de kilder det nævner. Kode, sidste ord.
+    const tjekAfsnit = (tekst: string, ids: string[], ekstra: Post[] = []): { afsnit: Afsnit | null; grund?: string } => {
+      const poster = [...new Set(ids)].map((id) => efterId.get(id)).filter((x): x is Post => !!x && beholdte.includes(x));
+      const renset = rensSprog(tekst);
+      if (poster.length === 0) return { afsnit: null, grund: "det henviste ikke til nogen af dagens kilder" };
+      const usporet = usporedeTal(renset, [...poster, ...ekstra]);
+      if (usporet.length) return { afsnit: null, grund: `tallet ${usporet.join(", ")} kunne ikke spores til kilderne` };
+      return { afsnit: { tekst: renset, kilder: poster.map(kildeRef) } };
+    };
 
-      // 6a. De hårde regler (Sonnet): investeringsråd, råd til læseren,
-      // gengivet artikeltekst. Tallene vurderes IKKE her: tjekket ser ikke
-      // dataene, og i tredje kørsel afviste det et tal der stod ordret i
-      // dem. Selvmodsigelse er heller ikke med længere; i femte kørsel
-      // kaldte tjekket "faldt, men ligger højt" for en modsigelse. Det er
-      // en skriveregel i prompten. Tallene kontrolleres af kode i 6b.
+    const data = (poster: Post[]) =>
+      JSON.stringify(
+        poster.map((p) => (p.type === "tal" ? { ...p, forloeb: p.forloeb.slice(0, 13), nyt: erNyt(p, nu) } : p)),
+        null,
+        1
+      );
+    const ikkeLeveret =
+      ikkeOk.map((s) => `${s.navn}: ${s.status}${s.besked ? `, ${s.besked}` : ""}`).join("\n") || "Ingen.";
+
+    const regeltjek = async (trin: string, tekster: string[]) => {
+      if (tekster.length === 0) return new Map<number, string>();
       const regel = await kaldMedLoft(k, {
-        trin: forsoeg === 1 ? "selvtjek regler" : `selvtjek regler, forsøg ${forsoeg}`,
+        trin,
         model: MODEL_SKRIV,
         system: finnSystem(kilder),
         bruger:
-          `Tjek hvert punkt for tre brud, og kun dem: 1) giver investeringsråd eller anbefaler et konkret produkt, ` +
+          `Tjek hvert afsnit for tre brud, og kun dem: 1) giver investeringsråd eller anbefaler et konkret produkt, ` +
           `2) fortæller læseren hvad de skal gøre, 3) gengiver artikeltekst ud over overskriften. Marker kun et brud, ` +
           `når det er tydeligt; tvivl er ikke et brud. Tallene er allerede kontrolleret mod kilderne, og stil og ` +
           `nyhedsværdi er ikke din opgave. Svar for hvert nummer, og navngiv bruddet.\n\n` +
-          skrevet.data.punkter.map((p, i) => `${i + 1}. ${p.overskrift}\n${p.tekst}\n${p.hvadDetBetyder}`).join("\n\n"),
+          tekster.map((t, i) => `${i + 1}. ${t}`).join("\n\n"),
         skema: RegelSkema,
         maxTokens: 3000,
         effort: "low",
       });
-      const brudt = new Map(regel.data.vurderinger.filter((v) => v.brud).map((v) => [v.nummer, v.hvilken]));
-
-      // 6b. Tal (kode, sidste ord) og sprog.
-      const punkter: BriefPunkt[] = [];
-      const fjernede: string[] = [];
-      skrevet.data.punkter.forEach((p, i) => {
-        const nr = i + 1;
-        const kildeposter = p.kilder.map((id) => efterId.get(id)).filter((x): x is Post => !!x && valgte.includes(x));
-        const ukendte = p.kilder.filter((id) => !kildeposter.some((x) => x.id === id));
-        const titel = rensSprog(p.overskrift);
-        const fjern = (grund: string) => {
-          log({ type: "fjernet", titel, grund, data: { forsoeg } });
-          fjernede.push(`"${titel}": ${grund}`);
-        };
-
-        if (brudt.has(nr)) return fjern(`brød Finns regler (${brudt.get(nr)})`);
-        if (kildeposter.length === 0) return fjern("det henviste ikke til nogen af dagens kilder");
-        const tekst = rensSprog(p.tekst);
-        const betyder = rensSprog(udenPraefiks(p.hvadDetBetyder));
-        const noegletal = p.noegletal
-          ? { vaerdi: rensSprog(p.noegletal.vaerdi), etiket: rensSprog(p.noegletal.etiket) }
-          : null;
-        const usporet = usporedeTal(
-          `${titel} ${tekst} ${betyder} ${noegletal ? `${noegletal.vaerdi} ${noegletal.etiket}` : ""}`,
-          kildeposter
-        );
-        if (usporet.length) return fjern(`tallet ${usporet.join(", ")} kunne ikke spores til kilderne`);
-
-        log({ type: "punkt", titel, data: { forsoeg, kilder: kildeposter.map((x) => x.id), ukendteKilder: ukendte } });
-        punkter.push({
-          title: titel,
-          body: tekst,
-          meaning: betyder,
-          tema: temaFor(kildeposter[0]),
-          noegletal,
-          sources: kildeposter.map((x) => ({
-            id: x.id,
-            navn:
-              x.type === "tal"
-                ? `${x.navn}, ${x.periode}`
-                : `${svar.find((s) => s.kilde === x.kilde)?.navn ?? x.kilde}: ${x.titel}`,
-            url: x.url,
-            type: x.type,
-          })),
-        });
-      });
-      log({ type: "selvtjek", data: { forsoeg, skrevet: skrevet.data.punkter.length, beholdt: punkter.length } });
-      return { punkter, fjernede, forbehold: skrevet.data.forbehold.map(rensSprog) };
+      return new Map(regel.data.vurderinger.filter((v) => v.brud).map((v) => [v.nummer, v.hvilken]));
     };
 
-    let valgt = await udkast(1, []);
-    let omskrevet = false;
-    if (valgt.punkter.length < 5) {
-      const andet = await udkast(2, valgt.fjernede);
-      if (andet.punkter.length > valgt.punkter.length) {
-        valgt = andet;
-        omskrevet = true;
+    // 6. Dagens analyse (Sonnet). Ét område, valgt ud fra hvad der har bevæget sig.
+    const signaler =
+      `USÆDVANLIGT MOD TI ÅR\n${analyse.usaedvanligt.map((u) => `${u.id} | ${u.navn} | ${u.tekst}`).join("\n") || "Intet i dag."}\n\n` +
+      `NYT INDEN FOR 48 TIMER\n${analyse.nyt.map((n) => `${n.id} | ${n.navn} | ${n.periode}`).join("\n") || "Intet i dag."}\n\n` +
+      `MEDIETEMAER\n${temaer.map((t, i) => `${i + 1}. ${t.titel} (område: ${t.omraade ?? "intet"}) | ${t.artikler.map((a) => `${a.id}: ${a.titel}`).join(" ; ")}`).join("\n") || "Ingen i dag."}`;
+
+    const skrivDagens = async (forsoeg: number, feedback: string[]) => {
+      log({ type: "skriver", beslutning: "dagens analyse", data: { forsoeg } });
+      const s = await kaldMedLoft(k, {
+        trin: forsoeg === 1 ? "dagens analyse" : `dagens analyse, forsøg ${forsoeg}`,
+        model: MODEL_SKRIV,
+        system: finnSystem(kilder),
+        bruger:
+          `Dato: ${dag}.\n\nSkriv dagens analyse. Vælg ÉT område blandt ${OMRAADE_NOEGLER.join(", ")}, ud fra hvad ` +
+          `der faktisk har bevæget sig: usædvanlige tal, nye udgivelser og dagens medietemaer. Vælg helst ikke samme ` +
+          `område som i går, medmindre noget nyt er sket der.\n` +
+          `- "overskrift": højst ti ord, siger hvad der sker.\n` +
+          `- "tese": én til to sætninger med analysens pointe.\n` +
+          `- "hvadTalleneSiger": 2 til 4 afsnit, hver 1 til 3 sætninger, hver med de id'er i "kilder" den bygger på. ` +
+          `Brug kun tal fra netop de kilder. Forklar hvad tallet måler, og sæt det i forhold til forløbet.\n` +
+          `- "hvadDetBetyder": én til to sætninger for en dansk virksomhed med 5 til 50 ansatte, og én til to for en ` +
+          `husholdning. Ingen tal her ud over dem der står i hvadTalleneSiger. Ingen råd.\n` +
+          `- "holdOeje": 1 til 3 afsnit om hvad der ville ændre billedet, med kilder. Ingen datoer eller tal der ikke står i kilderne.\n` +
+          `- "medietemaer": for hvert medietema, en kommentar på 1 til 2 sætninger der kobler temaet til tallene, med ` +
+          `"nummer" (temaets nummer) og "kilder" (temaets nyheder og de tal du bruger). Har du intet at koble, udelad temaet.\n` +
+          `- "forbehold": hvad du tog forbehold for, ærligt.\n\n` +
+          (feedback.length
+            ? `DIT FØRSTE UDKAST HOLDT IKKE. Disse dele blev afvist:\n${feedback.map((f) => `- ${f}`).join("\n")}\nSkriv analysen igen uden de fejl.\n\n`
+            : "") +
+          `${signaler}\n\nDATA (fuld form). Feltet nyt er true, når tallet er udgivet inden for 48 timer.\n${data(beholdte)}\n\n` +
+          `KILDER DER IKKE LEVEREDE I DAG\n${ikkeLeveret}\n\nDINE SENESTE ANALYSER\n${hukommelse || "Ingen endnu."}`,
+        skema: AnalyseSkema,
+        maxTokens: 12000,
+        effort: "medium",
+      });
+      const d = s.data;
+      const fjernede: string[] = [];
+      const omr = (OMRAADE_NOEGLER as string[]).includes(d.omraade) ? (d.omraade as OmraadeNoegle) : null;
+      if (!omr) return { dagens: null, medier: [] as Medietema[], fjernede: [`området "${d.omraade}" findes ikke`], forbehold: [] };
+
+      const overskrift = rensSprog(d.overskrift);
+      const regelTekster = [
+        `${overskrift}. ${d.tese}`,
+        ...d.hvadTalleneSiger.map((a) => a.tekst),
+        `${d.hvadDetBetyder.virksomhed} ${d.hvadDetBetyder.husholdning}`,
+        ...d.holdOeje.map((a) => a.tekst),
+        ...d.medietemaer.map((m) => m.kommentar),
+      ];
+      const brudt = await regeltjek(forsoeg === 1 ? "selvtjek regler" : `selvtjek regler, forsøg ${forsoeg}`, regelTekster);
+      let nr = 0;
+      const tag = (tekst: string, ids: string[], navn: string, ekstra: Post[] = []): Afsnit | null => {
+        nr++;
+        if (brudt.has(nr)) {
+          fjernede.push(`${navn}: brød Finns regler (${brudt.get(nr)})`);
+          log({ type: "fjernet", titel: navn, grund: `brød Finns regler (${brudt.get(nr)})`, data: { forsoeg } });
+          return null;
+        }
+        const r = tjekAfsnit(tekst, ids, ekstra);
+        if (!r.afsnit) {
+          fjernede.push(`${navn}: ${r.grund}`);
+          log({ type: "fjernet", titel: navn, grund: r.grund, data: { forsoeg } });
+          return null;
+        }
+        log({ type: "punkt", titel: navn, data: { forsoeg, kilder: r.afsnit.kilder.map((x) => x.id) } });
+        return r.afsnit;
+      };
+
+      const sigerIds = d.hvadTalleneSiger.flatMap((a) => a.kilder);
+      const tese = tag(`${overskrift}. ${d.tese}`, sigerIds, "Tesen");
+      const siger = d.hvadTalleneSiger.map((a, i) => tag(a.tekst, a.kilder, `Hvad tallene siger, afsnit ${i + 1}`)).filter((x): x is Afsnit => !!x);
+      const betyder = tag(`${udenPraefiks(d.hvadDetBetyder.virksomhed)} ${udenPraefiks(d.hvadDetBetyder.husholdning)}`, sigerIds, "Hvad det betyder");
+      const holdOeje = d.holdOeje.map((a, i) => tag(a.tekst, a.kilder, `Hold øje med, afsnit ${i + 1}`)).filter((x): x is Afsnit => !!x);
+      const medier: Medietema[] = [];
+      d.medietemaer.forEach((m) => {
+        const tema = temaer[m.nummer - 1];
+        if (!tema) {
+          nr++;
+          log({ type: "afvist", grund: `kommentar til medietema ${m.nummer}, som ikke findes` });
+          return;
+        }
+        const kommentar = tag(m.kommentar, [...m.kilder, ...tema.artikler.map((a) => a.id)], `Medietema: ${tema.titel}`);
+        medier.push({ titel: tema.titel, omraade: tema.omraade, kommentar, artikler: artiklerFor(tema.artikler) });
+      });
+
+      const dagens: DagensAnalyse | null =
+        tese && betyder && siger.length > 0
+          ? {
+              omraade: omr,
+              overskrift,
+              tese: rensSprog(d.tese),
+              hvadTalleneSiger: siger,
+              hvadDetBetyder: {
+                virksomhed: rensSprog(udenPraefiks(d.hvadDetBetyder.virksomhed)),
+                husholdning: rensSprog(udenPraefiks(d.hvadDetBetyder.husholdning)),
+              },
+              holdOeje,
+            }
+          : null;
+      if (!dagens) fjernede.push("analysen havde ikke både en holdbar tese, mindst ét holdbart afsnit om tallene og en holdbar betydning");
+      log({ type: "selvtjek", data: { forsoeg, dagens: !!dagens, siger: siger.length, holdOeje: holdOeje.length, medier: medier.length } });
+      return { dagens, medier, fjernede, forbehold: d.forbehold.map(rensSprog) };
+    };
+
+    let skrevet = await skrivDagens(1, []);
+    if (!skrevet.dagens) {
+      const andet = await skrivDagens(2, skrevet.fjernede);
+      if (andet.dagens) forbehold.push("Første udkast til dagens analyse holdt ikke, så den er skrevet om én gang.");
+      skrevet = andet.dagens ? andet : skrevet;
+    }
+    analyse.dagens = skrevet.dagens;
+    forbehold.push(...skrevet.forbehold);
+    for (const f of skrevet.fjernede) forbehold.push(`En del af analysen blev fjernet, ${f}.`);
+    if (!analyse.dagens) forbehold.push("Dagens analyse holdt ikke selvtjekket og vises ikke. Tallene herunder er beregnet direkte fra kilderne.");
+
+    // Medietemaer uden kommentar vises stadig, med artiklerne.
+    analyse.medier = temaer.map(
+      (t) => skrevet.medier.find((m) => m.titel === t.titel) ?? { titel: t.titel, omraade: t.omraade, kommentar: null, artikler: artiklerFor(t.artikler) }
+    );
+
+    // 7. En kort analyse per område (Sonnet, ét kald), til områdesiderne.
+    const omraadeData = OMRAADER.map((o) => ({
+      o,
+      poster: [
+        ...tal.filter((p) => postIOmraade(p.id, o)),
+        ...temaer.filter((t) => t.omraade === o.noegle).flatMap((t) => t.artikler),
+      ],
+    })).filter((x) => x.poster.some((p) => p.type === "tal"));
+    if (omraadeData.length > 0) {
+      log({ type: "skriver", beslutning: "områdeanalyser", data: { omraader: omraadeData.map((x) => x.o.noegle) } });
+      const os = await kaldMedLoft(k, {
+        trin: "områdeanalyser",
+        model: MODEL_SKRIV,
+        system: finnSystem(kilder),
+        bruger:
+          `Dato: ${dag}.\n\nSkriv en kort analyse for HVERT område herunder. "noegle" er områdets nøgle. ` +
+          `"overskrift" er højst ti ord. "afsnit" er 2 til 3 afsnit, hver 1 til 3 sætninger, der siger hvad tallene ` +
+          `viser og hvad det betyder for en dansk virksomhed eller husholdning. Hvert afsnit har de id'er i "kilder" ` +
+          `det bygger på, og bruger kun tal fra netop dem. Ingen råd.\n\n` +
+          omraadeData.map((x) => `OMRÅDE ${x.o.noegle} (${x.o.navn}: ${x.o.beskrivelse})\n${data(x.poster)}`).join("\n\n"),
+        skema: OmrSkema,
+        maxTokens: 12000,
+        effort: "medium",
+      });
+      const tilladt = new Map(omraadeData.map((x) => [x.o.noegle as string, x]));
+      const svarte = os.data.omraader.filter((x) => {
+        if (!tilladt.has(x.noegle)) log({ type: "afvist", titel: x.overskrift, grund: `analyse for område "${x.noegle}", som ikke var bedt om` });
+        return tilladt.has(x.noegle);
+      });
+      const tekster = svarte.flatMap((x) => x.afsnit.map((a) => a.tekst));
+      const brudt = await regeltjek("selvtjek regler, områder", tekster);
+      let nr = 0;
+      for (const x of svarte) {
+        const { o, poster } = tilladt.get(x.noegle)!;
+        const afsnit: Afsnit[] = [];
+        for (const a of x.afsnit) {
+          nr++;
+          const navn = `${o.navn}: ${rensSprog(x.overskrift)}`;
+          if (brudt.has(nr)) {
+            log({ type: "fjernet", titel: navn, grund: `brød Finns regler (${brudt.get(nr)})` });
+            continue;
+          }
+          // Kun kilder fra området selv.
+          const r = tjekAfsnit(a.tekst, a.kilder.filter((id) => poster.some((p) => p.id === id)));
+          if (!r.afsnit) {
+            log({ type: "fjernet", titel: navn, grund: r.grund });
+            continue;
+          }
+          afsnit.push(r.afsnit);
+        }
+        if (afsnit.length === 0) {
+          log({ type: "fjernet", titel: o.navn, grund: "ingen afsnit i områdeanalysen holdt selvtjekket" });
+          continue;
+        }
+        analyse.omraader[o.noegle] = { overskrift: rensSprog(x.overskrift), afsnit };
+        log({ type: "omraade", titel: o.navn, data: { afsnit: afsnit.length } });
       }
+      const mangler = omraadeData.filter((x) => !analyse.omraader[x.o.noegle]).map((x) => x.o.navn);
+      if (mangler.length) forbehold.push(`Ingen holdbar analyse i dag for: ${mangler.join(", ")}.`);
     }
-    const punkter = valgt.punkter;
-    const forbehold = [
-      ...valgt.forbehold,
-      ...valgt.fjernede.map((f) => `Et punkt blev fjernet, ${f}.`),
-      ...(omskrevet ? ["Første udkast holdt ikke, så briefen er skrevet om én gang."] : []),
-    ];
 
-    if (punkter.length > 7) {
-      for (const p of punkter.splice(7)) log({ type: "fjernet", titel: p.title, grund: "mere end syv punkter" });
-    }
-    if (punkter.length === 0) throw new Error("Selvtjekket fjernede alle punkter. Briefen udgives ikke.");
-    if (punkter.length < 5) forbehold.push(`Briefen har kun ${punkter.length} punkter i dag. Resten kunne ikke bære en påstand.`);
-
-    // 7. Gem.
-    log({ type: "slut", beslutning: "DONE", data: { punkter: punkter.length } });
-    await afslut(prisma, brief.id, "DONE", null, trace, { items: punkter, caveats: forbehold, sourcesRead, kept });
+    // 8. Gem.
+    log({
+      type: "slut",
+      beslutning: "DONE",
+      data: { dagens: !!analyse.dagens, medier: analyse.medier.length, omraader: Object.keys(analyse.omraader).length },
+    });
+    await afslut(prisma, brief.id, "DONE", null, trace, { items: [], analysis: analyse, caveats: forbehold, sourcesRead, kept });
     return { briefId: brief.id, status: "DONE" };
   } catch (e) {
     if (e instanceof BudgetStop) {
@@ -431,7 +572,7 @@ async function afslut(
   status: "DONE" | "BUDGET_STOPPED" | "FAILED",
   besked: string | null,
   trace: TraceTrin[],
-  felter: { items?: BriefPunkt[]; caveats?: string[]; sourcesRead: number; kept: number }
+  felter: { items?: BriefPunkt[]; analysis?: Analyse; caveats?: string[]; sourcesRead: number; kept: number }
 ) {
   const sum = await prisma.apiLedger.aggregate({ _sum: { costUsd: true }, where: { briefId } });
   await prisma.$transaction([
@@ -441,6 +582,7 @@ async function afslut(
         status,
         statusMessage: besked,
         items: (felter.items ?? undefined) as Prisma.InputJsonValue | undefined,
+        analysis: (felter.analysis ?? undefined) as Prisma.InputJsonValue | undefined,
         caveats: (felter.caveats ?? undefined) as Prisma.InputJsonValue | undefined,
         sourcesRead: felter.sourcesRead,
         kept: felter.kept,

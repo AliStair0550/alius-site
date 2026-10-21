@@ -9,6 +9,7 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "../db";
 import type { BriefPunkt, TraceTrin } from "./finn/pipeline";
+import type { Analyse } from "./finn/analyse";
 
 export const AGENTER_TAG = "agenter-data";
 const LEVETID = 3600;
@@ -25,7 +26,10 @@ export type AgentKort = {
 export type BriefVisning = {
   id: string;
   dato: string;
+  /** Punkter, kun i briefs fra før 22. oktober 2026. */
   items: BriefPunkt[];
+  /** Analyseudgaven. null i briefs fra før 22. oktober 2026. */
+  analyse: Analyse | null;
   caveats: string[];
   sourcesRead: number | null;
   kept: number | null;
@@ -48,6 +52,7 @@ function tilVisning(b: {
   id: string;
   date: Date;
   items: unknown;
+  analysis: unknown;
   caveats: unknown;
   sourcesRead: number | null;
   kept: number | null;
@@ -58,6 +63,7 @@ function tilVisning(b: {
     id: b.id,
     dato: dato(b.date),
     items: (b.items as BriefPunkt[] | null) ?? [],
+    analyse: (b.analysis as Analyse | null) ?? null,
     caveats: (b.caveats as string[] | null) ?? [],
     sourcesRead: b.sourcesRead,
     kept: b.kept,
@@ -95,7 +101,7 @@ export const hentBrief = unstable_cache(
     const b = await prisma.brief.findFirst({
       where: { agentId, status: "DONE", ...(paaDato ? { date: new Date(`${paaDato}T00:00:00Z`) } : {}) },
       orderBy: [{ date: "desc" }, { finishedAt: "desc" }],
-      select: { id: true, date: true, items: true, caveats: true, sourcesRead: true, kept: true, costUsd: true, finishedAt: true },
+      select: { id: true, date: true, items: true, analysis: true, caveats: true, sourcesRead: true, kept: true, costUsd: true, finishedAt: true },
     });
     return b ? tilVisning(b) : null;
   },

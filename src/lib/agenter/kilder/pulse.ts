@@ -17,6 +17,7 @@
 
 import type { PrismaClient } from "@prisma/client";
 import { enhed } from "../../pulse-enheder";
+import { hentRangliste, type Kandidat } from "../../pulse-rangliste";
 import type { FinnSerie } from "../finn/serier";
 import type { Kilde, KildeSvar, Sammenligning, Saeson, TalPost } from "./typer";
 
@@ -133,6 +134,20 @@ export function tendens(punkter: Punkt[], frekvens: string): string | null {
   return `${ord} ${antal} ${antal === 1 ? en : flere} i træk`;
 }
 
+/**
+ * Samme ordvalg som ranglistens forklaring på /pulse
+ * (src/components/pulse/Forside.tsx), så Finn og Pulse siger det samme
+ * om det samme tal.
+ */
+export function usaedvanlighedTekst(k: Pick<Kandidat, "vaerdi" | "normal" | "sjaeldenhed" | "maaneder">): string {
+  const opad = k.vaerdi >= k.normal;
+  if (k.sjaeldenhed <= 1) return `Ingen måned i de seneste ti år har ligget ${opad ? "højere" : "lavere"}.`;
+  if (k.sjaeldenhed <= 3) {
+    return `Kun ${k.sjaeldenhed} af ${k.maaneder} måneder i de seneste ti år har ligget lige så ${opad ? "højt" : "lavt"}.`;
+  }
+  return `Ligger ${opad ? "over" : "under"} det normale for de seneste ti år, målt på ${k.maaneder} måneder.`;
+}
+
 const KILDEURL: Record<string, (ref: string, id: string) => string> = {
   DST: (ref) => `https://www.statbank.dk/${ref.split(/[ +/]/)[0]}`,
   EDS: () => "https://www.energidataservice.dk/tso-electricity/DayAheadPrices",
@@ -144,7 +159,8 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
   return {
     id: "pulse",
     // 2: feltet tendens, og konkursserien er sæsonkorrigeret (C1).
-    version: 2,
+    // 3: usædvanlighed fra Pulses rangliste.
+    version: 3,
     navn: "Pulse (Danmarks Statistik, Energinet, Eurostat)",
     beskrivelse:
       "Danske nøgletal som Pulse henter dagligt og tjekker for enhed og størrelsesorden: forbrugerpriser, " +
@@ -153,6 +169,16 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
     async hent(): Promise<KildeSvar> {
       const poster: TalPost[] = [];
       const mangler: string[] = [];
+
+      // Ranglisten regner hvert tal mod seriens egne seneste ti år. Kan den
+      // ikke regnes, leveres tallene uden, og det siges i beskeden.
+      let rangliste = new Map<string, Kandidat>();
+      try {
+        const r = await hentRangliste(prisma);
+        rangliste = new Map([...r.kort, ...r.rolige].filter((k) => k.areaCode === "DK" || k.areaCode === "000").map((k) => [k.seriesId, k]));
+      } catch (e) {
+        mangler.push(`ranglisten kunne ikke beregnes (${(e as Error).message.slice(0, 120)})`);
+      }
 
       for (const s of serier) {
         const serie = await prisma.series.findUnique({ where: { id: s.id } });
@@ -201,6 +227,20 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
             ? punkter.slice(0, 4).map((p) => ({ periode: periodeTekst(p.period, serie.frequency), vaerdi: p.value }))
             : [],
           tendens: visForloeb ? tendens(punkter, serie.frequency) : null,
+          ...(rangliste.has(s.id)
+            ? (() => {
+                const k = rangliste.get(s.id)!;
+                return {
+                  usaedvanlighed: {
+                    tekst: usaedvanlighedTekst(k),
+                    z: Math.round(k.z * 100) / 100,
+                    sjaeldenhed: k.sjaeldenhed,
+                    maaneder: k.maaneder,
+                    opad: k.vaerdi >= k.normal,
+                  },
+                };
+              })()
+            : {}),
           foersteGangSet: foerst!.retrievedAt.toISOString(),
         });
       }

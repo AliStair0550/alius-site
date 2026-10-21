@@ -48,6 +48,19 @@ export type TalPost = {
   tendens: string | null;
   /** Hvornår vi første gang så den nyeste periode. Bruges som udgivelsestid. */
   foersteGangSet: string;
+  /** En sætning der forklarer tallet, fx dagens billigste time. Selvtjekket læser den. */
+  kontekst?: string;
+  /** Timepriser for dagen, til grafen. Kun elprisen. */
+  timer?: { time: number; pris: number }[];
+  /** Fra Pulses rangliste: hvor usædvanligt tallet er mod de seneste ti år. */
+  usaedvanlighed?: {
+    /** Samme ordvalg som på /pulse. */
+    tekst: string;
+    z: number;
+    sjaeldenhed: number;
+    maaneder: number;
+    opad: boolean;
+  };
 };
 
 export type NyhedPost = {

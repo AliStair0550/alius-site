@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { dagensStatus } from "./dato";
 import type { BriefVisning } from "./laes";
 
-const brief = (dato: string): BriefVisning => ({ id: "b", dato, items: [], caveats: [], sourcesRead: 1, kept: 1, costUsd: 0, finishedAt: null });
+const brief = (dato: string): BriefVisning => ({ id: "b", dato, items: [], analyse: null, caveats: [], sourcesRead: 1, kept: 1, costUsd: 0, finishedAt: null });
 const koersel = (status: "RUNNING" | "DONE" | "BUDGET_STOPPED" | "FAILED", dato = "2026-10-21") => ({ dato, status, besked: null, sourcesRead: null, kept: null });
 
 describe("Linjen om dagens brief", () => {

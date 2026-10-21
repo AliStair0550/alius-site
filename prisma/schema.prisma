@@ -400,6 +400,12 @@ model Brief {
   /// [string] - det Finn tog forbehold for, også kilder der fejlede.
   caveats Json?
 
+  /// Analyseudgaven fra 22. oktober 2026: dagens analyse, elprisen time
+  /// for time, det usædvanlige, nyt i dag, medietemaer og områdernes
+  /// analyser. Se src/lib/agenter/finn/analyse.ts. Ældre briefs har kun
+  /// items og vises som før.
+  analysis Json?
+
   sourcesRead Int? @map("sources_read")
   kept        Int?
 

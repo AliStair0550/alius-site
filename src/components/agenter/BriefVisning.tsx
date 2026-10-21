@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Glid from "@/components/agenter/Glid";
 import SpoergFinn from "@/components/agenter/SpoergFinn";
+import AnalyseVisning from "@/components/agenter/AnalyseVisning";
 import type { BriefPunkt } from "@/lib/agenter/finn/pipeline";
 import type { BriefVisning as Brief } from "@/lib/agenter/laes";
 import { langDato } from "@/lib/agenter/dato";
@@ -39,13 +40,23 @@ export default function BriefVisning({
   /** Kun på dagens side: Finn svarer ud fra seneste brief, ikke arkivets. */
   kanSpoerge?: boolean;
 }) {
-  const anker = brief ? ankre(brief.items) : [];
-  const medTal = brief?.items.map((p, i) => ({ p, i })).filter(({ p }) => p.noegletal) ?? [];
+  // Briefs fra 22. oktober 2026 er analyser; ældre har punkter.
+  const analyse = brief?.analyse ?? null;
+  const punktBrief = brief && !analyse ? brief : null;
+  const anker = punktBrief ? ankre(punktBrief.items) : [];
+  const medTal = punktBrief?.items.map((p, i) => ({ p, i })).filter(({ p }) => p.noegletal) ?? [];
+  const forslag = analyse
+    ? [
+        ...(analyse.dagens ? [`Hvad betyder "${analyse.dagens.overskrift}" for mig?`] : []),
+        ...(analyse.elpris[0] ? ["Hvornår er strømmen billigst i dag?"] : []),
+        ...(analyse.usaedvanligt[0] ? [`Hvad ligger bag tallet for ${analyse.usaedvanligt[0].navn.toLowerCase()}?`] : []),
+      ]
+    : (brief?.items.slice(0, 3).map((p) => `Hvad betyder "${p.title}" for mig?`) ?? []);
 
   return (
     <div className="flex flex-col gap-8 md:gap-10">
       {kanSpoerge && brief && (
-        <SpoergFinn forslag={brief.items.slice(0, 3).map((p) => `Hvad betyder "${p.title}" for mig?`)} />
+        <SpoergFinn forslag={forslag} />
       )}
 
       {!kanSpoerge && brief && (
@@ -62,7 +73,9 @@ export default function BriefVisning({
 
       {!brief && <p className="font-[300] text-[1rem] text-stone">Finn har ikke skrevet sin første brief endnu.</p>}
 
-      {brief && medTal.length > 0 && (
+      {analyse && <AnalyseVisning a={analyse} />}
+
+      {punktBrief && medTal.length > 0 && (
         <section aria-labelledby="overblik-titel">
           <Sektionstitel id="overblik-titel">Overblik i dag</Sektionstitel>
           <ul className="list-none p-0 m-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-3">
@@ -84,11 +97,11 @@ export default function BriefVisning({
         </section>
       )}
 
-      {brief && (
+      {punktBrief && (
         <section aria-labelledby="brief-titel">
           <Sektionstitel id="brief-titel">Dagens brief</Sektionstitel>
           <ol className="list-none p-0 m-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {brief.items.map((p, i) => (
+            {punktBrief.items.map((p, i) => (
               <li key={i} id={anker[i]} className="scroll-mt-20">
                 <Glid forsinkelse={(i % 3) * 70} className="h-full">
                   <Punktkort punkt={p} />

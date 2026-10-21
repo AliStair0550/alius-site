@@ -50,6 +50,13 @@ export function tilladteTal(post: Post): number[] {
     // som et måltal.
     for (const f of talITekst(post.periode)) if (f.vaerdi >= 1990 && f.vaerdi <= 2100) tal.push(f.vaerdi - 1);
     fraTekst(post.tendens);
+    fraTekst(post.kontekst);
+    if (post.usaedvanlighed) {
+      fraTekst(post.usaedvanlighed.tekst);
+      tal.push(post.usaedvanlighed.sjaeldenhed, post.usaedvanlighed.maaneder);
+    }
+    // Et tidsrum som "17-18" bruger både timen og timen efter.
+    for (const t of post.timer ?? []) tal.push(t.time, t.time + 1, t.pris);
     for (const f of post.forloeb) {
       tal.push(f.vaerdi);
       fraTekst(f.periode);

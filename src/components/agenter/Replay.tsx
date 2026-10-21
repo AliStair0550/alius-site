@@ -26,12 +26,18 @@ function beskriv(t: TraceTrin): string {
       return `Afvist: ${t.grund}. ${t.titel ?? ""}`;
     case "rangeret":
       return `Beholdt, ${t.beslutning}: ${t.titel}`;
+    case "beregnet":
+      return "Regner overblik, elpris time for time, det usædvanlige og nye tal ud i kode.";
+    case "medietema":
+      return `Medietema: ${t.titel}`;
     case "skriver":
-      return "Skriver briefen.";
+      return t.beslutning ? `Skriver ${t.beslutning}.` : "Skriver briefen.";
     case "punkt":
-      return `Punkt skrevet: ${t.titel}`;
+      return `Skrevet og tjekket: ${t.titel}`;
     case "fjernet":
-      return `Punkt fjernet: ${t.grund}.`;
+      return `Fjernet${t.titel ? `, ${t.titel}` : ""}: ${t.grund}.`;
+    case "omraade":
+      return `Områdeanalyse klar: ${t.titel}`;
     case "selvtjek":
       return "Selvtjek: hvert tal er sporet til sin kilde.";
     case "budget":
