@@ -7,7 +7,7 @@ import { danskDag } from "@/lib/agenter/finn/pipeline";
 import { danskTimeNu, dagensStatus, langDato } from "@/lib/agenter/dato";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Finn Finans · Alius Agenter",
+  title: "Finn Finans · Agenter · Alius",
   description: "Dagens brief om dansk økonomi. Fem til syv punkter, hvert tal med kilde, skrevet hver morgen kl. 6.",
   path: "/agenter/finn",
   image: "/agenter/finn/opengraph-image",

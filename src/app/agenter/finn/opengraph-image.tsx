@@ -51,7 +51,7 @@ export default function Image() {
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 22, letterSpacing: 6, color: MOSS }}>
               <div style={{ width: 10, height: 10, borderRadius: 5, background: MOSS, display: "flex" }} />
-              ALIUS AGENTER
+              AGENTER
             </div>
             <div style={{ fontSize: 92, color: INK, fontWeight: 300, letterSpacing: -2, lineHeight: 1.05, marginTop: 22 }}>Finn Finans</div>
             <div style={{ fontSize: 34, color: STONE, lineHeight: 1.35, marginTop: 22, maxWidth: 560 }}>

@@ -14,7 +14,7 @@ export const revalidate = 86400;
 // Replay er en side om hvordan en brief blev lavet, ikke en brief i
 // sig selv. Den skal ikke stå i søgemaskiner ved siden af briefen.
 export const metadata: Metadata = {
-  title: "Sådan blev briefen lavet · Alius Agenter",
+  title: "Sådan blev briefen lavet · Agenter · Alius",
   robots: { index: false, follow: true },
 };
 

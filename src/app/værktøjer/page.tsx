@@ -49,7 +49,7 @@ const PULSE: Vaerktoj = {
 
 const AGENTER: Vaerktoj = {
   slug: "agenter",
-  name: "Alius Agenter",
+  name: "Agenter",
   tagline: "Agenter der læser for dig hver morgen.",
   description:
     "Finn Finans læser danske økonomital og nyheder hver morgen og skriver det vigtigste i fem til syv punkter. Hvert tal har en kilde, og du kan se præcis hvordan briefen blev lavet.",

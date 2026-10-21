@@ -31,7 +31,7 @@ export async function GET(req: Request) {
   // "Ingen token" og "fejl" må ikke ligne en kørsel der blev startet.
   if (!iOrden) {
     await sendPulseErrorEmail({
-      sourceName: "Alius Agenter cron (Vercel)",
+      sourceName: "Agenter cron (Vercel)",
       sourceSlug: "system",
       step: "udløs agent-finn",
       errorMessage: udfald.slags === "fejl" ? udfald.besked : "GITHUB_DISPATCH_TOKEN er ikke sat",

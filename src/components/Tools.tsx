@@ -68,10 +68,10 @@ export default function Tools() {
           </Link>
         )}
 
-        {/* Alius Agenter */}
+        {/* Agenter */}
         <Link href="/agenter" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
-          <div className="font-[400] text-[0.9rem] text-ink">Alius Agenter</div>
+          <div className="font-[400] text-[0.9rem] text-ink">Agenter</div>
           <div className="font-[200] text-[0.7rem] text-slate">Agenter · Hver morgen</div>
           <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
             Finn Finans læser danske økonomital hver morgen og skriver det vigtigste kort. Hvert tal har en kilde.

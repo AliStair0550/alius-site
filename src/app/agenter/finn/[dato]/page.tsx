@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { dato } = await params;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dato)) return {};
   return pageMetadata({
-    title: `Finn Finans, ${langDato(dato)} · Alius Agenter`,
+    title: `Finn Finans, ${langDato(dato)} · Agenter · Alius`,
     description: `Finns brief om dansk økonomi den ${langDato(dato)}.`,
     path: `/agenter/finn/${dato}`,
     image: "/agenter/finn/opengraph-image",

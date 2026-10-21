@@ -8,7 +8,7 @@ import { danskDag } from "@/lib/agenter/finn/pipeline";
 import { langDato } from "@/lib/agenter/dato";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Alius Agenter",
+  title: "Agenter · Alius",
   description: "Agenter der læser åbne kilder hver morgen og skriver det vigtigste kort. Finn Finans læser dansk økonomi.",
   path: "/agenter",
 });
@@ -43,7 +43,7 @@ export default async function AgenterSide() {
     <Ramme etiket="Agenter">
       <div className="animate-fade-up max-w-[620px]">
         <h1 className="font-[300] text-[1.8rem] md:text-[2.2rem] text-ink leading-[1.35] tracking-[0.01em] mb-5">
-          Alius Agenter
+          Agenter
         </h1>
         <p className="font-[200] text-[1.05rem] text-slate leading-[1.8] mb-14">
           Agenter der læser åbne kilder hver morgen og skriver det vigtigste kort. Hvert tal har en kilde. Én er i gang.
