@@ -79,7 +79,13 @@ export async function kaldMedLoft<S extends z.ZodType>(
 
   // 3. Kaldet. Haiku arbejder uden tænkning; den sorterer og vurderer,
   // og tænkning ville kun koste output-tokens. Sonnet tænker adaptivt.
-  const svar = await k.klient.messages.parse({
+  //
+  // messages.create og IKKE messages.parse: parse kaster, når svaret
+  // ikke er gyldig JSON, og så når prisen aldrig ledgeren, selvom
+  // kaldet er betalt. Det skete i den første kørsel 21. oktober 2026.
+  // Her kommer svaret altid tilbage med sit forbrug, og JSON'en læses
+  // først efter at prisen er skrevet.
+  const svar = await k.klient.messages.create({
     model: opt.model,
     max_tokens: opt.maxTokens,
     system: opt.system,
@@ -117,9 +123,20 @@ export async function kaldMedLoft<S extends z.ZodType>(
   if (svar.stop_reason === "max_tokens") {
     throw new Error(`${opt.trin}: svaret blev afskåret ved max_tokens=${opt.maxTokens}.`);
   }
-  if (svar.parsed_output === null || svar.parsed_output === undefined) {
-    throw new Error(`${opt.trin}: svaret fulgte ikke skemaet.`);
+  const tekst = svar.content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("");
+  let raa: unknown;
+  try {
+    raa = JSON.parse(tekst);
+  } catch (e) {
+    throw new Error(`${opt.trin}: svaret var ikke gyldig JSON (${(e as Error).message}).`);
+  }
+  const tjek = opt.skema.safeParse(raa);
+  if (!tjek.success) {
+    throw new Error(`${opt.trin}: svaret fulgte ikke skemaet (${tjek.error.message.slice(0, 300)}).`);
   }
 
-  return { data: svar.parsed_output as z.infer<S>, prisUsd: pris, estimeretUsd: estimeret, usage: svar.usage };
+  return { data: tjek.data as z.infer<S>, prisUsd: pris, estimeretUsd: estimeret, usage: svar.usage };
 }

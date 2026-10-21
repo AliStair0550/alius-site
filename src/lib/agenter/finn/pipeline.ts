@@ -170,12 +170,12 @@ export async function koerFinn(opt: {
       system: finnSystem(kilder),
       bruger:
         `Dato: ${dag}.\n\nOPGAVE\n1. For hver nyhed: behold den kun, hvis den har betydning for dansk økonomi, ` +
-        `danske virksomheder eller danske husholdninger. Giv en kort grund på dansk.\n` +
-        `2. Rangér alle tal og de nyheder du beholder efter betydning for en dansk virksomhed med 5 til 50 ansatte ` +
-        `eller en husholdning, 1 til 10 hvor 10 er størst. Ny udgivelse vejer tungere end gamle tal. ` +
-        `Giv en kort begrundelse.\n\nPOSTER\n${friske.map(postLinje).join("\n")}`,
+        `danske virksomheder eller danske husholdninger. Grunden er højst otte ord.\n` +
+        `2. Rangér de højst 20 vigtigste blandt tallene og de nyheder du beholder, efter betydning for en dansk ` +
+        `virksomhed med 5 til 50 ansatte eller en husholdning, 1 til 10 hvor 10 er størst. Ny udgivelse vejer ` +
+        `tungere end gamle tal. Begrundelsen er højst tolv ord.\n\nPOSTER\n${friske.map(postLinje).join("\n")}`,
       skema: RangeringSkema,
-      maxTokens: 6000,
+      maxTokens: 16000,
       effort: "low",
     });
 
