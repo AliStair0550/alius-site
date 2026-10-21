@@ -30,6 +30,7 @@ import { FEEDS, rssKilde, udenTankestreg } from "../kilder/rss";
 import type { Kilde, KildeSvar, Post, NyhedPost } from "../kilder/typer";
 import { FINN_SERIER } from "./serier";
 import { finnSystem } from "./prompt";
+import { temaForKilde } from "../tema";
 import { rensSprog, udenPraefiks, usporedeTal } from "./selvtjek";
 
 export const AGENT_ID = "finn";
@@ -65,22 +66,9 @@ export type BriefPunkt = {
   noegletal?: { vaerdi: string; etiket: string } | null;
 };
 
-/** Temaet for et punkt, ud fra hvad dets første kilde måler. */
+/** Temaet for et punkt, ud fra hvad dets første kilde måler. Se tema.ts. */
 export function temaFor(p: Post): string {
-  if (p.type === "nyhed") return "Nyhed";
-  const id = p.id.replace(/^(pulse:|dst\.ej56:)/, "");
-  if (p.kilde === "dst.ej56") return "Bolig";
-  const regler: [RegExp, string][] = [
-    [/pris\.|aarsaendring/, "Priser"],
-    [/ledighed|loen/, "Arbejde"],
-    [/konkurs|distress|konjunktur|eurostat/, "Virksomheder"],
-    [/forbrug|detail/, "Forbrug"],
-    [/byg\./, "Byggeri"],
-    [/rente\./, "Renter"],
-    [/valuta/, "Kronen"],
-    [/^eds\.el/, "Energi"],
-  ];
-  return regler.find(([re]) => re.test(id))?.[1] ?? "Økonomi";
+  return temaForKilde(p.id, p.type);
 }
 
 /** Dagen i dansk tid. Eksplicit tidszone, så maskinens zone aldrig når datoen. */
@@ -311,7 +299,8 @@ export async function koerFinn(opt: {
           `en husholdning. Hvert punkt henviser i "kilder" til de id'er det bygger på, og bruger kun tal fra dem.\n` +
           `Hvert punkt har et "noegletal": punktets bærende tal med enhed, fx "2,2 procent" eller "1.337 kr. per MWh", ` +
           `og en etiket på højst fem ord, fx "inflation i september". Tallet skal stå i punktets data. ` +
-          `Har punktet ikke ét bærende tal, er noegletal null.\n` +
+          `Har punktet ikke ét bærende tal, er noegletal null. Handler et punkt om elprisen i begge landsdele, ` +
+          `er noegletallet prisen i Østdanmark (DK2), og etiketten siger "elpris Østdanmark".\n` +
           `Under "forbehold" skriver du ærligt, hvad du tog forbehold for: usikre eller ukorrigerede tal, gamle tal, ` +
           `og kilder der ikke kunne hentes.\n\n` +
           (feedback.length

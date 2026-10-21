@@ -4,6 +4,10 @@ import SpoergFinn from "@/components/agenter/SpoergFinn";
 import type { BriefPunkt } from "@/lib/agenter/finn/pipeline";
 import type { BriefVisning as Brief } from "@/lib/agenter/laes";
 import { langDato } from "@/lib/agenter/dato";
+import { temaForKilde } from "@/lib/agenter/tema";
+
+/** Temaet regnes ud fra første kilde, så også ældre briefs får det rigtige. */
+const tema = (p: BriefPunkt) => (p.sources[0] ? temaForKilde(p.sources[0].id, p.sources[0].type) : (p.tema ?? "Økonomi"));
 
 // Finns rum, indefra og ud: spørg Finn, overblik i dag, dagens brief, og
 // små knapper til forbehold, replay og arkiv nederst.
@@ -52,7 +56,7 @@ export default function BriefVisning({
                   href={`#punkt-${i + 1}`}
                   className="block h-full rounded-2xl bg-parchment border border-fog p-4 no-underline hover:border-moss active:scale-[0.97] transition-[transform,border-color] duration-150"
                 >
-                  <div className="font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss mb-2">{p.tema ?? "Økonomi"}</div>
+                  <div className="font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss mb-2">{tema(p)}</div>
                   <div className="font-[300] text-[1.25rem] md:text-[1.4rem] text-ink leading-[1.1] tracking-[-0.015em] tabular-nums">
                     {p.noegletal!.vaerdi}
                   </div>
@@ -154,7 +158,7 @@ function Punktkort({ punkt: p }: { punkt: BriefPunkt }) {
     <article className="group h-full flex flex-col rounded-2xl bg-parchment border border-fog p-5 transition-[transform,border-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-moss">
       <div className="flex items-center gap-1.5 mb-3 font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-moss" />
-        {p.tema ?? "Økonomi"}
+        {tema(p)}
       </div>
       {p.noegletal && (
         <div className="mb-3">
