@@ -15,20 +15,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // ============================================================
 // PULSE — Statistical data from public APIs (DST etc.)
 // ============================================================
 
 model DataSource {
-  id    String @id @default(cuid())
+  id String @id @default(cuid())
 
-  slug            String  @unique  // e.g. "dst-aus08"
+  slug            String  @unique // e.g. "dst-aus08"
   name            String
   description     String?
-  provider        String           // "dst"
-  tableId         String           // DST table id, e.g. "AUS08"
-  unit            String?          // "pct", "1000 persons", etc.
+  provider        String // "dst"
+  tableId         String // DST table id, e.g. "AUS08"
+  unit            String? // "pct", "1000 persons", etc.
   sourceUrl       String?
   license         String?
   updateFrequency String?
@@ -36,40 +35,40 @@ model DataSource {
   lastUpdatedAtSource DateTime?
   lastFetchedAt       DateTime?
 
-  meta        Json?
+  meta Json?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  dataPoints  DataPoint[]
-  signals     Signal[]
-  fetchLogs   FetchLog[]
+  dataPoints DataPoint[]
+  signals    Signal[]
+  fetchLogs  FetchLog[]
 
   @@index([slug])
   @@index([provider, tableId])
 }
 
 model DataPoint {
-  id         String @id @default(cuid())
-  sourceId   String
+  id       String @id @default(cuid())
+  sourceId String
 
-  period     String    // "2026M03", "2026K1", "2026"
-  periodDate DateTime  // first day of the period (UTC)
+  period     String // "2026M03", "2026K1", "2026"
+  periodDate DateTime // first day of the period (UTC)
   periodType PeriodType
 
-  areaCode   String?
-  areaType   AreaType @default(NATIONAL)
-  areaName   String?
+  areaCode String?
+  areaType AreaType @default(NATIONAL)
+  areaName String?
 
-  value      Float?
-  status     String?  // "provisional", "missing", DST status codes
+  value  Float?
+  status String? // "provisional", "missing", DST status codes
 
-  dimensions Json?    // extra dimensions beyond time + area
+  dimensions Json? // extra dimensions beyond time + area
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  source     DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  source DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@unique([sourceId, period, areaCode])
   @@index([sourceId, periodDate])
@@ -92,37 +91,37 @@ enum AreaType {
 }
 
 model Signal {
-  id         String @id @default(cuid())
-  sourceId   String
+  id       String @id @default(cuid())
+  sourceId String
 
-  type        String   // "TOP_MOVER", "RECORD", "STREAK", "COMPARISON", "TURNING_POINT", "OUTLIER"
-  direction   String?  // "UP", "DOWN", "STABLE"
-  severity    String   @default("info")  // "info", "note", "important"
+  type      String // "TOP_MOVER", "RECORD", "STREAK", "COMPARISON", "TURNING_POINT", "OUTLIER"
+  direction String? // "UP", "DOWN", "STABLE"
+  severity  String  @default("info") // "info", "note", "important"
 
-  headline    String
-  body        String?
+  headline String
+  body     String?
 
-  period      String?
-  magnitude   Float?
-  areaCode    String?
-  areaName    String?
-  evidence    Json?
+  period    String?
+  magnitude Float?
+  areaCode  String?
+  areaName  String?
+  evidence  Json?
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  source      DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  source DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@index([sourceId, type])
   @@index([sourceId, period])
 }
 
 model FetchLog {
-  id         String @id @default(cuid())
-  sourceId   String
+  id       String @id @default(cuid())
+  sourceId String
 
-  success      Boolean   @default(false)
-  error        String?
-  notes        String?
+  success Boolean @default(false)
+  error   String?
+  notes   String?
 
   inserted     Int @default(0)
   updated      Int @default(0)
@@ -132,9 +131,9 @@ model FetchLog {
   lastUpdatedAtSource DateTime?
   completedAt         DateTime?
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  source     DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  source DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@index([sourceId, createdAt])
 }
@@ -189,12 +188,12 @@ enum RevisionPolicy {
 /// fra rangordning som udgangspunkt, ellers fylder bestandstal pladser på
 /// forsiden med noget ingen handler på.
 enum SeriesLayer {
-  LEADING     // konjunktur, forventning, byggetilladelser
-  COST        // priser, løn, energi
-  CAPITAL     // renter, valuta
-  EXTERNAL    // udenlandske indikatorer
-  REALISED    // det der allerede er sket: konkurser, ledighed, omsætning
-  STRUCTURAL  // bestandstal: befolkning, indkomst, demografi, ejendomsværdi
+  LEADING // konjunktur, forventning, byggetilladelser
+  COST // priser, løn, energi
+  CAPITAL // renter, valuta
+  EXTERNAL // udenlandske indikatorer
+  REALISED // det der allerede er sket: konkurser, ledighed, omsætning
+  STRUCTURAL // bestandstal: befolkning, indkomst, demografi, ejendomsværdi
 }
 
 /// Aktiv eller lukket, som felt frem for i meta, så en forespørgsel kan
@@ -213,7 +212,7 @@ enum IngestStatus {
 }
 
 model Series {
-  id     String @id // fx "dst.konjunktur.sammensat"
+  id String @id // fx "dst.konjunktur.sammensat"
 
   nameDa    String @map("name_da")
   source    String // "DST" | "EDS" | "NBDK" | "EUROSTAT"
@@ -327,9 +326,9 @@ model IngestRun {
   finishedAt DateTime? @map("finished_at") @db.Timestamptz(3)
 
   status       IngestStatus
-  rowsWritten  Int?    @map("rows_written")
-  rowsRevised  Int?    @map("rows_revised")
-  errorMessage String? @map("error_message")
+  rowsWritten  Int?         @map("rows_written")
+  rowsRevised  Int?         @map("rows_revised")
+  errorMessage String?      @map("error_message")
 
   series Series? @relation(fields: [seriesId], references: [id])
 
@@ -337,4 +336,134 @@ model IngestRun {
   @@index([sourceSlug, startedAt])
   @@index([status, startedAt])
   @@map("ingest_runs")
+}
+
+// ============================================================
+// Alius Agenter
+//
+// Agenter der læser åbne kilder hver morgen og skriver en kort brief.
+// Den første er Finn Finans. Se docs/agenter.md.
+//
+// Tabellerne ligger i Pulse-basen, fordi agenterne læser Pulses tal
+// og skrives af samme slags daglige job i GitHub Actions. De ligger
+// IKKE i forretningens base: kunders data deler ikke base med en
+// automatisk kørsel.
+//
+// Prisen for hvert API-kald står i api_ledger. Budgetloftet læser
+// derfra før hvert kald. Se src/lib/agenter/budget.ts.
+// ============================================================
+
+enum AgentStatus {
+  ACTIVE
+  COMING_SOON
+}
+
+/// En kørsels tilstand. Hver slutning er sin egen, så "stoppet af
+/// budget" aldrig ligner "fejlede" eller "fandt intet".
+enum BriefStatus {
+  RUNNING
+  DONE
+  BUDGET_STOPPED
+  FAILED
+}
+
+model Agent {
+  id        String      @id // slug, fx "finn"
+  name      String
+  tagline   String
+  notDoing  String      @map("not_doing")
+  avatar    String // nøgle til en SVG-komponent, ikke en fil
+  status    AgentStatus @default(COMING_SOON)
+  sortOrder Int         @default(0) @map("sort_order")
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  briefs Brief[]
+  ledger ApiLedger[]
+
+  @@map("agents")
+}
+
+model Brief {
+  id      String @id @default(cuid())
+  agentId String @map("agent_id")
+
+  /// Dagen briefen gælder, i Europe/Copenhagen. Flere kørsler samme dag
+  /// er tilladt; siden viser den nyeste der blev færdig.
+  date DateTime @db.Date
+
+  status        BriefStatus @default(RUNNING)
+  /// Hvorfor kørslen endte som den gjorde, i én linje. Tom ved DONE.
+  statusMessage String?     @map("status_message")
+
+  /// [{ title, body, meaning, sources: [{ name, url, ... }] }]
+  items   Json?
+  /// [string] - det Finn tog forbehold for, også kilder der fejlede.
+  caveats Json?
+
+  sourcesRead Int? @map("sources_read")
+  kept        Int?
+
+  /// Summen fra api_ledger for kørslen, gemt for visning.
+  costUsd Decimal? @map("cost_usd") @db.Decimal(12, 6)
+
+  startedAt  DateTime  @default(now()) @map("started_at") @db.Timestamptz(3)
+  finishedAt DateTime? @map("finished_at") @db.Timestamptz(3)
+
+  agent  Agent       @relation(fields: [agentId], references: [id])
+  trace  Trace?
+  ledger ApiLedger[]
+
+  @@index([agentId, date, status])
+  @@map("briefs")
+}
+
+/// Arbejdsloggen bag en brief. Replay læser kun denne, aldrig API'et.
+model Trace {
+  id      String @id @default(cuid())
+  briefId String @unique @map("brief_id")
+
+  /// [{ ts, type, source?, decision?, reason?, payload? }]
+  steps Json
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  brief Brief @relation(fields: [briefId], references: [id])
+
+  @@map("traces")
+}
+
+/// Hvert eneste kald til Anthropic, med beregnet pris.
+model ApiLedger {
+  id      BigInt   @id @default(autoincrement())
+  ts      DateTime @default(now()) @db.Timestamptz(3)
+  agentId String   @map("agent_id")
+  briefId String?  @map("brief_id")
+
+  /// Hvilket trin i pipelinen, fx "relevans" eller "skriv".
+  step  String
+  model String
+
+  inputTokens      Int @map("input_tokens")
+  outputTokens     Int @map("output_tokens")
+  cacheReadTokens  Int @map("cache_read_tokens")
+  cacheWriteTokens Int @map("cache_write_tokens")
+
+  costUsd Decimal @map("cost_usd") @db.Decimal(12, 6)
+
+  agent Agent  @relation(fields: [agentId], references: [id])
+  brief Brief? @relation(fields: [briefId], references: [id])
+
+  @@index([ts])
+  @@index([agentId, ts])
+  @@map("api_ledger")
+}
+
+/// Svar fra kilderne, én gang per kilde per dag.
+model SourceCache {
+  /// "<kilde>:<yyyy-mm-dd>"
+  key       String   @id
+  fetchedAt DateTime @map("fetched_at") @db.Timestamptz(3)
+  payload   Json
+
+  @@map("source_cache")
 }
