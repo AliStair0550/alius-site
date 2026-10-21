@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { talITekst, usporedeTal, rensSprog } from "./selvtjek";
+import { talITekst, usporedeTal, rensSprog, udenPraefiks } from "./selvtjek";
 import type { NyhedPost, TalPost } from "../kilder/typer";
 
 const ledighed: TalPost = {
@@ -70,5 +70,12 @@ describe("Selvtjek: tal i briefen", () => {
   test("tankestreger og udråbstegn renses", () => {
     assert.equal(rensSprog("Renten steg — igen!"), "Renten steg, igen.");
     assert.equal(rensSprog("2025–2026"), "2025-2026");
+  });
+});
+
+describe("Hvad det betyder", () => {
+  test("modellens eget præfiks fjernes, så siden ikke viser det to gange", () => {
+    assert.equal(udenPraefiks("Hvad det betyder: Lønudgifterne vokser."), "Lønudgifterne vokser.");
+    assert.equal(udenPraefiks("Lønudgifterne vokser."), "Lønudgifterne vokser.");
   });
 });

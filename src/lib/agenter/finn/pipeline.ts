@@ -30,11 +30,18 @@ import { FEEDS, rssKilde } from "../kilder/rss";
 import type { Kilde, KildeSvar, Post, NyhedPost } from "../kilder/typer";
 import { FINN_SERIER } from "./serier";
 import { finnSystem } from "./prompt";
-import { rensSprog, usporedeTal } from "./selvtjek";
+import { rensSprog, udenPraefiks, usporedeTal } from "./selvtjek";
 
 export const AGENT_ID = "finn";
 const MAKS_ALDER_TIMER = 48;
 const TIL_SKRIVNING = 12;
+/** Pladser til nyheder blandt kandidaterne, så tallene ikke altid fortrænger dem. */
+const NYHEDSPLADSER = 3;
+
+/** Er tallet udgivet inden for de seneste 48 timer. */
+function erNyt(p: Post, nu: Date): boolean {
+  return p.type === "tal" && nu.getTime() - new Date(p.foersteGangSet).getTime() < MAKS_ALDER_TIMER * 3_600_000;
+}
 
 export type TraceTrin = {
   ts: string;
@@ -63,13 +70,14 @@ function titelNoegle(t: string): string {
   return t.toLowerCase().normalize("NFKD").replace(/[^\p{L}\p{N} ]/gu, "").replace(/\s+/g, " ").trim();
 }
 
-function postLinje(p: Post): string {
+function postLinje(p: Post, nu: Date): string {
   if (p.type === "nyhed") return `${p.id} | nyhed | ${p.titel} | ${p.dato}`;
+  const nyt = erNyt(p, nu) ? " | NY UDGIVELSE" : "";
   const s = p.sammenligning;
   return (
     `${p.id} | tal | ${p.navn} | ${p.periode} | ${p.vaerdiTekst} ${p.enhed}` +
     (s ? ` | ${s.aendringTekst} mod ${s.slags} (${s.periode})` : " | ingen sammenligning") +
-    ` | sæson: ${p.saeson}`
+    ` | sæson: ${p.saeson}${nyt}`
   );
 }
 
@@ -173,7 +181,7 @@ export async function koerFinn(opt: {
         `danske virksomheder eller danske husholdninger. Grunden er højst otte ord.\n` +
         `2. Rangér de højst 20 vigtigste blandt tallene og de nyheder du beholder, efter betydning for en dansk ` +
         `virksomhed med 5 til 50 ansatte eller en husholdning, 1 til 10 hvor 10 er størst. Ny udgivelse vejer ` +
-        `tungere end gamle tal. Begrundelsen er højst tolv ord.\n\nPOSTER\n${friske.map(postLinje).join("\n")}`,
+        `tungere end gamle tal. Begrundelsen er højst tolv ord.\n\nPOSTER\n${friske.map((p) => postLinje(p, nu)).join("\n")}`,
       skema: RangeringSkema,
       maxTokens: 16000,
       effort: "low",
@@ -204,7 +212,13 @@ export async function koerFinn(opt: {
       .map((x) => ({ ...x, betydning: Math.max(1, Math.min(10, Math.round(x.betydning))) }))
       .sort((a, b) => b.betydning - a.betydning);
 
-    const valgte = rangeret.slice(0, TIL_SKRIVNING).map((x) => efterId.get(x.id)!);
+    // De bedst rangerede nyheder får op til NYHEDSPLADSER pladser, resten
+    // fyldes med de bedst rangerede tal. Ellers fortrængte tallene altid
+    // nyhederne: i første kørsel kom ingen nyhed med blandt de tolv.
+    const nyhedsvalg = rangeret.filter((x) => efterId.get(x.id)!.type === "nyhed").slice(0, NYHEDSPLADSER);
+    const talvalg = rangeret.filter((x) => efterId.get(x.id)!.type === "tal").slice(0, TIL_SKRIVNING - nyhedsvalg.length);
+    const valgteId = new Set([...nyhedsvalg, ...talvalg].map((x) => x.id));
+    const valgte = rangeret.filter((x) => valgteId.has(x.id)).map((x) => efterId.get(x.id)!);
     for (const x of rangeret) {
       const p = efterId.get(x.id)!;
       const med = valgte.includes(p);
@@ -242,7 +256,8 @@ export async function koerFinn(opt: {
         `en husholdning. Hvert punkt henviser i "kilder" til de id'er det bygger på, og bruger kun tal fra dem.\n` +
         `Under "forbehold" skriver du ærligt, hvad du tog forbehold for: usikre eller ukorrigerede tal, gamle tal, ` +
         `og kilder der ikke kunne hentes.\n\n` +
-        `DATA (fuld form)\n${JSON.stringify(valgte, null, 1)}\n\n` +
+        `DATA (fuld form). Feltet nyt er true, når tallet er udgivet inden for 48 timer.\n` +
+        `${JSON.stringify(valgte.map((p) => (p.type === "tal" ? { ...p, nyt: erNyt(p, nu) } : p)), null, 1)}\n\n` +
         `KILDER DER IKKE LEVEREDE I DAG\n${ikkeOk.map((s) => `${s.navn}: ${s.status}${s.besked ? `, ${s.besked}` : ""}`).join("\n") || "Ingen."}\n\n` +
         `DINE SENESTE BRIEFS\n${hukommelse || "Ingen endnu. Dette er den første."}`,
       skema: BriefSkema,
@@ -256,8 +271,9 @@ export async function koerFinn(opt: {
       model: MODEL_SKRIV,
       system: finnSystem(kilder),
       bruger:
-        `Tjek hvert punkt mod dine faste regler 2 og 6: giver det investeringsråd eller anbefaler et konkret produkt, ` +
-        `eller gengiver det artikeltekst ud over overskriften? Svar for hvert nummer.\n\n` +
+        `Tjek hvert punkt. Det er et brud, hvis punktet: giver investeringsråd eller anbefaler et konkret produkt; ` +
+        `fortæller læseren hvad de skal gøre; gengiver artikeltekst ud over overskriften; sammenligner tal fra ` +
+        `forskellige perioder; eller siger det modsatte af sig selv. Svar for hvert nummer, og navngiv bruddet.\n\n` +
         skrevet.data.punkter.map((p, i) => `${i + 1}. ${p.overskrift}\n${p.tekst}\n${p.hvadDetBetyder}`).join("\n\n"),
       skema: RegelSkema,
       maxTokens: 3000,
@@ -281,7 +297,7 @@ export async function koerFinn(opt: {
       if (brudt.has(nr)) return fjern(`brød Finns regler (${brudt.get(nr)})`);
       if (kildeposter.length === 0) return fjern("det henviste ikke til nogen af dagens kilder");
       const tekst = rensSprog(p.tekst);
-      const betyder = rensSprog(p.hvadDetBetyder);
+      const betyder = rensSprog(udenPraefiks(p.hvadDetBetyder));
       const usporet = usporedeTal(`${titel} ${tekst} ${betyder}`, kildeposter);
       if (usporet.length) return fjern(`tallet ${usporet.join(", ")} kunne ikke spores til kilderne`);
 

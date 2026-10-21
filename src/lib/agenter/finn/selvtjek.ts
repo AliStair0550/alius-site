@@ -81,6 +81,11 @@ export function usporedeTal(tekst: string, poster: Post[]): string[] {
     .map((f) => f.raa);
 }
 
+/** Modellen skriver af og til feltets navn foran indholdet. Siden sætter det selv. */
+export function udenPraefiks(tekst: string): string {
+  return tekst.replace(/^\s*hvad det betyder\s*[:.\-]\s*/i, "").trim();
+}
+
 /**
  * Sproglige regler der kan håndhæves uden en model: ingen tankestreger
  * og ingen udråbstegn. Se CLAUDE.md og Finns regler.
