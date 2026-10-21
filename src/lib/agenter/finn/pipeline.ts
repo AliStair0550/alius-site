@@ -26,7 +26,7 @@ import { MODEL_HURTIG, MODEL_SKRIV } from "../priser";
 import { hentMedCache } from "../kilder/cache";
 import { pulseKilde } from "../kilder/pulse";
 import { dstBoligpriser } from "../kilder/dst-boligpriser";
-import { FEEDS, rssKilde } from "../kilder/rss";
+import { FEEDS, rssKilde, udenTankestreg } from "../kilder/rss";
 import type { Kilde, KildeSvar, Post, NyhedPost } from "../kilder/typer";
 import { FINN_SERIER } from "./serier";
 import { finnSystem } from "./prompt";
@@ -81,8 +81,11 @@ function postLinje(p: Post, nu: Date): string {
   );
 }
 
+const RelevansSkema = z.object({
+  vurderinger: z.array(z.object({ nummer: z.number(), behold: z.boolean(), grund: z.string() })),
+});
+
 const RangeringSkema = z.object({
-  nyheder: z.array(z.object({ id: z.string(), behold: z.boolean(), grund: z.string() })),
   rangering: z.array(z.object({ id: z.string(), betydning: z.number(), begrundelse: z.string() })),
 });
 
@@ -134,7 +137,9 @@ export async function koerFinn(opt: {
     // 1. Hent.
     const svar: KildeSvar[] = [];
     for (const kilde of kilder) {
-      const s = await hentMedCache(prisma, kilde, dag);
+      const hentet = await hentMedCache(prisma, kilde, dag);
+      // Også svar fra cachen, der kan være gemt før overskrifterne blev renset.
+      const s = { ...hentet, poster: hentet.poster.map((p) => (p.type === "nyhed" ? { ...p, titel: udenTankestreg(p.titel) } : p)) };
       svar.push(s);
       sourcesRead += s.poster.length;
       log({
@@ -171,29 +176,38 @@ export async function koerFinn(opt: {
       return true;
     });
 
-    // 4. Relevans og rangering.
-    const r = await kaldMedLoft(k, {
-      trin: "relevans og rangering",
-      model: MODEL_HURTIG,
-      system: finnSystem(kilder),
-      bruger:
-        `Dato: ${dag}.\n\nOPGAVE\n1. For hver nyhed: behold den kun, hvis den har betydning for dansk økonomi, ` +
-        `danske virksomheder eller danske husholdninger. Grunden er højst otte ord.\n` +
-        `2. Rangér de højst 20 vigtigste blandt tallene og de nyheder du beholder, efter betydning for en dansk ` +
-        `virksomhed med 5 til 50 ansatte eller en husholdning, 1 til 10 hvor 10 er størst. Ny udgivelse vejer ` +
-        `tungere end gamle tal. Begrundelsen er højst tolv ord.\n\nPOSTER\n${friske.map((p) => postLinje(p, nu)).join("\n")}`,
-      skema: RangeringSkema,
-      maxTokens: 16000,
-      effort: "low",
-    });
-
+    // 4a. Relevans, kun nyheder, ét svar per nummer. I sit eget kald:
+    // da relevans og rangering lå i ét, sprang Haiku 28 af 37 nyheder
+    // over. Mangler der svar, spørges der én gang til om netop dem.
     const efterId = new Map(friske.map((p) => [p.id, p]));
-    const vurderet = new Map(r.data.nyheder.map((n) => [n.id, n]));
+    const nyheder = friske.filter((p): p is NyhedPost => p.type === "nyhed");
+    const vurderet = new Map<string, { behold: boolean; grund: string }>();
+    for (let runde = 1; runde <= 2; runde++) {
+      const mangler = nyheder.filter((n) => !vurderet.has(n.id));
+      if (mangler.length === 0) break;
+      const rel = await kaldMedLoft(k, {
+        trin: runde === 1 ? "relevans" : "relevans, manglende",
+        model: MODEL_HURTIG,
+        system: finnSystem(kilder),
+        bruger:
+          `Dato: ${dag}.\n\nVurder HVER af de ${mangler.length} nyheder herunder, og svar én gang per nummer. ` +
+          `Behold kun en nyhed, hvis den har betydning for dansk økonomi, danske virksomheder eller danske ` +
+          `husholdninger. Grunden er højst otte ord.\n\n` +
+          mangler.map((n, i) => `${i + 1}. ${n.titel}`).join("\n"),
+        skema: RelevansSkema,
+        maxTokens: 8000,
+        effort: "low",
+      });
+      for (const v of rel.data.vurderinger) {
+        const n = mangler[v.nummer - 1];
+        if (n && !vurderet.has(n.id)) vurderet.set(n.id, { behold: v.behold, grund: v.grund });
+      }
+    }
     const beholdte = friske.filter((p) => {
       if (p.type === "tal") return true;
       const v = vurderet.get(p.id);
       if (!v) {
-        log({ type: "afvist", postId: p.id, titel: p.titel, kilde: p.kilde, grund: "ikke vurderet af relevansfilteret" });
+        log({ type: "afvist", postId: p.id, titel: p.titel, kilde: p.kilde, grund: "ikke vurderet af relevansfilteret efter to forsøg" });
         return false;
       }
       if (!v.behold) {
@@ -201,6 +215,20 @@ export async function koerFinn(opt: {
         return false;
       }
       return true;
+    });
+
+    // 4b. Rangering af tal og beholdte nyheder.
+    const r = await kaldMedLoft(k, {
+      trin: "rangering",
+      model: MODEL_HURTIG,
+      system: finnSystem(kilder),
+      bruger:
+        `Dato: ${dag}.\n\nRangér de højst 20 vigtigste poster herunder efter betydning for en dansk virksomhed ` +
+        `med 5 til 50 ansatte eller en husholdning, 1 til 10 hvor 10 er størst. Ny udgivelse vejer tungere end ` +
+        `gamle tal. Begrundelsen er højst tolv ord.\n\nPOSTER\n${beholdte.map((p) => postLinje(p, nu)).join("\n")}`,
+      skema: RangeringSkema,
+      maxTokens: 8000,
+      effort: "low",
     });
 
     const rangeret = r.data.rangering

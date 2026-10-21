@@ -67,3 +67,10 @@ describe("RSS", () => {
     assert.deepEqual(laesFeed(xml, "test"), { poster: [], udenDato: 1 });
   });
 });
+
+describe("RSS-overskrifter på Alius' sider", () => {
+  test("lange tankestreger bliver til almindelig bindestreg", () => {
+    const xml = `<item><title>Krisen i nettet — kan vare i årevis</title><link>https://x.dk/a</link><pubDate>Tue, 20 Oct 2026 06:00:00 GMT</pubDate></item>`;
+    assert.equal(laesFeed(xml, "t").poster[0].titel, "Krisen i nettet - kan vare i årevis");
+  });
+});

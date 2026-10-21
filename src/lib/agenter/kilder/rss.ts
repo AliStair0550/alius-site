@@ -47,6 +47,14 @@ export const FEEDS: FeedDef[] = [
   },
 ];
 
+/**
+ * Medierne bruger lange tankestreger i overskrifter. Alius' sider må
+ * ikke vise dem (CLAUDE.md), så de bliver til almindelig bindestreg.
+ */
+export function udenTankestreg(t: string): string {
+  return t.replace(/\s*[\u2014\u2013]\s*/g, " - ");
+}
+
 function tag(blok: string, navn: string): string | null {
   const m = blok.match(new RegExp(`<${navn}(?:\\s[^>]*)?>([\\s\\S]*?)</${navn}>`, "i"));
   if (!m) return null;
@@ -82,7 +90,8 @@ export function laesFeed(xml: string, kilde: string): { poster: NyhedPost[]; ude
       udenDato++;
       continue;
     }
-    poster.push({ type: "nyhed", id: `${kilde}:${link}`, kilde, titel, url: link, dato: dato.toISOString() });
+    const renTitel = udenTankestreg(titel);
+    poster.push({ type: "nyhed", id: `${kilde}:${link}`, kilde, titel: renTitel, url: link, dato: dato.toISOString() });
   }
   return { poster, udenDato };
 }

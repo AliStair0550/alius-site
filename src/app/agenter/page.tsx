@@ -21,8 +21,13 @@ const PLADSER = 3;
 async function Taeller({ agent }: { agent: AgentKort }) {
   const [seneste, brief] = await Promise.all([hentSenesteKoersel(agent.id), hentBrief(agent.id, null)]);
   const idag = danskDag(new Date());
-  if (seneste && seneste.dato === idag && seneste.sourcesRead !== null && seneste.status === "DONE") {
-    return <>Har læst {seneste.sourcesRead} kilder i dag. Beholdt {seneste.kept ?? 0}.</>;
+  // Tallene er fra seneste FÆRDIGE brief. En senere kørsel der blev
+  // stoppet eller fejlede, ændrer ikke hvad Finn læste til briefen.
+  if (brief && brief.dato === idag && brief.sourcesRead !== null) {
+    return <>Har læst {brief.sourcesRead} kilder i dag. Beholdt {brief.kept ?? 0}.</>;
+  }
+  if (seneste && seneste.dato === idag && seneste.status === "RUNNING") {
+    return <>Læser dagens kilder lige nu.</>;
   }
   if (brief && brief.sourcesRead !== null) {
     return <>Læste {brief.sourcesRead} kilder {langDato(brief.dato)}. Beholdt {brief.kept ?? 0}.</>;
