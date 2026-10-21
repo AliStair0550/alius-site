@@ -63,7 +63,7 @@ export default async function AgenterSide() {
               </div>
               <div className="font-[400] text-[0.95rem] text-ink mb-1">{a.name}</div>
               <div className="font-[200] text-[0.85rem] text-stone leading-[1.7] mb-2">{a.tagline}</div>
-              <div className="font-[200] text-[0.78rem] text-slate leading-[1.6] mb-5">{a.notDoing}</div>
+              <div className="font-[300] text-[0.78rem] text-stone leading-[1.6] mb-5">{a.notDoing}</div>
               <div className="mt-auto pt-4 border-t border-fog font-[300] text-[0.72rem] text-moss tracking-[0.02em]">
                 <Taeller agent={a} />
               </div>
@@ -83,7 +83,7 @@ export default async function AgenterSide() {
             <div className="mb-5 -ml-1">
               <Silhuet size={96} />
             </div>
-            <div className="font-[300] text-[0.72rem] tracking-[0.15em] uppercase text-slate">Kommer snart</div>
+            <div className="font-[300] text-[0.72rem] tracking-[0.15em] uppercase text-stone">Kommer snart</div>
           </li>
         ))}
       </ul>

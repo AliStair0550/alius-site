@@ -51,9 +51,9 @@ export default function BriefVisning({
                 </p>
                 <ul className="list-none p-0 m-0 flex flex-col gap-1">
                   {p.sources.map((s) => (
-                    <li key={s.id} className="font-[200] text-[0.75rem] text-slate leading-[1.6]">
+                    <li key={s.id} className="font-[300] text-[0.75rem] text-stone leading-[1.6]">
                       Kilde:{" "}
-                      <a href={s.url} className="text-slate underline decoration-clay underline-offset-2 hover:text-moss" rel="noopener">
+                      <a href={s.url} className="text-stone underline decoration-clay underline-offset-2 hover:text-moss" rel="noopener">
                         {s.navn}
                       </a>
                     </li>
