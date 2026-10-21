@@ -25,6 +25,7 @@ import { BudgetStop, doegnStart, type BudgetConfig } from "../budget";
 import { kaldMedLoft } from "../claude";
 import { anslaaTokens, vaerstTaenkeligePris, MODEL_SKRIV } from "../priser";
 import type { KildeSvar, Post } from "../kilder/typer";
+import { cacheNoegle } from "../kilder/cache";
 import { AGENT_ID, finnKilder, type BriefPunkt } from "./pipeline";
 import { finnSystem } from "./prompt";
 import { rensSprog, usporedeTal } from "./selvtjek";
@@ -115,12 +116,17 @@ export async function spoergFinn(opt: {
     return { status: "fejl", tekst: "Finn har ikke skrevet sin første brief endnu, så han har intet at svare ud fra.", kilder: [], tilbage };
   }
   const dag = brief.date.toISOString().slice(0, 10);
-  const cache = await prisma.sourceCache.findMany({ where: { key: { endsWith: `:${dag}` } }, select: { payload: true } });
+  // Kun de nøgler kildernes NUVÆRENDE version bruger. Ældre versioner af
+  // samme dag kan ligge i cachen med andre tal under samme id.
+  const kilder = finnKilder(prisma);
+  const cache = await prisma.sourceCache.findMany({
+    where: { key: { in: kilder.map((k) => cacheNoegle(k, dag)) } },
+    select: { payload: true },
+  });
   const poster = cache.flatMap((c) => (c.payload as unknown as KildeSvar).poster ?? []);
   const efterId = new Map(poster.map((p) => [p.id, p]));
   const punkter = (brief.items as BriefPunkt[] | null) ?? [];
 
-  const kilder = finnKilder(prisma);
   const system = finnSystem(kilder);
   const bruger =
     `En læser stiller dig et spørgsmål. Svar ud fra dagens brief og dagens data herunder, og kun ud fra dem. ` +

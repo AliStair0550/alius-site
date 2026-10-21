@@ -12,8 +12,13 @@
 import type { PrismaClient, Prisma } from "@prisma/client";
 import type { Kilde, KildeSvar } from "./typer";
 
+/** Nøglen et svar gemmes under. Én funktion, så læsere og skrivere er enige. */
+export function cacheNoegle(kilde: Pick<Kilde, "id" | "version">, dag: string): string {
+  return kilde.version ? `${kilde.id}@${kilde.version}:${dag}` : `${kilde.id}:${dag}`;
+}
+
 export async function hentMedCache(prisma: PrismaClient, kilde: Kilde, dag: string): Promise<KildeSvar> {
-  const noegle = kilde.version ? `${kilde.id}@${kilde.version}:${dag}` : `${kilde.id}:${dag}`;
+  const noegle = cacheNoegle(kilde, dag);
   const gemt = await prisma.sourceCache.findUnique({ where: { key: noegle } });
   if (gemt) return { ...(gemt.payload as unknown as KildeSvar), fraCache: true };
 
