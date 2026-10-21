@@ -47,8 +47,24 @@ const PULSE: Vaerktoj = {
   ],
 };
 
+const AGENTER: Vaerktoj = {
+  slug: "agenter",
+  name: "Alius Agenter",
+  tagline: "Agenter der læser for dig hver morgen.",
+  description:
+    "Finn Finans læser danske økonomital og nyheder hver morgen og skriver det vigtigste i fem til syv punkter. Hvert tal har en kilde, og du kan se præcis hvordan briefen blev lavet.",
+  audience: "For ledere og husholdninger der vil vide hvad tallene siger, uden at læse dem alle.",
+  href: "/agenter",
+  accentLabel: "Agenter · Hver morgen",
+  subLinks: [
+    { name: "Finn Finans", href: "/agenter/finn", status: "live", meta: "dansk økonomi" },
+    { name: "To agenter mere", href: "#", status: "coming", meta: "kommer" },
+  ],
+};
+
 const VAERKTOEJER: Vaerktoj[] = [
   ...(PAA_PAUSE ? [] : [PULSE]),
+  AGENTER,
   {
     slug: "tankeprofil",
     name: "Personlighedsprofil",

@@ -15,11 +15,11 @@ export default function Tools() {
       </p>
 
       {/* Antallet af spalter foelger antallet af kort. Med Pulse skjult er
-          der tre, og et firespaltet gitter ville efterlade et tomt felt
-          der ligner noget der mangler. */}
+          der fire, ellers fem, og et gitter med et tomt felt ligner noget
+          der mangler. */}
       <div
         className={`mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5 ${
-          PAA_PAUSE ? "lg:grid-cols-3" : "lg:grid-cols-4"
+          PAA_PAUSE ? "lg:grid-cols-4" : "lg:grid-cols-5"
         }`}
       >
         {/* Tankeprofil */}
@@ -65,6 +65,19 @@ export default function Tools() {
             </div>
           </Link>
         )}
+
+        {/* Alius Agenter */}
+        <Link href="/agenter" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
+          <div className="w-2 h-2 rounded-full bg-moss mb-1" />
+          <div className="font-[400] text-[0.9rem] text-ink">Alius Agenter</div>
+          <div className="font-[200] text-[0.7rem] text-slate">Agenter · Hver morgen</div>
+          <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
+            Finn Finans læser danske økonomital hver morgen og skriver det vigtigste kort. Hvert tal har en kilde.
+          </div>
+          <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
+            Mød Finn &rarr;
+          </div>
+        </Link>
 
         {/* Frihedstænkere */}
         <Link href="/frihedstænkere" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">

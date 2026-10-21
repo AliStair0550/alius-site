@@ -41,6 +41,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...(PAA_PAUSE ? [] : [url("/pulse", 0.8)]),
 
     url("/værktøjer", 0.8),
+    url("/agenter", 0.8),
+    url("/agenter/finn", 0.7),
     url("/frihedstænkere", 0.7),
     url("/beregner", 0.7),
     url("/prioritizer", 0.7),
