@@ -88,3 +88,45 @@ describe("Årstal", () => {
   });
 });
 
+
+import { overdrevneOrd } from "./selvtjek";
+
+describe("Hvor usædvanligt: kun Pulses egne ord", () => {
+  const post = (sjaeldenhed: number, opad: boolean): TalPost => ({
+    type: "tal", id: "x", kilde: "pulse", navn: "x", enhed: "", saeson: "korrigeret", url: "", periode: "september 2026",
+    vaerdi: 1, vaerdiTekst: "1", sammenligning: null, forloeb: [], tendens: null, foersteGangSet: "2026-10-01T00:00:00Z",
+    usaedvanlighed: { tekst: "", z: 1.5, sjaeldenhed, maaneder: 120, opad },
+  });
+  const over = post(20, true); // "Ligger over det normale"
+  const under = post(20, false);
+  const sjaelden = post(2, true); // "Kun 2 af 120 måneder"
+  const rekord = post(1, false); // "Ingen måned har ligget lavere"
+
+  test("22/10 2026: 'langt over normalen' og 'usædvanligt højt' om en elpris der kun var over det normale", () => {
+    assert.equal(overdrevneOrd("Elprisen ligger langt over normalen.", [over]).length, 1);
+    assert.equal(overdrevneOrd("Prisen er usædvanligt høj i dag.", [over]).length, 1);
+  });
+
+  test("22/10 2026: 'omkring det normale' om en ledighed der lå under", () => {
+    assert.equal(overdrevneOrd("Ledigheden ligger omkring det normale.", [under]).length, 1);
+  });
+
+  test("forkert retning fanges", () => {
+    assert.equal(overdrevneOrd("Ledigheden ligger over det normale.", [under]).length, 1);
+  });
+
+  test("Pulses egne ord, og stærkere ord når niveauet bærer dem, går igennem", () => {
+    assert.deepEqual(overdrevneOrd("Elprisen ligger over det normale for de seneste ti år.", [over]), []);
+    assert.deepEqual(overdrevneOrd("Det er usædvanligt højt; kun 2 af 120 måneder har ligget lige så højt.", [sjaelden]), []);
+    assert.deepEqual(overdrevneOrd("Konkurserne er de laveste i ti år.", [rekord]), []);
+    assert.deepEqual(overdrevneOrd("Der står intet om det normale her.", []), []);
+  });
+
+  test("en påstand uden kilde der siger noget om det normale, fanges", () => {
+    assert.equal(overdrevneOrd("Renten ligger under det normale.", []).length, 1);
+  });
+
+  test("et stærkere udtryk tælles kun én gang", () => {
+    assert.equal(overdrevneOrd("Prisen ligger markant over normalen.", [over]).length, 1);
+  });
+});

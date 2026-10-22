@@ -30,7 +30,7 @@ import { AGENT_ID, finnKilder, type BriefPunkt } from "./pipeline";
 import { analyseSomTekst, type Analyse } from "./analyse";
 import { omraade as findOmraade, postIOmraade } from "./omraader";
 import { finnSystem } from "./prompt";
-import { rensSprog, usporedeTal } from "./selvtjek";
+import { overdrevneOrd, rensSprog, usporedeTal } from "./selvtjek";
 
 export const MAKS_PR_BESOEGENDE = 5;
 export const MAKS_TEGN = 300;
@@ -217,7 +217,7 @@ export async function spoergFinn(opt: {
 
   // Samme regel som i briefen: et tal skal kunne spores til de poster
   // svaret selv henviser til. Ellers intet svar, men en ærlig besked.
-  const usporet = usporedeTal(tekst, kildeposter);
+  const usporet = [...usporedeTal(tekst, kildeposter), ...overdrevneOrd(tekst, kildeposter)];
   if (svar.data.kanBesvares && usporet.length) {
     await gem("ikke_sporbar", svar.prisUsd);
     return {

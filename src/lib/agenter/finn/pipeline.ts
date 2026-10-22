@@ -40,7 +40,7 @@ import type { Kilde, KildeSvar, Post, NyhedPost, TalPost } from "../kilder/typer
 import { FINN_SERIER } from "./serier";
 import { finnSystem } from "./prompt";
 import { temaForKilde } from "../tema";
-import { rensSprog, udenPraefiks, usporedeTal } from "./selvtjek";
+import { overdrevneOrd, rensSprog, udenPraefiks, usporedeTal } from "./selvtjek";
 import { OMRAADER, OMRAADE_NOEGLER, postIOmraade, type OmraadeNoegle } from "./omraader";
 import {
   bygElpris,
@@ -338,6 +338,9 @@ export async function koerFinn(opt: {
       if (poster.length === 0) return { afsnit: null, grund: "det henviste ikke til nogen af dagens kilder" };
       const usporet = usporedeTal(renset, [...poster, ...ekstra]);
       if (usporet.length) return { afsnit: null, grund: `tallet ${usporet.join(", ")} kunne ikke spores til kilderne` };
+      // Ordene om hvor usædvanligt et tal er, skal også kunne spores. Se overdrevneOrd().
+      const overdrevet = overdrevneOrd(renset, poster);
+      if (overdrevet.length) return { afsnit: null, grund: `ordene ${overdrevet.join("; ")}` };
       return { afsnit: { tekst: renset, kilder: poster.map(kildeRef) } };
     };
 

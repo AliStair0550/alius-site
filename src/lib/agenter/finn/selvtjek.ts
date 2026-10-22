@@ -110,3 +110,88 @@ export function rensSprog(tekst: string): string {
     .replace(/\s+,/g, ",")
     .trim();
 }
+
+// ------------------------------------------------------------
+// Hvor usædvanligt et tal er: kun med Pulses egne ord
+//
+// Det første kvalitetstjek (22. oktober 2026) fandt Finn skrive "langt
+// over normalen" og "usædvanligt højt" om en elpris, hvor dataene kun
+// sagde "over det normale", og "omkring det normale" om en ledighed der
+// lå under. Tallene var rigtige; ordene var ikke. Det er samme fejlklasse
+// som et opdigtet tal, bare i ord, og det kontrolleres derfor også her.
+//
+// Pulses tre niveauer (usaedvanlighedTekst i kilder/pulse.ts):
+//   3  sjældenhed <= 1: "Ingen måned i de seneste ti år har ligget højere"
+//   2  sjældenhed <= 3: "Kun N af M måneder ... lige så højt"
+//   1  ellers:          "Ligger over/under det normale"
+// ------------------------------------------------------------
+
+type Niveau = { niveau: 1 | 2 | 3; opad: boolean };
+
+function niveauer(poster: Post[]): Niveau[] {
+  return poster.flatMap((p) =>
+    p.type === "tal" && p.usaedvanlighed
+      ? [{ niveau: (p.usaedvanlighed.sjaeldenhed <= 1 ? 3 : p.usaedvanlighed.sjaeldenhed <= 3 ? 2 : 1) as 1 | 2 | 3, opad: p.usaedvanlighed.opad }]
+      : []
+  );
+}
+
+const PAASTANDE: { re: RegExp; niveau: 1 | 2 | 3; retning: (m: RegExpMatchArray) => boolean | null; navn: string }[] = [
+  {
+    re: /\b(rekord\w*|højeste i (?:de seneste )?(?:ti|10) år|laveste i (?:de seneste )?(?:ti|10) år|aldrig (?:har )?været så (høj|lav)\w*)/gi,
+    niveau: 3,
+    retning: (m) => (/lav/i.test(m[0]) ? false : /høj/i.test(m[0]) ? true : null),
+    navn: "rekord",
+  },
+  {
+    re: /\b(?:langt|markant|kraftigt|betydeligt|væsentligt|klart|tydeligt|massivt)\s+(over|under)\s+(?:det\s+)?normal\w*/gi,
+    niveau: 2,
+    retning: (m) => m[1].toLowerCase() === "over",
+    navn: "forstærket afvigelse fra det normale",
+  },
+  {
+    re: /\b(?:usædvanlig\w*|ekstraordinær\w*|exceptionel\w*|ekstrem\w*|historisk)\s+(høj|lav)\w*/gi,
+    niveau: 2,
+    retning: (m) => m[1].toLowerCase() === "høj",
+    navn: "usædvanligt niveau",
+  },
+  {
+    re: /\b(over|under)\s+(?:det\s+)?normal\w*/gi,
+    niveau: 1,
+    retning: (m) => m[1].toLowerCase() === "over",
+    navn: "afvigelse fra det normale",
+  },
+];
+
+/**
+ * Påstande om hvor usædvanligt et tal er, som afsnittets egne kilder ikke
+ * bærer. Tom liste = i orden. Ren funktion.
+ *
+ * En påstand skal have en kilde med mindst samme niveau og samme retning.
+ * "Omkring det normale" er aldrig dækket: Pulses tekst siger altid over
+ * eller under.
+ */
+export function overdrevneOrd(tekst: string, poster: Post[]): string[] {
+  const n = niveauer(poster);
+  const brud: string[] = [];
+  const brugt: [number, number][] = [];
+  for (const p of PAASTANDE) {
+    for (const m of tekst.matchAll(p.re)) {
+      const fra = m.index!;
+      const til = fra + m[0].length;
+      // En svagere regel må ikke tage en tekst en stærkere allerede har set på.
+      if (brugt.some(([a, b]) => fra < b && til > a)) continue;
+      brugt.push([fra, til]);
+      const retning = p.retning(m);
+      const daekket = n.some((x) => x.niveau >= p.niveau && (retning === null || x.opad === retning));
+      if (!daekket) {
+        const bedste = n.length ? `kilderne siger højst: ${n.map((x) => `${["", "over/under det normale", "kun få måneder", "ingen måned i ti år"][x.niveau]} (${x.opad ? "over" : "under"})`).join(", ")}` : "ingen af kilderne siger noget om det normale";
+        brud.push(`"${m[0]}" (${p.navn}); ${bedste}`);
+      }
+    }
+  }
+  for (const m of tekst.matchAll(/\b(?:omkring|tæt på|på niveau med|på linje med)\s+(?:det\s+)?normal\w*/gi)) {
+    if (n.length) brud.push(`"${m[0]}"; kilderne siger ${n.map((x) => (x.opad ? "over" : "under")).join(", ")} det normale`);
+  }
+  return brud;
+}

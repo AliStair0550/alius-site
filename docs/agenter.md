@@ -174,6 +174,11 @@ Reglerne står i `src/lib/agenter/finn/prompt.ts`. To håndhæves bagefter:
 - **I kode** (`finn/selvtjek.ts`), sidste ord: hvert tal i et afsnit skal
   findes i de poster afsnittet selv henviser til. Afrunding er tilladt, et
   opdigtet tal er ikke. Tankestreger og udråbstegn renses.
+- **Også i kode** (`overdrevneOrd`): ord om hvor usædvanligt et tal er,
+  skal bæres af kildens felt `usaedvanlighed`. "Langt over normalen" og
+  "usædvanligt højt" kræver "kun N af M måneder"; "rekord" kræver "ingen
+  måned i ti år"; "omkring det normale" er aldrig dækket. Indført 22.
+  oktober 2026 efter det første kvalitetstjek, som fandt netop de fejl.
 - **Af Sonnet**: investeringsråd og produkter, råd til læseren, gengivet
   artikeltekst. Kun tydelige brud.
 
