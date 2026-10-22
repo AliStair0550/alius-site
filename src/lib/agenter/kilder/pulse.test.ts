@@ -1,6 +1,8 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { sammenlign, periodeTekst, tendens, type Punkt } from "./pulse";
+import { sammenlign, sammenlignAaretFoer, periodeTekst, tendens, type Punkt } from "./pulse";
+import { tilladteTal } from "../finn/selvtjek";
+import type { TalPost } from "./typer";
 import { laesFeed } from "./rss";
 
 const m = (aar: number, md: number, v: number): Punkt => ({ period: new Date(Date.UTC(aar, md - 1, 1)), value: v });
@@ -86,5 +88,35 @@ describe("Tendens i træk", () => {
   test("fald og uændret siges for sig", () => {
     assert.equal(tendens([m(2026, 3, 1), m(2026, 2, 2), m(2026, 1, 3)], "MONTHLY"), "faldet 2 måneder i træk");
     assert.equal(tendens([m(2026, 3, 2), m(2026, 2, 2), m(2026, 1, 2)], "MONTHLY"), "uændret 2 måneder i træk");
+  });
+});
+
+describe("Omsætning: året før oveni forrige måned", () => {
+  // Firmaernes salg eksklusive energi, mio. kr. August 2026 mod juli og mod august 2025.
+  const salg = [m(2026, 8, 499_636), m(2026, 7, 490_300), m(2025, 8, 469_986)];
+
+  test("året før findes og regnes i procent", () => {
+    const s = sammenlignAaretFoer(salg, "MONTHLY", "mio_dkk")!;
+    assert.equal(s.slags, "samme periode året før");
+    assert.equal(s.periode, "august 2025");
+    assert.equal(s.aendring, 6.3);
+  });
+
+  test("den sæsonkorrigerede sammenligning er stadig forrige måned", () => {
+    assert.equal(sammenlign(salg, "MONTHLY", "korrigeret", "mio_dkk")!.slags, "forrige periode");
+  });
+
+  test("mangler året før, er svaret null og ikke en sammenligning med noget andet", () => {
+    assert.equal(sammenlignAaretFoer([m(2026, 8, 499_636), m(2026, 7, 490_300)], "MONTHLY", "mio_dkk"), null);
+  });
+
+  test("selvtjekket godtager ændringen år/år", () => {
+    const post: TalPost = {
+      type: "tal", id: "pulse:x", kilde: "pulse", navn: "Salg", enhed: "mio. kr.", saeson: "korrigeret", url: "", periode: "august 2026",
+      vaerdi: 499_636, vaerdiTekst: "499.636", sammenligning: null, forloeb: [], tendens: null, foersteGangSet: "2026-10-09T00:00:00Z",
+      sammenligningAar: sammenlignAaretFoer(salg, "MONTHLY", "mio_dkk")!,
+    };
+    assert.ok(tilladteTal(post).includes(6.3));
+    assert.ok(tilladteTal(post).includes(469_986));
   });
 });

@@ -61,8 +61,8 @@ export function tilladteTal(post: Post): number[] {
       tal.push(f.vaerdi);
       fraTekst(f.periode);
     }
-    if (post.sammenligning) {
-      const s = post.sammenligning;
+    for (const s of [post.sammenligning, post.sammenligningAar]) {
+      if (!s) continue;
       tal.push(s.aendring);
       if (s.vaerdi !== null) tal.push(s.vaerdi);
       fraTekst(s.periode);

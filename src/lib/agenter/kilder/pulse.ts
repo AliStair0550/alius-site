@@ -82,7 +82,34 @@ export function sammenlign(
     mod = punkter.find((p) => p.period.getTime() === maal);
   }
   if (!mod) return null;
+  return beregn(nyeste, mod, slags, frekvens, e);
+}
 
+/**
+ * Altid samme periode året før, også for en sæsonkorrigeret serie.
+ *
+ * Til serier hvor året er det der betyder noget, fx firmaernes salg:
+ * "1,9 procent mere end juli" siger mindre end "6,3 procent mere end
+ * august sidste år". Kommer OVENI den almindelige sammenligning, ikke i
+ * stedet for. Mangler perioden året før, er svaret null, og kalderen
+ * skal sige det.
+ */
+export function sammenlignAaretFoer(punkter: Punkt[], frekvens: string, enhedsnavn: string): Sammenligning | null {
+  if (punkter.length < 2 || frekvens === "DAILY") return null;
+  const [nyeste] = punkter;
+  const maal = aaretFoer(nyeste.period);
+  const mod = punkter.find((p) => p.period.getTime() === maal);
+  if (!mod) return null;
+  return beregn(nyeste, mod, "samme periode året før", frekvens, enhed(enhedsnavn));
+}
+
+function beregn(
+  nyeste: Punkt,
+  mod: Punkt,
+  slags: Sammenligning["slags"],
+  frekvens: string,
+  e: ReturnType<typeof enhed>
+): Sammenligning | null {
   const forskel = nyeste.value - mod.value;
   let aendring: number;
   let aendringEnhed: string;
@@ -160,7 +187,7 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
     id: "pulse",
     // 2: feltet tendens, og konkursserien er sæsonkorrigeret (C1).
     // 3: usædvanlighed fra Pulses rangliste.
-    version: 3,
+    version: 4,
     navn: "Pulse (Danmarks Statistik, Energinet, Eurostat)",
     beskrivelse:
       "Danske nøgletal som Pulse henter dagligt og tjekker for enhed og størrelsesorden: forbrugerpriser, " +
@@ -209,6 +236,14 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
         // er en fejl i basen, ikke en tom tilstand.
         if (!foerst) throw new Error(`${s.id}: nyeste periode har ingen retrieved_at`);
         const sml = sammenlign(punkter, serie.frequency, s.saeson, serie.unit);
+        // Året før oveni, når serien beder om det og ikke allerede har det.
+        const smlAar =
+          s.ogsaaAaretFoer && sml?.slags !== "samme periode året før"
+            ? sammenlignAaretFoer(punkter, serie.frequency, serie.unit)
+            : null;
+        if (s.ogsaaAaretFoer && sml?.slags !== "samme periode året før" && !smlAar) {
+          mangler.push(`${s.id}: samme periode året før findes ikke i Pulse, så kun forrige periode er med`);
+        }
         const e = enhed(serie.unit);
         const visForloeb = sml?.slags !== "samme periode året før";
         poster.push({
@@ -223,6 +258,7 @@ export function pulseKilde(prisma: PrismaClient, serier: FinnSerie[]): Kilde {
           vaerdi: nyeste.value,
           vaerdiTekst: daTal(nyeste.value, e.decimaler),
           sammenligning: sml,
+          ...(smlAar ? { sammenligningAar: smlAar } : {}),
           forloeb: visForloeb
             ? punkter.slice(0, 4).map((p) => ({ periode: periodeTekst(p.period, serie.frequency), vaerdi: p.value }))
             : [],

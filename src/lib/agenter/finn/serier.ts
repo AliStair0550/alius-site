@@ -29,6 +29,11 @@ export type FinnSerie = {
   saeson: Saeson;
   /** Sættes kun når Pulses navn ikke dækker det tallet faktisk er. */
   navn?: string;
+  /**
+   * Sammenlign også med samme periode året før, oveni forrige periode.
+   * For serier hvor året er det der betyder noget, fx omsætning.
+   */
+  ogsaaAaretFoer?: true;
 };
 
 export const FINN_SERIER: FinnSerie[] = [
@@ -43,15 +48,15 @@ export const FINN_SERIER: FinnSerie[] = [
 
   // Virksomheder. Firmaernes salg er hentet med FIKS11's SÆSON-filter og
   // er i løbende priser; det står i navnet, så Finn ikke kan glemme det.
-  { id: "dst.omsaetning.erhverv.ekskl_energi", omraade: "DK", saeson: "korrigeret", navn: "Firmaernes salg i alt eksklusive energi, løbende priser" },
-  { id: "dst.omsaetning.erhverv.indenlandsk", omraade: "DK", saeson: "korrigeret", navn: "Firmaernes indenlandske salg, løbende priser" },
-  { id: "dst.omsaetning.industri", omraade: "DK", saeson: "korrigeret", navn: "Salg i industrien, løbende priser" },
-  { id: "dst.omsaetning.byggeri", omraade: "DK", saeson: "korrigeret", navn: "Salg i bygge og anlæg, løbende priser" },
-  { id: "dst.omsaetning.handel", omraade: "DK", saeson: "korrigeret", navn: "Salg i handel, løbende priser" },
-  { id: "dst.omsaetning.transport", omraade: "DK", saeson: "korrigeret", navn: "Salg i transport, løbende priser" },
-  { id: "dst.omsaetning.hoteller_restauranter", omraade: "DK", saeson: "korrigeret", navn: "Salg i hoteller og restauranter, løbende priser" },
-  { id: "dst.omsaetning.information", omraade: "DK", saeson: "korrigeret", navn: "Salg i information og kommunikation, løbende priser" },
-  { id: "dst.omsaetning.erhvervsservice", omraade: "DK", saeson: "korrigeret", navn: "Salg i erhvervsservice, løbende priser" },
+  { id: "dst.omsaetning.erhverv.ekskl_energi", omraade: "DK", saeson: "korrigeret", navn: "Firmaernes salg i alt eksklusive energi, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.erhverv.indenlandsk", omraade: "DK", saeson: "korrigeret", navn: "Firmaernes indenlandske salg, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.industri", omraade: "DK", saeson: "korrigeret", navn: "Salg i industrien, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.byggeri", omraade: "DK", saeson: "korrigeret", navn: "Salg i bygge og anlæg, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.handel", omraade: "DK", saeson: "korrigeret", navn: "Salg i handel, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.transport", omraade: "DK", saeson: "korrigeret", navn: "Salg i transport, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.hoteller_restauranter", omraade: "DK", saeson: "korrigeret", navn: "Salg i hoteller og restauranter, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.information", omraade: "DK", saeson: "korrigeret", navn: "Salg i information og kommunikation, løbende priser", ogsaaAaretFoer: true },
+  { id: "dst.omsaetning.erhvervsservice", omraade: "DK", saeson: "korrigeret", navn: "Salg i erhvervsservice, løbende priser", ogsaaAaretFoer: true },
   { id: "dst.konkurs.total", omraade: "DK", saeson: "korrigeret" },
   { id: "dst.distress.tvangsauktion", omraade: "DK", saeson: "ikke korrigeret" },
   { id: "dst.konjunktur.tillid.samlet", omraade: "DK", saeson: "ukendt" },

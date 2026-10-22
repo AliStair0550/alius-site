@@ -175,7 +175,11 @@ export function bygNyt(poster: Post[], nu: Date): NytTal[] {
       omraade: omraadeFor(p.id),
       vaerdi: vis(p),
       periode: p.periode,
-      aendring: p.sammenligning ? `${p.sammenligning.aendringTekst} mod ${p.sammenligning.slags}` : null,
+      // Året før først, når serien har det: det er det der betyder noget for omsætning.
+      aendring: (() => {
+        const s = p.sammenligningAar ?? p.sammenligning;
+        return s ? `${s.aendringTekst} mod ${s.slags}` : null;
+      })(),
       url: p.url,
     }));
 }

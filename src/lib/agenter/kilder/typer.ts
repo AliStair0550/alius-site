@@ -38,6 +38,11 @@ export type TalPost = {
   vaerdi: number;
   vaerdiTekst: string;
   sammenligning: Sammenligning | null;
+  /**
+   * Samme periode året før, OVENI sammenligning. Kun for serier der beder
+   * om det (FinnSerie.ogsaaAaretFoer), fx firmaernes salg.
+   */
+  sammenligningAar?: Sammenligning;
   /** De seneste værdier, nyeste først. */
   forloeb: { periode: string; vaerdi: number }[];
   /**
