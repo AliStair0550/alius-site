@@ -187,6 +187,7 @@ Skrivning sker i GitHub Actions:
 | `sync-series.yml` | dagligt 02 UTC | nye observationer, vindue bagud, og alle kilder i den gamle model |
 | `backfill.yml` | i hånden | hele historikken for udvalgte serier |
 | `agent-finn.yml` | dagligt 06 dansk tid | Finn Finans skriver dagens brief, se `docs/agenter.md` |
+| `regnskaber.yml` | i hånden | børsnoterede selskabers regnskaber fra en given dato; det daglige vindue på 45 dage er et trin i `sync-series.yml`. Se `config/selskaber.ts` |
 
 Det månedlige `sync-dst.yml` blev fjernet 20. oktober 2026. Det hentede
 den gamle model den 25., uanset hvornår DST publicerede, så inflationen
