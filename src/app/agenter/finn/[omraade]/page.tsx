@@ -4,7 +4,8 @@ import { pageMetadata } from "@/lib/page-metadata";
 import FinnRum from "@/components/agenter/FinnRum";
 import OmraadeVisning from "@/components/agenter/OmraadeVisning";
 import { hentBrief } from "@/lib/agenter/laes";
-import { hentOmraadeTal, hentRegnskabsoversigt } from "@/lib/agenter/omraade-data";
+import { hentOmraadeTal, hentRegnskabskalender, hentRegnskabsoversigt } from "@/lib/agenter/omraade-data";
+import { danskDag } from "@/lib/agenter/finn/pipeline";
 import { OMRAADER, omraade } from "@/lib/agenter/finn/omraader";
 
 // Områdesiderne. Kun de syv områder findes; alt andet er 404. Datoer
@@ -34,14 +35,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function OmraadeSide({ params }: Props) {
   const o = omraade((await params).omraade);
   if (!o) notFound();
-  const [brief, tal, regnskaber] = await Promise.all([
+  const erVirksomheder = o.noegle === "virksomheder";
+  const [brief, tal, regnskaber, kalendere] = await Promise.all([
     hentBrief("finn", null),
     hentOmraadeTal(o.noegle),
-    o.noegle === "virksomheder" ? hentRegnskabsoversigt() : Promise.resolve(undefined),
+    erVirksomheder ? hentRegnskabsoversigt() : Promise.resolve(undefined),
+    // Nasdaq er udokumenteret; svarer den ikke, siger siden det i stedet for at fejle.
+    erVirksomheder
+      ? hentRegnskabskalender().catch((e: Error) => {
+          console.error("Regnskabskalenderen:", e.message);
+          return null;
+        })
+      : Promise.resolve(undefined),
   ]);
   return (
     <FinnRum undertitel={o.navn} tilbage={{ href: "/agenter/finn", tekst: "Finn" }}>
-      <OmraadeVisning o={o} analyse={brief?.analyse ?? null} briefDato={brief?.dato ?? null} caveats={brief?.caveats ?? []} tal={tal} regnskaber={regnskaber} />
+      <OmraadeVisning o={o} analyse={brief?.analyse ?? null} briefDato={brief?.dato ?? null} caveats={brief?.caveats ?? []} tal={tal} regnskaber={regnskaber} kalendere={kalendere} idag={danskDag(new Date())} />
     </FinnRum>
   );
 }

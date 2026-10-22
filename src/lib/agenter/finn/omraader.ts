@@ -65,7 +65,7 @@ export const OMRAADER: Omraade[] = [
       "eurostat.de.tillid.industri",
     ],
     // Børsnoterede selskabers regnskaber, se kilder/regnskaber.ts.
-    andreKilder: ["regnskab"],
+    andreKilder: ["regnskab", "kalender"],
   },
   {
     noegle: "bolig",

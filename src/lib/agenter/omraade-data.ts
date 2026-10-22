@@ -17,6 +17,7 @@ import { FINN_SERIER } from "./finn/serier";
 import { AGENTER_TAG } from "./laes";
 import { SELSKABER } from "../../../config/selskaber";
 import { senesteUdsnit, type Raekke, type Regnskabsudsnit } from "./kilder/regnskaber";
+import { hentKalendere } from "../regnskaber/nasdaq-kalender";
 
 export type OmraadeSerie = {
   id: string;
@@ -115,3 +116,6 @@ async function laesRegnskaber(): Promise<RegnskabsLinje[]> {
 }
 
 export const hentRegnskabsoversigt = unstable_cache(laesRegnskaber, ["agenter-regnskabsoversigt"], { tags: [AGENTER_TAG], revalidate: 6 * 3600 });
+
+/** Selskabernes finanskalendere fra Nasdaq. Caches 12 timer; de ændrer sig sjældent. */
+export const hentRegnskabskalender = unstable_cache(async () => hentKalendere(), ["agenter-regnskabskalender"], { tags: [AGENTER_TAG], revalidate: 12 * 3600 });

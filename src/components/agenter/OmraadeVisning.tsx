@@ -5,6 +5,8 @@ import type { Analyse } from "@/lib/agenter/finn/analyse";
 import { OMRAADER, type Omraade } from "@/lib/agenter/finn/omraader";
 import type { OmraadeSerie, OmraadeTal, RegnskabsLinje } from "@/lib/agenter/omraade-data";
 import RegnskabsOversigt from "@/components/agenter/RegnskabsOversigt";
+import KommendeRegnskaber from "@/components/agenter/KommendeRegnskaber";
+import type { SelskabsKalender } from "@/lib/regnskaber/nasdaq-kalender";
 import SpoergFinn from "@/components/agenter/SpoergFinn";
 import { periodeTekst } from "@/lib/agenter/kilder/pulse";
 import { formatAendring, formatVaerdi } from "@/lib/pulse-enheder";
@@ -21,6 +23,8 @@ export default function OmraadeVisning({
   caveats,
   tal,
   regnskaber,
+  kalendere,
+  idag,
 }: {
   o: Omraade;
   analyse: Analyse | null;
@@ -29,6 +33,9 @@ export default function OmraadeVisning({
   tal: OmraadeTal;
   /** Kun på siden om virksomheder. */
   regnskaber?: RegnskabsLinje[];
+  /** Kun på siden om virksomheder. null når kalenderne ikke kunne hentes. */
+  kalendere?: SelskabsKalender[] | null;
+  idag: string;
 }) {
   const laesning = analyse?.omraader[o.noegle];
   const usaedvanligt = analyse?.usaedvanligt.filter((u) => u.omraade === o.noegle) ?? [];
@@ -134,6 +141,19 @@ export default function OmraadeVisning({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {kalendere !== undefined && (
+        <section aria-labelledby="kalender-titel">
+          <Sektionstitel id="kalender-titel">Kommende regnskaber</Sektionstitel>
+          {kalendere ? (
+            <KommendeRegnskaber kalendere={kalendere} idag={idag} />
+          ) : (
+            <p className="rounded-2xl bg-parchment border border-fog px-5 py-4 font-[300] text-[0.85rem] text-stone">
+              Selskabernes finanskalendere kunne ikke hentes fra Nasdaq lige nu.
+            </p>
+          )}
         </section>
       )}
 

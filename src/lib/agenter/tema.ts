@@ -14,6 +14,7 @@ const REGLER: [RegExp, string][] = [
   [/^dst\.ej56:/, "Boligpriser"],
   [/^(pulse:)?dst\.omsaetning\./, "Omsætning"],
   [/^regnskab:/, "Regnskaber"],
+  [/^kalender:/, "Regnskabskalender"],
   [/pris\.forbruger/, "Inflation"],
   [/pris\.producent/, "Producentpriser"],
   [/ledighed/, "Ledighed"],
