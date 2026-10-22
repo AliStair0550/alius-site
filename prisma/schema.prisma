@@ -491,3 +491,48 @@ model AgentQuestion {
   @@index([ipHash, ts])
   @@map("agent_questions")
 }
+
+// ============================================================
+// Regnskabstal fra børsnoterede selskabers ESEF-regnskaber
+//
+// Kilde: Erhvervsstyrelsens offentlige arkiv. Se src/lib/regnskaber/.
+// Skrives af scripts/sync-regnskaber.ts i GitHub Actions.
+//
+// Samme regel som observations: en værdi opdateres aldrig. Står samme
+// periode med et andet tal i en senere indlevering (selskabet har
+// omarbejdet sine sammenligningstal), tilføjes en ny række, og den gamle
+// får is_current = false.
+//
+// Beløbet står i hele valutaenheder og i selskabets EGEN regnskabsvaluta,
+// som læst fra regnskabet. Det omregnes aldrig her. Valuta og beløb står
+// i samme række, så de ikke kan skilles.
+// ============================================================
+
+model Regnskabstal {
+  id  BigInt @id @default(autoincrement())
+  cvr String
+
+  /// omsaetning | driftsresultat | resultat
+  begreb  String
+  /// IFRS-elementet tallet stod under, fx "Revenue".
+  element String
+
+  periodeStart DateTime @map("periode_start") @db.Date
+  periodeSlut  DateTime @map("periode_slut") @db.Date
+
+  vaerdi Decimal @db.Decimal(20, 2)
+  valuta String  @db.Char(3)
+
+  /// Indleveringen tallet er læst fra.
+  sagsNummer       String   @map("sags_nummer")
+  indleveringSlags String   @map("indlevering_slags")
+  offentliggjort   DateTime @db.Timestamptz(3)
+  kildeUrl         String   @map("kilde_url")
+
+  retrievedAt DateTime @default(now()) @map("retrieved_at") @db.Timestamptz(3)
+  isCurrent   Boolean  @default(true) @map("is_current")
+
+  @@index([cvr, begreb, periodeStart, periodeSlut, isCurrent])
+  @@index([offentliggjort])
+  @@map("regnskabstal")
+}

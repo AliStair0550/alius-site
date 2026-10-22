@@ -1,0 +1,83 @@
+name: Regnskaber (manuelt)
+
+# Henter børsnoterede selskabers regnskaber fra Erhvervsstyrelsen fra en
+# given dato. Til historikken og efter en pause. Det daglige vindue på 45
+# dage kører som et trin i sync-series.yml.
+#
+# Kørslen læser regnskaber der allerede er læst igen uden at skrive dem
+# to gange (sagsnummeret afgør det), så den kan startes igen uden skade.
+#
+# Nødvendige hemmeligheder:
+#   DATABASE_URL   Neon connection string
+
+on:
+  workflow_dispatch:
+    inputs:
+      fra:
+        description: "Offentliggjort fra og med (YYYY-MM-DD)"
+        type: string
+        required: true
+        default: "2024-01-01"
+      cvr:
+        description: "CVR-numre, mellemrumsadskilt. Tomt betyder alle i config/selskaber.ts."
+        type: string
+        required: false
+        default: ""
+      dry_run:
+        description: "Tørløb: læs og kontrollér alt, skriv intet"
+        type: boolean
+        default: false
+
+concurrency:
+  group: sync-series
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  TZ: UTC
+
+jobs:
+  regnskaber:
+    name: Hent regnskaber
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Installér afhængigheder
+        run: npm ci
+
+      - name: Generér Prisma-klient
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Kør testene først
+        run: npm test
+
+      - name: Væk basen
+        run: npx tsx scripts/vaek-basen.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Hent
+        # Inputtene gaar gennem env og ikke ind i kommandolinjen direkte.
+        run: |
+          case "$FRA" in
+            [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;;
+            *) echo "fra skal være YYYY-MM-DD"; exit 1 ;;
+          esac
+          args="--fra=$FRA"
+          if [ "$DRY_RUN" = "true" ]; then args="$args --dry"; fi
+          npx tsx scripts/sync-regnskaber.ts $args $CVR
+        env:
+          FRA: ${{ inputs.fra }}
+          CVR: ${{ inputs.cvr }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

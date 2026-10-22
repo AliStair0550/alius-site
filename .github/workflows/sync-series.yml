@@ -241,6 +241,20 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Regnskaber fra Erhvervsstyrelsen
+        if: ${{ !cancelled() && steps.basen.outcome == 'success' && inputs.series == '' }}
+        # Boersnoterede selskabers kvartals-, halvaars- og aarsregnskaber,
+        # 45 dage bagud efter offentliggoerelse. Fejler et selskab (forkert
+        # skala, ukendt valuta, andet navn), fortsaetter resten, og trinnet
+        # ender som fejlet. Historikken hentes med regnskaber.yml.
+        run: |
+          args=""
+          if [ "$DRY_RUN" = "true" ]; then args="--dry"; fi
+          npx tsx scripts/sync-regnskaber.ts $args
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Bro fra den gamle model
         if: ${{ !cancelled() && steps.basen.outcome == 'success' }}
         # Ni serier fodres stadig af de gamle sync-scripts, som skriver
