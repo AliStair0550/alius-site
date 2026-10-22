@@ -97,7 +97,14 @@ export const SERIES: SeriesDef[] = [
     layer: "LEADING",
     // BYGV88 er DST's egen korrektion for efterindberetninger til BBR.
     revisionPolicy: "MINOR",
-    expectedLagDays: 60,
+    // Månedstal, men udgivet KVARTALSVIS: april til juni kom samlet 14.
+    // august 2026, 45 dage efter kvartalets slutning. Den første måned i
+    // et kvartal venter derfor længst: juli udgives omkring 14. november,
+    // 106 dage efter julis slutning. Med 60 dage slog stale-tjekket alarm
+    // hvert kvartal (22. oktober 2026: 21 dage "forsinket" uden at noget
+    // var galt). 110 giver alarm omkring 20. november, hvis udgivelsen
+    // faktisk udebliver.
+    expectedLagDays: 110,
     attribution: DST("BYGV88"),
     zTransform: "yoy",
     dst: {
@@ -118,7 +125,8 @@ export const SERIES: SeriesDef[] = [
     frequency: "MONTHLY",
     layer: "LEADING",
     revisionPolicy: "MINOR",
-    expectedLagDays: 60,
+    // Kvartalsvis udgivelse, se dst.byg.tilladt.bolig ovenfor.
+    expectedLagDays: 110,
     attribution: DST("BYGV88"),
     zTransform: "yoy",
     dst: {
