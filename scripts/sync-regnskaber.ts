@@ -89,8 +89,8 @@ async function koerSelskab(s: Selskab): Promise<Udfald> {
     sum.konflikter += l.konflikter.length;
 
     const gaeldende: Gaeldende[] = (
-      await withDbRetry(() => prisma.regnskabstal.findMany({ where: { cvr: s.cvr, isCurrent: true }, select: { begreb: true, periodeStart: true, periodeSlut: true, vaerdi: true, valuta: true } }))
-    ).map((r) => ({ begreb: r.begreb, start: dato(r.periodeStart), slut: dato(r.periodeSlut), vaerdi: Number(r.vaerdi), valuta: r.valuta }));
+      await withDbRetry(() => prisma.regnskabstal.findMany({ where: { cvr: s.cvr, isCurrent: true }, select: { begreb: true, periodeStart: true, periodeSlut: true, vaerdi: true, valuta: true, decimaler: true } }))
+    ).map((r) => ({ begreb: r.begreb, start: dato(r.periodeStart), slut: dato(r.periodeSlut), vaerdi: Number(r.vaerdi), valuta: r.valuta, decimaler: r.decimaler }));
     const plan = planlaeg(gaeldende, l.fakta);
     sum.nye += plan.nye.length;
     sum.revideret += plan.revideret.length;
@@ -109,6 +109,7 @@ async function koerSelskab(s: Selskab): Promise<Udfald> {
       periodeSlut: new Date(`${f.slut}T00:00:00Z`),
       vaerdi: f.vaerdi,
       valuta: f.valuta,
+      decimaler: f.decimaler,
       sagsNummer: i.sagsNummer,
       indleveringSlags: i.slags,
       offentliggjort: new Date(i.offentliggjort),

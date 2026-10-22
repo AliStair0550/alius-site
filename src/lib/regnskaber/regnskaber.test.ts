@@ -122,7 +122,7 @@ describe("ESEF: værn mod tal der ser rigtige ud", () => {
 });
 
 describe("ESEF: revision", () => {
-  const f = { begreb: "omsaetning" as const, element: "Revenue", start: "2025-04-01", slut: "2025-06-30", vaerdi: 13132000000, valuta: "USD" as const };
+  const f = { begreb: "omsaetning" as const, element: "Revenue", start: "2025-04-01", slut: "2025-06-30", vaerdi: 13132000000, valuta: "USD" as const, decimaler: -6 };
 
   test("nyt tal skrives, ens tal skrives ikke igen, ændret tal er en revision", () => {
     assert.equal(planlaeg([], [f]).nye.length, 1);
@@ -130,6 +130,16 @@ describe("ESEF: revision", () => {
     const r = planlaeg([{ ...f, vaerdi: 13000000000 }], [f]);
     assert.equal(r.revideret.length, 1);
     assert.equal(r.revideret[0].foer, 13000000000);
+  });
+
+  test("ændret afrunding er ikke en revision, en ægte ændring er", () => {
+    // Zealand Pharma 2. kvartal 2025: 9.088.284.000 i én rapport, 9.088.000.000 (decimals -6) i den næste.
+    const praecis = { ...f, vaerdi: 9_088_284_000, decimaler: 0 };
+    const grov = { ...f, vaerdi: 9_088_000_000, decimaler: -6 };
+    assert.equal(planlaeg([praecis], [grov]).uaendret, 1);
+    assert.equal(planlaeg([grov], [praecis]).uaendret, 1);
+    // GN 1. kvartal 2025 omarbejdet efter et frasalg: 4.729 mio. til 3.708 mio.
+    assert.equal(planlaeg([{ ...f, vaerdi: 4_729_000_000 }], [{ ...f, vaerdi: 3_708_000_000 }]).revideret.length, 1);
   });
 
   test("et valutaskifte er ikke en revision", () => {

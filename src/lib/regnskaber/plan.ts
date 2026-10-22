@@ -81,7 +81,20 @@ export function kontroller(s: Selskab, l: Laest, navnBekraeftet = false): void {
   }
 }
 
-export type Gaeldende = { begreb: string; start: string; slut: string; vaerdi: number; valuta: string };
+export type Gaeldende = { begreb: string; start: string; slut: string; vaerdi: number; valuta: string; decimaler: number | null };
+
+/**
+ * Er to tal det samme, givet hvor præcist hvert er angivet. Selskaberne
+ * skifter præcision fra fil til fil: Zealand Pharmas 2. kvartal 2025 stod
+ * som 9.088.284.000 kr. i én rapport og 9.088.000.000 kr. i den næste.
+ * Det er ikke en revision. Første kørsel 22/10 2026 skrev det som én, og
+ * et præcist tal blev erstattet af et groft.
+ */
+export function sammeTal(a: { vaerdi: number; decimaler: number | null }, b: { vaerdi: number; decimaler: number | null }): boolean {
+  const groveste = Math.min(a.decimaler ?? Infinity, b.decimaler ?? Infinity);
+  const tolerance = Number.isFinite(groveste) ? 0.5 * 10 ** -groveste : 0.5;
+  return Math.abs(a.vaerdi - b.vaerdi) <= tolerance + 1e-9;
+}
 
 export type Plan = {
   nye: Fakta[];
@@ -108,7 +121,7 @@ export function planlaeg(gaeldende: Gaeldende[], fakta: Fakta[]): Plan {
     if (g.valuta !== f.valuta) {
       throw new Error(`${f.begreb} ${f.start}..${f.slut}: stod i ${g.valuta}, står nu i ${f.valuta}. Et valutaskifte skrives ikke som en revision.`);
     }
-    if (Math.abs(g.vaerdi - f.vaerdi) < 0.5) plan.uaendret++;
+    if (sammeTal(g, f)) plan.uaendret++;
     else plan.revideret.push({ fakta: f, foer: g.vaerdi });
   }
   return plan;

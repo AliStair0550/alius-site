@@ -520,8 +520,11 @@ model Regnskabstal {
   periodeStart DateTime @map("periode_start") @db.Date
   periodeSlut  DateTime @map("periode_slut") @db.Date
 
-  vaerdi Decimal @db.Decimal(20, 2)
-  valuta String  @db.Char(3)
+  vaerdi    Decimal @db.Decimal(20, 2)
+  valuta    String  @db.Char(3)
+  /// XBRL's decimals: -6 er rundet til millioner. Null er eksakt.
+  /// Bruges til at skelne en revision fra en ændret afrunding.
+  decimaler Int?
 
   /// Indleveringen tallet er læst fra.
   sagsNummer       String   @map("sags_nummer")

@@ -37,6 +37,8 @@ export type Fakta = {
   slut: string; // YYYY-MM-DD
   vaerdi: number; // i hele valutaenheder, som indleveret
   valuta: Valuta;
+  /** XBRL's decimals: -6 er rundet til millioner. null er eksakt (INF eller ikke angivet). */
+  decimaler: number | null;
 };
 
 export type Laest = {
@@ -163,11 +165,12 @@ export function laesEsef(xml: string): Laest {
               set.set(noegle, { vaerdi, decimaler });
               const f = fakta.find((x) => `${x.begreb}|${x.element}|${x.start}|${x.slut}|${x.valuta}` === noegle)!;
               f.vaerdi = vaerdi;
+              f.decimaler = Number.isFinite(decimaler) ? decimaler : null;
             }
             continue;
           }
           set.set(noegle, { vaerdi, decimaler });
-          fakta.push({ begreb, element: el, start: k.start, slut: k.slut, vaerdi, valuta: iso as Valuta });
+          fakta.push({ begreb, element: el, start: k.start, slut: k.slut, vaerdi, valuta: iso as Valuta, decimaler: Number.isFinite(decimaler) ? decimaler : null });
         }
       }
     }
