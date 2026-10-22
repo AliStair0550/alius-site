@@ -45,6 +45,7 @@ import {
   bygNyt,
   bygOverblik,
   bygUsaedvanligt,
+  vaelgOmraade,
   kildeRef,
   type Afsnit,
   type Analyse,
@@ -69,6 +70,7 @@ export type TraceTrin = {
     | "rangeret"
     | "beregnet"
     | "medietema"
+    | "omraadevalg"
     | "skriver"
     | "punkt"
     | "fjernet"
@@ -126,7 +128,6 @@ const TemaSkema = z.object({
 const AfsnitSkema = z.object({ tekst: z.string(), kilder: z.array(z.string()) });
 
 const AnalyseSkema = z.object({
-  omraade: z.string(),
   overskrift: z.string(),
   tese: z.string(),
   hvadTalleneSiger: z.array(AfsnitSkema),
@@ -366,7 +367,27 @@ export async function koerFinn(opt: {
       return new Map(regel.data.vurderinger.filter((v) => v.brud).map((v) => [v.nummer, v.hvilken]));
     };
 
-    // 6. Dagens analyse (Sonnet). Ét område, valgt ud fra hvad der har bevæget sig.
+    // 6. Dagens analyse (Sonnet) om ét område. Området vælges i kode, se
+    // vaelgOmraade(); modellen får det at vide og vælger ikke selv.
+    const erDaglig = (id: string) => {
+      const p = efterId.get(id);
+      return !!p && p.type === "tal" && (/\d{1,2}\. [a-zæøå]+ \d{4}/.test(p.periode) || id.startsWith("eds.timer"));
+    };
+    const valg = vaelgOmraade({
+      muligeOmraader: OMRAADER.filter((o) => tal.some((p) => postIOmraade(p.id, o))).map((o) => o.noegle),
+      nyt: analyse.nyt,
+      usaedvanligt: analyse.usaedvanligt,
+      medier: temaer,
+      seneste: tidligere.map((b) => (b.analysis as Analyse | null)?.dagens?.omraade).filter((x): x is OmraadeNoegle => !!x),
+      erDaglig,
+    });
+    const valgtOmraade = OMRAADER.find((o) => o.noegle === valg.valgt)!;
+    log({
+      type: "omraadevalg",
+      titel: valgtOmraade.navn,
+      data: { valgt: valg.valgt, point: valg.point },
+    });
+
     const signaler =
       `USÆDVANLIGT MOD TI ÅR\n${analyse.usaedvanligt.map((u) => `${u.id} | ${u.navn} | ${u.tekst}`).join("\n") || "Intet i dag."}\n\n` +
       `NYT INDEN FOR 48 TIMER\n${analyse.nyt.map((n) => `${n.id} | ${n.navn} | ${n.periode}`).join("\n") || "Intet i dag."}\n\n` +
@@ -379,9 +400,9 @@ export async function koerFinn(opt: {
         model: MODEL_SKRIV,
         system: finnSystem(kilder),
         bruger:
-          `Dato: ${dag}.\n\nSkriv dagens analyse. Vælg ÉT område blandt ${OMRAADE_NOEGLER.join(", ")}, ud fra hvad ` +
-          `der faktisk har bevæget sig: usædvanlige tal, nye udgivelser og dagens medietemaer. Vælg helst ikke samme ` +
-          `område som i går, medmindre noget nyt er sket der.\n` +
+          `Dato: ${dag}.\n\nSkriv dagens analyse om området ${valgtOmraade.navn} (${valgtOmraade.beskrivelse}). Området er ` +
+          `valgt ud fra hvad der har bevæget sig: ${valg.point.find((x) => x.omraade === valg.valgt)!.grunde.join(", ") || "intet område skilte sig ud i dag"}. ` +
+          `Analysen handler om dette område. Tal fra andre områder må kun bruges som forklaring, og kun hvis de står i data.\n` +
           `- "overskrift": højst ti ord, siger hvad der sker.\n` +
           `- "tese": én til to sætninger med analysens pointe.\n` +
           `- "hvadTalleneSiger": 2 til 4 afsnit, hver 1 til 3 sætninger, hver med de id'er i "kilder" den bygger på. ` +
@@ -403,8 +424,7 @@ export async function koerFinn(opt: {
       });
       const d = s.data;
       const fjernede: string[] = [];
-      const omr = (OMRAADE_NOEGLER as string[]).includes(d.omraade) ? (d.omraade as OmraadeNoegle) : null;
-      if (!omr) return { dagens: null, medier: [] as Medietema[], fjernede: [`området "${d.omraade}" findes ikke`], forbehold: [] };
+      const omr = valg.valgt;
 
       const overskrift = rensSprog(d.overskrift);
       const regelTekster = [

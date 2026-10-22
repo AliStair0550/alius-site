@@ -28,6 +28,8 @@ function beskriv(t: TraceTrin): string {
       return `Beholdt, ${t.beslutning}: ${t.titel}`;
     case "beregnet":
       return "Regner overblik, elpris time for time, det usædvanlige og nye tal ud i kode.";
+    case "omraadevalg":
+      return `Dagens område: ${t.titel}.`;
     case "medietema":
       return `Medietema: ${t.titel}`;
     case "skriver":

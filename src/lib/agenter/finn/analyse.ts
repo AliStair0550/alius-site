@@ -202,3 +202,68 @@ export function analyseSomTekst(a: Analyse): string {
   for (const m of a.medier) if (m.kommentar) linjer.push(`Medietema ${m.titel}: ${m.kommentar.tekst}`);
   return linjer.join("\n");
 }
+
+export type Omraadevalg = {
+  valgt: OmraadeNoegle;
+  /** Point per område, til tracen og replay. */
+  point: { omraade: OmraadeNoegle; point: number; grunde: string[] }[];
+};
+
+/**
+ * Vælger dagens område. I kode, ikke i prompten.
+ *
+ * Indtil 22. oktober 2026 valgte Sonnet selv, med besked om at undgå
+ * gårsdagens område. Den valgte energi to dage i træk: elprisen er ny
+ * hver dag og ligger højt hele året, så den vinder altid et valg der
+ * belønner det nye og det usædvanlige. En instruks i en prompt er et
+ * ønske; en regel i kode holder.
+ *
+ * Point:
+ *   3 per tal udgivet de seneste 48 timer (dagens elpris tæller ikke, se bygNyt)
+ *   |z| op til 3 per usædvanligt tal; daglige noteringer tæller det halve,
+ *     fordi de er usædvanlige hver dag i en periode og ellers låser valget
+ *   1 per medietema i området
+ *   -100 hvis området var dagens analyse i går, -4 hvis i forgårs
+ * Kun områder med tal i dag kan vælges. Lige point afgøres af rækkefølgen
+ * i OMRAADER, så valget er det samme hver gang med samme input.
+ */
+export function vaelgOmraade(input: {
+  muligeOmraader: OmraadeNoegle[];
+  nyt: NytTal[];
+  usaedvanligt: Usaedvanligt[];
+  medier: { omraade: OmraadeNoegle | null }[];
+  /** Dagens analyses område de seneste dage, nyeste først. */
+  seneste: OmraadeNoegle[];
+  erDaglig: (id: string) => boolean;
+}): Omraadevalg {
+  const point = OMRAADER.filter((o) => input.muligeOmraader.includes(o.noegle)).map((o) => {
+    const grunde: string[] = [];
+    let p = 0;
+    const nyt = input.nyt.filter((n) => n.omraade === o.noegle);
+    if (nyt.length) {
+      p += 3 * nyt.length;
+      grunde.push(`${nyt.length} nye tal`);
+    }
+    for (const u of input.usaedvanligt.filter((x) => x.omraade === o.noegle)) {
+      const v = Math.min(Math.abs(u.z), 3) * (input.erDaglig(u.id) ? 0.5 : 1);
+      p += v;
+      grunde.push(`usædvanligt: ${u.navn} (${Math.round(v * 10) / 10})`);
+    }
+    const m = input.medier.filter((x) => x.omraade === o.noegle).length;
+    if (m) {
+      p += m;
+      grunde.push(`${m} medietemaer`);
+    }
+    if (input.seneste[0] === o.noegle) {
+      p -= 100;
+      grunde.push("dagens analyse i går");
+    } else if (input.seneste[1] === o.noegle) {
+      p -= 4;
+      grunde.push("dagens analyse i forgårs");
+    }
+    return { omraade: o.noegle, point: Math.round(p * 10) / 10, grunde };
+  });
+  if (point.length === 0) throw new Error("Intet område har tal i dag. Dagens analyse kan ikke skrives.");
+  const valgt = point.reduce((a, b) => (b.point > a.point ? b : a)).omraade;
+  return { valgt, point };
+}
