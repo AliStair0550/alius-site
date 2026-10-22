@@ -5,6 +5,7 @@ import type { Analyse } from "@/lib/agenter/finn/analyse";
 import { OMRAADER, type Omraade } from "@/lib/agenter/finn/omraader";
 import type { OmraadeSerie, OmraadeTal, RegnskabsLinje } from "@/lib/agenter/omraade-data";
 import RegnskabsOversigt from "@/components/agenter/RegnskabsOversigt";
+import SpoergFinn from "@/components/agenter/SpoergFinn";
 import { periodeTekst } from "@/lib/agenter/kilder/pulse";
 import { formatAendring, formatVaerdi } from "@/lib/pulse-enheder";
 import { langDato } from "@/lib/agenter/dato";
@@ -57,6 +58,17 @@ export default function OmraadeVisning({
           ))}
         </nav>
       </header>
+
+      {analyse && (
+        <SpoergFinn
+          omraade={{ noegle: o.noegle, navn: o.navn }}
+          forslag={[
+            ...(laesning ? [`Hvad betyder "${laesning.overskrift}" for mig?`] : []),
+            ...(o.noegle === "energi" && analyse.elpris.length ? ["Hvornår er strømmen billigst i dag?"] : []),
+            `Hvad er det vigtigste tal i ${o.navn.toLowerCase()} lige nu?`,
+          ]}
+        />
+      )}
 
       {analyse?.dagens?.omraade === o.noegle && (
         <section aria-labelledby="dagens-titel">

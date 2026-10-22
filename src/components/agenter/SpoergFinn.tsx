@@ -17,7 +17,14 @@ type Udveksling = { spoergsmaal: string; svar: Svar | null };
 
 const MAKS = 300;
 
-export default function SpoergFinn({ forslag }: { forslag: string[] }) {
+export default function SpoergFinn({
+  forslag,
+  omraade,
+}: {
+  forslag: string[];
+  /** På en områdeside: Finn svarer kun ud fra områdets data. */
+  omraade?: { noegle: string; navn: string };
+}) {
   const [tekst, setTekst] = useState("");
   const [samtale, setSamtale] = useState<Udveksling[]>([]);
   const [tilbage, setTilbage] = useState<number | null>(null);
@@ -34,7 +41,7 @@ export default function SpoergFinn({ forslag }: { forslag: string[] }) {
       const res = await fetch("/api/agenter/finn/spoerg", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ spoergsmaal: s }),
+        body: JSON.stringify({ spoergsmaal: s, ...(omraade ? { omraade: omraade.noegle } : {}) }),
       });
       svar = (await res.json()) as Svar;
     } catch {
@@ -50,9 +57,15 @@ export default function SpoergFinn({ forslag }: { forslag: string[] }) {
       <div className="flex items-center gap-3 mb-5">
         <FinnAvatar size={48} />
         <div>
-          <h1 id="spoerg-titel" className="font-[300] text-[1.35rem] sm:text-[1.6rem] text-ink leading-[1.15] tracking-[-0.01em]">
-            Spørg Finn om økonomien
-          </h1>
+          {omraade ? (
+            <h2 id="spoerg-titel" className="font-[300] text-[1.2rem] sm:text-[1.4rem] text-ink leading-[1.15] tracking-[-0.01em]">
+              Spørg Finn om {omraade.navn.toLowerCase()}
+            </h2>
+          ) : (
+            <h1 id="spoerg-titel" className="font-[300] text-[1.35rem] sm:text-[1.6rem] text-ink leading-[1.15] tracking-[-0.01em]">
+              Spørg Finn om økonomien
+            </h1>
+          )}
           <p className="font-[300] text-[0.82rem] text-stone leading-[1.5]">
             Han svarer ud fra dagens tal og kilder. Ingen investeringsråd.
           </p>

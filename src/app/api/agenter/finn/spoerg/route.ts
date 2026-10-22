@@ -1,5 +1,5 @@
 // ============================================================
-// POST /api/agenter/finn/spoerg  { spoergsmaal: string }
+// POST /api/agenter/finn/spoerg  { spoergsmaal: string, omraade?: string }
 //
 // Spørg Finn. Al logik og alle grænser i src/lib/agenter/finn/spoerg.ts.
 // Ruten finder den besøgendes hash og afleverer.
@@ -23,9 +23,11 @@ export async function POST(req: Request) {
   }
 
   let spoergsmaal = "";
+  let omraade: string | null = null;
   try {
-    const krop = (await req.json()) as { spoergsmaal?: unknown };
+    const krop = (await req.json()) as { spoergsmaal?: unknown; omraade?: unknown };
     spoergsmaal = typeof krop.spoergsmaal === "string" ? krop.spoergsmaal : "";
+    omraade = typeof krop.omraade === "string" ? krop.omraade : null;
   } catch {
     // Et tomt eller ulæseligt spørgsmål afvises af spoergFinn som ugyldigt.
   }
@@ -36,7 +38,7 @@ export async function POST(req: Request) {
 
   let svar;
   try {
-    svar = await spoergFinn({ prisma, klient: nyKlient(), cfg: laesBudgetConfig(), spoergsmaal, ipHash });
+    svar = await spoergFinn({ prisma, klient: nyKlient(), cfg: laesBudgetConfig(), spoergsmaal, ipHash, omraade });
   } catch (e) {
     console.error("Spørg Finn:", (e as Error).message);
     return NextResponse.json({ status: "fejl", tekst: "Finn kunne ikke svare lige nu. Prøv igen om lidt.", kilder: [], tilbage: -1 }, { status: 500 });

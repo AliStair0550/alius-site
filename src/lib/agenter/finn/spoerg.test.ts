@@ -64,6 +64,25 @@ const spoerg = (f: ReturnType<typeof falsk>, spoergsmaal = "Hvad er inflationen?
   spoergFinn({ prisma: f.prisma, klient: f.klient, cfg: CFG, spoergsmaal, ipHash: "h" });
 
 describe("Spørg Finn", () => {
+  test("på en områdeside: et ukendt område afvises før noget kald", async () => {
+    const f = falsk();
+    const r = await spoergFinn({ prisma: f.prisma, klient: f.klient, cfg: CFG, spoergsmaal: "Hvad er inflationen?", ipHash: "h", omraade: "kaffe" });
+    assert.equal(r.status, "ugyldig");
+    assert.equal(f.kald(), 0);
+  });
+
+  test("på siden om energi er inflationen ikke i dataene, så et svar om den kan ikke spores", async () => {
+    const f = falsk();
+    const r = await spoergFinn({ prisma: f.prisma, klient: f.klient, cfg: CFG, spoergsmaal: "Hvad er inflationen?", ipHash: "h", omraade: "energi" });
+    assert.equal(r.status, "ikke_sporbar", "kilderne afgrænses, ikke kun prompten");
+  });
+
+  test("på siden om priser er inflationen i dataene og svaret holder", async () => {
+    const f = falsk();
+    const r = await spoergFinn({ prisma: f.prisma, klient: f.klient, cfg: CFG, spoergsmaal: "Hvad er inflationen?", ipHash: "h", omraade: "priser" });
+    assert.equal(r.status, "svaret");
+  });
+
   test("et sporbart svar gives med kilde og gemmes som svaret", async () => {
     const f = falsk();
     const r = await spoerg(f);
