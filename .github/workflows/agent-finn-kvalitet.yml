@@ -1,0 +1,74 @@
+name: Finn Finans, kvalitetstjek (ugentligt)
+
+# Hver mandag efter morgenens analyse: målinger i kode og Sonnets
+# vurdering af hvert afsnit mod dagens data. Rapporten gemmes i
+# quality_reports, og Vercel sender den som mail. Se
+# scripts/finn-kvalitet.ts og docs/agenter.md.
+#
+# Koster cirka $0,05 per analyse, altså omkring $0,35 om ugen, gennem
+# samme budgetloft som Finn.
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      dage:
+        description: "Antal dage bagud, til og med i dag"
+        type: string
+        default: "7"
+
+permissions:
+  contents: read
+
+# Samme gruppe som Finn: aldrig to kald mod budgettet på én gang.
+concurrency:
+  group: agenter
+  cancel-in-progress: false
+
+env:
+  TZ: UTC
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  kvalitet:
+    name: Kvalitetstjek
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Installér afhængigheder
+        run: npm ci
+
+      - name: Generér Prisma-klient
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Kør testene først
+        run: npm test
+
+      - name: Væk basen
+        run: npx tsx scripts/vaek-basen.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Kvalitetstjek
+        run: |
+          case "$DAGE" in ''|*[!0-9]*) echo "dage skal være et tal"; exit 1 ;; esac
+          npx tsx scripts/finn-kvalitet.ts --dage=$DAGE
+        env:
+          DAGE: ${{ inputs.dage || '7' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          AGENTS_BUDGET_DAILY_USD: ${{ vars.AGENTS_BUDGET_DAILY_USD }}
+          AGENTS_BUDGET_MONTHLY_USD: ${{ vars.AGENTS_BUDGET_MONTHLY_USD }}
+          AGENTS_BUDGET_RESET_DAY: ${{ vars.AGENTS_BUDGET_RESET_DAY }}
+          SITE_URL: https://alius.dk

@@ -539,3 +539,29 @@ model Regnskabstal {
   @@index([offentliggjort])
   @@map("regnskabstal")
 }
+
+// ============================================================
+// Ugentligt kvalitetstjek af Finns analyser
+//
+// Skrives af scripts/finn-kvalitet.ts i GitHub Actions hver mandag.
+// `maalinger` er regnet i kode (fjernede afsnit, gentagne områder,
+// temaer uden kommentar, pris). `vurderinger` er Sonnets vurdering af
+// hvert afsnit mod dagens data: en vurdering, ikke en facitliste.
+// Mailen sendes fra Vercel (/api/agenter/kvalitet), som har mailnøglen.
+// ============================================================
+
+model QualityReport {
+  id        String   @id @default(cuid())
+  agentId   String   @map("agent_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  periodeFra DateTime @map("periode_fra") @db.Date
+  periodeTil DateTime @map("periode_til") @db.Date
+
+  maalinger   Json
+  vurderinger Json
+  costUsd     Decimal @default(0) @map("cost_usd") @db.Decimal(10, 6)
+
+  @@index([agentId, createdAt])
+  @@map("quality_reports")
+}

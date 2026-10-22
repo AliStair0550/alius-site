@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Glid from "@/components/agenter/Glid";
-import type { Afsnit, Analyse, DagensAnalyse, ElprisDag } from "@/lib/agenter/finn/analyse";
+import type { Afsnit, Analyse, DagensAnalyse, ElprisDag, Medietema } from "@/lib/agenter/finn/analyse";
 import { OMRAADER, omraade, type OmraadeNoegle } from "@/lib/agenter/finn/omraader";
 
 // Finns analyseudgave, fra 22. oktober 2026. Rækkefølgen er fast, men
@@ -131,7 +131,7 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
                   <article className="h-full flex flex-col rounded-2xl bg-parchment border border-fog p-5">
                     <div className="font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss mb-2">{navn(m.omraade)}</div>
                     <h3 className="font-[400] text-[0.98rem] text-ink leading-[1.4] mb-2">{m.titel}</h3>
-                    {m.kommentar && <AfsnitTekst afsnit={m.kommentar} />}
+                    <MedieKommentar m={m} />
                     <ul className="list-none p-0 m-0 mt-auto pt-3 flex flex-col gap-1">
                       {m.artikler.map((x) => (
                         <li key={x.url} className="font-[300] text-[0.75rem] leading-[1.45]">
@@ -226,6 +226,18 @@ export function DagensKort({ d }: { d: DagensAnalyse }) {
       )}
     </article>
   );
+}
+
+/** Finns kommentar til et medietema, eller hvorfor der ikke er en. Aldrig tomt. */
+export function MedieKommentar({ m }: { m: Medietema }) {
+  if (m.kommentar) return <AfsnitTekst afsnit={m.kommentar} />;
+  const grund =
+    m.udenKommentar === "holdt ikke selvtjekket"
+      ? "Finns kommentar til temaet holdt ikke selvtjekket og vises ikke."
+      : m.udenKommentar === "ikke skrevet"
+        ? "Finn har ikke koblet temaet til dagens tal."
+        : "Ingen kommentar fra Finn til dette tema.";
+  return <p className="font-[300] text-[0.82rem] text-slate leading-[1.6] italic">{grund} Overskrifterne herunder.</p>;
 }
 
 export function Sektionstitel({ id, children }: { id: string; children: React.ReactNode }) {

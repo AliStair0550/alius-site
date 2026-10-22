@@ -224,6 +224,30 @@ ingen kørsel, fejlet, stoppet af budgettet eller død undervejs. Ellers
 sendes intet. `?dry=1` viser resultatet uden mail; Finns del står under
 `finn` i svaret.
 
+## Ugentligt kvalitetstjek
+
+Selvtjekket sikrer at tallene passer, ikke at pointerne holder. Hver
+mandag kl. 07 UTC kører `agent-finn-kvalitet.yml` (`scripts/finn-kvalitet.ts`):
+
+- **Målinger i kode** over de seneste 7 dage: afsnit fjernet af
+  selvtjekket, samme område to dage i træk, dage uden holdbar dagens
+  analyse, medietemaer uden kommentar, områder med analyse, pris.
+- **Sonnets vurdering** af hvert afsnit mod de data det henviser til
+  (fra `source_cache` for dagen): pointe, sammenligning, relevans og
+  klarhed fra 1 til 5, og en kort begrundelse når et kriterium er 2 eller
+  lavere. Det er en models vurdering af en models tekst; den peger på det
+  et menneske skal læse.
+
+Rapporten gemmes i `quality_reports` og sendes som mail fra Vercel
+(`/api/agenter/kvalitet`, kræver `ADMIN_SECRET`) til
+`PULSE_ALERT_EMAIL_TO`. Cirka $0,35 om ugen, gennem budgetloftet.
+`--dry` giver kun målingerne og kalder ingen model.
+
+**Medietemaer** har fra 22. oktober altid en kommentar: kan temaet ikke
+kobles til dagens tal, siger Finn det. Mangler den alligevel, gemmes
+grunden (`udenKommentar`: ikke skrevet eller holdt ikke selvtjekket), og
+siden viser den i stedet for et tomt kort.
+
 ## Næste faser
 
 Datamodellen er bygget til dem: `agents.status`, briefpunkter som JSON

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Glid from "@/components/agenter/Glid";
-import { AfsnitTekst, DagensKort, Elpris, Sektionstitel, omraadeSti } from "@/components/agenter/AnalyseVisning";
+import { AfsnitTekst, DagensKort, Elpris, MedieKommentar, Sektionstitel, omraadeSti } from "@/components/agenter/AnalyseVisning";
 import type { Analyse } from "@/lib/agenter/finn/analyse";
 import { OMRAADER, type Omraade } from "@/lib/agenter/finn/omraader";
 import type { OmraadeSerie, OmraadeTal, RegnskabsLinje } from "@/lib/agenter/omraade-data";
@@ -187,7 +187,7 @@ export default function OmraadeVisning({
             {medier.map((m, i) => (
               <li key={i} className="rounded-2xl bg-parchment border border-fog p-5">
                 <h3 className="font-[400] text-[0.98rem] text-ink leading-[1.4] mb-2">{m.titel}</h3>
-                {m.kommentar && <AfsnitTekst afsnit={m.kommentar} />}
+                <MedieKommentar m={m} />
                 <ul className="list-none p-0 m-0 mt-3 flex flex-col gap-1">
                   {m.artikler.map((x) => (
                     <li key={x.url} className="font-[300] text-[0.75rem] leading-[1.45]">

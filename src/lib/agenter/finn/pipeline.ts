@@ -412,8 +412,10 @@ export async function koerFinn(opt: {
           `- "hvadDetBetyder": én til to sætninger for en dansk virksomhed med 5 til 50 ansatte, og én til to for en ` +
           `husholdning. Ingen tal her ud over dem der står i hvadTalleneSiger. Ingen råd.\n` +
           `- "holdOeje": 1 til 3 afsnit om hvad der ville ændre billedet, med kilder. Ingen datoer eller tal der ikke står i kilderne.\n` +
-          `- "medietemaer": for hvert medietema, en kommentar på 1 til 2 sætninger der kobler temaet til tallene, med ` +
-          `"nummer" (temaets nummer) og "kilder" (temaets nyheder og de tal du bruger). Har du intet at koble, udelad temaet.\n` +
+          `- "medietemaer": en kommentar til HVERT medietema, 1 til 2 sætninger, med "nummer" (temaets nummer) og "kilder" ` +
+          `(temaets nyheder og de tal du bruger). Kan temaet kobles til dagens tal, så gør det. Kan det ikke, så sig kort ` +
+          `hvad overskrifterne handler om, og at ingen af dagens tal måler det; kilderne er så temaets nyheder. ` +
+          `Brug kun tal der står i overskrifterne eller i data. Gæt aldrig på hvad der står i en artikel.\n` +
           `- "forbehold": hvad du tog forbehold for, ærligt.\n\n` +
           (feedback.length
             ? `DIT FØRSTE UDKAST HOLDT IKKE. Disse dele blev afvist:\n${feedback.map((f) => `- ${f}`).join("\n")}\nSkriv analysen igen uden de fejl.\n\n`
@@ -469,7 +471,13 @@ export async function koerFinn(opt: {
           return;
         }
         const kommentar = tag(m.kommentar, [...m.kilder, ...tema.artikler.map((a) => a.id)], `Medietema: ${tema.titel}`);
-        medier.push({ titel: tema.titel, omraade: tema.omraade, kommentar, artikler: artiklerFor(tema.artikler) });
+        medier.push({
+          titel: tema.titel,
+          omraade: tema.omraade,
+          kommentar,
+          ...(kommentar ? {} : { udenKommentar: "holdt ikke selvtjekket" as const }),
+          artikler: artiklerFor(tema.artikler),
+        });
       });
 
       const dagens: DagensAnalyse | null =
@@ -504,7 +512,14 @@ export async function koerFinn(opt: {
 
     // Medietemaer uden kommentar vises stadig, med artiklerne.
     analyse.medier = temaer.map(
-      (t) => skrevet.medier.find((m) => m.titel === t.titel) ?? { titel: t.titel, omraade: t.omraade, kommentar: null, artikler: artiklerFor(t.artikler) }
+      (t) =>
+        skrevet.medier.find((m) => m.titel === t.titel) ?? {
+          titel: t.titel,
+          omraade: t.omraade,
+          kommentar: null,
+          udenKommentar: "ikke skrevet" as const,
+          artikler: artiklerFor(t.artikler),
+        }
     );
 
     // 7. En kort analyse per område (Sonnet, ét kald), til områdesiderne.

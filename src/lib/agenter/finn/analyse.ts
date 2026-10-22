@@ -37,6 +37,12 @@ export type Medietema = {
   titel: string;
   omraade: OmraadeNoegle | null;
   kommentar: Afsnit | null;
+  /**
+   * Hvorfor kommentaren mangler, når den gør. To forskellige tilstande:
+   * Finn skrev ingen, eller den han skrev holdt ikke selvtjekket.
+   * Mangler feltet (briefs før 22/10 2026), er grunden ukendt.
+   */
+  udenKommentar?: "ikke skrevet" | "holdt ikke selvtjekket";
   artikler: { titel: string; url: string; kilde: string }[];
 };
 
