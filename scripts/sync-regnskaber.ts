@@ -21,7 +21,7 @@ import { withDbRetry } from "../src/lib/db";
 import { SELSKABER, type Selskab } from "../config/selskaber";
 import { hentIndleveringer, hentXbrl } from "../src/lib/regnskaber/virk";
 import { laesEsef } from "../src/lib/regnskaber/esef";
-import { kontroller, planlaeg, type Gaeldende } from "../src/lib/regnskaber/plan";
+import { kontroller, planlaeg, SkalaFejl, type Gaeldende } from "../src/lib/regnskaber/plan";
 import { kraevSkriveret } from "./write-guard";
 
 const DRY = process.argv.includes("--dry");
@@ -72,7 +72,14 @@ async function koerSelskab(s: Selskab): Promise<Udfald> {
   const nyeste = medEsef[medEsef.length - 1];
   const lNyeste = laesEsef(await hentXbrl(nyeste.esefUrl!));
   laest.set(nyeste.sagsNummer, lNyeste);
-  kontroller(s, lNyeste);
+  try {
+    kontroller(s, lNyeste);
+  } catch (e) {
+    // Navn og valuta kontrolleres før skalaen. En kendt skalafejl her
+    // betyder derfor at navnet er bekræftet; filen selv springes over i
+    // løkken nedenfor med besked.
+    if (!(e instanceof SkalaFejl && s.kendtSkalafejl?.slags.includes(nyeste.slags))) throw e;
+  }
   const navnBekraeftet = s.navnIRegnskab !== null && lNyeste.navn !== null;
 
   const laeste = new Set(
@@ -84,7 +91,16 @@ async function koerSelskab(s: Selskab): Promise<Udfald> {
 
   for (const i of nyeIndleveringer) {
     const l = laest.get(i.sagsNummer) ?? laesEsef(await hentXbrl(i.esefUrl!));
-    kontroller(s, l, navnBekraeftet);
+    try {
+      kontroller(s, l, navnBekraeftet);
+    } catch (e) {
+      if (e instanceof SkalaFejl && s.kendtSkalafejl?.slags.includes(i.slags)) {
+        console.log(`   SPRINGES OVER ${i.slags} ${i.periodeStart}..${i.periodeSlut} (${i.sagsNummer}): kendt skalafejl. ${s.kendtSkalafejl.grund} (${e.message.slice(0, 120)})`);
+        sum.sprunget++;
+        continue;
+      }
+      throw e;
+    }
     for (const k of l.konflikter) console.log(`   KONFLIKT i ${i.slags} ${i.periodeSlut} (${i.sagsNummer}), ikke skrevet: ${k}`);
     sum.konflikter += l.konflikter.length;
 

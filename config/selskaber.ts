@@ -44,6 +44,13 @@ export type Selskab = {
    * Springes over med besked. Skal være fundet og forklaret, ikke gættet.
    */
   springOver?: { sagsNummer: string; grund: string }[];
+  /**
+   * En KENDT, gentaget skalafejl i én slags indlevering. Fejler sådan en
+   * indlevering skalaværnet, springes den over med besked i stedet for at
+   * stoppe kørslen. Holder den, bruges den. Gælder kun skalafejl og kun
+   * de nævnte slags; alt andet stopper stadig.
+   */
+  kendtSkalafejl?: { slags: string[]; grund: string };
 };
 
 export const SELSKABER: Selskab[] = [
@@ -99,7 +106,12 @@ export const SELSKABER: Selskab[] = [
     // er rigtige, og Q4-meddelelserne 2024 og 2025 har samme helårstal
     // rigtigt, så intet går tabt. Fundet af skalaværnet 22/10 2026.
     // Årsrapporten 2026 (indleveres cirka februar 2027) vil sandsynligvis
-    // have samme fejl; så stopper kørslen, og den skal tilføjes her.
+    // have samme fejl. kendtSkalafejl springer den over med besked uden at
+    // stoppe kørslen; er den rigtig, bruges den.
+    kendtSkalafejl: {
+      slags: ["AARSRAPPORT"],
+      grund: "Netcompanys årsrapporter 2023-2025 var alle i tusinder mærket som kroner. Helårstallene står rigtigt i Q4-meddelelsen.",
+    },
     springOver: [
       { sagsNummer: "X24-AG-63-CN", grund: "Q4-meddelelsen 2023 i tusinder mærket som kroner (aktiver 8.159.800 kr.)." },
       { sagsNummer: "X24-GM-68-RZ", grund: "Årsrapporten 2023 i tusinder mærket som kroner (aktiver 8.159.800 kr.)." },

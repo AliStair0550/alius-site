@@ -19,6 +19,9 @@ import type { Fakta, Laest } from "./esef";
  *      kroner, gør resultatet det også, men et resultat kan lovligt være
  *      lille, så det kan ikke fange fejlen selv.
  */
+/** En fil hvis skala ikke holder. Egen klasse, så en kendt fejl kan genkendes præcist. */
+export class SkalaFejl extends Error {}
+
 /**
  * Navne sammenlignes på bogstaver og tal alene. Selskaberne skriver deres
  * eget navn forskelligt fra fil til fil: "PANDORAA/S", "DSV A/S,DSV A/S",
@@ -62,7 +65,7 @@ export function kontroller(s: Selskab, l: Laest, navnBekraeftet = false): void {
   }
   for (const a of aktiver) {
     if (a.vaerdi < AKTIVER.min || a.vaerdi > AKTIVER.max) {
-      throw new Error(
+      throw new SkalaFejl(
         `${s.navn} (${s.cvr}): samlede aktiver ${a.dato} er ${a.vaerdi} ${a.valuta}, uden for ${AKTIVER.min} til ${AKTIVER.max}. ` +
           `Filen har sandsynligvis en forkert skala, og intet fra den skrives. Se CLAUDE.md om plausible forkerte værdier.`
       );
