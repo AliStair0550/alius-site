@@ -47,3 +47,6 @@ next-env.d.ts
 # ved hver installation og hvert byg, praecis som den anden klient.
 # Genereret kode hoerer ikke i repoet.
 src/generated/
+
+# Skærmbilleder og snapshots fra browsertest
+.playwright-mcp/
