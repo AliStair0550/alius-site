@@ -29,3 +29,25 @@ export function dagensStatus(idag: string, time: number, vist: BriefVisning | nu
   if (time < 7) return `Dagens brief kommer kl. 6.${fra}`;
   return `Dagens brief er ikke kommet.${fra}`;
 }
+
+/**
+ * Driftsalarmen for Finn: er dagens brief ikke færdig, når stale-tjekket
+ * kører kl. 07 UTC (8 eller 9 dansk tid), siges det hvorfor. null betyder
+ * at der er en færdig brief for dagen. Siden viser det samme for den der
+ * kigger; alarmen er for den der ikke gør.
+ */
+export function finnAlarm(
+  idag: string,
+  doneIdag: boolean,
+  seneste: { dato: string; status: string; besked: string | null } | null
+): string | null {
+  if (doneIdag) return null;
+  if (!seneste || seneste.dato !== idag) {
+    return `Finn har ingen kørsel for ${idag}. Hverken Vercels cron eller GitHubs scheduler startede agent-finn.yml, eller kørslen nåede ikke at oprette sin brief.`;
+  }
+  const b = seneste.besked ? ` Besked: ${seneste.besked}` : "";
+  if (seneste.status === "BUDGET_STOPPED") return `Dagens brief blev stoppet af budgetloftet.${b}`;
+  if (seneste.status === "FAILED") return `Dagens brief fejlede.${b}`;
+  if (seneste.status === "RUNNING") return `Dagens brief står stadig som i gang. Kørslen er sandsynligvis død undervejs uden at nå at afslutte.${b}`;
+  return `Dagens brief har status ${seneste.status} og er ikke færdig.${b}`;
+}

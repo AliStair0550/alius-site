@@ -2,6 +2,7 @@
 // Dagligt stale-tjek
 //
 // Kører hver dag kl. 07:00 UTC (09:00 dansk sommertid, 08:00 vintertid),
+// og tjekker også at Finns brief for dagen er færdig (src/lib/agenter/alarm.ts),
 // altså efter det daglige sync-job kl. 02 UTC.
 //
 // Sender én samlet mail hvis noget er forældet eller fejlet.
@@ -14,6 +15,7 @@ import { prisma, withDbRetry } from "@/lib/db";
 import { findStaleSources, findStaleSeries } from "@/lib/pulse-stale";
 import { sendPulseStaleEmail, sendPulseErrorEmail } from "@/lib/pulse-email";
 import { PAA_PAUSE, PAUSE_FRA } from "@/lib/pulse-pause";
+import { tjekFinn } from "@/lib/agenter/alarm";
 
 export const dynamic = "force-dynamic";
 
@@ -32,12 +34,6 @@ function isAuthorized(req: Request): boolean {
 }
 
 export async function GET(req: Request) {
-  // Pulse holder pause. Der er intet at alarmere om naar der ikke
-  // hentes. Se src/lib/pulse-pause.ts.
-  if (PAA_PAUSE) {
-    return NextResponse.json({ ok: true, paaPause: true, siden: PAUSE_FRA });
-  }
-
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -45,6 +41,22 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   // ?dry=1 kører tjekket og returnerer resultatet uden at sende mail.
   const dryRun = url.searchParams.get("dry") === "1";
+
+  // Finn tjekkes for sig og først, også når Pulse holder pause. En fejl
+  // her må ikke tage Pulses tjek med sig, og omvendt; den siges i svaret.
+  let finn: { alarm: string | null; mailet: boolean } | { fejl: string };
+  try {
+    finn = await tjekFinn(prisma, new Date(), { dry: dryRun });
+  } catch (e) {
+    finn = { fejl: (e as Error).message };
+    console.error("Finn-tjekket fejlede:", (e as Error).message);
+  }
+
+  // Pulse holder pause. Der er intet at alarmere om naar der ikke
+  // hentes. Se src/lib/pulse-pause.ts.
+  if (PAA_PAUSE) {
+    return NextResponse.json({ ok: true, paaPause: true, siden: PAUSE_FRA, finn });
+  }
 
   const startedAt = Date.now();
 
@@ -95,6 +107,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       ok: true,
       dryRun,
+      finn,
       emailed,
       sourcesChecked: report.sourcesChecked,
       staleCount: report.findings.length,

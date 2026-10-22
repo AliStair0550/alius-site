@@ -25,3 +25,18 @@ describe("Linjen om dagens brief", () => {
     assert.match(dagensStatus("2026-10-21", 9, brief("2026-10-20"), koersel("DONE", "2026-10-20"))!, /ikke kommet/);
   });
 });
+
+import { finnAlarm } from "./dato";
+
+describe("Finns driftsalarm", () => {
+  test("en færdig brief i dag giver ingen alarm, også efter en senere fejlet kørsel", () => {
+    assert.equal(finnAlarm("2026-10-22", true, { dato: "2026-10-22", status: "FAILED", besked: "x" }), null);
+  });
+  test("hver tilstand siges som sig selv", () => {
+    assert.match(finnAlarm("2026-10-22", false, null)!, /ingen kørsel/);
+    assert.match(finnAlarm("2026-10-22", false, { dato: "2026-10-21", status: "DONE", besked: null })!, /ingen kørsel/);
+    assert.match(finnAlarm("2026-10-22", false, { dato: "2026-10-22", status: "FAILED", besked: "DST svarede 503" })!, /fejlede\. Besked: DST svarede 503/);
+    assert.match(finnAlarm("2026-10-22", false, { dato: "2026-10-22", status: "BUDGET_STOPPED", besked: null })!, /budgetloftet/);
+    assert.match(finnAlarm("2026-10-22", false, { dato: "2026-10-22", status: "RUNNING", besked: null })!, /død undervejs/);
+  });
+});

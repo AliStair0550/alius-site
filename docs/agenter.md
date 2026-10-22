@@ -1,7 +1,7 @@
 # Alius Agenter
 
 Agenter der læser åbne kilder hver morgen og skriver det vigtigste kort.
-Den første er **Finn Finans**, som skriver en brief om dansk økonomi
+Den første er **Finn Finans**, som skriver en analyse af dansk økonomi
 kl. 06 dansk tid på [alius.dk/agenter/finn](https://alius.dk/agenter/finn).
 
 ## Før du gør noget andet: spend limit i Console
@@ -26,13 +26,15 @@ GitHub Actions: agent-finn.yml ──> scripts/agent-finn.ts
                                 │  skriveværn, UTC, budgetloft
                                 ▼
             src/lib/agenter/finn/pipeline.ts
-   hent ─ dedupliker ─ 48 timer ─ relevans ─ rangering ─ skriv ─ selvtjek
+   hent ─ dedupliker ─ 48 timer ─ relevans ─ beregn ─ medietemaer
+        ─ vælg område ─ dagens analyse ─ områdeanalyser ─ selvtjek
                                 │
                                 ▼
          Pulse-basen: briefs, traces, api_ledger, source_cache
                                 │
                                 ▼
-       /agenter, /agenter/finn, /agenter/finn/[dato], replay
+  /agenter, /agenter/finn, /agenter/finn/[område], /agenter/finn/arkiv/[dato],
+                         replay
 ```
 
 - **Al skrivning sker i GitHub Actions**, som resten af Pulse. Vercel
@@ -41,6 +43,37 @@ GitHub Actions: agent-finn.yml ──> scripts/agent-finn.ts
 - **GitHubs scheduler (05:15 UTC) er reserve.** Scriptet springer over,
   hvis dagens brief allerede er færdig.
 - **Siderne kalder aldrig Anthropic.** Replay afspiller den gemte trace.
+
+## Analyseudgaven (fra 22. oktober 2026)
+
+Briefen gemmes som `briefs.analysis` (typen `Analyse` i
+`finn/analyse.ts`). Briefs fra før har `items` (punkter) og vises som før.
+
+| Del | Hvem laver den |
+|---|---|
+| Overblik, elpris time for time, usædvanligt, nyt de seneste 48 timer | Kode. Ingen model rører tallene. |
+| Medietemaer (højst tre) | Haiku samler nyhederne; Sonnet kommenterer |
+| Dagens område | Kode, `vaelgOmraade()`. Se nedenfor. |
+| Dagens analyse: tese, hvad tallene siger, hvad det betyder, hold øje med | Sonnet, med selvtjek per afsnit |
+| En analyse per område | Sonnet, ét kald, med selvtjek per afsnit |
+
+**Dagens område vælges i kode.** Point: 3 per tal udgivet de seneste 48
+timer, |z| op til 3 per usædvanligt tal (daglige noteringer det halve),
+1 per medietema, minus 100 for gårsdagens område og minus 4 for
+forgårsdagens. Sonnet valgte selv indtil 22. oktober og tog energi to dage
+i træk trods besked. Valget og pointene står i tracen.
+
+**Områderne** står i `finn/omraader.ts`: priser, energi, renter,
+arbejde, virksomheder, bolig, forbrug. Hvert har sin side på
+`/agenter/finn/<område>` med Finns læsning, dagens analyse når den
+handler om området, det der bevæger sig, medierne og områdets
+Pulse-serier med fem års forløb (`lib/agenter/omraade-data.ts`, caches
+seks timer). Siden om virksomheder har desuden regnskabsoversigten over
+de børsnoterede selskaber, regnet i kode.
+
+Arkivet flyttede samme dag fra `/agenter/finn/<dato>` til
+`/agenter/finn/arkiv/<dato>`; de gamle adresser omdirigeres i
+`next.config.ts`.
 
 ## Budgetloftet
 
@@ -110,8 +143,11 @@ per kilde per dag i `source_cache`; fejl caches ikke.
 
 | Kilde | Modul | Hvad |
 |---|---|---|
-| Pulse | `pulse.ts` + `finn/serier.ts` | 20 serier fra basen |
+| Pulse | `pulse.ts` + `finn/serier.ts` | serier fra basen, herunder firmaernes salg (FIKS11) med sammenligning år/år |
+| Elpris time for time | `elpris-timer.ts` | Energi Data Service, dagens timepriser for DK1 og DK2 |
 | DST EJ56 | `dst-boligpriser.ts` | boligpriser kvartalsvis |
+| Regnskaber | `regnskaber.ts` | 21 børsnoterede selskabers regnskaber fra tabellen `regnskabstal` (se `config/selskaber.ts` og `scripts/sync-regnskaber.ts`), indleveret de seneste 10 dage |
+| Nasdaq | `nasdaq.ts` | danske regnskabsmeddelelser samme dag, kun overskrift og link. Udokumenteret API. |
 | RSS | `rss.ts` | Berlingske, Ritzau Via, Nationalbanken (2 feeds) |
 
 **Tilføj en Pulse-serie:** læg den i `FINN_SERIER` i `finn/serier.ts` med
@@ -134,14 +170,16 @@ tal via DST (DNRUURI), som Pulse allerede henter.
 
 Reglerne står i `src/lib/agenter/finn/prompt.ts`. To håndhæves bagefter:
 
-- **I kode** (`finn/selvtjek.ts`), sidste ord: hvert tal i et punkt skal
-  findes i de poster punktet selv henviser til. Afrunding er tilladt, et
+- **I kode** (`finn/selvtjek.ts`), sidste ord: hvert tal i et afsnit skal
+  findes i de poster afsnittet selv henviser til. Afrunding er tilladt, et
   opdigtet tal er ikke. Tankestreger og udråbstegn renses.
 - **Af Sonnet**: investeringsråd og produkter, råd til læseren, gengivet
   artikeltekst. Kun tydelige brud.
 
-Et punkt der fejler, fjernes og nævnes under "Det tog jeg forbehold for".
-Holder færre end fem, skrives briefen om én gang med grundene.
+Et afsnit der fejler, fjernes og nævnes under "Det tog jeg forbehold for".
+Holder dagens analyse ikke en tese, mindst ét afsnit om tallene og en
+betydning, skrives den om én gang med grundene; holder den stadig ikke,
+vises den ikke, og siden siger det.
 
 Sammenligninger vælges i kode ud fra sæsonkorrektionen: korrigerede
 serier og satser mod forrige periode, rå og ukendte mod samme periode
@@ -164,12 +202,26 @@ Grænserne, i rækkefølge:
 4. Det almindelige loft i `kaldMedLoft`.
 5. Er Anthropic-kreditten brugt, siger Finn det.
 
+**Per område.** På en områdeside sendes området med (`omraade` i
+kroppen). Finn får så kun områdets tal, de nyheder han selv lagde i
+områdets medietemaer og sin læsning af området, og selvtjekket holder
+svaret op mod netop de kilder. Et ukendt område afvises før noget kald.
+
 Hver udgang gemmes i `agent_questions` med sin status: `svaret`,
 `ikke_sporbar`, `budget`, `graense`, `kredit`, `fejl`. Et spørgsmål
 koster cirka $0,01 til $0,02.
 
 Spørgsmålene kører på Vercel og skriver regnskab derfra. Se CLAUDE.md
 for hvorfor det er en bevidst undtagelse.
+
+## Driftsalarm
+
+Det daglige stale-tjek (`/api/cron/pulse-stale`, kl. 07 UTC) tjekker også
+at Finns brief for dagen er færdig (`lib/agenter/alarm.ts`). Er den ikke,
+går én mail til `PULSE_ALERT_EMAIL_TO` med kørslens status og besked:
+ingen kørsel, fejlet, stoppet af budgettet eller død undervejs. Ellers
+sendes intet. `?dry=1` viser resultatet uden mail; Finns del står under
+`finn` i svaret.
 
 ## Næste faser
 
