@@ -148,6 +148,7 @@ per kilde per dag i `source_cache`; fejl caches ikke.
 | DST EJ56 | `dst-boligpriser.ts` | boligpriser kvartalsvis |
 | Regnskaber | `regnskaber.ts` | 21 børsnoterede selskabers regnskaber fra tabellen `regnskabstal` (se `config/selskaber.ts` og `scripts/sync-regnskaber.ts`), indleveret de seneste 10 dage |
 | Nasdaq | `nasdaq.ts` | danske regnskabsmeddelelser samme dag, kun overskrift og link. Udokumenteret API. |
+| Regnskabskalender | `regnskabskalender.ts` | kommende regnskaber de næste 14 dage, læst i kode af selskabernes finanskalender-meddelelser (`regnskaber/kalender.ts`). Kendt for 7 af 21 selskaber 22/10 2026; resten har kun PDF eller ingen kalender, og det siges. |
 | RSS | `rss.ts` | Berlingske, Ritzau Via, Nationalbanken (2 feeds) |
 
 **Tilføj en Pulse-serie:** læg den i `FINN_SERIER` i `finn/serier.ts` med
