@@ -23,6 +23,23 @@ import type { SeriesDef } from "../src/lib/adapters/types";
  */
 const DST = (tableId: string) => `Danmarks Statistik, tabel ${tableId}`;
 
+/**
+ * Firmaernes salg i FIKS11. Alle sæsonkorrigerede. BELØB 4 er salg i alt,
+ * 1 er indenlandsk salg. Koderne er slået op i DST's tableinfo 22/10 2026.
+ */
+const FIKS: { id: string; nameDa: string; branche: string; beloeb: "4" | "1"; rangeres?: true }[] = [
+  { id: "dst.omsaetning.erhverv.ekskl_energi", nameDa: "Firmaernes salg i alt, eksklusive energi", branche: "BDE", beloeb: "4", rangeres: true },
+  { id: "dst.omsaetning.erhverv.total", nameDa: "Firmaernes salg i alt", branche: "TOT", beloeb: "4" },
+  { id: "dst.omsaetning.erhverv.indenlandsk", nameDa: "Firmaernes indenlandske salg", branche: "TOT", beloeb: "1" },
+  { id: "dst.omsaetning.industri", nameDa: "Salg i industrien", branche: "C", beloeb: "4" },
+  { id: "dst.omsaetning.byggeri", nameDa: "Salg i bygge og anlæg", branche: "3", beloeb: "4" },
+  { id: "dst.omsaetning.handel", nameDa: "Salg i handel", branche: "G", beloeb: "4" },
+  { id: "dst.omsaetning.transport", nameDa: "Salg i transport", branche: "H", beloeb: "4" },
+  { id: "dst.omsaetning.hoteller_restauranter", nameDa: "Salg i hoteller og restauranter", branche: "I", beloeb: "4" },
+  { id: "dst.omsaetning.information", nameDa: "Salg i information og kommunikation", branche: "5", beloeb: "4" },
+  { id: "dst.omsaetning.erhvervsservice", nameDa: "Salg i erhvervsservice", branche: "8", beloeb: "4" },
+];
+
 export const SERIES: SeriesDef[] = [
   // ==========================================================
   // LEADING
@@ -131,6 +148,39 @@ export const SERIES: SeriesDef[] = [
     zTransform: "yoy",
     dst: { filters: { TYPE: ["5520010001"] } },
   },
+
+  // Firmaernes salg, FIKS11. Tilføjet 22. oktober 2026.
+  //
+  // Momsbaseret: alle momsregistrerede firmaer, måned for måned fra 2009,
+  // i mio. kr. og løbende priser. Det er det bredeste mål for hvor godt
+  // det går i erhvervslivet, og det dækker også de mange der aldrig
+  // kommer på børsen.
+  //
+  // NÆVNEREN (datakatalogets afsnit 1). Beløbet er i løbende priser og
+  // siger alene intet. Der holdes op mod to ting: forbrugerpriserne år/år
+  // (dst.pris.forbruger.aarsaendring), så en stigning kan skelnes fra en
+  // prisstigning, og erhvervslivet i alt, så en branche kan skelnes fra
+  // økonomien. zTransform er derfor yoy.
+  //
+  // Kun totalen eksklusive energi er rangerbar. Energiforsyningens salg
+  // svinger med elprisen, ikke med aktiviteten; i 2022 ville den alene
+  // have båret totalen. Branchetallene er fortolkning af totalen, ikke
+  // syv chancer mere for et tilfælde på ranglisten.
+  ...FIKS.map((f): SeriesDef => ({
+    id: f.id,
+    nameDa: f.nameDa,
+    source: "DST",
+    sourceRef: "FIKS11",
+    unit: "mio_dkk",
+    frequency: "MONTHLY",
+    layer: "REALISED",
+    revisionPolicy: "MINOR",
+    expectedLagDays: 72,
+    attribution: DST("FIKS11"),
+    zTransform: "yoy",
+    ...(f.rangeres ? {} : { rankable: false, rankableReason: "Branchedetalje til firmaernes salg. Totalen eksklusive energi bærer ranglisten." }),
+    dst: { filters: { BRANCHE07: [f.branche], "BELØB": [f.beloeb], "SÆSON": ["SÆSON"] } },
+  })),
 
   // ==========================================================
   // COST

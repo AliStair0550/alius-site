@@ -210,6 +210,14 @@ export const UNIT_RANGES: Record<string, { min: number; max: number }> = {
   antal: { min: 0, max: 100_000_000 },
   per_1000: { min: -500, max: 500 },
   dkk: { min: 0, max: 100_000_000 },
+  // Firmaernes salg på en måned. Erhvervslivet i alt ligger omkring
+  // 500.000 til 660.000. Den mindste valgte branche, hoteller og
+  // restauranter, har aldrig været under 2.190 (2020). Et beløb i hele
+  // kroner (faktor en million) eller i mia. (faktor 0,001) falder udenfor.
+  // Bunden er 1.000 og ikke lavere: med 100 slap totalen i mia. (cirka
+  // 500) igennem, og testen fangede det. En ny, mindre branche skal stoppe
+  // kørslen og have grænsen genovervejet, ikke glide ind.
+  mio_dkk: { min: 1_000, max: 5_000_000 },
 };
 
 /**

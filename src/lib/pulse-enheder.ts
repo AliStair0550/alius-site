@@ -60,6 +60,7 @@ export const ENHEDER: Record<string, Enhed> = {
   dkk: { decimaler: 0, efter: "kr.", erSats: false },
   dkk_mwh: { decimaler: 0, efter: "kr. per MWh", erSats: false },
   dkk_per_enhed: { decimaler: 2, efter: "kr.", erSats: false },
+  mio_dkk: { decimaler: 0, efter: "mio. kr.", erSats: false },
 
   // Demografi. Uden "per 1.000 indbyggere" er tallet ikke en oplysning,
   // det er et ciffer.

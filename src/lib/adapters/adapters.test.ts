@@ -127,6 +127,18 @@ describe("Enhedskonvertering", () => {
     assert.equal(inx[0].unit, "indeks_1980");
   });
 
+  test("firmaernes salg: mio. kr., ingen skalering, kun totalen eksklusive energi rangeres", () => {
+    const fiks = SERIES.filter((s) => s.sourceRef === "FIKS11");
+    assert.equal(fiks.length, 10);
+    for (const s of fiks) {
+      assert.equal(s.unit, "mio_dkk", `${s.id} skal være i mio. kr.`);
+      assert.equal(s.dst?.valueScale, undefined, `${s.id}: DST leverer allerede mio. kr. og må ikke skaleres`);
+      assert.deepEqual(s.dst?.filters["SÆSON"], ["SÆSON"], `${s.id} skal være sæsonkorrigeret`);
+    }
+    const rangeres = fiks.filter((s) => s.rankable !== false).map((s) => s.id);
+    assert.deepEqual(rangeres, ["dst.omsaetning.erhverv.ekskl_energi"]);
+  });
+
   test("nævnere er ikke rangerbare uden begrundelse", () => {
     for (const s of SERIES) {
       if (s.rankable === false) {
@@ -141,6 +153,13 @@ describe("Enhedskonvertering", () => {
 
 // ----------------------------------------------------------------
 describe("Værn mod plausible forkerte værdier", () => {
+  test("firmaernes salg: beløb i kroner eller milliarder stoppes, mio. kr. går igennem", () => {
+    // August 2026, erhvervslivet i alt eksklusive energi: 499.636 mio. kr.
+    assert.doesNotThrow(() => assertUnitRange("fiks", "mio_dkk", [499_636, 7_854]));
+    assert.throws(() => assertUnitRange("fiks", "mio_dkk", [499_636_000_000]), /uden for/);
+    assert.throws(() => assertUnitRange("fiks", "mio_dkk", [499.636]), /uden for/);
+  });
+
   test("den fejl der næsten skete: indeks ganget med 0,01", () => {
     // Effektiv kronekurs omkring 104. Ganges den fejlagtigt med 0,01
     // bliver den 1,04, hvilket ligner en plausibel valutakurs.

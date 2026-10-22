@@ -81,6 +81,7 @@ const key = (areaCode: string, period: Date) =>
  *   dkk             2.662.528   0,27        1        (hele kroner)
  *   dkk_per_enhed   6,5601      6,6e-7      0,0001   (4 decimaler)
  *   dkk_mwh         5.246       5,2e-4      0,01
+ *   mio_dkk         570.000     5,7e-2      1        (hele mio. kr.)
  *
  * Mindst tre størrelsesordener luft i begge retninger overalt. Den
  * afrundingsvippe der begrundede ændringen er 1e-6 på et niveau af
