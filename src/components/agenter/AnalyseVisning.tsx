@@ -1,5 +1,6 @@
+import Link from "next/link";
 import Glid from "@/components/agenter/Glid";
-import type { Afsnit, Analyse, ElprisDag } from "@/lib/agenter/finn/analyse";
+import type { Afsnit, Analyse, DagensAnalyse, ElprisDag } from "@/lib/agenter/finn/analyse";
 import { OMRAADER, omraade, type OmraadeNoegle } from "@/lib/agenter/finn/omraader";
 
 // Finns analyseudgave, fra 22. oktober 2026. Rækkefølgen er fast, men
@@ -9,8 +10,8 @@ import { OMRAADER, omraade, type OmraadeNoegle } from "@/lib/agenter/finn/omraad
 
 const navn = (o: OmraadeNoegle | null) => (o ? (omraade(o)?.navn ?? o) : "Økonomi");
 
-/** Ankeret for et område på siden, så overblik og analyse kan pege ned. */
-export const omraadeAnker = (o: OmraadeNoegle) => `omraade-${o}`;
+/** Områdets egen side. */
+export const omraadeSti = (o: OmraadeNoegle) => `/agenter/finn/${o}`;
 
 export default function AnalyseVisning({ a }: { a: Analyse }) {
   const omraader = OMRAADER.filter((o) => a.omraader[o.noegle]);
@@ -23,8 +24,8 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
           <ul className="list-none p-0 m-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-3">
             {a.overblik.map((f) => (
               <li key={f.id}>
-                <a
-                  href={a.omraader[f.omraade] ? `#${omraadeAnker(f.omraade)}` : f.url}
+                <Link
+                  href={omraadeSti(f.omraade)}
                   className="block h-full rounded-2xl bg-parchment border border-fog p-4 no-underline hover:border-moss active:scale-[0.97] transition-[transform,border-color] duration-150"
                 >
                   <div className="font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss mb-2">{f.tema}</div>
@@ -32,7 +33,7 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
                     {f.vaerdi}
                   </div>
                   <div className="mt-1 font-[300] text-[0.72rem] text-stone leading-[1.35]">{f.etiket}</div>
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -43,44 +44,7 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
         <section id="dagens-analyse" aria-labelledby="dagens-titel" className="scroll-mt-20">
           <Sektionstitel id="dagens-titel">Dagens analyse</Sektionstitel>
           <Glid>
-            <article className="rounded-3xl bg-parchment border border-fog p-6 md:p-9">
-              <div className="flex items-center gap-1.5 mb-4 font-[300] text-[0.66rem] tracking-[0.14em] uppercase text-moss">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-moss" />
-                {navn(a.dagens.omraade)}
-              </div>
-              <h3 className="font-[300] text-[1.5rem] md:text-[2rem] text-ink leading-[1.15] tracking-[-0.015em] max-w-[760px]">
-                {a.dagens.overskrift}
-              </h3>
-              <p className="mt-4 font-[300] text-[1rem] md:text-[1.1rem] text-stone leading-[1.65] max-w-[720px]">{a.dagens.tese}</p>
-
-              <h4 className="mt-8 mb-3 font-[400] text-[0.66rem] tracking-[0.14em] uppercase text-stone">Hvad tallene siger</h4>
-              <ol className="list-none p-0 m-0 flex flex-col gap-4 max-w-[720px]">
-                {a.dagens.hvadTalleneSiger.map((x, i) => (
-                  <li key={i} className="border-l-2 border-moss pl-4">
-                    <AfsnitTekst afsnit={x} />
-                  </li>
-                ))}
-              </ol>
-
-              <h4 className="mt-8 mb-3 font-[400] text-[0.66rem] tracking-[0.14em] uppercase text-stone">Hvad det betyder</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Betyder titel="For en virksomhed" tekst={a.dagens.hvadDetBetyder.virksomhed} />
-                <Betyder titel="For en husholdning" tekst={a.dagens.hvadDetBetyder.husholdning} />
-              </div>
-
-              {a.dagens.holdOeje.length > 0 && (
-                <>
-                  <h4 className="mt-8 mb-3 font-[400] text-[0.66rem] tracking-[0.14em] uppercase text-stone">Hold øje med</h4>
-                  <ul className="list-none p-0 m-0 flex flex-col gap-3 max-w-[720px]">
-                    {a.dagens.holdOeje.map((x, i) => (
-                      <li key={i}>
-                        <AfsnitTekst afsnit={x} />
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </article>
+            <DagensKort d={a.dagens} />
           </Glid>
         </section>
       ) : (
@@ -192,7 +156,7 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
             {omraader.map((o, i) => {
               const x = a.omraader[o.noegle]!;
               return (
-                <li key={o.noegle} id={omraadeAnker(o.noegle)} className="scroll-mt-20">
+                <li key={o.noegle}>
                   <Glid forsinkelse={(i % 2) * 70} className="h-full">
                     <article className="h-full rounded-2xl bg-parchment border border-fog p-5 md:p-6">
                       <div className="font-[300] text-[0.62rem] tracking-[0.14em] uppercase text-moss mb-2">{o.navn}</div>
@@ -202,6 +166,12 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
                           <AfsnitTekst key={j} afsnit={s} />
                         ))}
                       </div>
+                      <Link
+                        href={omraadeSti(o.noegle)}
+                        className="mt-4 inline-flex rounded-full border border-clay bg-parchment px-3.5 py-1.5 font-[300] text-[0.75rem] text-ink no-underline hover:border-moss active:scale-[0.97] transition-[transform,border-color] duration-100"
+                      >
+                        Dyk ned i {o.navn.toLowerCase()}
+                      </Link>
                     </article>
                   </Glid>
                 </li>
@@ -214,7 +184,51 @@ export default function AnalyseVisning({ a }: { a: Analyse }) {
   );
 }
 
-function Sektionstitel({ id, children }: { id: string; children: React.ReactNode }) {
+/** Dagens analyse som ét kort. Bruges på Finns side og på områdets side. */
+export function DagensKort({ d }: { d: DagensAnalyse }) {
+  return (
+    <article className="rounded-3xl bg-parchment border border-fog p-6 md:p-9">
+      <div className="flex items-center gap-1.5 mb-4 font-[300] text-[0.66rem] tracking-[0.14em] uppercase text-moss">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-moss" />
+        {navn(d.omraade)}
+      </div>
+      <h3 className="font-[300] text-[1.5rem] md:text-[2rem] text-ink leading-[1.15] tracking-[-0.015em] max-w-[760px]">
+        {d.overskrift}
+      </h3>
+      <p className="mt-4 font-[300] text-[1rem] md:text-[1.1rem] text-stone leading-[1.65] max-w-[720px]">{d.tese}</p>
+
+      <h4 className="mt-8 mb-3 font-[400] text-[0.66rem] tracking-[0.14em] uppercase text-stone">Hvad tallene siger</h4>
+      <ol className="list-none p-0 m-0 flex flex-col gap-4 max-w-[720px]">
+        {d.hvadTalleneSiger.map((x, i) => (
+          <li key={i} className="border-l-2 border-moss pl-4">
+            <AfsnitTekst afsnit={x} />
+          </li>
+        ))}
+      </ol>
+
+      <h4 className="mt-8 mb-3 font-[400] text-[0.66rem] tracking-[0.14em] uppercase text-stone">Hvad det betyder</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Betyder titel="For en virksomhed" tekst={d.hvadDetBetyder.virksomhed} />
+        <Betyder titel="For en husholdning" tekst={d.hvadDetBetyder.husholdning} />
+      </div>
+
+      {d.holdOeje.length > 0 && (
+        <>
+          <h4 className="mt-8 mb-3 font-[400] text-[0.66rem] tracking-[0.14em] uppercase text-stone">Hold øje med</h4>
+          <ul className="list-none p-0 m-0 flex flex-col gap-3 max-w-[720px]">
+            {d.holdOeje.map((x, i) => (
+              <li key={i}>
+                <AfsnitTekst afsnit={x} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </article>
+  );
+}
+
+export function Sektionstitel({ id, children }: { id: string; children: React.ReactNode }) {
   return (
     <h2 id={id} className="mb-3 px-1 font-[400] text-[0.72rem] tracking-[0.14em] uppercase text-stone">
       {children}
@@ -223,7 +237,7 @@ function Sektionstitel({ id, children }: { id: string; children: React.ReactNode
 }
 
 /** Et afsnit og de kilder det bygger på, så hvert tal kan følges. */
-function AfsnitTekst({ afsnit }: { afsnit: Afsnit }) {
+export function AfsnitTekst({ afsnit }: { afsnit: Afsnit }) {
   return (
     <div>
       <p className="font-[300] text-[0.9rem] text-stone leading-[1.7]">{afsnit.tekst}</p>
@@ -258,7 +272,7 @@ const kr = (n: number) => new Intl.NumberFormat("da-DK", { maximumFractionDigits
 const tt = (t: number) => String(t).padStart(2, "0");
 
 /** Døgnets timepriser som søjler. Billigste time i moss, dyreste i ink. */
-function Elpris({ dag: e }: { dag: ElprisDag }) {
+export function Elpris({ dag: e }: { dag: ElprisDag }) {
   const max = Math.max(...e.timer.map((t) => t.pris), 1);
   const min = Math.min(...e.timer.map((t) => t.pris), 0);
   const spaend = max - min || 1;

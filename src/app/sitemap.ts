@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { OMRAADER } from "@/lib/agenter/finn/omraader";
 import { getAllKommuner } from "@/lib/areas";
 import { THINKERS } from "@/lib/frihedstaenkere";
 import { ARTICLES } from "@/lib/vaerksted";
@@ -43,6 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url("/værktøjer", 0.8),
     url("/agenter", 0.8),
     url("/agenter/finn", 0.7),
+    ...OMRAADER.map((o) => url(`/agenter/finn/${o.noegle}`, 0.6)),
     url("/frihedstænkere", 0.7),
     url("/beregner", 0.7),
     url("/prioritizer", 0.7),

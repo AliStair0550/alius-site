@@ -160,7 +160,7 @@ export default function BriefVisning({
                 {arkiv.map((d) => (
                   <li key={d}>
                     <Link
-                      href={`/agenter/finn/${d}`}
+                      href={`/agenter/finn/arkiv/${d}`}
                       className="inline-block rounded-full bg-parchment border border-fog px-3 py-1 font-[300] text-[0.75rem] text-stone no-underline hover:border-moss hover:text-ink"
                     >
                       {langDato(d)}

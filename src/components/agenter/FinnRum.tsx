@@ -5,16 +5,25 @@ import { FinnAvatar } from "@/components/agenter/Avatar";
 // som indholdet glider under. Dybde kommer fra lag og blur, ikke fra
 // skygger eller gradienter (CLAUDE.md).
 
-export default function FinnRum({ undertitel, children }: { undertitel: string; children: React.ReactNode }) {
+export default function FinnRum({
+  undertitel,
+  tilbage = { href: "/agenter", tekst: "Agenter" },
+  children,
+}: {
+  undertitel: string;
+  /** Hvor pilen øverst til venstre fører hen. Områdesiderne fører tilbage til Finn. */
+  tilbage?: { href: string; tekst: string };
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-sand text-ink font-sans">
       <header className="sticky top-0 z-30 border-b border-fog/70 bg-parchment/75 backdrop-blur-xl backdrop-saturate-150 [@media(prefers-reduced-transparency:reduce)]:bg-parchment [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none">
         <div className="max-w-[1080px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
           <Link
-            href="/agenter"
+            href={tilbage.href}
             className="-ml-2 px-2 py-1.5 rounded-full font-[300] text-[0.85rem] text-moss no-underline hover:bg-moss/5 active:scale-[0.97] transition-transform"
           >
-            &lsaquo; Agenter
+            &lsaquo; {tilbage.tekst}
           </Link>
           <div className="flex items-center gap-2 min-w-0">
             <FinnAvatar size={30} />
