@@ -48,7 +48,7 @@ export const OMRAADER: Omraade[] = [
   {
     noegle: "virksomheder",
     navn: "Virksomheder",
-    beskrivelse: "Firmaernes salg branche for branche, konkurser, tvangsauktioner og erhvervstillid, herhjemme og i Tyskland.",
+    beskrivelse: "Firmaernes salg branche for branche, de store børsnoterede selskabers regnskaber, konkurser, tvangsauktioner og erhvervstillid.",
     serier: [
       "dst.omsaetning.erhverv.ekskl_energi",
       "dst.omsaetning.erhverv.indenlandsk",
@@ -64,6 +64,8 @@ export const OMRAADER: Omraade[] = [
       "dst.konjunktur.tillid.samlet",
       "eurostat.de.tillid.industri",
     ],
+    // Børsnoterede selskabers regnskaber, se kilder/regnskaber.ts.
+    andreKilder: ["regnskab"],
   },
   {
     noegle: "bolig",

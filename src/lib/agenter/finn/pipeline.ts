@@ -31,6 +31,7 @@ import { MODEL_HURTIG, MODEL_SKRIV } from "../priser";
 import { hentMedCache } from "../kilder/cache";
 import { pulseKilde } from "../kilder/pulse";
 import { elprisTimer } from "../kilder/elpris-timer";
+import { regnskabKilde } from "../kilder/regnskaber";
 import { dstBoligpriser } from "../kilder/dst-boligpriser";
 import { FEEDS, rssKilde, udenTankestreg } from "../kilder/rss";
 import type { Kilde, KildeSvar, Post, NyhedPost, TalPost } from "../kilder/typer";
@@ -144,7 +145,7 @@ const RegelSkema = z.object({
 });
 
 export function finnKilder(prisma: PrismaClient): Kilde[] {
-  return [pulseKilde(prisma, FINN_SERIER), elprisTimer, dstBoligpriser, ...FEEDS.map(rssKilde)];
+  return [pulseKilde(prisma, FINN_SERIER), elprisTimer, dstBoligpriser, regnskabKilde(prisma), ...FEEDS.map(rssKilde)];
 }
 
 export async function koerFinn(opt: {
