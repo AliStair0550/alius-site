@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/page-metadata";
 import FinnRum from "@/components/agenter/FinnRum";
 import OmraadeVisning from "@/components/agenter/OmraadeVisning";
 import { hentBrief } from "@/lib/agenter/laes";
-import { hentOmraadeTal } from "@/lib/agenter/omraade-data";
+import { hentOmraadeTal, hentRegnskabsoversigt } from "@/lib/agenter/omraade-data";
 import { OMRAADER, omraade } from "@/lib/agenter/finn/omraader";
 
 // Områdesiderne. Kun de syv områder findes; alt andet er 404. Datoer
@@ -34,10 +34,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function OmraadeSide({ params }: Props) {
   const o = omraade((await params).omraade);
   if (!o) notFound();
-  const [brief, tal] = await Promise.all([hentBrief("finn", null), hentOmraadeTal(o.noegle)]);
+  const [brief, tal, regnskaber] = await Promise.all([
+    hentBrief("finn", null),
+    hentOmraadeTal(o.noegle),
+    o.noegle === "virksomheder" ? hentRegnskabsoversigt() : Promise.resolve(undefined),
+  ]);
   return (
     <FinnRum undertitel={o.navn} tilbage={{ href: "/agenter/finn", tekst: "Finn" }}>
-      <OmraadeVisning o={o} analyse={brief?.analyse ?? null} briefDato={brief?.dato ?? null} caveats={brief?.caveats ?? []} tal={tal} />
+      <OmraadeVisning o={o} analyse={brief?.analyse ?? null} briefDato={brief?.dato ?? null} caveats={brief?.caveats ?? []} tal={tal} regnskaber={regnskaber} />
     </FinnRum>
   );
 }

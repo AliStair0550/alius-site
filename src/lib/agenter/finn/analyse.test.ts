@@ -32,6 +32,16 @@ describe("analysens beregnede dele", () => {
     assert.equal(bygOverblik([p])[0]?.omraade, "energi");
   });
 
+  test("firmaernes salg vises år/år i overblikket, og som niveau når året før mangler", () => {
+    const aar = { slags: "samme periode året før" as const, periode: "august 2025", vaerdi: 469986, vaerdiTekst: "469.986", aendring: 6.3, aendringEnhed: "procent", aendringTekst: "+6,3 procent" };
+    const med = bygOverblik([tal("pulse:dst.omsaetning.erhverv.ekskl_energi", { periode: "august 2026", sammenligningAar: aar })])[0];
+    assert.equal(med.vaerdi, "+6,3 procent");
+    assert.equal(med.etiket, "firmaernes salg år/år, august 2026");
+    const uden = bygOverblik([tal("pulse:dst.omsaetning.erhverv.ekskl_energi", { periode: "august 2026", navn: "Firmaernes salg" })])[0];
+    assert.equal(uden.vaerdi, "2,0 procent");
+    assert.equal(uden.etiket, "Firmaernes salg, august 2026", "etiketten må ikke påstå år/år når tallet er niveauet");
+  });
+
   test("usædvanligt tager kun |z| >= 1, størst først", () => {
     const u = (id: string, z: number) => tal(id, { usaedvanlighed: { tekst: "x", z, sjaeldenhed: 0.1, maaneder: 120, opad: z > 0 } });
     const r = bygUsaedvanligt([u("pulse:a", 0.9), u("pulse:b", -2.5), u("pulse:c", 1.2)]);

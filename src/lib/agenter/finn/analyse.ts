@@ -102,13 +102,19 @@ const vis = (p: TalPost) => `${p.vaerdiTekst}${p.enhed && p.enhed !== "antal" ? 
  * Overblikkets felter, valgt i kode. Samme tal hver dag, så man kan
  * sammenligne dag for dag. Elprisen er Øst (brugerens valg 22/10).
  */
-const OVERBLIK: { id: string; etiket: (p: TalPost) => string }[] = [
+const OVERBLIK: { id: string; etiket: (p: TalPost) => string; vaerdi?: (p: TalPost) => string | null }[] = [
   { id: "pulse:dst.pris.forbruger.aarsaendring", etiket: (p) => `inflation, ${p.periode}` },
   { id: "eds.timer:DK2", etiket: () => "elpris Østdanmark i dag, gennemsnit" },
   { id: "pulse:dst.rente.nationalbank.udlaan", etiket: () => "Nationalbankens udlånsrente" },
   { id: "pulse:dst.ledighed.sasonkorrigeret", etiket: (p) => `ledighed, ${p.periode}` },
   { id: "pulse:dst.konkurs.total", etiket: (p) => `konkurser, ${p.periode}` },
-  { id: "pulse:dst.valuta.usd", etiket: () => "kroner for en dollar" },
+  // Firmaernes salg vises som ændring år/år; beløbet i mio. kr. siger ikke
+  // meget alene. Erstattede dollarkursen 22/10 2026; den står under Renter og kronen.
+  {
+    id: "pulse:dst.omsaetning.erhverv.ekskl_energi",
+    etiket: (p) => `firmaernes salg år/år, ${p.periode}`,
+    vaerdi: (p) => p.sammenligningAar?.aendringTekst ?? null,
+  },
   { id: "dst.ej56:0111", etiket: (p) => `huspriser år/år, ${p.periode}` },
   { id: "pulse:dst.forbrug.forventning.f1", etiket: (p) => `forbrugertillid, ${p.periode}` },
 ];
@@ -122,8 +128,9 @@ export function bygOverblik(poster: Post[]): Felt[] {
     const omr = omraadeFor(p.id) ?? (p.id.startsWith("eds.timer") ? "energi" : null);
     if (!omr) continue;
     // Huspriserne vises som DST's ændring år/år; indekset alene siger ikke meget.
-    const vaerdi = o.id === "dst.ej56:0111" && p.sammenligning ? p.sammenligning.aendringTekst : vis(p);
-    felter.push({ id: p.id, tema: temaForKilde(p.id.startsWith("eds.timer") ? "eds.el" : p.id, "tal"), omraade: omr, vaerdi, etiket: o.etiket(p), url: p.url });
+    const vaerdi = (o.vaerdi ? o.vaerdi(p) : null) ?? (o.id === "dst.ej56:0111" && p.sammenligning ? p.sammenligning.aendringTekst : vis(p));
+    const etiket = o.vaerdi && !o.vaerdi(p) ? `${p.navn}, ${p.periode}` : o.etiket(p);
+    felter.push({ id: p.id, tema: temaForKilde(p.id.startsWith("eds.timer") ? "eds.el" : p.id, "tal"), omraade: omr, vaerdi, etiket, url: p.url });
   }
   return felter;
 }

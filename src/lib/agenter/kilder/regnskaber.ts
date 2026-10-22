@@ -56,12 +56,28 @@ export type Raekke = {
 
 const dage = (start: string, slut: string) => (Date.parse(`${slut}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 86_400_000;
 
+export type Beloeb = { start: string; slut: string; vaerdi: number };
+
+/** Det der står i én indlevering, med sammenligningen året før. Ren data. */
+export type Regnskabsudsnit = {
+  sagsNummer: string;
+  offentliggjort: string;
+  valuta: string;
+  omsaetning: Beloeb;
+  omsaetningFoer: Beloeb | null;
+  /** Ændring i procent mod samme periode året før, med én decimal. null uden året før. */
+  aendring: number | null;
+  driftsresultat: { nu: Beloeb; foer: Beloeb | null } | null;
+  resultat: { nu: Beloeb; foer: Beloeb | null } | null;
+};
+
 /**
- * Posten for ét selskabs seneste indlevering. Ren funktion.
- * null når indleveringen ikke har omsætning for en periode der slutter på
- * regnskabets slutdato; det siges af kalderen.
+ * Omsætningen for den korteste periode der slutter på regnskabets
+ * slutdato (helst et kvartal), og resten for samme periode. Sammenligningen
+ * findes i tabellen, uanset hvilken indlevering den kom fra.
+ * null når indleveringen ikke har omsætning for slutdatoen.
  */
-export function postForIndlevering(s: Selskab, sagsNummer: string, alle: Raekke[]): TalPost | null {
+export function udsnit(sagsNummer: string, alle: Raekke[]): Regnskabsudsnit | null {
   const fra = alle.filter((r) => r.sagsNummer === sagsNummer);
   if (fra.length === 0) return null;
   const slut = fra.map((r) => r.slut).sort().at(-1)!;
@@ -69,39 +85,66 @@ export function postForIndlevering(s: Selskab, sagsNummer: string, alle: Raekke[
     .filter((r) => r.begreb === "omsaetning" && r.slut === slut)
     .sort((a, b) => dage(a.start, a.slut) - dage(b.start, b.slut))[0];
   if (!oms) return null;
-
-  // Sammenligningen findes i tabellen, uanset hvilken indlevering den kom fra.
-  const sammeAarFoer = (begreb: string) =>
-    alle.find((r) => r.begreb === begreb && r.start === aaretFoer(oms.start) && r.slut === aaretFoer(oms.slut));
+  const b = (r: Raekke | undefined): Beloeb | null => (r ? { start: r.start, slut: r.slut, vaerdi: r.vaerdi } : null);
+  const aarFoer = (begreb: string) => alle.find((r) => r.begreb === begreb && r.start === aaretFoer(oms.start) && r.slut === aaretFoer(oms.slut));
   const ved = (begreb: string) => alle.find((r) => r.begreb === begreb && r.start === oms.start && r.slut === oms.slut);
-
-  const enhed = `mio. ${VALUTANAVN[oms.valuta] ?? oms.valuta}`;
-  const foer = sammeAarFoer("omsaetning");
-  let sammenligning: Sammenligning | null = null;
-  if (foer && foer.vaerdi !== 0) {
-    const aendring = Math.round(((oms.vaerdi - foer.vaerdi) / Math.abs(foer.vaerdi)) * 1000) / 10;
-    sammenligning = {
-      slags: "samme periode året før",
-      periode: periodeMaaneder(foer.start, foer.slut),
-      vaerdi: mio(foer.vaerdi),
-      vaerdiTekst: daTal(mio(foer.vaerdi), 0),
-      aendring,
-      aendringEnhed: "procent",
-      aendringTekst: `${aendring > 0 ? "+" : ""}${daTal(aendring, 1)} procent`,
-    };
-  }
-
-  const linje = (begreb: string, navn: string) => {
+  const par = (begreb: string) => {
     const nu = ved(begreb);
-    if (!nu) return null;
-    const f = sammeAarFoer(begreb);
-    return `${navn} var ${daTal(mio(nu.vaerdi), 0)} ${enhed}${f ? ` mod ${daTal(mio(f.vaerdi), 0)} ${enhed} samme periode året før` : ""}.`;
+    return nu ? { nu: b(nu)!, foer: b(aarFoer(begreb)) } : null;
   };
+  const foer = aarFoer("omsaetning");
+  return {
+    sagsNummer,
+    offentliggjort: oms.offentliggjort,
+    valuta: oms.valuta,
+    omsaetning: b(oms)!,
+    omsaetningFoer: b(foer),
+    aendring: foer && foer.vaerdi !== 0 ? Math.round(((oms.vaerdi - foer.vaerdi) / Math.abs(foer.vaerdi)) * 1000) / 10 : null,
+    driftsresultat: par("driftsresultat"),
+    resultat: par("resultat"),
+  };
+}
+
+/** Selskabets nyeste indlevering der har omsætning. */
+export function senesteUdsnit(alle: Raekke[]): Regnskabsudsnit | null {
+  const sager = [...new Map(alle.map((r) => [r.sagsNummer, r.offentliggjort])).entries()].sort((a, b) => b[1].localeCompare(a[1]));
+  for (const [sag] of sager) {
+    const u = udsnit(sag, alle);
+    if (u) return u;
+  }
+  return null;
+}
+
+export const valutaEnhed = (valuta: string) => `mio. ${VALUTANAVN[valuta] ?? valuta}`;
+
+/**
+ * Posten for ét selskabs seneste indlevering. Ren funktion.
+ * null når indleveringen ikke har omsætning for en periode der slutter på
+ * regnskabets slutdato; det siges af kalderen.
+ */
+export function postForIndlevering(s: Selskab, sagsNummer: string, alle: Raekke[]): TalPost | null {
+  const u = udsnit(sagsNummer, alle);
+  if (!u) return null;
+  const enhed = valutaEnhed(u.valuta);
+  const sammenligning: Sammenligning | null =
+    u.aendring !== null && u.omsaetningFoer
+      ? {
+          slags: "samme periode året før",
+          periode: periodeMaaneder(u.omsaetningFoer.start, u.omsaetningFoer.slut),
+          vaerdi: mio(u.omsaetningFoer.vaerdi),
+          vaerdiTekst: daTal(mio(u.omsaetningFoer.vaerdi), 0),
+          aendring: u.aendring,
+          aendringEnhed: "procent",
+          aendringTekst: `${u.aendring > 0 ? "+" : ""}${daTal(u.aendring, 1)} procent`,
+        }
+      : null;
+  const linje = (x: Regnskabsudsnit["resultat"], navn: string) =>
+    x ? `${navn} var ${daTal(mio(x.nu.vaerdi), 0)} ${enhed}${x.foer ? ` mod ${daTal(mio(x.foer.vaerdi), 0)} ${enhed} samme periode året før` : ""}.` : null;
   const kontekst = [
-    linje("driftsresultat", "Driftsresultatet"),
-    linje("resultat", "Resultatet efter skat"),
-    oms.valuta !== "DKK" ? `Beløbene er i selskabets egen regnskabsvaluta, ${VALUTANAVN[oms.valuta] ?? oms.valuta}.` : null,
-    `Indleveret til Erhvervsstyrelsen ${oms.offentliggjort.slice(0, 10)}; selskabets børsmeddelelse kom typisk tidligere.`,
+    linje(u.driftsresultat, "Driftsresultatet"),
+    linje(u.resultat, "Resultatet efter skat"),
+    u.valuta !== "DKK" ? `Beløbene er i selskabets egen regnskabsvaluta, ${VALUTANAVN[u.valuta] ?? u.valuta}.` : null,
+    `Indleveret til Erhvervsstyrelsen ${u.offentliggjort.slice(0, 10)}; selskabets børsmeddelelse kom typisk tidligere.`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -114,13 +157,13 @@ export function postForIndlevering(s: Selskab, sagsNummer: string, alle: Raekke[
     enhed,
     saeson: "ikke korrigeret",
     url: `https://datacvr.virk.dk/enhed/virksomhed/${s.cvr}`,
-    periode: periodeMaaneder(oms.start, oms.slut),
-    vaerdi: mio(oms.vaerdi),
-    vaerdiTekst: daTal(mio(oms.vaerdi), 0),
+    periode: periodeMaaneder(u.omsaetning.start, u.omsaetning.slut),
+    vaerdi: mio(u.omsaetning.vaerdi),
+    vaerdiTekst: daTal(mio(u.omsaetning.vaerdi), 0),
     sammenligning,
     forloeb: [],
     tendens: null,
-    foersteGangSet: oms.offentliggjort,
+    foersteGangSet: u.offentliggjort,
     kontekst,
   };
 }
@@ -185,4 +228,16 @@ export function regnskabKilde(prisma: PrismaClient): Kilde {
       return { ...base, status: "ok", ...(mangler.length ? { besked: mangler.join("; ") } : {}), poster };
     },
   };
+}
+
+/**
+ * Hvor mange selskaber øgede omsætningen i deres seneste regnskab, og
+ * medianen af ændringerne. Procent er valutaneutral, så Mærsks dollar og
+ * Novos kroner kan tælles sammen; beløbene kan ikke.
+ */
+export function opsummerOversigt(aendringer: (number | null)[]): { med: number; hoejere: number; median: number | null } {
+  const tal = aendringer.filter((x): x is number => x !== null).sort((a, b) => a - b);
+  if (tal.length === 0) return { med: 0, hoejere: 0, median: null };
+  const m = tal.length % 2 ? tal[(tal.length - 1) / 2] : (tal[tal.length / 2 - 1] + tal[tal.length / 2]) / 2;
+  return { med: tal.length, hoejere: tal.filter((x) => x > 0).length, median: Math.round(m * 10) / 10 };
 }

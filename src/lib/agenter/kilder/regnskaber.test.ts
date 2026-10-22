@@ -50,3 +50,13 @@ describe("Regnskaber som Finn læser dem", () => {
     assert.equal(postForIndlevering(maersk, "NY", [r("resultat", "2026-04-01", "2026-06-30", 1)]), null);
   });
 });
+
+import { opsummerOversigt } from "./regnskaber";
+
+describe("Regnskabsoversigten", () => {
+  test("tæller kun selskaber med året før, og medianen er af procenterne", () => {
+    assert.deepEqual(opsummerOversigt([20, -5.7, null, 2.6]), { med: 3, hoejere: 2, median: 2.6 });
+    assert.deepEqual(opsummerOversigt([1, 3]), { med: 2, hoejere: 2, median: 2 });
+    assert.deepEqual(opsummerOversigt([null]), { med: 0, hoejere: 0, median: null });
+  });
+});

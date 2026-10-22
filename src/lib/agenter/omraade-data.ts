@@ -15,6 +15,8 @@ import { hentMaanedsgennemsnit, hentSerieInfo } from "../pulse-model";
 import { omraade, type OmraadeNoegle } from "./finn/omraader";
 import { FINN_SERIER } from "./finn/serier";
 import { AGENTER_TAG } from "./laes";
+import { SELSKABER } from "../../../config/selskaber";
+import { senesteUdsnit, type Raekke, type Regnskabsudsnit } from "./kilder/regnskaber";
 
 export type OmraadeSerie = {
   id: string;
@@ -79,3 +81,37 @@ async function laes(noegle: OmraadeNoegle): Promise<OmraadeTal> {
 }
 
 export const hentOmraadeTal = unstable_cache(laes, ["agenter-omraade-tal"], { tags: [AGENTER_TAG], revalidate: 6 * 3600 });
+
+export type RegnskabsLinje = {
+  cvr: string;
+  navn: string;
+  udsnit: Regnskabsudsnit | null;
+  /** Hvorfor der ikke er et udsnit. Kun sat når udsnit er null. */
+  hvorforIkke?: string;
+};
+
+async function laesRegnskaber(): Promise<RegnskabsLinje[]> {
+  const raekker = await prisma.regnskabstal.findMany({
+    where: { isCurrent: true },
+    select: { cvr: true, begreb: true, periodeStart: true, periodeSlut: true, vaerdi: true, valuta: true, sagsNummer: true, indleveringSlags: true, offentliggjort: true },
+  });
+  const alle: Raekke[] = raekker.map((r) => ({
+    cvr: r.cvr,
+    begreb: r.begreb,
+    start: iso(r.periodeStart),
+    slut: iso(r.periodeSlut),
+    vaerdi: Number(r.vaerdi),
+    valuta: r.valuta,
+    sagsNummer: r.sagsNummer,
+    indleveringSlags: r.indleveringSlags,
+    offentliggjort: r.offentliggjort.toISOString(),
+  }));
+  return SELSKABER.map((s) => {
+    const egne = alle.filter((r) => r.cvr === s.cvr);
+    if (egne.length === 0) return { cvr: s.cvr, navn: s.navn, udsnit: null, hvorforIkke: "ingen regnskaber hentet endnu" };
+    const u = senesteUdsnit(egne);
+    return u ? { cvr: s.cvr, navn: s.navn, udsnit: u } : { cvr: s.cvr, navn: s.navn, udsnit: null, hvorforIkke: "intet regnskab med omsætning" };
+  });
+}
+
+export const hentRegnskabsoversigt = unstable_cache(laesRegnskaber, ["agenter-regnskabsoversigt"], { tags: [AGENTER_TAG], revalidate: 6 * 3600 });

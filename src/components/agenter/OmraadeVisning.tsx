@@ -3,7 +3,8 @@ import Glid from "@/components/agenter/Glid";
 import { AfsnitTekst, DagensKort, Elpris, Sektionstitel, omraadeSti } from "@/components/agenter/AnalyseVisning";
 import type { Analyse } from "@/lib/agenter/finn/analyse";
 import { OMRAADER, type Omraade } from "@/lib/agenter/finn/omraader";
-import type { OmraadeSerie, OmraadeTal } from "@/lib/agenter/omraade-data";
+import type { OmraadeSerie, OmraadeTal, RegnskabsLinje } from "@/lib/agenter/omraade-data";
+import RegnskabsOversigt from "@/components/agenter/RegnskabsOversigt";
 import { periodeTekst } from "@/lib/agenter/kilder/pulse";
 import { formatAendring, formatVaerdi } from "@/lib/pulse-enheder";
 import { langDato } from "@/lib/agenter/dato";
@@ -18,12 +19,15 @@ export default function OmraadeVisning({
   briefDato,
   caveats,
   tal,
+  regnskaber,
 }: {
   o: Omraade;
   analyse: Analyse | null;
   briefDato: string | null;
   caveats: string[];
   tal: OmraadeTal;
+  /** Kun på siden om virksomheder. */
+  regnskaber?: RegnskabsLinje[];
 }) {
   const laesning = analyse?.omraader[o.noegle];
   const usaedvanligt = analyse?.usaedvanligt.filter((u) => u.omraade === o.noegle) ?? [];
@@ -118,6 +122,13 @@ export default function OmraadeVisning({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {regnskaber && regnskaber.length > 0 && (
+        <section aria-labelledby="regnskaber-titel">
+          <Sektionstitel id="regnskaber-titel">De store børsnoterede selskaber, seneste regnskab</Sektionstitel>
+          <RegnskabsOversigt linjer={regnskaber} />
         </section>
       )}
 
