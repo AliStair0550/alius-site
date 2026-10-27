@@ -104,6 +104,22 @@ const projects = [
     layout: "image-left" as const,
     logoFont: true,
   },
+  {
+    name: "SGA creatives",
+    type: "Hjemmeside · Visuel identitet",
+    desc: "Hjemmeside og visuel identitet for SGA creatives, der forbinder brands med kreative kræfter og leder kampagner og kulturelle oplevelser inden for mode, sneakers og lifestyle. Siden viser projekter for blandt andre Nike, adidas og Timberland.",
+    // Heroens hovedbillede fra sgacreatives.com: Timberland × Rezet-eventet.
+    // Hentet 27. oktober 2026 i 1040 px webp og gemt lokalt, så kortet ikke
+    // afhænger af at SGA's side svarer. Billedet står på højkant og kortet
+    // er 16:10; objectPosition holder ansigterne og støvlen i billedet i
+    // stedet for kun æskerne forneden.
+    image: "/sga-timberland.webp",
+    objectPosition: "50% 22%",
+    // Linjeskiftet følger SGA's egen hero: "Where brands / meet culture."
+    overlay: { title: "Where brands\nmeet culture.", tone: "ink/50" as const },
+    link: "https://www.sgacreatives.com",
+    layout: "image-right" as const,
+  },
 ];
 
 // ── Stemplet: digitalt stempelkort der fyldes stempel for stempel ──────────
@@ -348,12 +364,13 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
           fill
           sizes="(max-width: 767px) 100vw, 640px"
           className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+          style={"objectPosition" in p && p.objectPosition ? { objectPosition: p.objectPosition } : undefined}
         />
         {"overlay" in p && p.overlay && (
           <>
-            <div className="absolute inset-0 bg-ink/40 z-10" />
+            <div className={`absolute inset-0 z-10 ${"tone" in p.overlay && p.overlay.tone === "ink/50" ? "bg-ink/50" : "bg-ink/40"}`} />
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <div className="font-[400] text-[1.8rem] text-parchment tracking-[0.04em]">
+              <div className="font-[400] text-[1.8rem] text-parchment tracking-[0.04em] text-center px-6 leading-[1.2] whitespace-pre-line">
                 {p.overlay.title}
               </div>
             </div>
