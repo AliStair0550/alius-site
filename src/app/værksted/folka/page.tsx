@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/page-metadata";
 import { getArticle } from "@/lib/vaerksted";
 import { Kaffekort } from "@/components/vaerksted/Kaffekort";
 
-const article = getArticle("stemplet")!;
+const article = getArticle("folka")!;
 
 export const metadata: Metadata = pageMetadata({
   title: `${article.title} | Alius`,
@@ -19,7 +19,7 @@ const jsonLd = {
   headline: article.title,
   description: article.excerpt,
   datePublished: article.date,
-  dateModified: article.date,
+  dateModified: article.updated ?? article.date,
   inLanguage: "da-DK",
   image: "https://alius.dk/opengraph-image",
   mainEntityOfPage: {
@@ -35,7 +35,7 @@ const jsonLd = {
   },
 };
 
-export default function StempletArticle() {
+export default function FolkaArticle() {
   return (
     <div className="min-h-screen bg-parchment text-ink font-sans font-light overflow-x-hidden relative">
       <script
@@ -103,17 +103,18 @@ export default function StempletArticle() {
               Eksperimentet
             </h2>
             <p>
-              Så vi prøvede noget midt imellem. Et stempelkort, der bor i kundens
-              Apple Wallet. Ingen app, intet login, ingen oprettelse. Kunden
-              scanner en QR-kode ved disken én gang, og kortet ligger i lommen for
-              altid, ved siden af boardingpas og betalingskort.
+              Så vi prøvede noget midt imellem under navnet Stemplet. Et
+              stempelkort, der bor i kundens Apple Wallet. Ingen app, intet
+              login, ingen oprettelse. Kunden scannede en QR-kode ved disken én
+              gang, og kortet lå i lommen, ved siden af boardingpas og
+              betalingskort.
             </p>
             <p>
-              Stemplingen tager ét sekund. Personalet scanner kundens kort,
-              stemplet lander på skærmen med det samme, og når kortet er fuldt,
-              siger telefonen selv til. Butikken får et overblik, den aldrig har
-              haft med pap: hvor mange kort er i omløb, hvor tit bliver der
-              stemplet, hvor mange belønninger bliver hentet.
+              Stemplingen tog ét sekund. Personalet scannede kundens kort,
+              stemplet landede på skærmen med det samme, og når kortet var fuldt,
+              sagde telefonen selv til. Butikken fik et overblik, den aldrig
+              havde haft med pap: hvor mange kort der var i omløb, hvor tit der
+              blev stemplet, og hvor mange belønninger der blev hentet.
             </p>
 
             <h2 className="font-fraunces font-light text-[clamp(26px,4vw,38px)] leading-[1.15] tracking-[-0.01em] text-ink pt-6">
@@ -132,24 +133,38 @@ export default function StempletArticle() {
             </p>
 
             <h2 className="font-fraunces font-light text-[clamp(26px,4vw,38px)] leading-[1.15] tracking-[-0.01em] text-ink pt-6">
+              Fra Stemplet til folka
+            </h2>
+            <p>
+              Stemplet er i dag blevet til folka: et digitalt loyalitetskort
+              direkte i Apple Wallet. Kunderne samler stempler, inviterer venner
+              og får adgang til særlige rabatter.
+            </p>
+            <p>
+              Forretningen får samtidig en direkte kommunikationskanal til
+              kundernes låseskærm via pushbeskeder. Hver forretning får sit eget
+              kort, tilpasset med eget design og brand.
+            </p>
+
+            <h2 className="font-fraunces font-light text-[clamp(26px,4vw,38px)] leading-[1.15] tracking-[-0.01em] text-ink pt-6">
               Hvorfor vi bygger sådan noget
             </h2>
             <p>
               Alius bygger skarpe maskiner målrettet den enkelte virksomhed. Men
               når det samme problem dukker op hos bageren, frisøren og
               kaffebaren, eksperimenterer vi med løsninger, der kan skaleres.
-              Stemplet er sådan et eksperiment. Det er live nu, og de første
-              butikker stempler allerede.
+              Stemplet var sådan et eksperiment, og folka er det, der kom ud af
+              det.
             </p>
             <p>
-              Prøv det selv på{" "}
+              Se folka på{" "}
               <a
-                href="https://stemplet.dk"
+                href="https://kort.folka.dk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-moss border-b border-moss/30 hover:border-moss transition-colors"
               >
-                stemplet.dk
+                kort.folka.dk
               </a>
               . Der er flere eksperimenter på bordet.
             </p>
@@ -167,7 +182,7 @@ export default function StempletArticle() {
               Tilbage til Værkstedet
             </Link>
             <a
-              href="mailto:hej@alius.dk?subject=Stemplet"
+              href="mailto:hej@alius.dk?subject=folka"
               className="inline-flex justify-center font-[300] text-[0.8rem] tracking-[0.12em] uppercase px-7 py-3.5 bg-moss text-parchment border border-moss hover:bg-moss-light hover:border-moss-light transition-colors no-underline"
             >
               Lad os tale sammen

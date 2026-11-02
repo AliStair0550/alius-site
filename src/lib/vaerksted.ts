@@ -11,18 +11,21 @@ export type Article = {
   excerpt: string;
   category: string;
   date: string; // ISO 8601 - bruges til schema og sortering
+  /** Hvornår artiklen sidst er ændret, når det ikke er udgivelsesdatoen. */
+  updated?: string;
   dateLabel: string; // vises på siden
 };
 
 export const ARTICLES: Article[] = [
   {
-    slug: "stemplet",
-    href: "/værksted/stemplet",
+    slug: "folka",
+    href: "/værksted/folka",
     title: "Ingen downloader en app for en kop kaffe",
     excerpt:
       "Pap bliver smidt ud, og apps er for meget. Så jeg byggede noget midt imellem.",
     category: "Eksperiment",
     date: "2026-07-27",
+    updated: "2026-11-02",
     dateLabel: "Juli 2026",
   },
 ];

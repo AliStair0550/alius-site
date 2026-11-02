@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/artikler/:slug*", destination: "/værksted/:slug*", permanent: true },
       { source: "/artikler", destination: "/værksted", permanent: true },
+      // Stemplet blev til folka, og artiklen flyttede med.
+      { source: "/værksted/stemplet", destination: "/værksted/folka", permanent: true },
       // Finns arkiv flyttede 22. oktober 2026 fra /agenter/finn/<dato> til
       // /agenter/finn/arkiv/<dato>, så /agenter/finn/<område> kunne blive
       // områdesider. Kun datoer omdirigeres; et område matcher ikke.
