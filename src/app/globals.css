@@ -432,6 +432,38 @@ body {
   .stamp-mark { transition: none !important; }
 }
 
+/* Folka Kort: viften af loyalitetskort i porteføljen */
+.folka-pas { transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease; will-change: transform; }
+.folka-daemp { transition: opacity 620ms ease; pointer-events: none; }
+.folka-prik { transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 200ms ease; }
+.folka-prik.is-on { transform: scale(1.04); }
+.folka-besked { transform: translate(-50%, -160%); opacity: 0; transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease; }
+.folka-besked.is-on { transform: translate(-50%, 0); opacity: 1; }
+@keyframes folkaDrift { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(9%, 7%) scale(1.12); } }
+@keyframes folkaDrift2 { 0%, 100% { transform: translate(0, 0) scale(1.08); } 50% { transform: translate(-10%, -8%) scale(0.96); } }
+.folka-drift { animation: folkaDrift 9s ease-in-out infinite; }
+.folka-drift-2 { animation: folkaDrift2 11s ease-in-out infinite; }
+@keyframes folkaRing { 0%, 100% { opacity: 0.28; transform: scale(0.97); } 50% { opacity: 0.85; transform: scale(1.03); } }
+.folka-ring { animation: folkaRing 3.4s ease-in-out infinite; }
+@keyframes folkaBob { 0%, 100% { transform: translateY(-2px) scale(0.97); } 50% { transform: translateY(2px) scale(1.04); } }
+.folka-bob { animation: folkaBob 4.2s ease-in-out infinite; }
+@keyframes folkaBoelge { to { transform: translateX(-150px); } }
+.folka-boelge { animation: folkaBoelge 6s linear infinite; }
+.folka-boelge-2 { animation: folkaBoelge 9s linear infinite reverse; }
+@keyframes folkaBakke { 0%, 100% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
+.folka-bakke { animation: folkaBakke 8s ease-in-out infinite; }
+.folka-bakke-2 { animation: folkaBakke 6s ease-in-out infinite reverse; }
+@keyframes folkaSol { 0%, 100% { transform: translateY(5px) scale(0.96); } 50% { transform: translateY(-5px) scale(1.04); } }
+.folka-sol { animation: folkaSol 6s ease-in-out infinite; }
+@keyframes folkaSvaev { 0%, 100% { transform: translateY(2px); } 50% { transform: translateY(-3px); } }
+.folka-svaev { animation: folkaSvaev 6s ease-in-out infinite; }
+@keyframes folkaGlid { to { transform: translate(38px, 30px); } }
+.folka-glid { animation: folkaGlid 12s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .folka-drift, .folka-drift-2, .folka-ring, .folka-bob, .folka-boelge, .folka-boelge-2, .folka-bakke, .folka-bakke-2, .folka-sol, .folka-svaev, .folka-glid { animation: none !important; }
+  .folka-pas, .folka-daemp, .folka-prik, .folka-besked { transition: none !important; }
+}
+
 /* ── Cykelmov (portefølje): logo-hjul der kører ── */
 .cm-hjul {
   width: 20px;

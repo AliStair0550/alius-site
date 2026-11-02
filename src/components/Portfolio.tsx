@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import FolkaKortViz from "./FolkaKortViz";
 
 const projects = [
   {
@@ -21,12 +22,15 @@ const projects = [
     layout: "image-left" as const,
   },
   {
-    name: "Stemplet",
-    type: "Platform · SaaS · Loyalitet",
-    desc: "Digitalt loyalitetskort der bor i kundens Apple Wallet. Direkte leverancer: PassKit-passes der opdateres live efter hvert scan, QR-baseret stempling uden app eller signup, merchant-dashboard med realtidsstatistik og push ved optjent belønning. Fuld stack fra bunden - API, backend og infrastruktur.",
-    Viz: StempletViz,
-    link: "https://stemplet.alius.dk",
+    name: "folka",
+    type: "Platform · Loyalitet · Apple Wallet",
+    desc: "Digitalt loyalitetskort i Apple Wallet for små forretninger. Kunderne samler stempler, tager vennerne med på en personlig kode og får særlige rabatter, og forretningen får en direkte linje til kundens låseskærm. Hver forretning får sit eget kort med egne farver, ikon og ord.",
+    Viz: FolkaKortViz,
+    link: "https://kort.folka.dk",
     layout: "image-right" as const,
+    logoFont: true,
+    // Viften af kort kan ikke stå i den smalle kolonne (333 px).
+    bredtBillede: true,
   },
   {
     name: "SSTUDIO",
@@ -81,28 +85,12 @@ const projects = [
     layout: "image-right" as const,
   },
   {
-    name: "folka",
-    type: "Platform · SaaS · Intranet",
-    desc: "Intranet for små og mellemstore virksomheder, bygget fra bunden. Sammen om arbejdet: beskeder, filer og overblik, ét sted for hele holdet. Direkte leverancer: opslag med læsekvittering, håndbøger der skal bekræftes, tidsregistrering, lønsedler og kontraktunderskrift. Next.js, Prisma og Postgres - fra arkitektur til produktion.",
-    // Foto leveret af Ali 8. oktober 2026. Caféinteriør i modlys.
-    //
-    // Tredje billede på pladsen. Først et stockfoto fra en yogatime, som
-    // passede til den gamle position som fællesskabsplatform. Så et foto
-    // fra folka.dk med to kolleger om én skærm. Nu dette.
-    //
-    // Kilden er 4:3 og 5184 px bred; kortet er 16:10 og viser højst 640.
-    // Derfor nedskaleret til 1600 px og gemt som webp: 1,8 MB blev til
-    // 77 KB. object-cover skærer resten, cirka 17 procent af højden,
-    // mest loftet og lamperne foroven.
-    //
-    // Ingen tint. Folka havde tint: "moss", som lagde bg-moss/40 hen over
-    // hele billedet for at få et off-brand foto til at passe ind. De ni
-    // andre projekter viser deres billede i fuld farve, og grenen er
-    // fjernet, fordi Folka var dens eneste bruger.
-    image: "/folka.webp",
-    link: "https://folka.dk",
+    name: "Stemplet",
+    type: "Platform · SaaS · Loyalitet",
+    desc: "Digitalt loyalitetskort der bor i kundens Apple Wallet. Direkte leverancer: PassKit-passes der opdateres live efter hvert scan, QR-baseret stempling uden app eller signup, merchant-dashboard med realtidsstatistik og push ved optjent belønning. Fuld stack fra bunden - API, backend og infrastruktur.",
+    Viz: StempletViz,
+    link: "https://stemplet.alius.dk",
     layout: "image-left" as const,
-    logoFont: true,
   },
   {
     name: "SGA creatives",
@@ -499,8 +487,8 @@ export default function Portfolio() {
                 e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0.15) 100%)";
               }}
             >
-              <div className={`grid grid-cols-1 md:grid-cols-[1fr_0.55fr] gap-8 md:gap-12 p-4 md:p-6 ${
-                p.layout === "image-right" ? "md:grid-cols-[0.55fr_1fr]" : ""
+              <div className={`grid grid-cols-1 gap-8 md:gap-12 p-4 md:p-6 ${
+                "bredtBillede" in p && p.bredtBillede ? "md:grid-cols-[0.55fr_1fr]" : "md:grid-cols-[1fr_0.55fr]"
               }`}>
                 {p.layout === "image-right" && (
                   <ProjectInfo p={p} />
