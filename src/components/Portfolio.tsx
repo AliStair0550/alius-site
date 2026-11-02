@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import FolkaKortViz from "./FolkaKortViz";
 
@@ -24,7 +23,7 @@ const projects = [
   {
     name: "folka",
     type: "Platform · Loyalitet · Apple Wallet",
-    desc: "Digitalt loyalitetskort i Apple Wallet for små forretninger. Kunderne samler stempler, tager vennerne med på en personlig kode og får særlige rabatter, og forretningen får en direkte linje til kundens låseskærm. Hver forretning får sit eget kort med egne farver, ikon og ord.",
+    desc: "Et digitalt loyalitetskort direkte i Apple Wallet. Kunderne samler stempler, inviterer venner og får adgang til særlige rabatter.\n\nForretningen får samtidig en direkte kommunikationskanal til kundernes låseskærm via pushbeskeder. Hver forretning får sit eget kort, tilpasset med eget design og brand.",
     Viz: FolkaKortViz,
     link: "https://kort.folka.dk",
     layout: "image-right" as const,
@@ -85,14 +84,6 @@ const projects = [
     layout: "image-right" as const,
   },
   {
-    name: "Stemplet",
-    type: "Platform · SaaS · Loyalitet",
-    desc: "Digitalt loyalitetskort der bor i kundens Apple Wallet. Direkte leverancer: PassKit-passes der opdateres live efter hvert scan, QR-baseret stempling uden app eller signup, merchant-dashboard med realtidsstatistik og push ved optjent belønning. Fuld stack fra bunden - API, backend og infrastruktur.",
-    Viz: StempletViz,
-    link: "https://stemplet.alius.dk",
-    layout: "image-left" as const,
-  },
-  {
     name: "SGA creatives",
     type: "Hjemmeside · Visuel identitet",
     desc: "Hjemmeside og visuel identitet for SGA creatives, der forbinder brands med kreative kræfter og leder kampagner og kulturelle oplevelser inden for mode, sneakers og lifestyle. Siden viser projekter for blandt andre Nike, adidas og Timberland.",
@@ -102,201 +93,13 @@ const projects = [
     // er 16:10; objectPosition holder ansigterne og støvlen i billedet i
     // stedet for kun æskerne forneden.
     image: "/sga-timberland.webp",
-    objectPosition: "50% 22%",
+    objectPosition: "50% 12%",
     // Linjeskiftet følger SGA's egen hero: "Where brands / meet culture."
     overlay: { title: "Where brands\nmeet culture.", tone: "ink/50" as const },
     link: "https://www.sgacreatives.com",
-    layout: "image-right" as const,
+    layout: "image-left" as const,
   },
 ];
-
-// ── Stemplet: digitalt stempelkort der fyldes stempel for stempel ──────────
-const STAMP_CREAM = "#EFE7D8";
-const STAMP_CARD = "#40332B"; // kortets flade (lidt lysere)
-const STAMP_BROWN = "#2B221C"; // mørk til kaffekop-ikoner
-const STAMP_MOSS = "#2D5F4A";
-const STAMP_COLS = [79, 133, 187, 241];
-const STAMP_ROWS = [118, 152];
-const STAMPS = STAMP_ROWS.flatMap((y) => STAMP_COLS.map((x) => ({ x, y })));
-
-// Dopamin: gnist-burst fra kortets midte når det 8. stempel lander
-const SPARKLES: { dx: number; dy: number; r: number; c: string; d: string }[] = [
-  { dx: 66, dy: -14, r: 3.4, c: STAMP_MOSS, d: "0ms" },
-  { dx: 46, dy: -50, r: 2.8, c: STAMP_CREAM, d: "40ms" },
-  { dx: 8, dy: -70, r: 3.8, c: "#4A7D68", d: "20ms" },
-  { dx: -42, dy: -54, r: 2.8, c: STAMP_MOSS, d: "60ms" },
-  { dx: -68, dy: -12, r: 3.4, c: STAMP_CREAM, d: "10ms" },
-  { dx: -48, dy: 40, r: 2.8, c: "#4A7D68", d: "50ms" },
-  { dx: 4, dy: 60, r: 3.4, c: STAMP_MOSS, d: "30ms" },
-  { dx: 50, dy: 42, r: 2.8, c: STAMP_CREAM, d: "20ms" },
-  { dx: 30, dy: -30, r: 2.2, c: STAMP_MOSS, d: "70ms" },
-  { dx: -26, dy: 16, r: 2.2, c: STAMP_CREAM, d: "80ms" },
-];
-
-function CoffeeCup({ x, y, color }: { x: number; y: number; color: string }) {
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      <path d="M -4.5 -3 h 9 v 2.4 a 4.5 4.5 0 0 1 -9 0 z" fill={color} />
-      <path d="M 4.6 -2 a 2.4 2.4 0 0 1 0 4" fill="none" stroke={color} strokeWidth={1.3} />
-    </g>
-  );
-}
-
-function StempletViz() {
-  const [filled, setFilled] = useState(0);
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      timer = setTimeout(() => setFilled(6), 0);
-      return () => clearTimeout(timer);
-    }
-    let n = 0;
-    const step = () => {
-      setFilled(n);
-      const delay = n >= 8 ? 2200 : n === 0 ? 900 : 600;
-      n = n >= 8 ? 0 : n + 1;
-      timer = setTimeout(step, delay);
-    };
-    step();
-    return () => clearTimeout(timer);
-  }, []);
-
-  const full = filled >= 8;
-
-  return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <svg viewBox="0 0 320 200" className="card-float" style={{ width: "86%", height: "auto" }} role="img" aria-label="Stemplet digitalt stempelkort">
-        <defs>
-          <clipPath id="stampCardClip">
-            <rect x="24" y="20" width="272" height="160" rx="20" />
-          </clipPath>
-          <linearGradient id="stampSheenGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#FFFFFF" stopOpacity="0" />
-            <stop offset="0.5" stopColor="#FFFFFF" stopOpacity="0.14" />
-            <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {/* Kort */}
-        <rect x="24" y="20" width="272" height="160" rx="20" fill={STAMP_CARD} />
-
-        {/* Premium sheen der stryger blødt hen over kortet */}
-        <g clipPath="url(#stampCardClip)">
-          <rect className="stamp-sheen" x="-70" y="10" width="70" height="180" fill="url(#stampSheenGrad)" style={{ transformBox: "view-box" }} />
-        </g>
-
-        {/* Fin lys kant langs toppen - glas-materiale */}
-        <path d="M 44 20.6 H 276" stroke={STAMP_CREAM} strokeWidth="1" opacity="0.16" strokeLinecap="round" />
-
-        {/* Header: forretningsnavn */}
-        <text x="44" y="48" fill={STAMP_CREAM} style={{ fontSize: "8px", letterSpacing: "0.09em", fontWeight: 500, opacity: 0.92 }}>COPENHAGEN</text>
-        <text x="44" y="59" fill={STAMP_CREAM} style={{ fontSize: "8px", letterSpacing: "0.09em", fontWeight: 500, opacity: 0.92 }}>COFFEE LAB</text>
-
-        {/* Tæller */}
-        <text x="276" y="45" textAnchor="end" fill={STAMP_CREAM} style={{ fontSize: "6px", letterSpacing: "0.16em", opacity: 0.55 }}>STEMPLER</text>
-        <text x="276" y="61" textAnchor="end" fill={full ? STAMP_MOSS : STAMP_CREAM} style={{ fontSize: "14px", fontWeight: 500, transition: "fill 400ms ease" }}>{filled}/8</text>
-
-        {/* Undertekst */}
-        <text x="44" y="82" fill={full ? STAMP_MOSS : STAMP_CREAM} style={{ fontSize: "8px", opacity: full ? 0.95 : 0.6, transition: "fill 400ms ease, opacity 400ms ease" }}>
-          {full ? "Din kop er klar" : "8. kop er gratis"}
-        </text>
-
-        {/* Stempler */}
-        {STAMPS.map((s, i) => {
-          const isReward = i === 7;
-          const on = i < filled;
-          return (
-            <g key={i}>
-              {/* Tom plads */}
-              <circle
-                cx={s.x}
-                cy={s.y}
-                r={13}
-                fill="none"
-                stroke={STAMP_CREAM}
-                strokeWidth={1}
-                opacity={0.22}
-                strokeDasharray={isReward ? "2 2.6" : undefined}
-              />
-              {/* Fyldt stempel - glider blødt ind og ud med et lille spring */}
-              <g
-                className={`stamp-mark${on ? " is-on" : ""}`}
-                style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}
-              >
-                {isReward && (
-                  <circle
-                    className="stamp-reward-glow"
-                    cx={s.x}
-                    cy={s.y}
-                    r={13}
-                    fill="none"
-                    stroke={STAMP_MOSS}
-                    strokeWidth={1.5}
-                    style={{ transformBox: "view-box", transformOrigin: `${s.x}px ${s.y}px` }}
-                  />
-                )}
-                <circle cx={s.x} cy={s.y} r={13} fill={isReward ? STAMP_MOSS : STAMP_CREAM} />
-                <CoffeeCup x={s.x} y={s.y} color={isReward ? STAMP_CREAM : STAMP_BROWN} />
-              </g>
-            </g>
-          );
-        })}
-
-        {/* Dopamin: fejring når det 8. stempel lander */}
-        {full && (
-          <g>
-            {/* Kortet fejrer med en blød ring der breder sig ud */}
-            <rect
-              className="stamp-cheer"
-              x="24"
-              y="20"
-              width="272"
-              height="160"
-              rx="20"
-              fill="none"
-              stroke={STAMP_MOSS}
-              strokeWidth="2"
-              style={{ transformBox: "view-box", transformOrigin: "160px 100px" }}
-            />
-            {/* "Ding" - tydelig ring der springer ud fra det optjente stempel */}
-            <circle
-              className="stamp-reward-burst"
-              cx={STAMP_COLS[STAMP_COLS.length - 1]}
-              cy={STAMP_ROWS[STAMP_ROWS.length - 1]}
-              r={13}
-              fill="none"
-              stroke={STAMP_MOSS}
-              strokeWidth="2"
-              style={{
-                transformBox: "view-box",
-                transformOrigin: `${STAMP_COLS[STAMP_COLS.length - 1]}px ${STAMP_ROWS[STAMP_ROWS.length - 1]}px`,
-              }}
-            />
-            {/* Gnist-burst fra kortets midte */}
-            {SPARKLES.map((s, i) => (
-              <circle
-                key={`sp${i}`}
-                className="stamp-spark"
-                cx={160}
-                cy={100}
-                r={s.r}
-                fill={s.c}
-                style={{
-                  transformBox: "view-box",
-                  transformOrigin: "160px 100px",
-                  ["--sx" as string]: `${s.dx}px`,
-                  ["--sy" as string]: `${s.dy}px`,
-                  animationDelay: s.d,
-                }}
-              />
-            ))}
-          </g>
-        )}
-      </svg>
-    </div>
-  );
-}
 
 // ── Cykelmov: butiks-hero med logo (roterende hjul) og overskrift ───────────
 function CykelmovViz() {
@@ -442,7 +245,7 @@ function ProjectInfo({ p }: { p: (typeof projects)[number] }) {
       >
         {p.name}
       </div>
-      <div className="font-[200] text-[0.85rem] leading-[1.7]" style={{ color: "rgba(255,255,255,0.6)" }}>
+      <div className="font-[200] text-[0.85rem] leading-[1.7] whitespace-pre-line" style={{ color: "rgba(255,255,255,0.6)" }}>
         {p.desc}
       </div>
     </div>

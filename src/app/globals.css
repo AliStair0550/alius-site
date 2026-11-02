@@ -371,67 +371,6 @@ body {
   .svc-pulse, .svc-sweep, .svc-link { opacity: 0 !important; }
 }
 
-/* ── Stemplet (portefølje): premium wallet-kort med blødt materiale ── */
-/* Kortet svæver og vipper let - virker levende og premium */
-@keyframes cardFloat {
-  0%, 100% { transform: translateY(0) rotate(-0.5deg); }
-  50%      { transform: translateY(-6px) rotate(0.5deg); }
-}
-.card-float { animation: cardFloat 5.5s ease-in-out infinite; }
-
-/* Stempler glider blødt ind og ud med et lille spring (fluid) */
-.stamp-mark {
-  opacity: 0;
-  transform: scale(0.3);
-  transition: opacity 300ms ease, transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.stamp-mark.is-on {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Belønnings-stempel: blød mosgrøn puls når kortet er fuldt */
-@keyframes stampReward {
-  0%   { opacity: 0.6; transform: scale(1); }
-  70%  { opacity: 0; transform: scale(1.7); }
-  100% { opacity: 0; transform: scale(1.7); }
-}
-.stamp-reward-glow { animation: stampReward 1.8s ease-out infinite; }
-
-/* Premium sheen der stryger hen over kortet en gang imellem */
-@keyframes stampSheen {
-  0%   { transform: translateX(0) skewX(-16deg); }
-  35%  { transform: translateX(410px) skewX(-16deg); }
-  100% { transform: translateX(410px) skewX(-16deg); }
-}
-.stamp-sheen { animation: stampSheen 5.5s ease-in-out infinite; }
-
-/* Dopamin-fejring når det 8. stempel lander */
-@keyframes stampSpark {
-  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
-  70%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.35); }
-}
-.stamp-spark { animation: stampSpark 1100ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-
-/* "Ding": tydelig ring der springer ud fra det optjente stempel */
-@keyframes stampRewardBurst {
-  0%   { opacity: 0.85; transform: scale(1); }
-  100% { opacity: 0;    transform: scale(2.7); }
-}
-.stamp-reward-burst { animation: stampRewardBurst 850ms ease-out both; }
-
-@keyframes stampCheer {
-  0%   { opacity: 0.7; transform: scale(1); }
-  100% { opacity: 0;   transform: scale(1.08); }
-}
-.stamp-cheer { animation: stampCheer 1000ms ease-out both; }
-
-@media (prefers-reduced-motion: reduce) {
-  .card-float, .stamp-sheen, .stamp-reward-glow, .stamp-spark, .stamp-cheer, .stamp-reward-burst { animation: none !important; }
-  .stamp-mark { transition: none !important; }
-}
-
 /* Folka Kort: viften af loyalitetskort i porteføljen */
 .folka-pas { transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease; will-change: transform; }
 .folka-daemp { transition: opacity 620ms ease; pointer-events: none; }
