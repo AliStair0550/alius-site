@@ -16,6 +16,16 @@
 # Vercels klon (dybde 10), eller fejler git, er svaret 1.
 # ============================================================
 
+# En ny miljøvariabel (fx en ny API-nøgle) når først den kørende side ved
+# næste byg, men ændrer ingen fil. "[byg]" i commit-beskeden tvinger et
+# byg: git commit --allow-empty -m "Vercel: ny nøgle [byg]"
+case "${VERCEL_GIT_COMMIT_MESSAGE:-}" in
+  *"[byg]"*)
+    echo "[byg] i commit-beskeden. Bygger."
+    exit 1
+    ;;
+esac
+
 PREV="${VERCEL_GIT_PREVIOUS_SHA:-}"
 # Kun til test lokalt: hvilken commit der sammenlignes med. Vercel sætter den ikke.
 TIL="${VERCEL_IGNORE_TIL:-HEAD}"
