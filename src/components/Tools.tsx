@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { PAA_PAUSE } from "@/lib/pulse-pause";
+import { finnPaaPause } from "@/lib/agenter/pause";
 
 export default function Tools() {
+  const finnPause = finnPaaPause();
   return (
     // Samme sand som "Sæt strøm til jeres processer", på hele bredden, så
     // sektionen skiller sig fra "Om mig" over den.
@@ -72,9 +74,11 @@ export default function Tools() {
         <Link href="/agenter" className="p-6 border border-moss flex flex-col gap-2 group hover:bg-moss/5 transition-colors">
           <div className="w-2 h-2 rounded-full bg-moss mb-1" />
           <div className="font-[400] text-[0.9rem] text-ink">Agenter</div>
-          <div className="font-[200] text-[0.7rem] text-slate">Agenter · Hver morgen</div>
+          <div className="font-[200] text-[0.7rem] text-slate">{finnPause ? "Agenter · Holder pause" : "Agenter · Hver morgen"}</div>
           <div className="font-[200] text-[0.8rem] text-stone leading-[1.7] flex-1">
-            Finn Finans læser danske økonomital hver morgen og skriver det vigtigste kort. Hvert tal har en kilde.
+            {finnPause
+              ? "Finn Finans læste danske økonomital hver morgen og skrev det vigtigste kort. Han holder pause nu; analyserne og arkivet står."
+              : "Finn Finans læser danske økonomital hver morgen og skriver det vigtigste kort. Hvert tal har en kilde."}
           </div>
           <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-2 group-hover:opacity-70 transition-opacity">
             Mød Finn &rarr;

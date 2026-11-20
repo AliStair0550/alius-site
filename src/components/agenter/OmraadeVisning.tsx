@@ -25,6 +25,7 @@ export default function OmraadeVisning({
   regnskaber,
   kalendere,
   idag,
+  pause = null,
 }: {
   o: Omraade;
   analyse: Analyse | null;
@@ -36,6 +37,8 @@ export default function OmraadeVisning({
   /** Kun på siden om virksomheder. null når kalenderne ikke kunne hentes. */
   kalendere?: SelskabsKalender[] | null;
   idag: string;
+  /** Linjen om Finns pause. Er den sat, vises Spørg Finn ikke, og analysen er den seneste, ikke dagens. */
+  pause?: string | null;
 }) {
   const laesning = analyse?.omraader[o.noegle];
   const usaedvanligt = analyse?.usaedvanligt.filter((u) => u.omraade === o.noegle) ?? [];
@@ -66,7 +69,11 @@ export default function OmraadeVisning({
         </nav>
       </header>
 
-      {analyse && (
+      {pause && (
+        <p className="self-start rounded-full bg-parchment border border-fog px-4 py-2 font-[300] text-[0.82rem] text-stone">{pause}</p>
+      )}
+
+      {analyse && !pause && (
         <SpoergFinn
           omraade={{ noegle: o.noegle, navn: o.navn }}
           forslag={[
@@ -79,7 +86,7 @@ export default function OmraadeVisning({
 
       {analyse?.dagens?.omraade === o.noegle && (
         <section aria-labelledby="dagens-titel">
-          <Sektionstitel id="dagens-titel">Dagens analyse handler om {o.navn.toLowerCase()}</Sektionstitel>
+          <Sektionstitel id="dagens-titel">{pause ? "Seneste analyse" : "Dagens analyse"} handler om {o.navn.toLowerCase()}</Sektionstitel>
           <Glid>
             <DagensKort d={analyse.dagens} />
           </Glid>
@@ -208,7 +215,7 @@ export default function OmraadeVisning({
           href="/agenter/finn"
           className="inline-flex rounded-full border border-clay bg-parchment px-3.5 py-1.5 font-[300] text-[0.75rem] text-ink no-underline hover:border-moss active:scale-[0.97] transition-[transform,border-color] duration-100"
         >
-          Tilbage til dagens brief
+          {pause ? "Tilbage til den seneste brief" : "Tilbage til dagens brief"}
         </Link>
       </nav>
     </div>

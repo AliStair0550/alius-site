@@ -12,10 +12,18 @@ import { sendEmail } from "../email";
 import { getAlertRecipient } from "../pulse-email";
 import { danskDag } from "./finn/pipeline";
 import { finnAlarm } from "./dato";
+import { FINN_PAUSE_TEKST, finnPaaPause } from "./pause";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-export async function tjekFinn(prisma: PrismaClient, nu: Date, opt: { dry: boolean }): Promise<{ alarm: string | null; mailet: boolean }> {
+export async function tjekFinn(
+  prisma: PrismaClient,
+  nu: Date,
+  opt: { dry: boolean }
+): Promise<{ alarm: string | null; mailet: boolean } | { pause: string }> {
+  // Under pausen er en manglende brief forventet. Det meldes som pause,
+  // ikke som "ingen alarm", så svaret ikke ligner en dag hvor alt kørte.
+  if (finnPaaPause(nu)) return { pause: `Finn holder pause fra ${FINN_PAUSE_TEKST}` };
   const idag = danskDag(nu);
   const dato = new Date(`${idag}T00:00:00Z`);
   const [done, seneste] = await Promise.all([

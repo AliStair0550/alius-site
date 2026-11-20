@@ -8,6 +8,10 @@ import Maskinrummet from "@/components/Maskinrummet";
 import { CTA, Footer } from "@/components/CTAFooter";
 import type { Metadata } from "next";
 
+// Finns pause slår til på et tidspunkt, ikke ved deploy, og kortet om
+// agenterne skal følge med. Se src/lib/agenter/pause.ts.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };

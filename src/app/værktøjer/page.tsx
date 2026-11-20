@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { PAA_PAUSE } from "@/lib/pulse-pause";
+import { finnPaaPause } from "@/lib/agenter/pause";
+
+// Finns pause slår til på et tidspunkt, ikke ved deploy. Siden genskabes
+// hver time, så teksten følger med. Se src/lib/agenter/pause.ts.
+export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata({
   title: "Værktøjer · Alius",
@@ -47,24 +52,26 @@ const PULSE: Vaerktoj = {
   ],
 };
 
-const AGENTER: Vaerktoj = {
+const agenter = (pause: boolean): Vaerktoj => ({
   slug: "agenter",
   name: "Agenter",
-  tagline: "Agenter der læser for dig hver morgen.",
-  description:
-    "Finn Finans læser danske økonomital og nyheder hver morgen og skriver det vigtigste i fem til syv punkter. Hvert tal har en kilde, og du kan se præcis hvordan briefen blev lavet.",
+  tagline: pause ? "Agenter der læser åbne kilder og skriver det vigtigste kort." : "Agenter der læser for dig hver morgen.",
+  description: pause
+    ? "Finn Finans læste danske økonomital og nyheder hver morgen og skrev det vigtigste kort. Han holder pause nu, men analyserne, arkivet og tallene står. Hvert tal har en kilde."
+    : "Finn Finans læser danske økonomital og nyheder hver morgen og skriver det vigtigste i fem til syv punkter. Hvert tal har en kilde, og du kan se præcis hvordan briefen blev lavet.",
   audience: "For ledere og husholdninger der vil vide hvad tallene siger, uden at læse dem alle.",
   href: "/agenter",
-  accentLabel: "Agenter · Hver morgen",
+  accentLabel: pause ? "Agenter · Holder pause" : "Agenter · Hver morgen",
   subLinks: [
-    { name: "Finn Finans", href: "/agenter/finn", status: "live", meta: "dansk økonomi" },
+    // Arkivet kan stadig læses, så linket bliver, også under pausen.
+    { name: "Finn Finans", href: "/agenter/finn", status: "live", meta: pause ? "holder pause, arkiv" : "dansk økonomi" },
     { name: "To agenter mere", href: "#", status: "coming", meta: "kommer" },
   ],
-};
+});
 
-const VAERKTOEJER: Vaerktoj[] = [
+const vaerktoejer = (finnPause: boolean): Vaerktoj[] => [
   ...(PAA_PAUSE ? [] : [PULSE]),
-  AGENTER,
+  agenter(finnPause),
   {
     slug: "tankeprofil",
     name: "Personlighedsprofil",
@@ -138,7 +145,7 @@ export default function VaerktoejerPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-16 md:gap-24">
-          {VAERKTOEJER.map((v) => (
+          {vaerktoejer(finnPaaPause()).map((v) => (
             <article
               key={v.slug}
               className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 md:gap-16 pb-12 md:pb-16 border-b border-ink/10 last:border-b-0"

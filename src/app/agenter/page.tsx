@@ -6,10 +6,11 @@ import { AgentAvatar, Silhuet } from "@/components/agenter/Avatar";
 import { hentAgenter, hentBrief, hentSenesteKoersel, type AgentKort } from "@/lib/agenter/laes";
 import { danskDag } from "@/lib/agenter/finn/pipeline";
 import { langDato } from "@/lib/agenter/dato";
+import { finnPaaPause } from "@/lib/agenter/pause";
 
 export const metadata: Metadata = pageMetadata({
   title: "Agenter · Alius",
-  description: "Agenter der læser åbne kilder hver morgen og skriver det vigtigste kort. Finn Finans læser dansk økonomi.",
+  description: "Agenter der læser åbne kilder og skriver det vigtigste kort. Finn Finans om dansk økonomi, hvert tal med kilde.",
   path: "/agenter",
 });
 
@@ -30,7 +31,7 @@ async function Taeller({ agent }: { agent: AgentKort }) {
     return <>Læser dagens kilder lige nu.</>;
   }
   if (brief && brief.sourcesRead !== null) {
-    return <>Læste {brief.sourcesRead} kilder {langDato(brief.dato)}.</>;
+    return <>Læste {brief.sourcesRead} kilder {langDato(brief.dato)}.{finnPaaPause() ? " Holder pause." : ""}</>;
   }
   return <>Har ikke læst noget endnu.</>;
 }
@@ -38,6 +39,7 @@ async function Taeller({ agent }: { agent: AgentKort }) {
 export default async function AgenterSide() {
   const agenter = (await hentAgenter()).filter((a) => a.status === "ACTIVE");
   const ledige = Math.max(0, PLADSER - agenter.length);
+  const pause = finnPaaPause();
 
   return (
     <Ramme etiket="Agenter">
@@ -46,8 +48,9 @@ export default async function AgenterSide() {
           Agenter
         </h1>
         <p className="font-[200] text-[1.05rem] text-slate leading-[1.8] mb-14">
-          Agenter der læser åbne kilder hver morgen og skriver det vigtigste kort. Hvert tal har en kilde. Én er i gang.
-          To er på vej.
+          {pause
+            ? "Agenter der læser åbne kilder og skriver det vigtigste kort. Hvert tal har en kilde. Finn holder pause; hans analyser og arkiv står. To er på vej."
+            : "Agenter der læser åbne kilder hver morgen og skriver det vigtigste kort. Hvert tal har en kilde. Én er i gang. To er på vej."}
         </p>
       </div>
 
@@ -62,13 +65,16 @@ export default async function AgenterSide() {
                 <AgentAvatar noegle={a.avatar} size={96} />
               </div>
               <div className="font-[400] text-[0.95rem] text-ink mb-1">{a.name}</div>
-              <div className="font-[200] text-[0.85rem] text-stone leading-[1.7] mb-2">{a.tagline}</div>
+              <div className="font-[200] text-[0.85rem] text-stone leading-[1.7] mb-2">
+                {/* Undertitlen står i databasen og siger "hver morgen". Under pausen siges det der er sandt. */}
+                {pause && a.id === "finn" ? "Holder pause. Analyserne af dansk økonomi står i arkivet." : a.tagline}
+              </div>
               <div className="font-[300] text-[0.78rem] text-stone leading-[1.6] mb-5">{a.notDoing}</div>
               <div className="mt-auto pt-4 border-t border-fog font-[300] text-[0.72rem] text-moss tracking-[0.02em]">
                 <Taeller agent={a} />
               </div>
               <div className="font-[300] text-[0.72rem] tracking-[0.1em] uppercase text-moss mt-4 group-hover:opacity-70 transition-opacity">
-                Læs dagens brief &rarr;
+                {pause ? "Læs den seneste brief" : "Læs dagens brief"} &rarr;
               </div>
             </Link>
           </li>

@@ -266,3 +266,22 @@ med kilder, og alle kald gennem samme loft.
 
 Fase 2 og 3 kalder Anthropic fra Vercel. Skriv dem gennem `kaldMedLoft`,
 så loftet også gælder dér.
+
+## Pause fra 2. december 2026
+
+Kreditten fra Anthropic-kampagnen slutter 2. december 2026 kl. 01.00
+dansk tid, og nøglen `alius-agenter-prod` udløber med den. Fra det
+tidspunkt holder Finn pause. Tidspunktet står ét sted,
+`src/lib/agenter/pause.ts`, og slår til af sig selv uden deploy:
+
+- `agent-finn.ts` og `finn-kvalitet.ts` stopper før klienten oprettes
+  og skriver `PAUSE` i loggen. Workflowene kører stadig og er grønne.
+- `/api/cron/agenter` udløser ikke og svarer `{ slags: "pause" }`.
+- Driftsalarmen melder `{ pause }` i stedet for "dagens brief mangler".
+- Spørg Finn vises ikke, og ruten svarer `status: "pause"` med 503.
+- Siderne siger at Finn holder pause og viser den seneste brief.
+  Forsiden, `/værktøjer` og agentsiderne genskabes hver time.
+
+Intet slettes. Arkiv, replay, områdesider og regnskabstal står, og
+tallene på områdesiderne kommer fra Pulse og bliver ved med at
+opdateres. Sådan tændes der igen: står øverst i `pause.ts`.

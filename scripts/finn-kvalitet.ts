@@ -29,6 +29,7 @@ import {
   type Dag,
   type DagsVurdering,
 } from "../src/lib/agenter/finn/kvalitet";
+import { FINN_PAUSE_TEKST, finnPaaPause } from "../src/lib/agenter/pause";
 import { kraevSkriveret } from "./write-guard";
 
 const DRY = process.argv.includes("--dry");
@@ -74,6 +75,10 @@ async function dataForDag(dag: string): Promise<Map<string, Post>> {
 
 async function main() {
   if (!DRY) kraevSkriveret("finn-kvalitet.ts");
+  if (finnPaaPause() && !DRY) {
+    console.log(`PAUSE: Finn holder pause fra ${FINN_PAUSE_TEKST}. Intet kvalitetstjek, intet kald til Anthropic.`);
+    return;
+  }
   const start = new Date();
   // Til og med i dag: mandagens rapport kører efter morgenens analyse.
   const idag = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));

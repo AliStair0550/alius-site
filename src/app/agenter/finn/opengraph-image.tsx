@@ -55,7 +55,7 @@ export default function Image() {
             </div>
             <div style={{ fontSize: 92, color: INK, fontWeight: 300, letterSpacing: -2, lineHeight: 1.05, marginTop: 22 }}>Finn Finans</div>
             <div style={{ fontSize: 34, color: STONE, lineHeight: 1.35, marginTop: 22, maxWidth: 560 }}>
-              Dansk økonomi hver morgen kl. 6. Hvert tal med kilde.
+              Dansk økonomi, læst og forklaret. Hvert tal med kilde.
             </div>
             <div style={{ display: "flex", marginTop: 36 }}>
               <div style={{ display: "flex", borderRadius: 999, background: MOSS, color: PARCH, fontSize: 24, padding: "12px 26px" }}>

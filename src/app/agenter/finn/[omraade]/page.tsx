@@ -7,6 +7,8 @@ import { hentBrief } from "@/lib/agenter/laes";
 import { hentOmraadeTal, hentRegnskabskalender, hentRegnskabsoversigt } from "@/lib/agenter/omraade-data";
 import { danskDag } from "@/lib/agenter/finn/pipeline";
 import { OMRAADER, omraade } from "@/lib/agenter/finn/omraader";
+import { finnPaaPause } from "@/lib/agenter/pause";
+import { pauseLinje } from "@/lib/agenter/dato";
 
 // Områdesiderne. Kun de syv områder findes; alt andet er 404. Datoer
 // under /agenter/finn/ omdirigeres til arkivet i next.config.ts, før de
@@ -50,7 +52,7 @@ export default async function OmraadeSide({ params }: Props) {
   ]);
   return (
     <FinnRum undertitel={o.navn} tilbage={{ href: "/agenter/finn", tekst: "Finn" }}>
-      <OmraadeVisning o={o} analyse={brief?.analyse ?? null} briefDato={brief?.dato ?? null} caveats={brief?.caveats ?? []} tal={tal} regnskaber={regnskaber} kalendere={kalendere} idag={danskDag(new Date())} />
+      <OmraadeVisning o={o} analyse={brief?.analyse ?? null} briefDato={brief?.dato ?? null} caveats={brief?.caveats ?? []} tal={tal} regnskaber={regnskaber} kalendere={kalendere} idag={danskDag(new Date())} pause={finnPaaPause() ? pauseLinje(brief?.dato ?? null) : null} />
     </FinnRum>
   );
 }

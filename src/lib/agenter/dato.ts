@@ -1,4 +1,5 @@
 import type { BriefVisning, KoerselStatus } from "./laes";
+import { FINN_PAUSE_TEKST } from "./pause";
 
 const MAANEDER = ["januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"];
 
@@ -18,9 +19,18 @@ export function danskTimeNu(): number {
  * Hver tilstand siges for sig: stoppet af budget er ikke det samme som
  * fejlet, og "ikke kl. 6 endnu" er ikke det samme som "udeblevet".
  */
-export function dagensStatus(idag: string, time: number, vist: BriefVisning | null, seneste: KoerselStatus | null): string | null {
-  if (vist && vist.dato === idag) return null;
+export function dagensStatus(
+  idag: string,
+  time: number,
+  vist: BriefVisning | null,
+  seneste: KoerselStatus | null,
+  paaPause = false
+): string | null {
   const fra = vist ? ` Her er briefen fra ${langDato(vist.dato)}.` : "";
+  // Pausen siges før alt andet: en brief der udebliver under pausen, er
+  // ikke "ikke kommet endnu".
+  if (paaPause) return pauseLinje(vist?.dato ?? null);
+  if (vist && vist.dato === idag) return null;
   if (seneste && seneste.dato === idag) {
     if (seneste.status === "BUDGET_STOPPED") return `Dagens brief blev stoppet af budgetloftet.${fra}`;
     if (seneste.status === "FAILED") return `Dagens brief blev ikke færdig.${fra}`;
@@ -28,6 +38,11 @@ export function dagensStatus(idag: string, time: number, vist: BriefVisning | nu
   }
   if (time < 7) return `Dagens brief kommer kl. 6.${fra}`;
   return `Dagens brief er ikke kommet.${fra}`;
+}
+
+/** Linjen om Finns pause, med datoen for det der vises. */
+export function pauseLinje(vistDato: string | null): string {
+  return `Finn holder pause fra ${FINN_PAUSE_TEKST} og skriver ikke nye briefs.${vistDato ? ` Her er den seneste, fra ${langDato(vistDato)}.` : ""}`;
 }
 
 /**

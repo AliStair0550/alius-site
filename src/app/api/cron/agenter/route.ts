@@ -9,6 +9,7 @@
 import { NextResponse } from "next/server";
 import { udloesAgent } from "@/lib/agenter/dispatch";
 import { sendPulseErrorEmail } from "@/lib/pulse-email";
+import { FINN_PAUSE_TEKST, finnPaaPause } from "@/lib/agenter/pause";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,11 @@ function isAuthorized(req: Request): boolean {
 
 export async function GET(req: Request) {
   if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Pause er sin egen tilstand: ikke udløst, men heller ikke en fejl.
+  if (finnPaaPause()) {
+    return NextResponse.json({ ok: true, udfald: { slags: "pause", siden: FINN_PAUSE_TEKST } });
+  }
 
   const tving = new URL(req.url).searchParams.get("tving") === "1";
   const udfald = await udloesAgent("agent-finn.yml", new Date(), tving);

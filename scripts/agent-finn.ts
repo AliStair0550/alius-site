@@ -17,12 +17,18 @@ import { withDbRetry } from "../src/lib/db";
 import { laesBudgetConfig } from "../src/lib/agenter/budget";
 import { nyKlient } from "../src/lib/agenter/claude";
 import { AGENT_ID, danskDag, koerFinn } from "../src/lib/agenter/finn/pipeline";
+import { FINN_PAUSE_TEKST, finnPaaPause } from "../src/lib/agenter/pause";
 import { kraevSkriveret } from "./write-guard";
 
 const TVING = process.argv.includes("--tving");
 
 async function main() {
   kraevSkriveret("agent-finn.ts");
+  // Før klienten oprettes: under pausen kaldes Anthropic slet ikke.
+  if (finnPaaPause()) {
+    console.log(`PAUSE: Finn holder pause fra ${FINN_PAUSE_TEKST}. Intet kald til Anthropic. Se src/lib/agenter/pause.ts.`);
+    return;
+  }
   // Læses før noget andet. Et loft der ikke kan læses, stopper kørslen.
   const cfg = laesBudgetConfig();
   const klient = nyKlient();

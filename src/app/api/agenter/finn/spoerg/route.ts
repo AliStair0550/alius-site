@@ -11,11 +11,19 @@ import { prisma } from "@/lib/db";
 import { laesBudgetConfig } from "@/lib/agenter/budget";
 import { nyKlient } from "@/lib/agenter/claude";
 import { spoergFinn } from "@/lib/agenter/finn/spoerg";
+import { FINN_PAUSE_TEKST, finnPaaPause } from "@/lib/agenter/pause";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  // Feltet vises ikke under pausen, men en side der stod åben, kan stadig sende.
+  if (finnPaaPause()) {
+    return NextResponse.json(
+      { status: "pause", tekst: `Finn holder pause fra ${FINN_PAUSE_TEKST} og svarer ikke på spørgsmål.`, kilder: [], tilbage: -1 },
+      { status: 503 }
+    );
+  }
   const salt = process.env.ADMIN_SECRET;
   if (!salt) {
     console.error("Spørg Finn: ADMIN_SECRET mangler, kan ikke hashe besøgende.");

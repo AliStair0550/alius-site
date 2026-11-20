@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 import { FinnAvatar } from "@/components/agenter/Avatar";
 
 type Svar = {
-  status: "svaret" | "ikke_sporbar" | "budget" | "graense" | "kredit" | "fejl" | "ugyldig";
+  status: "svaret" | "ikke_sporbar" | "budget" | "graense" | "kredit" | "fejl" | "ugyldig" | "pause";
   tekst: string;
   kilder: { navn: string; url: string }[];
   tilbage: number;

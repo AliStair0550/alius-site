@@ -44,7 +44,7 @@ export async function GET(req: Request) {
 
   // Finn tjekkes for sig og først, også når Pulse holder pause. En fejl
   // her må ikke tage Pulses tjek med sig, og omvendt; den siges i svaret.
-  let finn: { alarm: string | null; mailet: boolean } | { fejl: string };
+  let finn: Awaited<ReturnType<typeof tjekFinn>> | { fejl: string };
   try {
     finn = await tjekFinn(prisma, new Date(), { dry: dryRun });
   } catch (e) {
