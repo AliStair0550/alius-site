@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FolkaKortViz from "./FolkaKortViz";
+import AstroBallViz from "./AstroBallViz";
 
 const projects = [
   {
@@ -98,6 +99,18 @@ const projects = [
     overlay: { title: "Where brands\nmeet culture.", tone: "ink/50" as const },
     link: "https://www.sgacreatives.com",
     layout: "image-left" as const,
+  },
+  {
+    name: "Astro Ball",
+    type: "Spil · iPhone · App Store",
+    desc: "Du er en komet, og vejen er spærret. Astro Ball er et brick breaker-spil til iPhone, lavet til at spille med én tommelfinger og inspireret af de klassiske arkadespil.\n\nTolv baner står mellem dig og kernen af The Drift, og hver af dem er bygget anderledes: tårne, øer, en ambolt, en lunte. Ram én sprængklods, og se kædereaktionen æde sig gennem halvdelen af banen. Fang mere end tyve power-ups undervejs, men hold øje med farven: grønne hjælper, røde straffer, og de gule er et møntkast.\n\nIngen reklamer, ingen køb, ingen konto og ingen ventetid. Hele spillet er gratis.",
+    Viz: AstroBallViz,
+    link: "https://apps.apple.com/us/app/astro-ball-the-drift/id6805027959",
+    layout: "image-right" as const,
+    // Telefonen står på højkant; i den smalle kolonne og i 16:10 på mobil
+    // ville den blive under 100 px bred.
+    bredtBillede: true,
+    hoejPaaMobil: true,
   },
 ];
 
@@ -296,7 +309,7 @@ export default function Portfolio() {
                 {p.layout === "image-right" && (
                   <ProjectInfo p={p} />
                 )}
-                <div className="aspect-[16/10] relative overflow-hidden rounded-sm">
+                <div className={`${"hoejPaaMobil" in p && p.hoejPaaMobil ? "aspect-[4/5] md:aspect-[16/10]" : "aspect-[16/10]"} relative overflow-hidden rounded-sm`}>
                   <ProjectImage p={p} />
                 </div>
                 {p.layout === "image-left" && (
