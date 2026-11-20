@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import FolkaKortViz from "./FolkaKortViz";
 import AstroBallViz from "./AstroBallViz";
 
@@ -9,7 +8,7 @@ const projects = [
     name: "Karnov Group",
     type: "Strategi · Kommerciel · Automatisering",
     desc: "Fire år i krydsfeltet mellem strategi, kommerciel udvikling og eksekvering. Direkte leverancer: produktanalyser på tværs af platformen, forhandling og partnerskaber på trykprodukter, rationalisering af kommercielle produkter, automatisering af finansielle modeller samt rapportering og automatisering af CAPEX-projekter. Lead og facilitering på den nordiske strategi og lancering af den juridiske platform DIB på det danske marked.",
-    image: "/karnov.png",
+    image: "karnov",
     link: "https://www.karnovgroup.com",
     layout: "image-right" as const,
   },
@@ -17,7 +16,7 @@ const projects = [
     name: "Arbejdernes Landsbank",
     type: "Cash Management · Projektledelse · Bank",
     desc: "Strategisk projektleder på centrale initiativer på tværs af forretning og IT. Direkte leverancer: rådgivningskoncept og change management for bankens Cash Management-område, udvikling og automatisering af Netbank Erhverv, implementering af nyt intranet, forhandling med samarbejdspartnere og udvikling af finansielle produkter.",
-    image: "/al.jpg",
+    image: "al",
     link: "https://www.al-bank.dk",
     layout: "image-left" as const,
   },
@@ -36,7 +35,7 @@ const projects = [
     name: "SSTUDIO",
     type: "Branding · Web · Automatisering",
     desc: "Branding af skønhedssalon i Skive: ny visuel identitet, hjemmeside og digital strategi. Herudover automatisering af finansiel rapportering og andre driftsnære leverancer.",
-    image: "/stylister.avif",
+    image: "stylister",
     cornerLogo: "/sstudio-logo.svg",
     link: "https://sstudio.dk",
     layout: "image-left" as const,
@@ -53,8 +52,8 @@ const projects = [
     name: "Cafe Christian IX",
     type: "Hjemmeside · Design",
     desc: "Restaurant-hjemmeside med online menu og mobil-optimering.",
-    bgImage: "https://www.cafe-cix.dk/assets/Billede34.jpg",
-    logo: "https://www.cafe-cix.dk/assets/logo-white.png",
+    bgImage: "cafe-cix",
+    logo: "/portfolio/cafe-cix-logo.png",
     link: "https://cafe-cix.dk",
     layout: "image-left" as const,
   },
@@ -63,7 +62,7 @@ const projects = [
     type: "Branding · Hjemmeside",
     desc: "Streetfood brand og hjemmeside for smash burger koncept. Identitet, tone of voice og web.",
     bg: "#F5F2F0",
-    logo: "/logo_darkpurple.png",
+    logo: "/portfolio/smashii-logo.webp",
     link: "https://smashii.dk",
     layout: "image-right" as const,
   },
@@ -71,7 +70,7 @@ const projects = [
     name: "Markus Brandt",
     type: "Brandidentitet · Hjemmeside",
     desc: "Brandidentitet og hjemmeside for dansk artist og sangskriver. Bordeaux og varm guld palette.",
-    image: "https://markusbrandt.dk/assets/hero.avif",
+    image: "markusbrandt",
     overlay: { title: "Markus Brandt" },
     link: "https://markusbrandt.dk",
     layout: "image-left" as const,
@@ -80,7 +79,7 @@ const projects = [
     name: "Sens Food",
     type: "Iværksætteri · Produkt · Brand",
     desc: "Grundlagde og drev fødevarevirksomhed med fokus på dressinger. Stod for produktudvikling, brandopbygning, marketing og forhandling af distributionsaftaler med danske supermarkedskæder.",
-    image: "/sensfood.jpg",
+    image: "sensfood",
     link: "https://sensfood.dk",
     layout: "image-right" as const,
   },
@@ -89,11 +88,11 @@ const projects = [
     type: "Hjemmeside · Visuel identitet",
     desc: "Hjemmeside og visuel identitet for SGA creatives, der forbinder brands med kreative kræfter og leder kampagner og kulturelle oplevelser inden for mode, sneakers og lifestyle. Siden viser projekter for blandt andre Nike, adidas og Timberland.",
     // Heroens hovedbillede fra sgacreatives.com: Timberland × Rezet-eventet.
-    // Hentet 27. oktober 2026 i 1040 px webp og gemt lokalt, så kortet ikke
-    // afhænger af at SGA's side svarer. Billedet står på højkant og kortet
+    // Hentet 27. oktober 2026 og gemt lokalt, så kortet ikke afhænger af at
+    // SGA's side svarer. Billedet står på højkant og kortet
     // er 16:10; objectPosition holder ansigterne og støvlen i billedet i
     // stedet for kun æskerne forneden.
-    image: "/sga-timberland.webp",
+    image: "sga",
     objectPosition: "50% 12%",
     // Linjeskiftet følger SGA's egen hero: "Where brands / meet culture."
     overlay: { title: "Where brands\nmeet culture.", tone: "ink/50" as const },
@@ -114,16 +113,45 @@ const projects = [
   },
 ];
 
+// ── Billederne ───────────────────────────────────────────────────────────────
+// Alle billeder ligger færdigskalerede i public/portfolio i to bredder, som
+// AVIF og WebP (lavet 20. november 2026 med sharp, AVIF q50, WebP q72).
+// Kortene viser dem højst 640 px brede, så 1280 dækker skærme med dobbelt
+// tæthed. De serveres direkte fra CDN'en uden Vercels billedoptimering, som
+// skulle skalere hvert billede om ved første visning og sendte Markus
+// Brandts hero videre i 2,2 MB. Nyt billede: læg det i to bredder i
+// public/portfolio med navnet <navn>-720 og <navn>-1280.
+const STOERRELSER = "(max-width: 767px) 100vw, 640px";
+/** Billeder hvis original er smallere end 1280 px. */
+const FAKTISK_BREDDE: Record<string, number> = { stylister: 1250, sga: 1040 };
+
+function Foto({ navn, alt, className = "", style }: { navn: string; alt: string; className?: string; style?: React.CSSProperties }) {
+  const saet = (format: string) =>
+    `/portfolio/${navn}-720.${format} 720w, /portfolio/${navn}-1280.${format} ${FAKTISK_BREDDE[navn] ?? 1280}w`;
+  return (
+    <picture>
+      <source type="image/avif" srcSet={saet("avif")} sizes={STOERRELSER} />
+      <source type="image/webp" srcSet={saet("webp")} sizes={STOERRELSER} />
+      <img
+        src={`/portfolio/${navn}-1280.webp`}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className={`absolute inset-0 h-full w-full object-cover ${className}`}
+        style={style}
+      />
+    </picture>
+  );
+}
+
 // ── Cykelmov: butiks-hero med logo (roterende hjul) og overskrift ───────────
 function CykelmovViz() {
   return (
     <>
-      <Image
-        src="/cykelmov.jpg"
+      <Foto
+        navn="cykelmov"
         alt="Cykelmov cykelbutik på Nørrebrogade"
-        fill
-        sizes="(max-width: 767px) 100vw, 640px"
-        className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+        className="transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
       />
       <div
         className="absolute inset-0"
@@ -162,12 +190,10 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("image" in p && p.image) {
     return (
       <>
-        <Image
-          src={p.image}
+        <Foto
+          navn={p.image}
           alt={p.name}
-          fill
-          sizes="(max-width: 767px) 100vw, 640px"
-          className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+          className="transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
           style={"objectPosition" in p && p.objectPosition ? { objectPosition: p.objectPosition } : undefined}
         />
         {"overlay" in p && p.overlay && (
@@ -195,12 +221,10 @@ function ProjectImage({ p }: { p: (typeof projects)[number] }) {
   if ("bgImage" in p && p.bgImage) {
     return (
       <>
-        <Image
-          src={p.bgImage}
+        <Foto
+          navn={p.bgImage}
           alt={p.name}
-          fill
-          sizes="(max-width: 767px) 100vw, 640px"
-          className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
+          className="transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
         />
         <div className="absolute inset-0 bg-ink/50" />
         {"logo" in p && p.logo && (
