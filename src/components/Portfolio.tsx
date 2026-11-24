@@ -102,7 +102,7 @@ const projects = [
   {
     name: "Astro Ball",
     type: "Spil · iPhone · App Store",
-    desc: "Du er en komet, og vejen er spærret. Astro Ball er et brick breaker-spil til iPhone, lavet til at spille med én tommelfinger og inspireret af de klassiske arkadespil.\n\nTolv baner står mellem dig og kernen af The Drift, og hver af dem er bygget anderledes: tårne, øer, en ambolt, en lunte. Ram én sprængklods, og se kædereaktionen æde sig gennem halvdelen af banen. Fang mere end tyve power-ups undervejs, men hold øje med farven: grønne hjælper, røde straffer, og de gule er et møntkast.\n\nIngen reklamer, ingen køb, ingen konto og ingen ventetid. Hele spillet er gratis.",
+    desc: "Du er en komet, og vejen er spærret. Et brick breaker-spil til iPhone, lavet til at spille med én tommelfinger, med tolv baner og mere end tyve power-ups. Ingen reklamer, ingen køb og ingen konto. Hele spillet er gratis.",
     Viz: AstroBallViz,
     link: "https://apps.apple.com/us/app/astro-ball-the-drift/id6805027959",
     layout: "image-right" as const,
