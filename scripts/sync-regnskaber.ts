@@ -41,6 +41,7 @@ type Udfald =
   | ({ slags: "skrevet"; indleveringer: number } & Optaelling)
   | { slags: "allerede_laest"; indleveringer: number }
   | { slags: "ingen_i_vindue" }
+  | { slags: "alle_sprunget_over"; indleveringer: number }
   | ({ slags: "toerloeb"; indleveringer: number } & Optaelling)
   | { slags: "fejl"; besked: string };
 
@@ -64,7 +65,9 @@ async function koerSelskab(s: Selskab): Promise<Udfald> {
     }
     return !hvorfor;
   });
-  if (medEsef.length === 0) return { slags: "ingen_i_vindue" };
+  // Der VAR indleveringer i vinduet; de blev alle sprunget over med grund.
+  // Det er ikke det samme som at der intet var.
+  if (medEsef.length === 0) return { slags: "alle_sprunget_over", indleveringer: alle.length };
 
   // Navnet efterprøves på det NYESTE regnskab først. Bekræfter det CVR'et,
   // kan ældre filer uden navn godtages. Se kontroller().
@@ -183,8 +186,10 @@ async function main() {
         : u.slags === "allerede_laest"
           ? `allerede læst (${u.indleveringer} indleveringer i vinduet)`
           : u.slags === "ingen_i_vindue"
-            ? "ingen regnskab med ESEF offentliggjort i vinduet"
-            : `FEJL: ${u.besked}`;
+            ? "ingen regnskab offentliggjort i vinduet"
+            : u.slags === "alle_sprunget_over"
+              ? `${u.indleveringer} indleveringer i vinduet, alle sprunget over (se grunden ovenfor)`
+              : `FEJL: ${u.besked}`;
     console.log(`  ${s.navn.padEnd(22)} ${t}`);
   }
   await prisma.$disconnect();

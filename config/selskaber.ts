@@ -74,7 +74,13 @@ export const SELSKABER: Selskab[] = [
   { cvr: "71186911", navn: "Demant", navnIRegnskab: "Demant A/S", valuta: "DKK" },
   { cvr: "24257843", navn: "GN Store Nord", navnIRegnskab: "GN Store Nord", valuta: "DKK" },
   { cvr: "54879415", navn: "ROCKWOOL", navnIRegnskab: "ROCKWOOL A/S", valuta: "EUR" },
-  { cvr: "20045078", navn: "Zealand Pharma", navnIRegnskab: "Zealand Pharma A/S", valuta: "DKK" },
+  {
+    cvr: "20045078",
+    navn: "Zealand Pharma",
+    navnIRegnskab: "Zealand Pharma A/S",
+    valuta: "DKK",
+    springOver: [{ sagsNummer: "X26-FT-70-BL", grund: "Q3-rapporten 2026 skriver DKK million, men ESEF-filen er mærket scale=3 (tusinder): aktiver 19.438 mio. kr. læses som 19,4 mio. kr. Halvårsrapporten X26-EW-04-BU er mærket rigtigt (scale=6). Fundet af skalaværnet 25/11 2026." }],
+  },
   {
     cvr: "62725214",
     navn: "NKT",
