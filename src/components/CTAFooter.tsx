@@ -258,7 +258,7 @@ export function Footer({ kant = true }: { kant?: boolean } = {}) {
       }`}
     >
       <div className="font-[200] text-[0.7rem] text-stone tracking-[0.05em]">
-        &copy; 2026 Alius - Vi bygger digitale maskiner. CVR 46910834
+        &copy; 2026 Alius - Vi bygger digitale maskiner. 46910834
       </div>
       <div className="flex gap-6">
         <a
